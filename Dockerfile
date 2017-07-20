@@ -6,6 +6,7 @@ MAINTAINER Vishal Seshagiri
 
 USER root
 RUN apt-get update
+RUN apt-get install -y iputils-ping
 RUN apt-get install -y git build-essential python-setuptools python-dev libffi-dev libssl-dev
 RUN apt-get install -y redis-tools software-properties-common libxrender1 libxext6 xfonts-75dpi xfonts-base
 RUN apt-get install -y libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev python-tk apt-transport-https libsasl2-dev libldap2-dev libtiff5-dev tcl8.6-dev tk8.6-dev
@@ -17,6 +18,7 @@ RUN apt-get install -y curl
 RUN apt-get install -y rlwrap
 RUN apt-get install redis-server
 RUN apt-get install -y nano
+
 
 #nodejs
 RUN apt-get install curl
@@ -33,27 +35,13 @@ USER root
 RUN pip install -e bench-repo
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
 
-#Scripts to be added to docker file
-#USER frappe
-#RUN bench init frappe-bench && cd frappe-bench
+USER frappe
+RUN bench init frappe-bench && cd frappe-bench
 
-#USER root
-#RUN cd /home/frappe
-#RUN ls -l
-# frappe-bench apps sites
-#
+USER root 
+ADD setup-frappe.sh /home/frappe/frappe-bench
+RUN chmod +x /home/frappe/frappe-bench/setup-frappe.sh
+RUN chown -R frappe:frappe /home/frappe/frappe-bench/setup-frappe.sh
 
-# On the host machine run
-# docker ps - to get the id of mariadb container
-# docker inspect <mariadb-container-id>
-# get the IP address of the mariadb container which looks similar to this
-
-# In the docker frappe container run
-# bench set-mariadb-host 172.20.0.2
-
-
-#RUN bench new-site site1
-#RUN bench get-app erpnext https://github.com/frappe/erpnext
-#RUN bench --site site1 install-app erpnext
-#RUN bench start
-
+USER frappe
+RUN getent hosts mariadb | awk '{ print $1 }'

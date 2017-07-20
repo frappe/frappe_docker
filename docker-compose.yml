@@ -19,13 +19,13 @@ services:
      - "8000:5000"
     stdin_open: true
     tty: true
-    #links:
-    #  - redis
-    #  - mariadb
-    network_mode: "host"
+    links:
+      - redis
+      - mariadb
+    #network_mode: "host"
     depends_on:
-      - "mariadb"
-      - "redis"
+      - mariadb
+      - redis
     volumes:
       - ./code:/home/frappe/code
 
