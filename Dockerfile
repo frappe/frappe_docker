@@ -29,19 +29,14 @@ RUN apt-get install -y wkhtmltopdf
 
 USER frappe
 WORKDIR /home/frappe
-RUN git clone https://github.com/frappe/bench bench-repo
 
 USER root
-RUN pip install -e bench-repo
-RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
+RUN cd /home/frappe
 
-USER frappe
-RUN bench init frappe-bench && cd frappe-bench
+#USER root
+#RUN pip install -e bench-repo
+#RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
+#RUN chown -R frappe:frappe /home/frappe
 
-USER root 
-ADD setup-frappe.sh /home/frappe/frappe-bench
-RUN chmod +x /home/frappe/frappe-bench/setup-frappe.sh
-RUN chown -R frappe:frappe /home/frappe/frappe-bench/setup-frappe.sh
-
-USER frappe
-RUN getent hosts mariadb | awk '{ print $1 }'
+#USER frappe
+#RUN bench init frappe-bench && cd frappe-bench
