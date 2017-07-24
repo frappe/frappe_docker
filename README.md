@@ -38,7 +38,7 @@ The docker-compose version used by us is docker-compose version 1.14.0, build c7
 
 Steps to be followed to build and run the docker image are :
 ```
-1. Run the bash script setup-frappe.sh (Modify it to executable if not already given using the chmod +x command) with the command ./setup-frappe.sh
+1. Run the start-container script
 2. After a few minutes the prompt will point to the App container with a root prefix to it (your current location is /home/frappe)
 3. You will be inside /home/frappe/code folder
 4. Make the bash_run_container.sh executable by chmod +x as in step 1 and run it with the command ./bash_run_container.sh
@@ -46,15 +46,13 @@ Steps to be followed to build and run the docker image are :
 6. You will be prompted to enter the Mysql db password it is 123
 7. You will be prompted to choose and enter an administrator password please enter and remember it for future use
 8. Once all the installation steps are complete you can access the Web based GUI by typing localhost:8000 on your browser.
-```
-
 ## Built With
 
 * [Docker](https://www.docker.com/)
 
 ## Contributing
 
-Feel free to contribute to this and make the process better
+Feel free to contribute to this and make the container better
 
 ## Authors
 
