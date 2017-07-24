@@ -63,26 +63,26 @@ A step by step series of examples that tell you have to get a development env ru
 
 		bench set-mariadb-host mariadb
 
-* Add a site
+* Add a site(make sure your current path is /home/frappe/frappe-bench)
 
 	Frappe apps are run by frappe sites and you will have to create at least one
 	site. The new-site command allows you to do that.
 
 		bench new-site site1.local
 
-* Add apps
+* Add apps(make sure your current path is /home/frappe/frappe-bench)
 
 	The get-app command gets remote frappe apps from a remote git repository and installs them. Example: [erpnext](https://github.com/frappe/erpnext)
 
 		bench get-app erpnext https://github.com/frappe/erpnext
 
-* Install apps
+* Install apps(make sure your current path is /home/frappe/frappe-bench)
 
 	To install an app on your new site, use the bench `install-app` command.
 
 		bench --site site1.local install-app erpnext
 
-* Start bench
+* Start bench(make sure your current path is /home/frappe/frappe-bench)
 
 	To start using the bench, use the `bench start` command
 
