@@ -55,7 +55,7 @@ A step by step series of examples that tell you have to get a development env ru
 
 2. Accessing the frappe container via CLI
 
-		./start-container.sh
+		./enter-container.sh
 		
 3. Create a new bench
 
