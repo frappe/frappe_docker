@@ -9,8 +9,6 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-
 [Docker](https://www.docker.com/)
 
 [Docker Compose](https://docs.docker.com/compose/overview/)
@@ -25,7 +23,7 @@ ports:
       - "8000:8000"
 ```
 
-Expose port 3306 inside the container on port 3306 on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/)
+Expose port 3306 inside the container on port 3306 on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/). The port 3306 of the mariadb container and port 8000 of the frappe container is exposed to the host machine and other containers.
 
 #### volumes:
 
@@ -34,7 +32,7 @@ volumes:
      - ./frappe:/home/frappe
      - ./conf/mariadb-conf.d:/etc/mysql/conf.d
 ```
-Expose a directory inside the host to the container.
+Exposes a directory inside the host to the container.
 
 #### links:
 
@@ -59,9 +57,8 @@ Express dependency between services, which has two effects:
 
 2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up web will also create and start db and redis.
 
-### Installing
+### Installation
 
-A step by step series of examples that tell you have to get a development env running
 #### 1. Installation Pre-requisites
 
 - Installing Docker Community Edition (version 17.06.0-ce)
@@ -74,14 +71,14 @@ A step by step series of examples that tell you have to get a development env ru
 
 #### 2. Build the container and install bench
 
-* Make sure your logged in as root. Build the container and install bench inside the container as a **non root** user
+* Build the container and install bench inside the container as a **non root** user
 	
 	This command requests the user to enter a password for the MySQL root user, please remember it for future use.
 	This command also builds the 3 linked containers docker-frappe, mariadb and redis using the docker-compose up -d, 
 	it creates a user frappe inside the docker-frappe container, whose working directory is /home/frappe. It also clones
 	the bench-repo from [here](https://github.com/frappe/bench)
 		
-		source build-container.sh
+		sudo source build-container.sh
 
 	Note: Please do not remove the bench-repo directory the above commands will create
 
@@ -104,37 +101,36 @@ A step by step series of examples that tell you have to get a development env ru
 
 		bench init frappe-bench && cd frappe-bench		
 
-4. Set the db host for bench(points bench to the mariadb container)
-	Since the 3 containers are linked 
+4. Set the db host for bench (points bench to the mariadb container) since the 3 containers are linked 
 
 		bench set-mariadb-host mariadb
 
-5. Add a site(make sure your current path is /home/frappe/frappe-bench)
+5. Add a site (make sure your current path is /home/frappe/frappe-bench)
 
 	Frappe apps are run by frappe sites and you will have to create at least one
 	site. The new-site command allows you to do that.
 
 		bench new-site site1.local
 
-6. Add apps(make sure your current path is /home/frappe/frappe-bench)
+6. Add apps (make sure your current path is /home/frappe/frappe-bench)
 
 	The get-app command gets remote frappe apps from a remote git repository and installs them. Example: [erpnext](https://github.com/frappe/erpnext)
 
 		bench get-app erpnext https://github.com/frappe/erpnext
 
-7. Install apps(make sure your current path is /home/frappe/frappe-bench)
+7. Install apps (make sure your current path is /home/frappe/frappe-bench)
 
 	To install an app on your new site, use the bench `install-app` command.
 
 		bench --site site1.local install-app erpnext
 
-8. Start bench(make sure your current path is /home/frappe/frappe-bench)
+8. Start bench (make sure your current path is /home/frappe/frappe-bench)
 
 	To start using the bench, use the `bench start` command
 
 		bench start
 		
-9. Exiting the frappe container and stopping all the containers gracefully
+9. Exiting the frappe container and stopping all the containers gracefully.
   
   		exit
   		docker-compose stop
@@ -162,7 +158,7 @@ The default username is "Administrator" and password is what you set when you cr
 
 ## Contributing
 
-Feel free to contribute to this project and make the containers better
+Feel free to contribute to this project and make the container better
 
 ## Authors
 
