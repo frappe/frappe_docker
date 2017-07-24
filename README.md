@@ -68,7 +68,7 @@ A step by step series of examples that tell you have to get a development env ru
 
 	Follow the steps given in [here](https://docs.docker.com/engine/installation)
 
-- Installing docker-compose(only for Linux users).Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose (version 1.14.0)
+- Installing Docker Compose (only for Linux users). Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose (version 1.14.0)
 
 	Follow the steps given in [here](https://docs.docker.com/compose/install/)
 
