@@ -82,9 +82,15 @@ A step by step series of examples that tell you have to get a development env ru
 
 		bench --site site1.local install-app erpnext
 
+* Start bench
+
+	To start using the bench, use the `bench start` command
+
+		bench start
+		
 * Exiting the frappe container and stopping all the containers gracefully
-  exit
   
+  		exit
   		docker-compose stop
 
 * Removing docker containers
