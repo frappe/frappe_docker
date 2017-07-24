@@ -1,6 +1,7 @@
 # frappe_docker
 
-Containerizing the frappe bench installation for a development environment
+* Docker file to run frappe in a container
+* Docker makes it much easier to deploy [frappe](https://github.com/frappe/frappe) on your development servers.
 
 ## Getting Started
 
@@ -10,10 +11,9 @@ These instructions will get you a copy of the project up and running on your loc
 
 What things you need to install the software and how to install them
 
-```
-Docker
-docker-compose
-```
+
+	[Docker](https://www.docker.com/)
+	[Docker Compose](https://docs.docker.com/compose/overview/)
 
 ### Installing
 
