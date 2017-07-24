@@ -1,6 +1,6 @@
 # frappe_docker
 
-* Docker file to run frappe in a container
+* Docker Compose file to run frappe in a container
 * Docker makes it much easier to deploy [frappe](https://github.com/frappe/frappe) on your development servers.
 
 ## Getting Started
@@ -44,8 +44,7 @@ links:
       - mariadb
 ```
 
-Links another container to the current container. This will add `--link postgres:postgres`
-to the options when running the container.
+Links another container to the current container. This will add `--link docker_frappe:mariadb` and `--link docker_frappe:redis` to the options when running the container.
 
 #### depends_on:
 
