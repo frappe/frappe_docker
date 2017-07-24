@@ -26,10 +26,10 @@ A step by step series of examples that tell you have to get a development env ru
 
 		The Docker version used by us is Docker version 17.06.0-ce, build 02c1d87
 
-- Installing docker-compose(only for Linux users)
+- Installing docker-compose(only for Linux users => Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose)
 
 
-	Follow the steps given in (Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose) [here](https://docs.docker.com/compose/install/)
+	Follow the steps given in [here](https://docs.docker.com/compose/install/)
 
 		The docker-compose version used by us is docker-compose version 1.14.0, build c7bdf9e
 
