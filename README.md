@@ -38,13 +38,13 @@ A step by step series of examples that tell you have to get a development env ru
 * Make sure your logged in as root. Build the container and install bench inside the container as a **non root** user
 	
 	This command requests the user to enter a password for the MySQL root user, please remember it for future use.
-	This command also builds the 3 linked containers docker-frappe, mariadb and redis which are required by frappe, 
-	It creates a user frappe inside the docker-frappe container, whose working directory is /home/frappe. It also clones
+	This command also builds the 3 linked containers docker-frappe, mariadb and redis using the docker-compose up -d, 
+	it creates a user frappe inside the docker-frappe container, whose working directory is /home/frappe. It also clones
 	the bench-repo from [here](https://github.com/frappe/bench)
 		
 		source build-container.sh
 
-		Note: Please do not remove the bench directory the above commands will create
+	Note: Please do not remove the bench-repo directory the above commands will create
 
 #### Basic Usage
 1. Starting docker containers
@@ -66,6 +66,7 @@ A step by step series of examples that tell you have to get a development env ru
 		bench init frappe-bench && cd frappe-bench		
 
 4. Set the db host for bench(points bench to the mariadb container)
+	Since the 3 containers are linked 
 
 		bench set-mariadb-host mariadb
 
