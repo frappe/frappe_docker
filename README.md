@@ -53,9 +53,9 @@ depends_on:
 ```
 Express dependency between services, which has two effects:
 
-1. docker-compose up will start services in dependency order. In the following example, db and redis will be started before web.
+1. docker-compose up will start services in dependency order. In the following example, db and redis will be started before frappe.
 
-2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up web will also create and start db and redis.
+2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up frappe will also create and start db and redis.
 
 ### Installation
 
@@ -160,17 +160,6 @@ The default username is "Administrator" and password is what you set when you cr
 
 Feel free to contribute to this project and make the container better
 
-## Authors
-
-* **Vishal Seshagiri**
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used - [Pratik Vyas](https://github.com/pdvyas)
-* Inspiration - [Rushabh Mehta](https://github.com/rmehta)
