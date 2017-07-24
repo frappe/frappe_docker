@@ -1,6 +1,7 @@
 # frappe_docker
 
-Containerizing the frappe bench installation for a development environment
+* Docker Compose file to run frappe in a container
+* Docker makes it much easier to deploy [frappe](https://github.com/frappe/frappe) on your development servers.
 
 ## Getting Started
 
@@ -10,28 +11,66 @@ These instructions will get you a copy of the project up and running on your loc
 
 What things you need to install the software and how to install them
 
+[Docker](https://www.docker.com/)
+
+[Docker Compose](https://docs.docker.com/compose/overview/)
+
+### Container Configuration
+
+#### ports:
+
 ```
-Docker
-docker-compose
+ports:
+      - "3306:3306"
+      - "8000:8000"
 ```
+
+Expose port 3306 inside the container on port 3306 on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/)
+
+#### volumes:
+
+```
+volumes:
+     - ./frappe:/home/frappe
+     - ./conf/mariadb-conf.d:/etc/mysql/conf.d
+```
+Expose a directory inside the host to the container.
+
+#### links:
+
+```
+links:
+      - redis
+      - mariadb
+```
+
+Links another container to the current container. This will add `--link docker_frappe:mariadb` and `--link docker_frappe:redis` to the options when running the container.
+
+#### depends_on:
+
+```
+depends_on:
+      - mariadb
+      - redis
+```
+Express dependency between services, which has two effects:
+
+1. docker-compose up will start services in dependency order. In the following example, db and redis will be started before web.
+
+2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up web will also create and start db and redis.
 
 ### Installing
 
 A step by step series of examples that tell you have to get a development env running
 #### 1. Installation Pre-requisites
 
-- Installing Docker Community Edition
+- Installing Docker Community Edition (version 17.06.0-ce)
 
 	Follow the steps given in [here](https://docs.docker.com/engine/installation)
 
-		Docker version 17.06.0-ce, build 02c1d87
-
-- Installing docker-compose(only for Linux users).Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose
-
+- Installing docker-compose(only for Linux users).Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose (version 1.14.0)
 
 	Follow the steps given in [here](https://docs.docker.com/compose/install/)
-
-		docker-compose version 1.14.0, build c7bdf9e
 
 #### 2. Build the container and install bench
 
@@ -115,7 +154,7 @@ A step by step series of examples that tell you have to get a development env ru
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
 
-	The default username is "Administrator" and password is what you set when you created the new site.
+The default username is "Administrator" and password is what you set when you created the new site.
 
 ## Built With
 
