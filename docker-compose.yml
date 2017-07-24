@@ -3,7 +3,7 @@ services:
   mariadb:
     image: "mariadb"
     environment:
-      - MYSQL_ROOT_PASSWORD=123
+      - MYSQL_ROOT_PASSWORD=${DB_PASS}
       - MYSQL_USER=root
     volumes:
       - ./conf/mariadb-conf.d:/etc/mysql/conf.d
@@ -14,18 +14,17 @@ services:
     image: "redis:alpine"
 
   frappe:
+    volumes:
+     - ./frappe:/home/frappe
     build: .
     ports:
-     - "8000:5000"
+     - "8000:8000"
     stdin_open: true
     tty: true
     links:
       - redis
       - mariadb
-    #network_mode: "host"
     depends_on:
       - mariadb
       - redis
-    volumes:
-      - ./code:/home/frappe/code
-
+    
