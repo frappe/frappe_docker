@@ -12,6 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 What things you need to install the software and how to install them
 
 [Docker](https://www.docker.com/)
+
 [Docker Compose](https://docs.docker.com/compose/overview/)
 
 ### Container Configuration
@@ -53,11 +54,11 @@ depends_on:
       - mariadb
       - redis
 ```
-	Express dependency between services, which has two effects:
+Express dependency between services, which has two effects:
 
-	1. docker-compose up will start services in dependency order. In the following example, db and redis will be started before web.
+1. docker-compose up will start services in dependency order. In the following example, db and redis will be started before web.
 
-	2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up web will also create and start db and redis.
+2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up web will also create and start db and redis.
 
 ### Installing
 
