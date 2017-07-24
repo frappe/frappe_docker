@@ -18,45 +18,102 @@ docker-compose
 ### Installing
 
 A step by step series of examples that tell you have to get a development env running
+#### 1. Installation Pre-requisites
 
-Installing Docker Community Edition
+- Installing Docker Community Edition
 
-```
-Follow the steps given in https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/
+	Follow the steps given in [here](https://docs.docker.com/engine/installation)
 
-The Docker version used by us is Docker version 17.06.0-ce, build 02c1d87
-```
-Installing docker-compose
+		The Docker version used by us is Docker version 17.06.0-ce, build 02c1d87
 
-```
-Follow the steps given in https://docs.docker.com/compose/install/
+- Installing docker-compose(only for Linux users).Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose
 
-The docker-compose version used by us is docker-compose version 1.14.0, build c7bdf9e
-```
 
-## Deployment
+	Follow the steps given in [here](https://docs.docker.com/compose/install/)
 
-Steps to be followed to build and run the docker image are :
-```
-1. Run the start-container script
-2. After a few minutes the prompt will point to the App container with a root prefix to it (your current location is /home/frappe)
-3. You will be inside /home/frappe/code folder
-4. Make the bash_run_container.sh executable by chmod +x as in step 1 and run it with the command ./bash_run_container.sh
-5. Run the bash_for_container.sh file with the command ./bash_for_container.sh
-6. You will be prompted to enter the Mysql db password it is 123
-7. You will be prompted to choose and enter an administrator password please enter and remember it for future use
-8. Once all the installation steps are complete you can access the Web based GUI by typing localhost:8000 on your browser.
+		The docker-compose version used by us is docker-compose version 1.14.0, build c7bdf9e
+
+#### 2. Build the container and install bench
+
+* Make sure your logged in as root. Build the container and install bench inside the container as a **non root** user
+		
+		source build-container.sh
+
+		Note: Please do not remove the bench directory the above commands will create
+
+#### Basic Usage
+* Starting docker containers
+	This command can be used to start containers
+	
+		docker-compose start
+
+* Accessing the frappe container via CLI
+
+		./start-container.sh
+
+* Set the db host for bench(points bench to the mariadb container)
+
+		bench set-mariadb-host mariadb
+
+* Create a new bench
+
+	The init command will create a bench directory with frappe framework
+	installed. It will be setup for periodic backups and auto updates once
+	a day.
+
+		bench init frappe-bench && cd frappe-bench
+
+* Add a site
+
+	Frappe apps are run by frappe sites and you will have to create at least one
+	site. The new-site command allows you to do that.
+
+		bench new-site site1.local
+
+* Add apps
+
+	The get-app command gets remote frappe apps from a remote git repository and installs them. Example: [erpnext](https://github.com/frappe/erpnext)
+
+		bench get-app erpnext https://github.com/frappe/erpnext
+
+* Install apps
+
+	To install an app on your new site, use the bench `install-app` command.
+
+		bench --site site1.local install-app erpnext
+
+* Exiting the frappe container and stopping all the containers gracefully
+  exit
+  
+  		docker-compose stop
+
+* Removing docker containers
+
+		docker-compose rm
+
+* Removing dangling volumes
+	The volume frappe on your  local machine is shared by the host(your local machine) and the frappe container.
+	Please do not delete this volume from your local machine. Any changes made in this directory will reflect on both
+	the container and the host. The below command specifies how to remain dangling volumes which may be taking up
+	unecessary space on your host.
+	
+		docker volume rm $(docker volume ls -f dangling=true -q)
+
+To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
+
+	The default username is "Administrator" and password is what you set when you created the new site.
+
 ## Built With
 
 * [Docker](https://www.docker.com/)
 
 ## Contributing
 
-Feel free to contribute to this and make the container better
+Feel free to contribute to this project and make the containers better
 
 ## Authors
 
-* **Vishal Seshagiri** - *Initial work* - [FrappeBench](https://github.com/frappe/bench)
+* **Vishal Seshagiri**
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
