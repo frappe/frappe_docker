@@ -23,14 +23,14 @@ A step by step series of examples that tell you have to get a development env ru
 - Installing Docker Community Edition
 
 ```
-Follow the steps given in https://docs.docker.com/engine/installation
+Follow the steps given in [here](https://docs.docker.com/engine/installation)
 
 The Docker version used by us is Docker version 17.06.0-ce, build 02c1d87
 ```
-- Installing docker-compose
+- Installing docker-compose(only for Linux users)
 
 ```
-Follow the steps given in (Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose) https://docs.docker.com/compose/install/
+Follow the steps given in (Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose) [here](https://docs.docker.com/compose/install/)
 
 The docker-compose version used by us is docker-compose version 1.14.0, build c7bdf9e
 ```
@@ -43,14 +43,17 @@ Note: Please do not remove the bench directory the above commands will create
 
 #### Basic Usage
 * Starting docker containers
-  docker-compose start
-  docker-compose stop
+	This command can be used to start containers
+	
+		docker-compose start
 
 * Accessing the frappe container via CLI
-  ./start-container.sh
+
+		./start-container.sh
 
 * Set the db host for bench(points bench to the mariadb container)
-  bench set-mariadb-host mariadb
+
+		bench set-mariadb-host mariadb
 
 * Create a new bench
 
@@ -81,19 +84,24 @@ Note: Please do not remove the bench directory the above commands will create
 
 * Exiting the frappe container and stopping all the containers gracefully
   exit
-  docker-compose stop
+  
+  		docker-compose stop
 
 * Removing docker containers
-  docker-compose rm
+
+		docker-compose rm
 
 * Removing dangling volumes
-  docker volume rm $(docker volume ls -f dangling=true -q)
+	The volume frappe on your  local machine is shared by the host(your local machine) and the frappe container.
+	Please do not delete this volume from your local machine. Any changes made in this directory will reflect on both
+	the container and the host. The below command specifies how to remain dangling volumes which may be taking up
+	unecessary space on your host.
+	
+		docker volume rm $(docker volume ls -f dangling=true -q)
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
 
 	The default username is "Administrator" and password is what you set when you created the new site.
-
-*
 
 ## Built With
 
