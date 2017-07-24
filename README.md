@@ -50,18 +50,18 @@ A step by step series of examples that tell you have to get a development env ru
 * Accessing the frappe container via CLI
 
 		./start-container.sh
-
-* Set the db host for bench(points bench to the mariadb container)
-
-		bench set-mariadb-host mariadb
-
+		
 * Create a new bench
 
 	The init command will create a bench directory with frappe framework
 	installed. It will be setup for periodic backups and auto updates once
 	a day.
 
-		bench init frappe-bench && cd frappe-bench
+		bench init frappe-bench && cd frappe-bench		
+
+* Set the db host for bench(points bench to the mariadb container)
+
+		bench set-mariadb-host mariadb
 
 * Add a site
 
