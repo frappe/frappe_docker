@@ -36,8 +36,10 @@ A step by step series of examples that tell you have to get a development env ru
 #### 2. Build the container and install bench
 
 * Make sure your logged in as root. Build the container and install bench inside the container as a **non root** user
-  source build-container.sh
-Note: Please do not remove the bench directory the above commands will create
+		
+		source build-container.sh
+
+		Note: Please do not remove the bench directory the above commands will create
 
 #### Basic Usage
 * Starting docker containers
