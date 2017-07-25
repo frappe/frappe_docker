@@ -87,11 +87,11 @@ Express dependency between services, which has two effects:
 
 	This command can be used to start containers
 	
-		docker-compose start
+		sudo docker-compose start
 
 2. Accessing the frappe container via CLI
 
-		./docker-enter.sh
+		sudo ./docker-enter.sh
 		
 3. Create a new bench
 
@@ -133,11 +133,11 @@ Express dependency between services, which has two effects:
 9. Exiting the frappe container and stopping all the containers gracefully.
   
   		exit
-  		docker-compose stop
+  		sudo docker-compose stop
 
 10. Removing docker containers
 
-		docker-compose rm
+		sudo docker-compose rm
 
 11. Removing dangling volumes
 	
@@ -146,7 +146,7 @@ Express dependency between services, which has two effects:
 	the container and the host. The below command specifies how to remain dangling volumes which may be taking up
 	unecessary space on your host.
 	
-		docker volume rm $(docker volume ls -f dangling=true -q)
+		sudo docker volume rm $(docker volume ls -f dangling=true -q)
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
 
