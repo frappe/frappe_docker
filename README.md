@@ -91,7 +91,7 @@ Express dependency between services, which has two effects:
 
 2. Accessing the frappe container via CLI
 
-		./enter-container.sh
+		./docker-enter.sh
 		
 3. Create a new bench
 
