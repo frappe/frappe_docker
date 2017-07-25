@@ -53,9 +53,9 @@ depends_on:
 ```
 Express dependency between services, which has two effects:
 
-1. docker-compose up will start services in dependency order. In the following example, db and redis will be started before frappe.
+1. docker-compose up will start services in dependency order. In the following example, mariadb and redis will be started before frappe.
 
-2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up frappe will also create and start db and redis.
+2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up docker_frappe will also create and start mariadb and redis.
 
 ### Installation
 
