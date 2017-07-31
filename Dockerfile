@@ -16,7 +16,7 @@ RUN pip install --upgrade setuptools pip
 RUN useradd -ms /bin/bash frappe
 RUN apt-get install -y curl
 RUN apt-get install -y rlwrap
-RUN apt-get install redis-server
+RUN apt-get install redis-tools
 RUN apt-get install -y nano
 
 
@@ -29,14 +29,13 @@ RUN apt-get install -y wkhtmltopdf
 
 USER frappe
 WORKDIR /home/frappe
+RUN git clone https://github.com/frappe/bench bench-repo
 
 USER root
-RUN cd /home/frappe
+RUN pip install -e bench-repo
+RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
 
-#USER root
-#RUN pip install -e bench-repo
-#RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
-#RUN chown -R frappe:frappe /home/frappe
-
-#USER frappe
-#RUN bench init frappe-bench && cd frappe-bench
+USER frappe
+WORKDIR /home/frappe/frappe-bench
+#RUN mv /home/pyth/frappe/frappe_docker/frappe-bench/sites/common_site_config_docker.json /home/pyth/frappe/frappe_docker/frappe-bench/sites/common_site_config.json
+#RUN mv /home/pyth/frappe/frappe_docker/frappe-bench/Procfile_docker /home/pyth/frappe/frappe_docker/frappe-bench/Procfile

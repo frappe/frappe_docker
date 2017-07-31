@@ -1,0 +1,384 @@
+======
+Bleach
+======
+
+.. image:: https://travis-ci.org/mozilla/bleach.png?branch=master
+   :target: https://travis-ci.org/mozilla/bleach
+
+.. image:: https://badge.fury.io/py/bleach.svg
+   :target: http://badge.fury.io/py/bleach
+
+Bleach is a allowed-list-based HTML sanitizing library that escapes or strips
+markup and attributes.
+
+Bleach can also linkify text safely, applying filters that Django's ``urlize``
+filter cannot, and optionally setting ``rel`` attributes, even on links already
+in the text.
+
+Bleach is intended for sanitizing text from *untrusted* sources. If you find
+yourself jumping through hoops to allow your site administrators to do lots of
+things, you're probably outside the use cases. Either trust those users, or
+don't.
+
+Because it relies on html5lib_, Bleach is as good as modern browsers at dealing
+with weird, quirky HTML fragments. And *any* of Bleach's methods will fix
+unbalanced or mis-nested tags.
+
+The version on GitHub_ is the most up-to-date and contains the latest bug
+fixes. You can find full documentation on `ReadTheDocs`_.
+
+:Code:           https://github.com/mozilla/bleach
+:Documentation:  https://bleach.readthedocs.io/
+:Issue tracker:  https://github.com/mozilla/bleach/issues
+:IRC:            ``#bleach`` on irc.mozilla.org
+:License:        Apache License v2; see LICENSE file
+
+
+Reporting Bugs
+==============
+
+For regular bugs, please report them `in our issue tracker
+<https://github.com/mozilla/bleach/issues>`_.
+
+If you believe that you've found a security vulnerability, please `file a secure
+bug report in our bug tracker
+<https://bugzilla.mozilla.org/enter_bug.cgi?assigned_to=nobody%40mozilla.org&product=Webtools&component=Bleach-security&groups=webtools-security>`_
+or send an email to *security AT mozilla DOT org*.
+
+For more information on security-related bug disclosure and the PGP key to use
+for sending encrypted mail or to verify responses received from that address,
+please read our wiki page at
+`<https://www.mozilla.org/en-US/security/#For_Developers>`_.
+
+
+Installing Bleach
+=================
+
+Bleach is available on PyPI_, so you can install it with ``pip``::
+
+    $ pip install bleach
+
+Or with ``easy_install``::
+
+    $ easy_install bleach
+
+Or by cloning the repo from GitHub_::
+
+    $ git clone git://github.com/mozilla/bleach.git
+
+Then install it by running::
+
+    $ python setup.py install
+
+
+Upgrading Bleach
+================
+
+.. warning::
+
+   Before doing any upgrades, read through `Bleach Changes
+   <https://bleach.readthedocs.io/en/latest/changes.html>`_ for backwards
+   incompatible changes, newer versions, etc.
+
+
+Basic use
+=========
+
+The simplest way to use Bleach is:
+
+.. code-block:: python
+
+    >>> import bleach
+
+    >>> bleach.clean('an <script>evil()</script> example')
+    u'an &lt;script&gt;evil()&lt;/script&gt; example'
+
+    >>> bleach.linkify('an http://example.com url')
+    u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
+
+
+.. _html5lib: https://github.com/html5lib/html5lib-python
+.. _GitHub: https://github.com/mozilla/bleach
+.. _ReadTheDocs: https://bleach.readthedocs.io/
+.. _PyPI: http://pypi.python.org/pypi/bleach
+
+
+Bleach Changes
+==============
+
+Version 2.0 (March 8th, 2017)
+-----------------------------
+
+**Backwards incompatible changes**
+
+* Removed support for Python 2.6. #206
+
+* Removed support for Python 3.2. #224
+
+* Bleach no longer supports html5lib < 0.99999999 (8 9s).
+
+  This version is a rewrite to use the new sanitizing API since the old
+  one was dropped in html5lib 0.99999999 (8 9s).
+
+* ``bleach.clean`` and friends were rewritten
+
+  ``clean`` was reimplemented as an html5lib filter and happens at a different
+  step in the HTML parsing -> traversing -> serializing process. Because of
+  that, there are some differences in clean's output as compared with previous
+  versions.
+
+  Amongst other things, this version will add end tags even if the tag in
+  question is to be escaped.
+
+* ``bleach.clean`` and friends attribute callables now take three arguments:
+  tag, attribute name and attribute value. Previously they only took attribute
+  name and attribute value.
+
+  All attribute callables will need to be updated.
+
+* ``bleach.linkify`` was rewritten
+
+  ``linkify`` was reimplemented as an html5lib Filter. As such, it no longer
+  accepts a ``tokenizer`` argument.
+
+  The callback functions for adjusting link attributes now takes a namespaced
+  attribute.
+
+  Previously you'd do something like this::
+
+      def check_protocol(attrs, is_new):
+          if not attrs.get('href', '').startswith('http:', 'https:')):
+              return None
+          return attrs
+
+  Now it's more like this::
+
+      def check_protocol(attrs, is_new):
+          if not attrs.get((None, u'href'), u'').startswith(('http:', 'https:')):
+              #            ^^^^^^^^^^^^^^^
+              return None
+          return attrs
+
+  Further, you need to make sure you're always using unicode values. If you
+  don't then html5lib will raise an assertion error that the value is not
+  unicode.
+
+  All linkify filters will need to be updated.
+
+* ``bleach.linkify`` and friends had a ``skip_pre`` argument--that's been
+  replaced with a more general ``skip_tags`` argument.
+
+  Before, you might do::
+
+      bleach.linkify(some_text, skip_pre=True)
+
+  The equivalent with Bleach 2.0 is::
+
+      bleach.linkify(some_text, skip_tags=['pre'])
+
+  You can skip other tags, too, like ``style`` or ``script`` or other places
+  where you don't want linkification happening.
+
+  All uses of linkify that use ``skip_pre`` will need to be updated.
+
+
+**Changes**
+
+* Supports Python 3.6.
+
+* Supports html5lib >= 0.99999999 (8 9s).
+
+* There's a ``bleach.sanitizer.Cleaner`` class that you can instantiate with your
+  favorite clean settings for easy reuse.
+
+* There's a ``bleach.linkifier.Linker`` class that you can instantiate with your
+  favorite linkify settings for easy reuse.
+
+* There's a ``bleach.linkifier.LinkifyFilter`` which is an htm5lib filter that
+  you can pass as a filter to ``bleach.sanitizer.Cleaner`` allowing you to clean
+  and linkify in one pass.
+
+* ``bleach.clean`` and friends can now take a callable as an attributes arg value.
+
+* Tons of bug fixes.
+
+* Cleaned up tests.
+
+* Documentation fixes.
+
+
+Version 1.5 (November 4th, 2016)
+--------------------------------
+
+**Backwards incompatible changes**
+
+- clean: The list of ``ALLOWED_PROTOCOLS`` now defaults to http, https and
+  mailto.
+
+  Previously it was a long list of protocols something like ed2k, ftp, http,
+  https, irc, mailto, news, gopher, nntp, telnet, webcal, xmpp, callto, feed,
+  urn, aim, rsync, tag, ssh, sftp, rtsp, afs, data. #149
+
+**Changes**
+
+- clean: Added ``protocols`` to arguments list to let you override the list of
+  allowed protocols. Thank you, Andreas Malecki! #149
+- linkify: Fix a bug involving periods at the end of an email address. Thank you,
+  Lorenz Schori! #219
+- linkify: Fix linkification of non-ascii ports. Thank you Alexandre, Macabies!
+  #207
+- linkify: Fix linkify inappropriately removing node tails when dropping nodes.
+  #132
+- Fixed a test that failed periodically. #161
+- Switched from nose to py.test. #204
+- Add test matrix for all supported Python and html5lib versions. #230
+- Limit to html5lib ``>=0.999,!=0.9999,!=0.99999,<0.99999999`` because 0.9999
+  and 0.99999 are busted.
+- Add support for ``python setup.py test``. #97
+
+
+Version 1.4.3 (May 23rd, 2016)
+------------------------------
+
+**Changes**
+
+- Limit to html5lib ``>=0.999,<0.99999999`` because of impending change to
+  sanitizer api. #195
+
+
+Version 1.4.2 (September 11, 2015)
+----------------------------------
+
+**Changes**
+
+- linkify: Fix hang in linkify with ``parse_email=True``. #124
+- linkify: Fix crash in linkify when removing a link that is a first-child. #136
+- Updated TLDs.
+- linkify: Don't remove exterior brackets when linkifying. #146
+
+
+Version 1.4.1 (December 15, 2014)
+---------------------------------
+
+**Changes**
+
+- Consistent order of attributes in output.
+- Python 3.4 support.
+
+
+Version 1.4 (January 12, 2014)
+------------------------------
+
+**Changes**
+
+- linkify: Update linkify to use etree type Treewalker instead of simpletree.
+- Updated html5lib to version ``>=0.999``.
+- Update all code to be compatible with Python 3 and 2 using six.
+- Switch to Apache License.
+
+
+Version 1.3
+-----------
+
+- Used by Python 3-only fork.
+
+
+Version 1.2.2 (May 18, 2013)
+----------------------------
+
+- Pin html5lib to version 0.95 for now due to major API break.
+
+Version 1.2.1 (February 19, 2013)
+---------------------------------
+
+- clean() no longer considers ``feed:`` an acceptable protocol due to
+  inconsistencies in browser behavior.
+
+
+Version 1.2 (January 28, 2013)
+------------------------------
+
+- linkify() has changed considerably. Many keyword arguments have been
+  replaced with a single callbacks list. Please see the documentation
+  for more information.
+- Bleach will no longer consider unacceptable protocols when linkifying.
+- linkify() now takes a tokenizer argument that allows it to skip
+  sanitization.
+- delinkify() is gone.
+- Removed exception handling from _render. clean() and linkify() may now
+  throw.
+- linkify() correctly ignores case for protocols and domain names.
+- linkify() correctly handles markup within an <a> tag.
+
+
+Version 1.1.5
+-------------
+
+
+Version 1.1.4
+-------------
+
+
+Version 1.1.3 (July 10, 2012)
+-----------------------------
+
+- Fix parsing bare URLs when parse_email=True.
+
+
+Version 1.1.2 (June 1, 2012)
+----------------------------
+
+- Fix hang in style attribute sanitizer. (#61)
+- Allow '/' in style attribute values.
+
+
+Version 1.1.1 (February 17, 2012)
+---------------------------------
+
+- Fix tokenizer for html5lib 0.9.5.
+
+
+Version 1.1.0 (October 24, 2011)
+--------------------------------
+
+- linkify() now understands port numbers. (#38)
+- Documented character encoding behavior. (#41)
+- Add an optional target argument to linkify().
+- Add delinkify() method. (#45)
+- Support subdomain whitelist for delinkify(). (#47, #48)
+
+
+Version 1.0.4 (September 2, 2011)
+---------------------------------
+
+- Switch to SemVer git tags.
+- Make linkify() smarter about trailing punctuation. (#30)
+- Pass exc_info to logger during rendering issues.
+- Add wildcard key for attributes. (#19)
+- Make linkify() use the HTMLSanitizer tokenizer. (#36)
+- Fix URLs wrapped in parentheses. (#23)
+- Make linkify() UTF-8 safe. (#33)
+
+
+Version 1.0.3 (June 14, 2011)
+-----------------------------
+
+- linkify() works with 3rd level domains. (#24)
+- clean() supports vendor prefixes in style values. (#31, #32)
+- Fix linkify() email escaping.
+
+
+Version 1.0.2 (June 6, 2011)
+----------------------------
+
+- linkify() supports email addresses.
+- clean() supports callables in attributes filter.
+
+
+Version 1.0.1 (April 12, 2011)
+------------------------------
+
+- linkify() doesn't drop trailing slashes. (#21)
+- linkify() won't linkify 'libgl.so.1'. (#22)
+
+

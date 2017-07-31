@@ -1,0 +1,409 @@
+.grid-report .plot {
+  margin: 15px;
+  display: none;
+  height: 300px !important;
+  width: 97% !important;
+}
+.grid-report .ui-widget {
+  border: none !important;
+  outline: none !important;
+  border-top: 1px solid #d1d8dd !important;
+  background-color: #fafbfc !important;
+}
+.grid-report .show-zero {
+  margin: 10px;
+  display: none;
+}
+.column-picker-dialog .column-list {
+  margin: 15px 0;
+  border: 1px solid #d1d8dd;
+}
+.column-picker-dialog .column-list .column-list-item {
+  padding: 10px;
+  border-bottom: 1px solid #d1d8dd;
+}
+.column-picker-dialog .column-list .column-list-item:last-child {
+  border-bottom: none;
+}
+.column-picker-dialog .column-list .sortable-handle {
+  cursor: move;
+}
+.column-picker-dialog .column-list .sortable-chosen {
+  background-color: #fffce7;
+}
+.column-picker-dialog .column-list .fa-sort {
+  margin: 0px 7px;
+  margin-top: 9px;
+  margin-right: -15px;
+}
+.column-picker-dialog .column-list .form-control {
+  display: inline-block;
+  width: 89%;
+}
+@media (max-width: 767px) {
+  .column-picker-dialog .column-list .form-control {
+    width: 77%;
+  }
+}
+.column-picker-dialog .column-list .close {
+  margin: 2px 7px 0px;
+}
+.column-picker-dialog .add-btn {
+  margin-bottom: 2px;
+}
+.cell-title {
+	font-weight: bold;
+}
+
+.cell-effort-driven {
+	text-align: center;
+}
+
+.toggle {
+	height: 9px;
+	width: 9px;
+	display: inline-block;
+	visibility: visible;
+}
+
+.toggle.expand {
+	background: url("/assets/frappe/js/lib/slickgrid/images/expand.gif") no-repeat center center;
+}
+
+.toggle.collapse {
+	background: url("/assets/frappe/js/lib/slickgrid/images/collapse.gif") no-repeat center center;
+}
+/*
+IMPORTANT:
+In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
+No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
+classes should alter those!
+*/
+
+.slick-header.ui-state-default, .slick-headerrow.ui-state-default {
+  width: 100%;
+  overflow: hidden;
+  border-left: 0px;
+}
+
+.slick-header-columns, .slick-headerrow-columns {
+  position: relative;
+  white-space: nowrap;
+  cursor: default;
+  overflow: hidden;
+}
+
+.slick-header-column.ui-state-default {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  height: 16px;
+  line-height: 16px;
+  margin: 0;
+  padding: 4px;
+  border-right: 1px solid silver;
+  border-left: 0px;
+  border-top: 0px;
+  border-bottom: 0px;
+  float: left;
+}
+
+.slick-headerrow-column.ui-state-default {
+  padding: 4px;
+}
+
+.slick-header-column-sorted {
+  font-style: italic;
+}
+
+.slick-sort-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 5px;
+  margin-left: 4px;
+  margin-top: 6px;
+  float: left;
+}
+
+.slick-sort-indicator-desc {
+  background: url(images/sort-desc.gif);
+}
+
+.slick-sort-indicator-asc {
+  background: url(images/sort-asc.gif);
+}
+
+.slick-resizable-handle {
+  position: absolute;
+  font-size: 0.1px;
+  display: block;
+  cursor: col-resize;
+  width: 4px;
+  right: 0px;
+  top: 0;
+  height: 100%;
+}
+
+.slick-sortable-placeholder {
+  background: silver;
+}
+
+.grid-canvas {
+  position: relative;
+  outline: 0;
+}
+
+.slick-row.ui-widget-content, .slick-row.ui-state-active {
+  position: absolute;
+  border: 0px;
+  width: 100%;
+}
+
+.slick-cell, .slick-headerrow-column {
+  position: absolute;
+  border: 1px solid transparent;
+  border-right: 1px dotted silver;
+  border-bottom-color: silver;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  z-index: 1;
+  padding: 1px 2px 2px 1px;
+  margin: 0;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.slick-group {
+}
+
+.slick-group-toggle {
+  display: inline-block;
+}
+
+.slick-cell.highlighted {
+  background: lightskyblue;
+  background: rgba(0, 0, 255, 0.2);
+  -webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+  -o-transition: all 0.5s;
+  transition: all 0.5s;
+}
+
+.slick-cell.flashing {
+  border: 1px solid red !important;
+}
+
+.slick-cell.editable {
+  z-index: 11;
+  overflow: visible;
+  background: white;
+  border-color: black;
+  border-style: solid;
+}
+
+.slick-cell:focus {
+  outline: none;
+}
+
+.slick-reorder-proxy {
+  display: inline-block;
+  background: blue;
+  opacity: 0.15;
+  filter: alpha(opacity = 15);
+  cursor: move;
+}
+
+.slick-reorder-guide {
+  display: inline-block;
+  height: 2px;
+  background: blue;
+  opacity: 0.7;
+  filter: alpha(opacity = 70);
+}
+
+.slick-selection {
+  z-index: 10;
+  position: absolute;
+  border: 2px dashed black;
+}
+/*
+IMPORTANT:
+In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
+No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
+classes should alter those!
+*/
+
+.slick-header-columns {
+  /*background: url('images/header-columns-bg.gif') repeat-x center bottom;*/
+  border-bottom: 1px solid silver;
+}
+
+.slick-header-column {
+  /*background: url('images/header-columns-bg.gif') repeat-x center bottom;*/
+  border-right: 1px solid silver;
+}
+
+.slick-header-column:hover, .slick-header-column-active {
+  /*background: white url('images/header-columns-over-bg.gif') repeat-x center bottom;*/
+}
+
+.slick-headerrow {
+  background: #fafafa;
+}
+
+.slick-headerrow-column {
+  background: #fafafa;
+  border-bottom: 0;
+  height: 100%;
+}
+
+.slick-row.ui-state-active {
+  background: #F5F7D7;
+}
+
+.slick-row {
+  position: absolute;
+  background: white;
+  border: 0px;
+  line-height: 20px;
+}
+
+.slick-row.selected {
+  z-index: 10;
+  background: #DFE8F6;
+}
+
+.slick-cell {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.slick-group {
+  border-bottom: 2px solid silver;
+}
+
+.slick-group-toggle {
+  width: 9px;
+  height: 9px;
+  margin-right: 5px;
+}
+
+.slick-group-toggle.expanded {
+  background: url(images/collapse.gif) no-repeat center center;
+}
+
+.slick-group-toggle.collapsed {
+  background: url(images/expand.gif) no-repeat center center;
+}
+
+.slick-group-totals {
+  color: gray;
+  background: white;
+}
+
+.slick-cell.selected {
+  background-color: #fffce7 !important;
+}
+
+.slick-cell.active {
+  border-color: gray;
+  border-style: solid;
+}
+
+.slick-sortable-placeholder {
+  background: silver !important;
+}
+
+.slick-row.odd {
+  background: #fafafa;
+}
+
+.slick-row.ui-state-active {
+  background: #F5F7D7;
+}
+
+.slick-row.loading {
+  opacity: 0.5;
+  filter: alpha(opacity = 50);
+}
+
+.slick-cell.invalid {
+  border-color: red;
+  -moz-animation-duration: 0.2s;
+  -webkit-animation-duration: 0.2s;
+  -moz-animation-name: slickgrid-invalid-hilite;
+  -webkit-animation-name: slickgrid-invalid-hilite;
+}
+
+@-moz-keyframes slickgrid-invalid-hilite {
+  from { box-shadow: 0 0 6px red; }
+  to { box-shadow: none; }
+}
+
+@-webkit-keyframes slickgrid-invalid-hilite {
+  from { box-shadow: 0 0 6px red; }
+  to { box-shadow: none; }
+}
+.slick-header-column,
+.slick-cell {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+.slick-wrapper,
+.slick-header {
+  border: none !important;
+}
+.slick-headerrow {
+  border: none;
+  border-bottom: 1px solid #d1d8dd;
+}
+.slick-headerrow-column {
+  background-color: #F7FAFC !important;
+  text-overflow: clip;
+}
+.slick-headerrow-column input {
+  border: 1px solid #d1d8dd;
+  border-radius: 3px;
+  font-size: 12px;
+  padding: 0px 3px !important;
+  margin: 0;
+  width: 100%;
+  min-height: 20px;
+}
+.slick-cell,
+.slick-headerrow-column {
+  font-size: 12px;
+  border-color: transparent #d1d8dd #d1d8dd transparent !important;
+  border-style: solid;
+  color: inherit !important;
+  margin-top: -1px;
+}
+.slick-cell pre {
+  border: none;
+  background-color: transparent;
+  padding: 3px;
+}
+.slick-header-column,
+.slick-header-columns {
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #F7FAFC;
+  border-color: #d1d8dd !important;
+  color: #8D99A6 !important;
+}
+.slick-header-column:hover,
+.slick-header-column-active {
+  background-image: none;
+  background-color: #d9e7f1;
+}
+.slick-row.odd .slick-cell {
+  background-color: #fafbfc;
+}
+.frappe-rtl .slick-wrapper {
+  direction: ltr;
+}

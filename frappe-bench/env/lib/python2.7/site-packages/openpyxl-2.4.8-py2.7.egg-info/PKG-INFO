@@ -1,0 +1,74 @@
+Metadata-Version: 1.1
+Name: openpyxl
+Version: 2.4.8
+Summary: A Python library to read/write Excel 2010 xlsx/xlsm files
+Home-page: https://openpyxl.readthedocs.io
+Author: See AUTHORS
+Author-email: charlie.clark@clark-consulting.eu
+License: MIT/Expat
+Description: openpyxl
+        ========
+        
+        openpyxl is a Python library to read/write Excel 2010 xlsx/xlsm/xltx/xltm files.
+        
+        It was born from lack of existing library to read/write natively from Python
+        the Office Open XML format.
+        
+        All kudos to the PHPExcel team as openpyxl was initially based on `PHPExcel
+        <http://www.phpexcel.net/>`_
+        
+        
+        Mailing List
+        ============
+        
+        Official user list can be found on
+        http://groups.google.com/group/openpyxl-users
+        
+        
+        Sample code::
+        
+            from openpyxl import Workbook
+            wb = Workbook()
+        
+            # grab the active worksheet
+            ws = wb.active
+        
+            # Data can be assigned directly to cells
+            ws['A1'] = 42
+        
+            # Rows can also be appended
+            ws.append([1, 2, 3])
+        
+            # Python types will automatically be converted
+            import datetime
+            ws['A2'] = datetime.datetime.now()
+        
+            # Save the file
+            wb.save("sample.xlsx")
+        
+        
+        Official documentation
+        ======================
+        
+        The documentation is at: https://openpyxl.readthedocs.io
+        
+        * installation methods
+        * code examples
+        * instructions for contributing
+        
+        Release notes: https://openpyxl.readthedocs.io/en/latest/changes.html
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Requires: python (>=2.6.0)

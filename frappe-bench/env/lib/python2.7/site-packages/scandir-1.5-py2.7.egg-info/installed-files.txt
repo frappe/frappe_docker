@@ -1,0 +1,7 @@
+../scandir.py
+../scandir.pyc
+../_scandir.so
+top_level.txt
+SOURCES.txt
+PKG-INFO
+dependency_links.txt

@@ -1,0 +1,4 @@
+/node_modules
+/lib/chromedriver
+/tmp
+npm-debug.log

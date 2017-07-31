@@ -1,0 +1,8 @@
+[console_scripts]
+honcho = honcho.command:main
+
+[honcho_exporters]
+runit = honcho.export.runit:Export
+supervisord = honcho.export.supervisord:Export
+upstart = honcho.export.upstart:Export
+

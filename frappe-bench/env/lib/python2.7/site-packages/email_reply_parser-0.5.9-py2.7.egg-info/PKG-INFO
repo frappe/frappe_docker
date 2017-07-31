@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: email-reply-parser
+Version: 0.5.9
+Summary: Email reply parser
+Home-page: https://github.com/zapier/email-reply-parser
+Author: Royce Haynes
+Author-email: royce.haynes@gmail.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Topic :: Software Development
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4

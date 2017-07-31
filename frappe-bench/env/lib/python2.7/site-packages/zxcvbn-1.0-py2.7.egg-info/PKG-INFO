@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: zxcvbn
+Version: 1.0
+Summary: Password strength estimator
+Home-page: https://www.github.com/rpearl/python-zxcvbn
+Author: Ryan Pearl
+Author-email: rpearl@dropbox.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

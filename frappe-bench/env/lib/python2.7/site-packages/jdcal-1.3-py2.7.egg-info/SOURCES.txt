@@ -1,0 +1,11 @@
+LICENSE.txt
+MANIFEST.in
+README.rst
+jdcal.py
+setup.cfg
+setup.py
+test_jdcal.py
+jdcal.egg-info/PKG-INFO
+jdcal.egg-info/SOURCES.txt
+jdcal.egg-info/dependency_links.txt
+jdcal.egg-info/top_level.txt
