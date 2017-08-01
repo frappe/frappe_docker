@@ -44,7 +44,6 @@ services:
   frappe:
     volumes:
       - ./frappe-bench:/home/frappe/frappe-bench
-      - /home/pyth/frappe/bench_frappe/bench:/home/frappe/bench-repo
     build: .
     ports:
       - "8000:8000"

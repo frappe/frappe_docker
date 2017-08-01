@@ -29,13 +29,12 @@ RUN apt-get install -y wkhtmltopdf
 
 USER frappe
 WORKDIR /home/frappe
-RUN git clone https://github.com/frappe/bench bench-repo
+RUN git clone -b develop https://github.com/vishalseshagiri/bench.git bench-repo
 
 USER root
 RUN pip install -e bench-repo
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
+RUN chown -R frappe:frappe /home/frappe/*
 
 USER frappe
 WORKDIR /home/frappe/frappe-bench
-#RUN mv /home/pyth/frappe/frappe_docker/frappe-bench/sites/common_site_config_docker.json /home/pyth/frappe/frappe_docker/frappe-bench/sites/common_site_config.json
-#RUN mv /home/pyth/frappe/frappe_docker/frappe-bench/Procfile_docker /home/pyth/frappe/frappe_docker/frappe-bench/Procfile
