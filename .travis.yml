@@ -8,6 +8,7 @@ services:
   - docker
 
 install:
+  - pkill mysqld
   - docker-compose build
   - docker-compose up -d
 
