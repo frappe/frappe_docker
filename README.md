@@ -1,4 +1,5 @@
 # frappe_docker
+[![Build Status](https://travis-ci.org/vishalseshagiri/frappe_docker.svg?branch=development)](https://travis-ci.org/vishalseshagiri/frappe_docker)
 
 * Docker Compose file to run frappe in a container
 * Docker makes it much easier to deploy [frappe](https://github.com/frappe/frappe) on your development servers.
