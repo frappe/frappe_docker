@@ -1,0 +1,18 @@
+language: python
+python:
+  - "2.7"
+
+services:
+  - docker
+
+install:
+  -docker-compose build
+  -docker-compose up -d
+
+script:
+  -docker-compose ps | grep -i frappe
+  -docker-compose ps | grep -i redis-cache
+  -docker-compose ps | grep -i redis-queue
+  -docker-compose ps | grep -i redis-socketio
+  -docker-compose ps | grep -i mariadb
+  # -python test.py
