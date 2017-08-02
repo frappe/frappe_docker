@@ -15,5 +15,6 @@
  "shallow_clone": true,
  "socketio_port": 9000,
  "update_bench_on_update": true,
- "webserver_port": 8000
+ "webserver_port": 8000,
+ "admin_password": "admin"
 }
