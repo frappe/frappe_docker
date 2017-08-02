@@ -17,7 +17,7 @@ install:
   - docker exec -i frappe bash -c "bench get-app erpnext https://github.com/frappe/erpnext"
   - docker exec -i frappe bash -c "bench --site site1.local install-app erpnext"
   - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
-  - sudo echo 127.0.0.1   site1.local >> /etc/hosts
+  - sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
   - docker exec -id frappe bash -c "bench start"
 
 script:
