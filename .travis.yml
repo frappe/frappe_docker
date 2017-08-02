@@ -10,6 +10,13 @@ services:
 install:
   - docker-compose build
   - docker-compose up -d
+  - docker exec -i frappe bash -c "cd .. && bench init frappe-bench --skip-bench-mkdir --skip-redis-config-generation && cd frappe-bench"
+  - docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
+  - docker exec -i frappe bash -c "bench get-app erpnext https://github.com/frappe/erpnext"
+  - docker exec -i frappe bash -c "bench --site site1.local install-app erpnext"
+  - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
+  - echo 127.0.0.1   site1.local >> /etc/hosts
+  - docker exec -id frappe bash -c "bench start"
 
 script:
   - docker-compose ps | grep -i frappe
@@ -17,11 +24,4 @@ script:
   - docker-compose ps | grep -i redis-queue
   - docker-compose ps | grep -i redis-socketio
   - docker-compose ps | grep -i mariadb
-  - docker exec -i frappe bash -c "cd .. && bench init frappe-bench --skip-bench-mkdir --skip-redis-config-generation && cd frappe-bench"
-  - docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
-  - docker exec -i frappe bash -c "bench get-app erpnext https://github.com/frappe/erpnext"
-  - docker exec -i frappe bash -c "bench --site site1.local install-app erpnext"
-  - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
-  - docker exec -id frappe bash -c "bench start"
-  - echo 127.0.0.1   site1.local >> /etc/hosts
   - python test.py
