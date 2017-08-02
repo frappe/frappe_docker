@@ -1,6 +1,6 @@
 import subprocess,requests,time
 
-time.wait(45)
+time.sleep(45)
 
 try:
     r = requests.get("site1.local:8000")

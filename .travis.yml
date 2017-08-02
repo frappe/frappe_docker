@@ -19,6 +19,7 @@ install:
   - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
   - sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
   - docker exec -id frappe bash -c "bench start"
+  - pip install requests
 
 script:
   - docker-compose ps | grep -i frappe
