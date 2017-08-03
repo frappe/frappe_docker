@@ -18,7 +18,6 @@ install:
   - docker exec -i frappe bash -c "bench --site site1.local install-app erpnext"
   - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
   - sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
-  - docker exec -it frappe bash -c "bench start"
   - pip install requests
   - pip install time
 
