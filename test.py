@@ -1,9 +1,9 @@
 import subprocess, requests, datetime, _thread, time, os, signal
 start_time = datetime.datetime.now().time()
-r = None
-e = None
 bench_start = 'docker exec -i frappe bash -c "bench start"'
-process = subprocess.Popen(bench_start, shell=True)
+process = subprocess.Popen(bench_start, stdout=subprocess.PIPE , shell=True)
+
+r = None
 
 def print_out(val,delay):
 	while 1:
@@ -24,8 +24,7 @@ _thread.start_new_thread(print_out, (2, 1))
 
 time.sleep(45)
 
-os.killpg(os.getpgid(process.pid), signal.SIGTERM) # Kill bench start
+process.kill()
 
-print(r.content)
-
-assert '<title> Login </title>' in r.content, "Login page failed to load"
+assert '<title> Login </title>' in str(r.content)
+#os.killpg(os.getpgid(process.pid), signal.SIGTERM) # Kill bench start
