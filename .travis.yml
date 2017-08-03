@@ -18,7 +18,7 @@ install:
   - docker exec -i frappe bash -c "bench --site site1.local install-app erpnext"
   - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
   - sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
-  - pip install requests
+  - pip3 install requests
 
 script:
   - docker-compose ps | grep -i frappe
@@ -26,4 +26,4 @@ script:
   - docker-compose ps | grep -i redis-queue
   - docker-compose ps | grep -i redis-socketio
   - docker-compose ps | grep -i mariadb
-  - python test.py
+  - python3 test.py
