@@ -1,8 +1,11 @@
 # frappe_docker
 [![Build Status](https://travis-ci.org/vishalseshagiri/frappe_docker.svg?branch=development)](https://travis-ci.org/vishalseshagiri/frappe_docker)
 
-* Docker Compose file to run frappe in a container
-* Docker makes it much easier to deploy [frappe](https://github.com/frappe/frappe) on your development servers.
+- [Docker](https://docker.com/) is an open source project to pack, ship and run any Linux application in a lighter weight, faster container than a traditional virtual machine.
+
+- Docker makes it much easier to deploy [frappe](https://github.com/frappe/frappe) on your servers.
+
+- This container uses [bench](https://github.com/frappe/bench) to install frappe. 
 
 ## Getting Started
 
@@ -22,6 +25,9 @@ These instructions will get you a copy of the project up and running on your loc
 ports:
       - "3306:3306"
       - "8000:8000"
+      - "11000:11000"
+      - "12000:12000"
+      - "13000:13000"
 ```
 
 Expose port 3306 inside the container on port 3306 on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/). The port 3306 of the mariadb container and port 8000 of the frappe container is exposed to the host machine and other containers.
@@ -30,8 +36,11 @@ Expose port 3306 inside the container on port 3306 on ALL local host interfaces.
 
 ```
 volumes:
-     - ./frappe:/home/frappe
+     - ./frappe-bench:/home/frappe/frappe-bench
      - ./conf/mariadb-conf.d:/etc/mysql/conf.d
+     - ./redis-conf/redis_socketio.conf:/etc/conf.d/redis.conf
+     - ./redis-conf/redis_queue.conf:/etc/conf.d/redis.conf
+     - ./redis-conf/redis_cache.conf:/etc/conf.d/redis.conf
 ```
 Exposes a directory inside the host to the container.
 
@@ -39,18 +48,22 @@ Exposes a directory inside the host to the container.
 
 ```
 links:
-      - redis
+      - redis-cache
+      - redis-queue
+      - redis-socketio
       - mariadb
 ```
 
-Links another container to the current container. This will add `--link docker_frappe:mariadb` and `--link docker_frappe:redis` to the options when running the container.
+Links allow you to define extra aliases by which a service is reachable from another service.
 
 #### depends_on:
 
 ```
 depends_on:
       - mariadb
-      - redis
+      - redis-cache
+      - redis-queue
+      - redis-socketio
 ```
 Express dependency between services, which has two effects:
 
@@ -62,37 +75,34 @@ Express dependency between services, which has two effects:
 
 #### 1. Installation Pre-requisites
 
-- Installing Docker Community Edition (version 17.06.0-ce)
+- Install [Docker](https://docs.docker.com/engine/installation) Community Edition 
 
-	Follow the steps given in [here](https://docs.docker.com/engine/installation)
-
-- Installing Docker Compose (only for Linux users). Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose (version 1.14.0)
-
-	Follow the steps given in [here](https://docs.docker.com/compose/install/)
+- Install [Docker Compose](https://docs.docker.com/compose/install/) (only for Linux users). Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose
 
 #### 2. Build the container and install bench
 
-* Build the container and install bench inside the container as a **non root** user
+* Build the container and install bench inside the container.
 	
-	This command requests the user to enter a password for the MySQL root user, please remember it for future use.
-	This command also builds the 3 linked containers docker-frappe, mariadb and redis using the docker-compose up -d, 
-	it creates a user frappe inside the docker-frappe container, whose working directory is /home/frappe. It also clones
+	1.Build the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command. 	 Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile. 
+	It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones
 	the bench-repo from [here](https://github.com/frappe/bench)
 		
-		sudo source build-container.sh
+		docker-compose up -d
 
 	Note: Please do not remove the bench-repo directory the above commands will create
+	
+	
 
 #### Basic Usage
 1. Starting docker containers
 
 	This command can be used to start containers
 	
-		sudo docker-compose start
+		docker-compose start
 
 2. Accessing the frappe container via CLI
 
-		sudo ./docker-enter.sh
+		docker exec -it frappe bash
 		
 3. Create a new bench
 
@@ -134,11 +144,11 @@ Express dependency between services, which has two effects:
 9. Exiting the frappe container and stopping all the containers gracefully.
   
   		exit
-  		sudo docker-compose stop
+  		docker-compose stop
 
 10. Removing docker containers
 
-		sudo docker-compose rm
+		docker-compose rm
 
 11. Removing dangling volumes
 	
@@ -147,7 +157,7 @@ Express dependency between services, which has two effects:
 	the container and the host. The below command specifies how to remain dangling volumes which may be taking up
 	unecessary space on your host.
 	
-		sudo docker volume rm $(docker volume ls -f dangling=true -q)
+		docker volume rm $(docker volume ls -f dangling=true -q)
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
 
@@ -164,3 +174,4 @@ Feel free to contribute to this project and make the container better
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
