@@ -5,7 +5,7 @@
 
 - Docker makes it much easier to deploy [frappe](https://github.com/frappe/frappe) on your servers.
 
-- This container uses [bench](https://github.com/frappe/bench) to install frappe. 
+- This container uses [bench](https://github.com/frappe/bench) to install frappe.
 
 ## Getting Started
 
@@ -23,14 +23,16 @@ These instructions will get you a copy of the project up and running on your loc
 
 ```
 ports:
-      - "3306:3306"
-      - "8000:8000"
-      - "11000:11000"
-      - "12000:12000"
-      - "13000:13000"
+      - "3307:3307"   mariadb-port
+      - "8000:8000"   webserver-port
+      - "11000:11000" redis-cache
+      - "12000:12000" redis-queue
+      - "13000:13000" redis-socketio
+      - "9000:9000"   socketio-port
+      - "6787:6787"   file-watcher-port
 ```
 
-Expose port 3306 inside the container on port 3306 on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/). The port 3306 of the mariadb container and port 8000 of the frappe container is exposed to the host machine and other containers.
+Expose port 3307 inside the container on port 3307 on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/). The port 3307 of the mariadb container and port 8000 of the frappe container is exposed to the host machine and other containers.
 
 #### volumes:
 
@@ -75,35 +77,35 @@ Express dependency between services, which has two effects:
 
 #### 1. Installation Pre-requisites
 
-- Install [Docker](https://docs.docker.com/engine/installation) Community Edition 
+- Install [Docker](https://docs.docker.com/engine/installation) Community Edition
 
 - Install [Docker Compose](https://docs.docker.com/compose/install/) (only for Linux users). Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose
 
 #### 2. Build the container and install bench
 
 * Build the container and install bench inside the container.
-	
-	1.Build the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command. 	 Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile. 
+
+	1.Build the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command. 	 Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.
 	It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones
 	the bench-repo from [here](https://github.com/frappe/bench)
-		
+
 		docker-compose up -d
 
 	Note: Please do not remove the bench-repo directory the above commands will create
-	
-	
+
+
 
 #### Basic Usage
 1. Starting docker containers
 
 	This command can be used to start containers
-	
+
 		docker-compose start
 
 2. Accessing the frappe container via CLI
 
 		docker exec -it frappe bash
-		
+
 3. Create a new bench
 
 	The init command will create a bench directory with frappe framework
@@ -112,7 +114,7 @@ Express dependency between services, which has two effects:
 
 		bench init frappe-bench && cd frappe-bench		
 
-4. Set the db host for bench (points bench to the mariadb container) since the 3 containers are linked 
+4. Set the db host for bench (points bench to the mariadb container) since the 3 containers are linked
 
 		bench set-mariadb-host mariadb
 
@@ -140,9 +142,9 @@ Express dependency between services, which has two effects:
 	To start using the bench, use the `bench start` command
 
 		bench start
-		
+
 9. Exiting the frappe container and stopping all the containers gracefully.
-  
+
   		exit
   		docker-compose stop
 
@@ -151,12 +153,12 @@ Express dependency between services, which has two effects:
 		docker-compose rm
 
 11. Removing dangling volumes
-	
+
 	The volume frappe on your  local machine is shared by the host(your local machine) and the frappe container.
 	Please do not delete this volume from your local machine. Any changes made in this directory will reflect on both
 	the container and the host. The below command specifies how to remain dangling volumes which may be taking up
 	unecessary space on your host.
-	
+
 		docker volume rm $(docker volume ls -f dangling=true -q)
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
@@ -174,4 +176,3 @@ Feel free to contribute to this project and make the container better
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
