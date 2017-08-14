@@ -8,7 +8,7 @@ services:
     volumes:
       - ./conf/mariadb-conf.d:/etc/mysql/conf.d
     ports:
-      - "3307:3307"
+      - "3307:3307" #mariadb-port
     container_name: mariadb
 
   redis-cache:
@@ -46,7 +46,9 @@ services:
       - ./frappe-bench:/home/frappe/frappe-bench
     build: .
     ports:
-      - "8000:8000"
+      - "8000:8000" #webserver_port
+      - "9000:9000" #socketio_port
+      - "6787:6787" #file_watcher_port
     stdin_open: true
     tty: true
     links:
@@ -60,5 +62,3 @@ services:
       - redis-queue
       - redis-socketio
     container_name: frappe
-
-#TODO: bind ports of the redis and frappe containers
