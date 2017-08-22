@@ -112,7 +112,8 @@ Express dependency between services, which has two effects:
 	installed. It will be setup for periodic backups and auto updates once
 	a day.
 
-		bench init --skip-bench-mkdir --skip-redis-config-generation frappe-bench		
+		cd ..
+		bench init --skip-bench-mkdir --skip-redis-config-generation frappe-bench && cd frappe-bench		
 
 4. Set the db host for bench (points bench to the mariadb container) since the 3 containers are linked
 
