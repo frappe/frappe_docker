@@ -1,27 +1,33 @@
-usage="$(basename "$0") [-h] [-c "<command to be executed inside container>"]
+#!/usr/bin/env bash
 
-where:
-    -h  show this help text
-    -c  execute a command inside docker using docker exec"
+display_usage() {
+  echo "$(basename "$0") [-h] [-c \"<command to be executed inside container>\"]"
+  echo ''
+  echo 'where:'
+  echo '    -h  show this help text'
+  echo '    -c  execute a command inside docker using docker exec'
+}
 
 if [[ $# -eq 0 ]]; then
-  temp="docker exec -it frappe bash"
-  $temp
+  docker exec -it frappe bash
 else
   while getopts ':hc:' option; do
-    echo $option
     case "$option" in
-      h) echo "$usage"
+      h)
+         display_usage
          exit
          ;;
-      c) seed=$OPTARG
-         temp="docker exec frappe bash -c 'su frappe -c \"bench $OPTARG\"; exec \"${SHELL:-sh}\"'"
-         exec="true"
+      c)
+         docker exec frappe bash -c "bench $OPTARG"
          ;;
+      \?)
+        echo "Invalid option: -$OPTARG" >&2
+        exit 1
+        ;;
+      :)
+        echo "Option -$OPTARG requires an argument." >&2
+        exit 1
+        ;;
     esac
   done
-  if [[ "$exec" == "true" ]]; then
-    $temp
-  fi
-  shift $((OPTIND - 1))
 fi
