@@ -122,7 +122,7 @@ Express dependency between services, which has two effects:
 5. Add a site (make sure your current path is /home/frappe/frappe-bench)
 
 	Frappe apps are run by frappe sites and you will have to create at least one
-	site. The new-site command allows you to do that.
+	site. The new-site command allows you to do that. Enter MySQL root password which is `123` (see:[docker-compose.yml#L6]( https://github.com/frappe/frappe_docker/blob/master/docker-compose.yml#L6))
 
 		bench new-site site1.local
 
