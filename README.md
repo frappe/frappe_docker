@@ -104,6 +104,7 @@ Express dependency between services, which has two effects:
 
 2. Accessing the frappe container via CLI
 
+		docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
 		docker exec -it frappe bash
 
 3. Create a new bench
@@ -111,9 +112,9 @@ Express dependency between services, which has two effects:
 	The init command will create a bench directory with frappe framework
 	installed. It will be setup for periodic backups and auto updates once
 	a day.
-
-		cd ..
-		bench init --skip-bench-mkdir --skip-redis-config-generation frappe-bench && cd frappe-bench		
+		
+		cd .. && bench init frappe-bench --skip-bench-mkdir --skip-redis-config-generation && cd frappe-bench
+		mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json
 
 4. Set the db host for bench (points bench to the mariadb container) since the 3 containers are linked
 
