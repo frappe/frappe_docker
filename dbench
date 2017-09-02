@@ -8,7 +8,16 @@ display_usage() {
   echo '    -c  execute a command inside docker using docker exec'
 }
 
+# start docker containers if they are not running (check for frappe)
+launch_containers() {
+  docker exec frappe /bin/true 2>/dev/null
+  if [[ $? -eq 1 ]]; then
+    docker-compose up -d
+  fi
+}
+
 if [[ $# -eq 0 ]]; then
+  launch_containers
   docker exec -it frappe bash
 else
   while getopts ':hc:' option; do
@@ -18,6 +27,7 @@ else
          exit
          ;;
       c)
+         launch_containers
          docker exec frappe bash -c "bench $OPTARG"
          ;;
       \?)
