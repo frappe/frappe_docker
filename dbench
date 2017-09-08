@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 display_usage() {
   echo "$(basename "$0") [-h] [-c \"<command to be executed inside container>\"]"
@@ -6,12 +6,13 @@ display_usage() {
   echo 'where:'
   echo '    -h  show this help text'
   echo '    -c  execute a command inside docker using docker exec'
+  echo '    -s  adds site-names to /etc/hosts file in the container to facilitate multisite access'
 }
 
 if [[ $# -eq 0 ]]; then
   docker exec -it frappe bash
 else
-  while getopts ':hc:' option; do
+  while getopts ':hsc:' option; do
     case "$option" in
       h)
          display_usage
@@ -19,6 +20,14 @@ else
          ;;
       c)
          docker exec frappe bash -c "bench $OPTARG"
+         ;;
+      s)
+         a=$(cd frappe-bench && ls sites/*/site_config.json | grep -o '/.\+/')
+         a="${a//$'\n'/ }"
+         a=$(echo $a | tr -d / )
+         result="127.0.0.1 ${a}"
+         echo $result
+         docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
          ;;
       \?)
         echo "Invalid option: -$OPTARG" >&2
