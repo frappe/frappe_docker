@@ -83,6 +83,11 @@ Express dependency between services, which has two effects:
 
 #### 2. Build the container and install bench
 
+* Clone this repo and change your working directory to frappe_docker
+	
+		git clone --depth 1 https://github.com/frappe/frappe_docker.git
+		cd frappe_docker
+
 * Build the container and install bench inside the container.
 
 	1.Build the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command. 	 Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.
