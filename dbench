@@ -9,7 +9,16 @@ display_usage() {
   echo '    -s  adds site-names to /etc/hosts file in the container to facilitate multisite access'
 }
 
+# start docker containers if they are not running (check for frappe)
+launch_containers() {
+  docker exec frappe /bin/true 2>/dev/null
+  if [[ $? -eq 1 ]]; then
+    docker-compose up -d
+  fi
+}
+
 if [[ $# -eq 0 ]]; then
+  launch_containers
   docker exec -it frappe bash
 else
   while getopts ':hsc:' option; do
@@ -19,6 +28,7 @@ else
          exit
          ;;
       c)
+         launch_containers
          docker exec frappe bash -c "bench $OPTARG"
          ;;
       s)
