@@ -3,28 +3,62 @@ services:
   mariadb:
     image: "mariadb"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASS}
+      - MYSQL_ROOT_PASSWORD=123
       - MYSQL_USER=root
     volumes:
       - ./conf/mariadb-conf.d:/etc/mysql/conf.d
     ports:
       - "3306:3306"
+    container_name: mariadb
 
-  redis:
-    image: "redis:alpine"
+  redis-cache:
+    image: redis:alpine
+
+    volumes:
+      - ./redis-conf/redis_cache.conf:/etc/conf.d/redis.conf
+
+    command: ["redis-server","/etc/conf.d/redis.conf"]
+
+    container_name: redis-cache
+
+  redis-queue:
+    image: redis:alpine
+
+    volumes:
+      - ./redis-conf/redis_queue.conf:/etc/conf.d/redis.conf
+
+    command: ["redis-server","/etc/conf.d/redis.conf"]
+
+    container_name: redis-queue
+
+  redis-socketio:
+    image: redis:alpine
+
+    volumes:
+      - ./redis-conf/redis_socketio.conf:/etc/conf.d/redis.conf
+
+    command: ["redis-server","/etc/conf.d/redis.conf"]
+
+    container_name: redis-socketio
 
   frappe:
     volumes:
-     - ./frappe:/home/frappe
+      - ./frappe-bench:/home/frappe/frappe-bench
     build: .
     ports:
-     - "8000:8000"
+      - "8000:8000"
     stdin_open: true
     tty: true
     links:
-      - redis
+      - redis-cache
+      - redis-queue
+      - redis-socketio
       - mariadb
     depends_on:
       - mariadb
-      - redis
-    
+      - redis-cache
+      - redis-queue
+      - redis-socketio
+    container_name: frappe
+
+#TODO: bind ports of the redis and frappe containers

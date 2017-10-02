@@ -1,0 +1,27 @@
+usage="$(basename "$0") [-h] [-c "<command to be executed inside container>"]
+
+where:
+    -h  show this help text
+    -c  execute a command inside docker using docker exec"
+
+if [[ $# -eq 0 ]]; then
+  temp="docker exec -it frappe bash"
+  $temp
+else
+  while getopts ':hc:' option; do
+    echo $option
+    case "$option" in
+      h) echo "$usage"
+         exit
+         ;;
+      c) seed=$OPTARG
+         temp="docker exec frappe bash -c 'su frappe -c \"bench $OPTARG\"; exec \"${SHELL:-sh}\"'"
+         exec="true"
+         ;;
+    esac
+  done
+  if [[ "$exec" == "true" ]]; then
+    $temp
+  fi
+  shift $((OPTIND - 1))
+fi
