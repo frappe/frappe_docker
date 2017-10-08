@@ -8,7 +8,7 @@ services:
     volumes:
       - ./conf/mariadb-conf.d:/etc/mysql/conf.d
     ports:
-      - "3307:3307" #mariadb-port
+      - "3307:3306" #mariadb-port
     container_name: mariadb
 
   redis-cache:
