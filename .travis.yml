@@ -14,11 +14,12 @@ install:
   - docker exec -i frappe bash -c "cd .. && bench init frappe-bench --skip-bench-mkdir --skip-redis-config-generation && cd frappe-bench"
   - docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
   - docker exec -i frappe bash -c "bench new-site site1.local"
-  - docker exec -i frappe bash -c "bench get-app erpnext https://github.com/frappe/erpnext"
-  - docker exec -i frappe bash -c "bench --site site1.local install-app erpnext"
   - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
   - sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
-  - pip3 install requests
+  - pip install --upgrade virtualenv
+  - virtualenv -p python3 testenv
+  - source testenv/bin/activate
+  - pip install requests
 
 script:
   - docker-compose ps | grep -i frappe
@@ -26,5 +27,5 @@ script:
   - docker-compose ps | grep -i redis-queue
   - docker-compose ps | grep -i redis-socketio
   - docker-compose ps | grep -i mariadb
-  - python3 test.py
+  - python test.py
   - docker-compose stop
