@@ -21,9 +21,9 @@ then
   docker exec -it frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
   docker exec -it -u root frappe bash -c "apt-get install vim && apt-get install sudo && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
   docker exec -it frappe bash -c "bench set-mariadb-host mariadb"
-  docker exec -it frappe bash -c "bench new-site bench-manager.local"
-  docker exec -it frappe bash -c "bench get-app bench_manager https://github.com/frappe/bench_manager"
-  docker exec -it frappe bash -c "bench --site bench-manager.local install-app bench_manager"
+  docker exec -it frappe bash -c "bench new-site site1.local"
+  docker exec -it frappe bash -c "bench get-app erpnext"
+  docker exec -it frappe bash -c "bench --site site1.local install-app erpnext"
 
 else
   while getopts ':hsc:' option; do
