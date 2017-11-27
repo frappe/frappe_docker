@@ -101,77 +101,30 @@ Express dependency between services, which has two effects:
 
 
 #### Basic Usage
-1. Starting docker containers
+##### Make sure your current directory is frappe_docker
+1.	First time setup 
+ 
+		./dbench init
 
-	This command can be used to start containers
+2.	Command to start all the containers
 
 		docker-compose start
 
-2. Accessing the frappe container via CLI
+3.	Command to be executed everytime after starting your containers
 
-		docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
-		docker exec -it frappe bash
+		./dbench -s
 
-3. Create a new bench
+4.	Command to enter your container  
 
-	The init command will create a bench directory with frappe framework
-	installed. It will be setup for periodic backups and auto updates once
-	a day.
-		
-		cd .. && bench init frappe-bench --skip-bench-mkdir --skip-redis-config-generation && cd frappe-bench
-		mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json
+		docker exec -it frappe bash 
 
-4. Set the db host for bench (points bench to the mariadb container) since the 3 containers are linked
+5.	All bench commands can also be directly run from the host machine by using dbench. For instance ```bench start``` can be executed by running ```./dbench -c start```. Just preface the option with <b>./dbench -c</b>. For more information on dbench run the command ```./dbench -h```.
 
-		bench set-mariadb-host mariadb
-
-5. Add a site (make sure your current path is /home/frappe/frappe-bench)
-
-	Frappe apps are run by frappe sites and you will have to create at least one
-	site. The new-site command allows you to do that.
-
-		bench new-site site1.local
-
-6. Add apps (make sure your current path is /home/frappe/frappe-bench)
-
-	The get-app command gets remote frappe apps from a remote git repository and installs them. Example: [erpnext](https://github.com/frappe/erpnext)
-
-		bench get-app erpnext https://github.com/frappe/erpnext
-
-7. Install apps (make sure your current path is /home/frappe/frappe-bench)
-
-	To install an app on your new site, use the bench `install-app` command.
-
-		bench --site site1.local install-app erpnext
-
-8. Start bench (make sure your current path is /home/frappe/frappe-bench)
-
-	To start using the bench, use the `bench start` command
-
-		bench start
-
-9. Exiting the frappe container and stopping all the containers gracefully.
-
-  		exit
-  		docker-compose stop
-
-10. Removing docker containers
-
-		docker-compose rm
-
-11. Removing dangling volumes
-
-	The volume frappe on your  local machine is shared by the host(your local machine) and the frappe container.
-	Please do not delete this volume from your local machine. Any changes made in this directory will reflect on both
-	the container and the host. The below command specifies how to remain dangling volumes which may be taking up
-	unecessary space on your host.
-
-		docker volume rm $(docker volume ls -f dangling=true -q)
+For more info on how to build this docker container refer to this [Wiki](https://github.com/frappe/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
 
 The default username is "Administrator" and password is what you set when you created the new site.
-
 ## Built With
 
 * [Docker](https://www.docker.com/)
