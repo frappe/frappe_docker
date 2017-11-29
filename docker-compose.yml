@@ -43,7 +43,8 @@ services:
 
   frappe:
     volumes:
-      - ./frappe-bench:/home/frappe/frappe-bench
+      - ./frappe-bench/apps:/home/frappe/frappe-bench/apps
+      - ./frappe-bench/sites:/home/frappe/frappe-bench/sites
     build: .
     ports:
       - "8000:8000" #webserver_port

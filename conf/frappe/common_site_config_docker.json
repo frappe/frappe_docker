@@ -1,0 +1,20 @@
+{
+ "auto_update": false,
+ "background_workers": 1,
+ "db_host": "mariadb",
+ "file_watcher_port": 6787,
+ "frappe_user": "frappe",
+ "gunicorn_workers": 4,
+ "rebase_on_pull": false,
+ "redis_cache": "redis://redis-cache:13000",
+ "redis_queue": "redis://redis-queue:11000",
+ "redis_socketio": "redis://redis-socketio:12000",
+ "restart_supervisor_on_update": false,
+ "root_password": "123",
+ "serve_default_site": true,
+ "shallow_clone": true,
+ "socketio_port": 9000,
+ "update_bench_on_update": true,
+ "webserver_port": 8000,
+ "admin_password": "admin"
+}
