@@ -98,9 +98,34 @@ Express dependency between services, which has two effects:
 
 	Note: Please do not remove the bench-repo directory the above commands will create
 
+#### Basic Usage from Windows Hosr
+1.	Command to start all the containers
 
+		docker-compose start
+		
+2. Command to enter your container  
 
-#### Basic Usage
+		docker exec -it frappe bash
+
+3.	First time setup
+
+		cd .. & . init.sh
+		
+        
+##### Password
+- MariaDB
+
+        User : root
+
+        Pass : 123
+    
+- Sites
+
+        User : Administrator
+        
+        Pass : admin
+
+#### Basic Usage from Linux Host
 ##### Make sure your current directory is frappe_docker
 1.	First time setup 
  
