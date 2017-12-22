@@ -46,27 +46,16 @@ RUN wget https://bootstrap.pypa.io/get-pip.py \
     && pip install --upgrade setuptools pip
 
 #install nodejs
-USER root
 RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1nodesource1~xenial1_amd64.deb > node.deb  \
     && dpkg -i node.deb \
     && rm node.deb
 
 #add users &  sudoers
-USER root
-RUN useradd -ms /bin/bash frappe
-RUN usermod -aG sudo frappe
-RUN printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe
-
-#clone bench repo
-USER frappe
-WORKDIR /home/frappe
-RUN git clone -b develop https://github.com/frappe/bench.git bench-repo
-
-#install bench
-USER root
-RUN pip install -e bench-repo
-RUN mkdir /home/frappe/frappe-bench
-RUN chown -R frappe:frappe /home/frappe/*
+RUN useradd -ms /bin/bash frappe \
+    && usermod -aG sudo frappe \
+    && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe \
+    && mkdir /home/frappe/frappe-bench \
+    && chown -R frappe:frappe /home/frappe/*
 
 COPY ./conf/frappe/* /home/frappe/
 

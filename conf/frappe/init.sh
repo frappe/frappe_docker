@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "----------------------- [ Install bench ] ---------------------------------"
+git clone -b develop https://github.com/frappe/bench.git bench-repo
+sudo pip install -e bench-repo
 echo "----------------------- [ init bench ] ---------------------------------"
 bench init frappe-bench --skip-bench-mkdir --skip-redis-config-generation
 echo "----------------------- [ config bench ] ---------------------------------"
