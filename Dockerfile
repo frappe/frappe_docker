@@ -23,7 +23,11 @@ RUN apt-get install -y nano
 RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1nodesource1~xenial1_amd64.deb > node.deb \
  && dpkg -i node.deb \
  && rm node.deb
-RUN apt-get install -y wkhtmltopdf
+ 
+# wkhtmltopdf
+RUN curl https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz >> wkhtml.tar.xz \
+  && tar xf wkhtml.tar.xz \
+  && mv wkhtmltox/bin/wk* /usr/local/bin/
 
 USER frappe
 WORKDIR /home/frappe
