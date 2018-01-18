@@ -25,8 +25,8 @@ RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1no
  && rm node.deb
  
 # wkhtmltopdf
-RUN curl https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz >> wkhtml.tar.xz \
-  && tar xf wkhtml.tar.xz \
+RUN curl https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz > wkhtml.tar.xz \
+  && tar -Jxf wkhtml.tar.xz \
   && mv wkhtmltox/bin/wk* /usr/local/bin/
 
 USER frappe
