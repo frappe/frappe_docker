@@ -1,0 +1,3 @@
+/frappe-bench/**/*
+!/frappe-bench/Procfile_docker
+!/frappe-bench/sites/common_site_config_docker.json
