@@ -33,7 +33,9 @@ else
          exit
          ;;
       c)
-         docker exec -it frappe bash -c "bench $OPTARG"
+         shift
+         bench_args="$@"
+         docker exec -it frappe bash -c "bench ${bench_args}"
          ;;
       s)
          a=$(cd frappe-bench && ls sites/*/site_config.json | grep -o '/.\+/')
