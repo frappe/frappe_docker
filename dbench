@@ -17,8 +17,8 @@ if [[ $# -eq 0 ]]; then
 elif [ $1 == 'init' ]
 then
   docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
-  docker exec -it frappe bash -c "cd .. && bench init frappe-bench --skip-bench-mkdir --skip-redis-config-generation && cd frappe-bench"
-  docker exec -it frappe bash -c "cp Procfile_docker Procfile && cp sites/common_site_config_docker.json sites/common_site_config.json"
+  docker exec -it frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
+  docker exec -it frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
   docker exec -it -u root frappe bash -c "apt-get install vim && apt-get install sudo && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
   docker exec -it frappe bash -c "bench set-mariadb-host mariadb"
   docker exec -it frappe bash -c "bench new-site site1.local"

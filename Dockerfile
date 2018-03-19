@@ -19,6 +19,8 @@ RUN apt-get install -y rlwrap
 RUN apt-get install redis-tools
 RUN apt-get install -y nano
 
+# Generate locale C.UTF-8 for mariadb and general locale data
+ENV LANG C.UTF-8
 
 #nodejs
 RUN apt-get install curl
@@ -29,11 +31,12 @@ RUN apt-get install -y wkhtmltopdf
 
 USER frappe
 WORKDIR /home/frappe
-RUN git clone -b develop https://github.com/frappe/bench.git bench-repo
+RUN git clone -b master https://github.com/frappe/bench.git bench-repo
 
 USER root
 RUN pip install -e bench-repo
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
+RUN npm install -g yarn
 RUN chown -R frappe:frappe /home/frappe/*
 
 USER frappe
