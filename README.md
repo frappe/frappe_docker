@@ -124,7 +124,8 @@ For more info on how to build this docker container refer to this [Wiki](https:/
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
 
-The default username is "Administrator" and password is what you set when you created the new site.
+The default username is "Administrator" and password is what you set when you created the new site. The default admin password is set in common_site_config.json, and is set to 'admin' in this docker image. 
+
 ## Built With
 
 * [Docker](https://www.docker.com/)
