@@ -1,7 +1,7 @@
 version: '2'
 services:
   mariadb:
-    image: "mariadb"
+    image: "mariadb:10.2"
     environment:
       - MYSQL_ROOT_PASSWORD=123
       - MYSQL_USER=root
