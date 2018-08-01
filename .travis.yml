@@ -14,8 +14,9 @@ install:
   - docker-compose up -d
 
 
+  - docker exec -i frappe bash -c "bench new-site frappe-bench"
+  - docker exec -i frappe bash -c "mv frappe-site/Procfile_docker frappe-bench/Procfile && mv frappe-site/sites/common_site_config_docker.json frappe-bench/sites/common_site_config.json"
   - docker exec -i frappe bash -c "cd frappe-bench"
-  - docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
   - docker exec -i frappe bash -c "bench new-site site1.local"
   - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
   - sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
