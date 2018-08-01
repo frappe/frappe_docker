@@ -28,12 +28,12 @@ frappe_installer () {
 if [[ $# -eq 0 ]]; then
   docker exec -it frappe bash
 
-elif [ $1 == 'init' ] && [ $2 == 'e' ]
+elif [[ $1 == 'init' && $2 == 'e' ]]
 then
   frappe_installer
   echo "installing erpnext"
-  docker exec -it frappe bash -c "bench get-app erpnext" | echo
-  docker exec -it frappe bash -c "bench --site site1.local install-app erpnext" | echo
+  docker exec -it frappe bash -c "bench get-app erpnext"
+  docker exec -it frappe bash -c "bench --site site1.local install-app erpnext"
   echo "finished"
 
 elif [ $1 == 'init' ]
