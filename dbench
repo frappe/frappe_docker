@@ -1,30 +1,44 @@
 #!/bin/bash
 
-display_usage() {
+display_usage () {
   echo "$(basename "$0") [-h] [-c \"<command to be executed inside container>\"]"
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
   echo '    -c    execute a command inside docker using docker exec'
   echo '    -s    adds site-names to /etc/hosts file in the container to facilitate multisite access'
-  echo '    init  initializes frappe-bench adds a new-site bench-manager.local and installs the bench_manager app
-            app onto it'
+  echo '    init  initializes frappe-bench'
+  echo '    init -e  initializes frappe-bench and installs erpnext'
+}
+
+frappe_installer () {
+  echo "starting frappe_docker setup"
+  docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*" 
+  docker exec -it frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
+  docker exec -it frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
+  echo "frappe-bench folder setup"
+  docker exec -it -u root frappe bash -c "apt-get install vim && apt-get install sudo && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+  echo "adding site1.local"
+  docker exec -it frappe bash -c "bench new-site site1.local"
+  docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
+  sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
+  echo "site1.local added"
 }
 
 if [[ $# -eq 0 ]]; then
   docker exec -it frappe bash
 
-elif [ $1 == 'init' ]
+elif [ $1 == 'init' && $2 == 'e']
 then
-  docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*" 
-  docker exec -it frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
-  docker exec -it frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
-  docker exec -it -u root frappe bash -c "apt-get install vim && apt-get install sudo && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
-  docker exec -it frappe bash -c "bench new-site site1.local"
-  docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
-  sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
-  docker exec -it frappe bash -c "bench get-app erpnext"
-  docker exec -it frappe bash -c "bench --site site1.local install-app erpnext"
+  frappe_installer
+  echo "installing erpnext"
+  docker exec -it frappe bash -c "bench get-app erpnext" | echo
+  docker exec -it frappe bash -c "bench --site site1.local install-app erpnext" | echo
+  echo "finished"
+
+elif [$1 == 'init']
+then
+  frappe_installer
 
 else
   while getopts ':hsc:' option; do
