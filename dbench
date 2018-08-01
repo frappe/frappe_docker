@@ -17,7 +17,7 @@ frappe_installer () {
   docker exec -it frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
   docker exec -it frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
   echo "frappe-bench folder setup"
-  docker exec -it -u root frappe bash -c "apt-get install vim && apt-get install sudo && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+  docker exec -it -u root frappe bash -c "apt-get install vim -y && apt-get install sudo -y && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
   echo "adding site1.local"
   docker exec -it frappe bash -c "bench new-site site1.local"
   docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
