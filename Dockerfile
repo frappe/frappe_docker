@@ -18,7 +18,7 @@ RUN apt-get install -y curl
 RUN apt-get install -y rlwrap
 RUN apt-get install redis-tools
 RUN apt-get install -y nano
-RUN apt-get install -y crontab
+RUN apt-get install -y cron
 
 # Generate locale C.UTF-8 for mariadb and general locale data
 ENV LANG C.UTF-8
