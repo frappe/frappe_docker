@@ -12,8 +12,7 @@ services:
 install:
   - docker-compose build
   - docker-compose up -d
-
-
+  - docker exec -i frappe bash -c "ls"
   - docker exec -i frappe bash -c "bench init frappe-bench"
   - docker exec -i frappe bash -c "mv frappe-site/Procfile_docker frappe-bench/Procfile && mv frappe-site/sites/common_site_config_docker.json frappe-bench/sites/common_site_config.json"
   - docker exec -i frappe bash -c "cd frappe-bench"
