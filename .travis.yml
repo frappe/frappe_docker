@@ -16,7 +16,7 @@ install:
   - docker-compose build
   - mkdir -p ~/docker; docker save frappedocker_frappe > ~/docker/image.tar
   - docker-compose up -d
-  - ./dbench init
+  - ./dbench init -d
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
   - source testenv/bin/activate

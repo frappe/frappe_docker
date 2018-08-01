@@ -9,6 +9,7 @@ display_usage () {
   echo '    -s    adds site-names to /etc/hosts file in the container to facilitate multisite access'
   echo '    init  initializes frappe-bench'
   echo '    init -e  initializes frappe-bench and installs erpnext'
+  echo '    init -d  initializes frappe-bench and enables developer mode'
 }
 
 frappe_installer () {
@@ -35,6 +36,11 @@ then
   docker exec -it frappe bash -c "bench get-app erpnext"
   docker exec -it frappe bash -c "bench --site site1.local install-app erpnext"
   echo "finished"
+
+elif [[ $1 == 'init' && $2 == 'd' ]]
+then
+  frappe_installer
+  cat frappe-bench/sites/site1/site_config.json
 
 elif [ $1 == 'init' ]
 then
