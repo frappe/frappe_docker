@@ -29,7 +29,7 @@ frappe_installer () {
 if [[ $# -eq 0 ]]; then
   docker exec -it frappe bash
 
-elif [[ $1 == 'init' && $2 == 'e' ]]
+elif [[ $1 == 'init' && $2 == '-e' ]]
 then
   frappe_installer
   echo "installing erpnext"
@@ -37,7 +37,7 @@ then
   docker exec -it frappe bash -c "bench --site site1.local install-app erpnext"
   echo "finished"
 
-elif [[ $1 == 'init' && $2 == 'd' ]]
+elif [[ $1 == 'init' && $2 == '-d' ]]
 then
   frappe_installer
   docker exec -it frappe bash -c "cat frappe-bench/sites/site1/site_config.json"
@@ -67,10 +67,12 @@ else
          ;;
       \?)
         echo "Invalid option: -$OPTARG" >&2
+        display_usage
         exit 1
         ;;
       :)
         echo "Option -$OPTARG requires an argument." >&2
+        displpay_usage
         exit 1
         ;;
     esac
