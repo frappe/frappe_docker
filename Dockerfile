@@ -1,4 +1,4 @@
-
+﻿
 #bench Dockerfile
 
 FROM ubuntu:16.04
@@ -30,6 +30,9 @@ RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1no
 RUN apt-get install -y wkhtmltopdf
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
 RUN npm install -g yarn
+RUN chown -R frappe:frappe /home/frappe/*
+ENV PATH /home/frappe/.local/bin
+
 
 USER frappe
 WORKDIR /home/frappe/
