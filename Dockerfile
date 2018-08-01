@@ -5,6 +5,7 @@ FROM ubuntu:16.04
 MAINTAINER frappé
 
 USER root
+RUN useradd -ms /bin/bash frappe
 RUN apt-get update
 RUN apt-get install -y iputils-ping
 RUN apt-get install -y git build-essential python-setuptools python-dev libffi-dev libssl-dev
@@ -13,7 +14,6 @@ RUN apt-get install -y libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms2-dev lib
 RUN apt-get install -y wget
 RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py
 RUN pip install --upgrade setuptools pip
-RUN useradd -ms /bin/bash frappe
 RUN apt-get install -y curl
 RUN apt-get install -y rlwrap
 RUN apt-get install redis-tools
@@ -28,16 +28,12 @@ RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1no
  && dpkg -i node.deb \
  && rm node.deb
 RUN apt-get install -y wkhtmltopdf
-
-USER frappe
-WORKDIR /home/frappe
-RUN git clone -b master https://github.com/frappe/bench.git bench-repo
-RUN pip install --user -e bench-repo
-
-USER root
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
 RUN npm install -g yarn
 
 USER frappe
+WORKDIR /home/frappe/
+RUN git clone https://github.com/frappe/bench.git bench-repo
+RUN pip install --user -e bench-repo
 ENV PATH /home/frappe/.local/bin:$PATH
 WORKDIR /home/frappe/
