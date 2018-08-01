@@ -14,7 +14,7 @@ services:
 install:
   - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
   - docker-compose build
-  - mkdir -p ~/docker; docker save frappe > ~/docker/image.tar
+  - mkdir -p ~/docker; docker save frappedocker_frappe > ~/docker/image.tar
   - docker-compose up -d
   - ./dbench init
   - pip install --upgrade virtualenv
