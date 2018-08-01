@@ -33,11 +33,13 @@ USER frappe
 WORKDIR /home/frappe
 RUN git clone -b master https://github.com/frappe/bench.git bench-repo
 
-USER root
+
 RUN pip install -e bench-repo
+
+USER root
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
 RUN npm install -g yarn
-RUN chown -R frappe:frappe /home/frappe/*
 
 USER frappe
+
 WORKDIR /home/frappe/frappe-bench
