@@ -40,7 +40,7 @@ then
 elif [[ $1 == 'init' && $2 == 'd' ]]
 then
   frappe_installer
-  cat frappe-bench/sites/site1/site_config.json
+  docker exec -it frappe bash -c "cat frappe-bench/sites/site1/site_config.json"
 
 elif [ $1 == 'init' ]
 then
