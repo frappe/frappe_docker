@@ -34,7 +34,7 @@ WORKDIR /home/frappe
 RUN git clone -b master https://github.com/frappe/bench.git bench-repo
 
 
-RUN pip install -e bench-repo
+RUN pip install --user -e bench-repo
 
 USER root
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
