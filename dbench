@@ -28,7 +28,7 @@ frappe_installer () {
 if [[ $# -eq 0 ]]; then
   docker exec -it frappe bash
 
-elif [ $1 == 'init' && $2 == 'e' ]
+elif [ $1 == 'init' ] && [ $2 == 'e' ]
 then
   frappe_installer
   echo "installing erpnext"
