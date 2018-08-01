@@ -1,3 +1,5 @@
+sudo: required
+
 language: python
   
 python:
@@ -10,7 +12,9 @@ services:
   - docker
 
 install:
+  - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
   - docker-compose build
+  - mkdir -p ~/docker; docker save frappe > ~/docker/image.tar
   - docker-compose up -d
   - ./dbench init
   - pip install --upgrade virtualenv
@@ -26,3 +30,8 @@ script:
   - docker-compose ps | grep -i mariadb
   - python test.py
   - docker-compose stop
+
+
+cache:
+  directories:
+    - ~/docker
