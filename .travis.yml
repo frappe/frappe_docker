@@ -11,7 +11,7 @@ install:
   - docker-compose build
   - docker-compose up -d
   - docker exec -it -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
-  - docker exec -i frappe bash -c "cd .. && bench init frappe-bench --skip-redis-config-generation && cd frappe-bench"
+  - docker exec -i frappe bash -c "cd .. && cd frappe-bench"
   - docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
   - docker exec -i frappe bash -c "bench new-site site1.local"
   - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
