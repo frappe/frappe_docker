@@ -1,6 +1,8 @@
 language: python
+  
 python:
   - "2.7"
+
 env:
   - DOCKER_COMPOSE_VERSION: 1.8.0
 
@@ -12,7 +14,7 @@ install:
   - docker-compose up -d
 
 
-  - docker exec -i frappe bash -c "bench init frappe-bench && cd frappe-bench"
+  - docker exec -i frappe bash -c "cd frappe-bench"
   - docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
   - docker exec -i frappe bash -c "bench new-site site1.local"
   - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
