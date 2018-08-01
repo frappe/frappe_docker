@@ -32,8 +32,6 @@ RUN apt-get install -y wkhtmltopdf
 USER frappe
 WORKDIR /home/frappe
 RUN git clone -b master https://github.com/frappe/bench.git bench-repo
-
-
 RUN pip install --user -e bench-repo
 
 USER root
@@ -41,5 +39,5 @@ RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
 RUN npm install -g yarn
 
 USER frappe
-
-WORKDIR /home/frappe/frappe-bench
+ENV PATH /home/frappe/.local/bin:$PATH
+WORKDIR /home/frappe/
