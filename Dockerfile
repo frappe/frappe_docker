@@ -1,4 +1,4 @@
-
+﻿
 #bench Dockerfile
 
 FROM ubuntu:16.04
@@ -38,6 +38,7 @@ RUN pip install -e bench-repo
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
 RUN npm install -g yarn
 RUN chown -R frappe:frappe /home/frappe/*
+ENV PATH /home/frappe/.local/bin
 
 USER frappe
 WORKDIR /home/frappe/frappe-bench
