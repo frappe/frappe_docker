@@ -32,9 +32,13 @@ if [[ $# -eq 0 ]]; then
   docker exec -it frappe bash 'bench $@'
 
 elif [ $1 == '--init' ]; then
-  site=$2
-  if ! $2; then site="site1.local"; fi
-  if ! $3; then site="site1.local"; fi
+  site=$3
+  if [ -z "$3" ]; then 
+    site="site1.local"
+  fi
+  if [ -z "$2" ]; then 
+    site="site1.local"
+  fi
   echo "$site"
   frappe_installer $site
   if [ "$2" == '-e' ]; then
