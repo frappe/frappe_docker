@@ -56,13 +56,13 @@ then
   frappe_installer $2
 
 else
-  while getopts ':hs:' option; do
+  while getopts ':had:' option; do
     case "$option" in
       h)
          display_usage
          exit
          ;;
-      s)
+      a)
          a=$(docker exec -i frappe bash -c "cd ~/frappe-bench && ls sites/*/site_config.json" | grep -o '/.\+/')
          a="${a//$'\n'/ }"
          a=$(echo $a | tr -d / )
@@ -71,6 +71,8 @@ else
          docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
          docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
          ;;
+      d)
+        docker exec -it frappe bash -c "bench --site $OPTARG set-config \"developer_mode\" 1 &&  bench clear-cache"
       \?)
         echo "Invalid option: -$OPTARG" >&2
         display_usage
