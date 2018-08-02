@@ -1,6 +1,6 @@
 #!/bin/bash
 
-display_usage {
+usage {
   echo "Usage: dbench [-hda [sitename] | --init [-e | -d] [sitename (if not specified, it will default to site1.local)]] [\"<command to be executed on bench inside container>\"]"
   echo ''
   echo 'where:'
@@ -29,7 +29,7 @@ frappe_installer {
 if [[ $# -eq 0 ]]; then
   docker exec -it frappe bash "bench $@"
 
-elif [[ $1 == 'init' && $2 == '-e' ]]
+elif [[ $1 == '--init' && $2 == '-e' ]]
 then
   if ! $3 then
     set -- "${@:1:2}" "site1.local"
@@ -40,7 +40,7 @@ then
   docker exec -it frappe bash -c "bench --site $3 install-app erpnext"
   echo "finished"
 
-elif [[ $1 == 'init' && $2 == '-d' ]]
+elif [[ $1 == '--init' && $2 == '-d' ]]
 then
   if ! $3 then
     set -- "${@:1:2}" "site1.local"
@@ -48,7 +48,7 @@ then
   frappe_installer $3
   docker exec -it -u root frappe bash -c "bench --site $3 set-config \"developer_mode\" 1 &&  bench clear-cache"
 
-elif [ $1 == 'init' ]
+elif [ $1 == '--init' ]
 then
   if ! $2 then
     set -- "${@:1}" "site1.local"
@@ -75,12 +75,12 @@ else
         docker exec -it -u root frappe bash -c "bench --site $OPTARG set-config \"developer_mode\" 1 &&  bench clear-cache"
       \?)
         echo "Invalid option: -$OPTARG" >&2
-        display_usage
+        usage
         exit 1
         ;;
       :)
         echo "Option -$OPTARG requires an argument." >&2
-        display_usage
+        usage
         exit 1
         ;;
     esac
