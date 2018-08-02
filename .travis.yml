@@ -35,5 +35,4 @@ script:
   - docker-compose ps | grep -i redis-socketio
   - docker-compose ps | grep -i mariadb
   - python test.py
-  - ./curl-travis
   - docker-compose stop
