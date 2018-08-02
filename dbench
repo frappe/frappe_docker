@@ -1,18 +1,18 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup [-d] | --start [-b] | -c \"<command to be executed on bench inside container>\"]"
+  echo "Usage: dbench [-had [sitename] | --init [-ed] [sitename] | --setup [-d] | --start [-b] | -c \"<command to be executed on bench inside container>\"]"
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
-  echo '    -c    send a command to the frappe container'
   echo '    -d [sitename]    enables developer mode for specified site'  
   echo '    -a    adds site-names to /etc/hosts file in the container to facilitate multisite access'
+  echo '    -c    send a command to the frappe container'
   echo '    --setup [-d]   builds docker containers, NOTE: assumes you have docker installed'
   echo '            -d    start up docker containers as well'
   echo '    --start [-b]   starts frappe docker'
   echo '            -b    starts bench as well'
-  echo '    --init [-e | -d] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
+  echo '    --init [-ed] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
   echo '           -e  initializes frappe-bench and installs erpnext'
   echo '           -d  initializes frappe-bench and enables developer mode'
 }
@@ -35,7 +35,7 @@ if [[ $# -eq 0 ]]; then
   echo "entering container"
   docker exec -it frappe bash
 
-elif [ $1 == '--init' ]; then
+elif [ "$1" == '--init' ]; then
   site=$3
   if [ -z "$3" ]; then 
     site="site1.local"
@@ -47,20 +47,24 @@ elif [ $1 == '--init' ]; then
   fi
   echo "$site"
   frappe_installer $site
-  if [ "$2" == '-e' ]; then
-    echo "installing erpnext"
-    docker exec -it frappe bash -c "bench get-app erpnext"
-    docker exec -it frappe bash -c "bench --site $site install-app erpnext"
-    echo "finished"
-  elif [ "$2" == '-d' ]; then
-    docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
-  elif [ "$2" == '-ed' ]; then
-    echo "installing erpnext"
-    docker exec -it frappe bash -c "bench get-app erpnext"
-    docker exec -it frappe bash -c "bench --site $site install-app erpnext"
-    docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
-    echo "finished"
-  fi
+  while getopts :ed: option; do
+    case "$option" in
+      e)
+        echo "installing erpnext"
+        docker exec -it frappe bash -c "bench get-app erpnext"
+        docker exec -it frappe bash -c "bench --site $site install-app erpnext"
+        echo "finished"
+        ;;
+      d)
+        docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+        ;;
+      *) 
+        echo "Invalid option: -$OPTARG" >&2
+        usage
+        exit 1
+        ;;
+    esac
+  done
 
 elif [ "$1" == '--setup' ]; then
   docker-compose build
