@@ -2,7 +2,7 @@
 #bench Dockerfile
 
 FROM ubuntu:16.04
-MAINTAINER frappé
+LABEL Author frappé
 
 USER root
 RUN apt-get update
