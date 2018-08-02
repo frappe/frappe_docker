@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! options=$(getopt -o hd:ac:e:: --long add,help,developer:,setup::,start::,init:: -- "$@") 
+if ! options=$(getopt -o hd:ace --long add,help,developer:,setup,start,init -- "$@") 
 then 
   echo "entering container"
   docker exec -it frappe bash
@@ -8,6 +8,7 @@ fi
 
 add=0
 setup=0
+d=0
 start=0
 init=0
 dev=0
@@ -23,8 +24,8 @@ function usage {
   echo '    -c command   send a command to bench in the container'
   echo '    -d sitename    enables developer mode for specified site'  
   echo '    -a    adds site-names to /etc/hosts file in the container to facilitate multisite access'
-  echo '    --setup [-d]   builds docker containers, NOTE: assumes you have docker installed'
-  echo '            -d    start up docker containers as well'
+  echo '    --setup [-u]   builds docker containers, NOTE: assumes you have docker installed'
+  echo '            -u    start up docker containers as well'
   echo '    --start [-b]   starts frappe docker'
   echo '            -b    starts bench as well'
   echo '    --init [-e] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
@@ -58,10 +59,13 @@ while true; do
     -d | --developer)
       shift; # The arg is next in position args
       dev=1
-      site=$optopt
+      site=$1
       ;;
     -c)
       docker exec -it frappe bash -c "$optopt"
+      ;;
+    -u)
+      d=1
       ;;
     --setup)
       setup=1
@@ -78,5 +82,10 @@ while true; do
 done
 
 if setup; then
-  docker-compose
+  docker-compose build
+  if d; then
+    docker-compose -d
+  else
+    docker-compose
+  fi
 fi

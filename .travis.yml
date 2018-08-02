@@ -19,7 +19,7 @@ before_install:
   - chmod u+x ./dbench
 
 install:
-  - ./dbench --setup -d
+  - ./dbench --setup -u
   - ./dbench --init
   - ./dbench --start
   - pip install --upgrade virtualenv
