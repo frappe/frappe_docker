@@ -21,6 +21,7 @@ before_install:
 install:
   - ./dbench --setup
   - ./dbench --init
+  - ./dbench --start
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
   - source testenv/bin/activate
