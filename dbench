@@ -1,7 +1,7 @@
 #!/bin/bash
 
-display_usage () {
-  echo "Usage: dbench.sh [-hda [sitename] | --init [-e | -d] [sitename (if not specified, it will default to site1.local)]] [\"<command to be executed on bench inside container>\"]"
+display_usage {
+  echo "Usage: dbench [-hda [sitename] | --init [-e | -d] [sitename (if not specified, it will default to site1.local)]] [\"<command to be executed on bench inside container>\"]"
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
@@ -12,7 +12,7 @@ display_usage () {
   echo '           -d  initializes frappe-bench and enables developer mode'
 }
 
-frappe_installer () {
+frappe_installer {
   echo "starting frappe_docker setup"
   docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*" 
   docker exec -it frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
@@ -46,7 +46,7 @@ then
     set -- "${@:1:2}" "site1.local"
   fi
   frappe_installer $3
-  docker exec -it frappe bash -c "bench --site $3 set-config \"developer_mode\" 1 &&  bench clear-cache"
+  docker exec -it -u root frappe bash -c "bench --site $3 set-config \"developer_mode\" 1 &&  bench clear-cache"
 
 elif [ $1 == 'init' ]
 then
@@ -72,7 +72,7 @@ else
          docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
          ;;
       d)
-        docker exec -it frappe bash -c "bench --site $OPTARG set-config \"developer_mode\" 1 &&  bench clear-cache"
+        docker exec -it -u root frappe bash -c "bench --site $OPTARG set-config \"developer_mode\" 1 &&  bench clear-cache"
       \?)
         echo "Invalid option: -$OPTARG" >&2
         display_usage
