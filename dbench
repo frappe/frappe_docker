@@ -1,10 +1,11 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup [-d] | --start] [\"<command to be executed on bench inside container>\"]"
+  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup [-d] | --start | -c \"<command to be executed on bench inside container>\"]"
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
+  echo '    -c    send a command to the frappe container'
   echo '    -d [sitename]    enables developer mode for specified site'  
   echo '    -a    adds site-names to /etc/hosts file in the container to facilitate multisite access'
   echo '    --setup [-d]   builds docker containers, NOTE: assumes you have docker installed'
@@ -30,8 +31,8 @@ function frappe_installer {
 }
 
 if [[ $# -eq 0 ]]; then
-  echo "$@"
-  docker exec -it frappe bash 'bench $@'
+  echo "entering container"
+  docker exec -it frappe bash
 
 elif [ $1 == '--init' ]; then
   site=$3
@@ -73,7 +74,7 @@ elif [ "$1" == '--start' ]; then
   docker exec -i frappe bash -c "bench start"
 
 else
-  while getopts ':had:' option; do
+  while getopts ':hadc:' option; do
     case "$option" in
       h)
          display_usage
@@ -90,6 +91,9 @@ else
          ;;
       d)
         docker exec -it -u root frappe bash -c "bench --site $OPTARG set-config \"developer_mode\" 1 &&  bench clear-cache"
+        ;;
+      c)
+        docker exec -it -u root frappe bash -c "bench $OPTARG"
         ;;
       \?)
         echo "Invalid option: -$OPTARG" >&2

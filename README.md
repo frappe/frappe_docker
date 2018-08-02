@@ -90,37 +90,33 @@ Express dependency between services, which has two effects:
 
 * Build the container and install bench inside the container.
 
-	1.Build the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command. 	 Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.
-	It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones
-	the bench-repo from [here](https://github.com/frappe/bench)
+	1.Build the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command. 
 
-		docker-compose up -d
+            ./dbench --setup -d
 
-	Note: Please do not remove the bench-repo directory the above commands will create
+      Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.
+	It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones the bench-repo from [here](https://github.com/frappe/bench)
+      Note: Please do not remove the bench-repo directory the above commands will create
 
 
 
 #### Basic Usage
 ##### Make sure your current directory is frappe_docker
 1.	First time setup 
- 
-		./dbench init
+      
+            ./dbench --init
 
 2.	Command to start all the containers
 
-		docker-compose start
-
-3.	Command to be executed everytime after starting your containers
-
-		./dbench -s
+		./dbench --start
 
 4.	Command to enter your container  
 
-		docker exec -it frappe bash 
+		./dbench
 
-5.	All bench commands can also be directly run from the host machine by using dbench. For instance ```bench start``` can be executed by running ```./dbench -c start```. Just preface the option with <b>./dbench -c</b>. For more information on dbench run the command ```./dbench -h```.
+5.	All bench commands can also be directly run from the host machine by using `dbench`. For instance `bench start` can be executed by running `./dbench -c start`. Just preface the option with `./dbench -c`. For more information on `dbench` run the command `./dbench -h`.
 
-For more info on how to build this docker container refer to this [Wiki](https://github.com/frappe/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
+For more info on how to build this docker container refer to this [Wiki](https://github.com/chabad360/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
 
