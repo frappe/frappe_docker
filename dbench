@@ -81,9 +81,9 @@ while true; do
     shift
 done
 
-if $setup; then
+if [ $setup == 1 ]; then
   docker-compose build
-  if $d; then
+  if [ $d == 1 ]; then
     docker-compose -d
   else
     docker-compose
@@ -91,7 +91,7 @@ if $setup; then
   exit 0
 fi
 
-if $init; then
+if [ $init == 1 ]; then
   if ! $site; then
     site="site1.local"
   fi
