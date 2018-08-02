@@ -116,11 +116,11 @@ Express dependency between services, which has two effects:
 
             ./dbench --start
 
-4. Command to enter your container  
+3. Command to enter your container  
 
             ./dbench
 
-5. All bench commands can also be directly run from the host machine by using `dbench`. For instance `bench start` can be executed by running `./dbench -c start`. Just preface the option with `./dbench -c`. For more information on `dbench` run the command `./dbench -h`.
+4. All bench commands can also be directly run from the host machine by using `dbench`. For instance `bench start` can be executed by running `./dbench -c start`. Just preface the option with `./dbench -c`. For more information on `dbench` run the command `./dbench -h`.
 
 For more info on how to build this docker container refer to this [Wiki](https://github.com/chabad360/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
 
