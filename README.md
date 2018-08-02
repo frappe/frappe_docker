@@ -69,9 +69,9 @@ depends_on:
 ```
 Express dependency between services, which has two effects:
 
-1. docker-compose up will start services in dependency order. In the following example, mariadb and redis will be started before frappe.
+1. `docker-compose up -d` will start services in dependency order. In the following example, mariadb and redis will be started before frappe.
 
-2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up docker_frappe will also create and start mariadb and redis.
+2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, `docker-compose up -d frappe` will also create and start mariadb and redis.
 
 ### Installation
 
@@ -94,7 +94,7 @@ Express dependency between services, which has two effects:
 
             ./dbench --setup -d
 
-      Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.
+	Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.
 	It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones the bench-repo from [here](https://github.com/frappe/bench)
       Note: Please do not remove the bench-repo directory the above commands will create
 
@@ -118,7 +118,7 @@ Express dependency between services, which has two effects:
 
 For more info on how to build this docker container refer to this [Wiki](https://github.com/chabad360/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
 
-To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
+To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, or `localhost:8000`
 
 The default username is "Administrator" and password is what you set when you created the new site. The default admin password is set in common_site_config.json, and is set to 'admin' in this docker image. 
 
