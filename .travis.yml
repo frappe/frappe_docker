@@ -34,4 +34,5 @@ script:
   - docker-compose ps | grep -i redis-socketio
   - docker-compose ps | grep -i mariadb
   - python test.py
+  - curl -H "Content-Type: application/json" --data '{"docker_tag": "env"}' -X POST https://registry.hub.docker.com/u/chabad360/frappe/trigger/$hubkey/
   - docker-compose stop
