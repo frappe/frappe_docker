@@ -1,13 +1,14 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup | --start] [\"<command to be executed on bench inside container>\"]"
+  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup [-d] | --start] [\"<command to be executed on bench inside container>\"]"
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
   echo '    -d [sitename]    enables developer mode for specified site'  
   echo '    -a    adds site-names to /etc/hosts file in the container to facilitate multisite access'
-  echo '    --setup    starts up and builds docker, NOTE: assumes you have docker installed'
+  echo '    --setup [-d]   builds docker containers, NOTE: assumes you have docker installed'
+  echo '            -d  start up docker containers as well'
   echo '    --start    starts frappe docker'
   echo '    --init [-e | -d] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
   echo '           -e  initializes frappe-bench and installs erpnext'
@@ -61,17 +62,15 @@ elif [ $1 == '--init' ]; then
 
 elif [ "$1" == '--setup' ]; then
   docker-compose build
-  docker-compose up -d
-
+  if [ "$2" == '-d' ]; then
+    docker-compose up -d
+  else
+    docker-compose up
+  fi
 elif [ "$1" == '--start' ]; then
   docker-compose start
-  a=$(docker exec -i frappe bash -c "cd ~/frappe-bench && ls sites/*/site_config.json" | grep -o '/.\+/')
-  a="${a//$'\n'/ }"
-  a=$(echo $a | tr -d / )
-  result="127.0.0.1 ${a}"
-  echo $result
-  docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
-  docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+  ./dbench -a
+  docker exec -i frappe bash -c "bench start"
 
 else
   while getopts ':had:' option; do
