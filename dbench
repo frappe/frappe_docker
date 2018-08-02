@@ -34,7 +34,6 @@ elif [ $1 == '--init' ]; then
   site=$2
   if ! $2; then set -- "${@:1}" "site1.local"; fi
   if ! $3; then set -- "${@:1:2}" "site1.local" && site=$3; fi
-  if ! $4; then set -- "${@:1:2:3}" "site1.local" && site=$4; fi
   echo "$site"
   frappe_installer $site
   if [ "$2" == '-e' ]; then
