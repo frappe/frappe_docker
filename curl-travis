@@ -1,3 +1,3 @@
 #!/bin/bash
 
-curl -H "Content-Type: application/json" --data '{"docker_tag": "latest"}' -X POST https://registry.hub.docker.com/u/chabad360/frappe/trigger/$hubkey/
+curl -H "Content-Type: application/json" --data '{"docker_tag": "env"}' -X POST https://registry.hub.docker.com/u/chabad360/frappe/trigger/$hubkey/
