@@ -27,7 +27,7 @@ function frappe_installer {
   echo "$1 added"
 }
 
-if [[ $# -eq 1 ]]; then
+if [[ $# -eq 0 ]]; then
   echo "$@"
   docker exec -it frappe bash 'bench $@'
 
