@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup [-d] | --start | -c \"<command to be executed on bench inside container>\"]"
+  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup [-d] | --start [-b] | -c \"<command to be executed on bench inside container>\"]"
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
@@ -9,8 +9,9 @@ function usage {
   echo '    -d [sitename]    enables developer mode for specified site'  
   echo '    -a    adds site-names to /etc/hosts file in the container to facilitate multisite access'
   echo '    --setup [-d]   builds docker containers, NOTE: assumes you have docker installed'
-  echo '            -d  start up docker containers as well'
-  echo '    --start    starts frappe docker'
+  echo '            -d    start up docker containers as well'
+  echo '    --start [-b]   starts frappe docker'
+  echo '            -b    starts bench as well'
   echo '    --init [-e | -d] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
   echo '           -e  initializes frappe-bench and installs erpnext'
   echo '           -d  initializes frappe-bench and enables developer mode'
@@ -71,7 +72,9 @@ elif [ "$1" == '--setup' ]; then
 elif [ "$1" == '--start' ]; then
   docker-compose start
   ./dbench -a
-  docker exec -i frappe bash -c "bench start"
+  if [ "$2" == '-b' ]; then
+    docker exec -i frappe bash -c "bench start"
+  fi
 
 else
   while getopts ':hadc:' option; do
