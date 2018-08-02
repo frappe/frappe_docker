@@ -12,6 +12,7 @@ services:
   - docker
 
 install:
+  - chmod u+x ./dbench
   - ./dbench --setup
   - ./dbench --init
   - pip install --upgrade virtualenv
