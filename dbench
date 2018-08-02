@@ -54,7 +54,7 @@ while true; do
       ;;
     -d | --developer)
         shift; # The arg is next in position args
-        docker exec -it -u root frappe bash -c "bench --site $$ set-config \"developer_mode\" 1 &&  bench clear-cache"
+        docker exec -it -u root frappe bash -c "bench --site $1 set-config \"developer_mode\" 1 &&  bench clear-cache"
         ;;
     --)
         shift
