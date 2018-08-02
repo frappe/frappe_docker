@@ -17,7 +17,6 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - chmod u+x ./dbench
-  - chmod u+x ./curl-travis
 
 install:
   - ./dbench --setup -d
