@@ -28,11 +28,12 @@ function frappe_installer {
 }
 
 if [[ $# -eq 0 ]]; then
+  echo "$@"
   docker exec -it frappe bash 'bench $@'
 
 elif [ $1 == '--init' ]; then
   site=$2
-  if ! $2; then set -- "${@:1}" "site1.local"; fi
+  if ! $2; then set -- "${@:1}" "site1.local" && site=$2; fi
   if ! $3; then set -- "${@:1:2}" "site1.local" && site=$3; fi
   echo "$site"
   frappe_installer $site
