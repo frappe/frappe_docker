@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! options=$(getopt -o hd:ace --long add,help,developer:,setup,start,init -- "$@") 
+if ! options=$(getopt -o hd:aceu --long add,help,developer:,setup,start,init -- "$@") 
 then 
   echo "entering container"
   docker exec -it frappe bash
@@ -88,4 +88,12 @@ if setup; then
   else
     docker-compose
   fi
+  exit 0
+fi
+
+if init; then
+  if ! site; then
+    site="site1.local"
+  fi
+  frappe_installer site
 fi
