@@ -108,19 +108,19 @@ Express dependency between services, which has two effects:
 
 ##### Make sure your current directory is frappe_docker
 
-1.First time setup
+1. First time setup
 
             ./dbench --init
 
-2.Command to start all the containers
+2. Command to start all the containers
 
             ./dbench --start
 
-4.Command to enter your container  
+4. Command to enter your container  
 
             ./dbench
 
-5.All bench commands can also be directly run from the host machine by using `dbench`. For instance `bench start` can be executed by running `./dbench -c start`. Just preface the option with `./dbench -c`. For more information on `dbench` run the command `./dbench -h`.
+5. All bench commands can also be directly run from the host machine by using `dbench`. For instance `bench start` can be executed by running `./dbench -c start`. Just preface the option with `./dbench -c`. For more information on `dbench` run the command `./dbench -h`.
 
 For more info on how to build this docker container refer to this [Wiki](https://github.com/chabad360/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
 
