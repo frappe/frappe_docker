@@ -12,9 +12,8 @@ services:
   - docker
 
 install:
-  - docker-compose build
-  - docker-compose up -d
-  - ./dbench init
+  - ./dbench --setup
+  - ./dbench --init
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
   - source testenv/bin/activate
