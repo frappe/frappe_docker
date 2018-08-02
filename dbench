@@ -1,26 +1,34 @@
 #!/bin/bash
 
-options=$(getopt -o hd:ac: --long add,help,developer:,setup::,start::,init:: -- "$@")
-[ $? -eq 0 ] || { 
+if ! options=$(getopt -o hd:ac:e:: --long add,help,developer:,setup::,start::,init:: -- "$@") 
+then 
   echo "entering container"
   docker exec -it frappe bash
-}
+fi
+
+add=0
+setup=0
+start=0
+init=0
+dev=0
+erp=0
+mangr=0
+site=0
 
 function usage {
-  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup [-d] | --start [-b] | -c \"<command to be executed on bench inside container>\"]"
+  echo "Usage: dbench [-had sitename | --init [-e] [sitename] | --setup [-d] | --start [-b] | -c \"<command to be executed on bench inside container>\"]"
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
   echo '    -c command   send a command to bench in the container'
-  echo '    -d [sitename]    enables developer mode for specified site'  
+  echo '    -d sitename    enables developer mode for specified site'  
   echo '    -a    adds site-names to /etc/hosts file in the container to facilitate multisite access'
   echo '    --setup [-d]   builds docker containers, NOTE: assumes you have docker installed'
   echo '            -d    start up docker containers as well'
   echo '    --start [-b]   starts frappe docker'
   echo '            -b    starts bench as well'
-  echo '    --init [-ed] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
+  echo '    --init [-e] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
   echo '           -e  initializes frappe-bench and installs erpnext'
-  echo '           -d  initializes frappe-bench and enables developer mode'
 }
 
 function frappe_installer {
@@ -42,24 +50,33 @@ while true; do
   case "$1" in
     -h | --help)
       usage
+      exit 0
       ;;
     -a | --add)
-      a=$(docker exec -i frappe bash -c "cd ~/frappe-bench && ls sites/*/site_config.json" | grep -o '/.\+/')
-      a="${a//$'\n'/ }"
-      a=$(echo "$a" | tr -d / )
-      result="127.0.0.1 ${a}"
-      echo "$result"
-      docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
-      docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+      add=1
       ;;
     -d | --developer)
-        shift; # The arg is next in position args
-        docker exec -it -u root frappe bash -c "bench --site $1 set-config \"developer_mode\" 1 &&  bench clear-cache"
-        ;;
+      shift; # The arg is next in position args
+      dev=1
+      site=$optopt
+      ;;
+    -c)
+      docker exec -it frappe bash -c "$optopt"
+      ;;
+    --setup)
+      setup=1
+      ;;
+    --init)
+      init=1
+      site=$optopt
+      ;;
     --)
-        shift
-        break
-        ;;
+      break
+      ;;
     esac
     shift
 done
+
+if setup; then
+  docker-compose
+fi
