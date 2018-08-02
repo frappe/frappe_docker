@@ -72,7 +72,7 @@ while true; do
       ;;
     --init)
       init=1
-      site=$optopt
+      site="$optopt"
       ;;
     --)
       break
@@ -81,9 +81,9 @@ while true; do
     shift
 done
 
-if setup; then
+if $setup; then
   docker-compose build
-  if d; then
+  if $d; then
     docker-compose -d
   else
     docker-compose
@@ -91,9 +91,9 @@ if setup; then
   exit 0
 fi
 
-if init; then
-  if ! site; then
+if $init; then
+  if ! $site; then
     site="site1.local"
   fi
-  frappe_installer site
+  frappe_installer $site
 fi
