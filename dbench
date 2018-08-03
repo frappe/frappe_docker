@@ -46,7 +46,7 @@ cmd=0
 
 positional=()
 
-if [[ $# -gt 0 ]]; then
+if [ $# == 0 ]; then
   docker exec -it frappe bash
   exit 0
 fi
@@ -174,7 +174,7 @@ if [ $add == 1 ]; then
   exit 0
 fi
 
-if $*; then
+if "$*"; then
   echo "Incorrect option $*, please make sure you are entering the correct commands"
   usage
   exit 1
