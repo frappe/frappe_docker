@@ -174,7 +174,7 @@ if [ $add == 1 ]; then
   exit 0
 fi
 
-if $*; then
+if "$*"; then
   echo "Incorrect option $*, please make sure you are entering the correct commands"
   usage
   exit 1
