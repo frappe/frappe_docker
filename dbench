@@ -33,7 +33,7 @@ function frappe_installer {
 
 add=0
 setup=0
-d=0
+up=0
 start=0
 init=0
 dev=0
@@ -63,7 +63,7 @@ key="$1"
       cmd=1
       ;;
     -u)
-      d=1
+      up=1
       ;;
     -m)
       mgr=1
@@ -86,12 +86,13 @@ key="$1"
     esac
     shift
 done
-set -- "${POSITIONAL[@]}"
+set -- "${positional[@]}"
+
 site="$1"
 
 if [ $setup == 1 ]; then
   docker-compose build
-  if [ $d == 1 ]; then
+  if [ $up == 1 ]; then
     docker-compose up -d
   else
     docker-compose up
@@ -116,7 +117,7 @@ if [ $init == 1 ]; then
     echo "finished"
   fi
   
-  if [ $d == 1 ]; then
+  if [ $dev == 1 ]; then
     docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
   fi
   exit 0
