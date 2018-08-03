@@ -1,19 +1,20 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage: dbench [ --setup [-d] | --init [-med] [sitename] | "
+  echo "Usage: $(basename "$0") [ --setup [-u] | --init [-m -e -d] [sitename] | --start [-b] | -h (--help) | -d (--developer) [sitename] | -a (--add) | -c \"Command to be sent to Frappe Bench on Docker\""
   echo ''
   echo 'where:'
-  echo '    -h    show this help text'
-  echo '    -c command   send a command to bench in the container'
-  echo '    -d sitename    enables developer mode for specified site'  
-  echo '    -a    adds site-names to /etc/hosts file in the container to facilitate multisite access'
+  echo '    dbench    loads up container'
+  echo '    -c "command"   send a command to bench in the container'
+  echo '    -h | --help   show this help text'
+  echo '    -d | --developer [sitename]    enables developer mode for "sitename" (if not specified, it will default to site1.local)'  
+  echo '    -a | --add   adds site-names to /etc/hosts file in the container to facilitate multisite access'
   echo '    --setup [-u]   builds docker containers, NOTE: assumes you have docker installed'
   echo '            -u    start up docker containers as well'
+  echo '    --init [-m -e -d] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
+  echo '           -e  initializes frappe-bench and installs erpnext'
   echo '    --start [-b]   starts frappe docker'
   echo '            -b    starts bench as well'
-  echo '    --init [-e] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
-  echo '           -e  initializes frappe-bench and installs erpnext'
 }
 
 function frappe_installer {
@@ -44,6 +45,11 @@ bench=0
 cmd=0
 
 positional=()
+
+if ! $key1; then
+  docker exec -it frappe bash
+  exit 0
+fi
 
 while [[ $# -gt 0 ]]; do
 key="$1"
@@ -140,6 +146,7 @@ if [ $start == 1 ]; then
   if [ $bench == 1 ]; then
     docker exec -it frappe bash -c "bench start"
   fi
+  exit 0
 fi
 
 if [ $dev == 1 ]; then
@@ -160,6 +167,13 @@ if [ $add == 1 ]; then
   echo "$result"
   docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
   docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
-         
+  exit 0
 fi
+
+if $*; then
+  echo "Incorrect option $*, please make sure you are entering the correct commands"
+  usage
+  exit 1
+fi 
+
 exit 0
