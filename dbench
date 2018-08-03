@@ -81,7 +81,7 @@ key="$1"
       start=1
       ;;
     *)
-      positional+="$key"
+      positional+=("$key")
       ;;
     esac
     shift

@@ -16,11 +16,11 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - chmod u+x ./dbench
+  - chmod ugo+x ./dbench
 
 install:
   - ./dbench --setup -u
-  - ./dbench --init site2.local
+  - ./dbench --init -med
   - ./dbench --start
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
