@@ -1,8 +1,8 @@
 # frappe_docker
 
-| `latest` | `env` | `frappe-dev` |
-|:--------:|:-----:|:------------:|
-| [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=frappe)](https://travis-ci.org/frappe/frappe_docker) | [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=master)](https://travis-ci.org/frappe/frappe_docker) |[![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=frappe-dev)](https://travis-ci.org/frappe/frappe_docker) |
+| `latest` | `preview` |
+|:--------:|:-----:|
+| [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=master)](https://travis-ci.org/frappe/frappe_docker) | [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=develop)](https://travis-ci.org/frappe/frappe_docker) |
 
 - [Docker](https://docker.com/) is an open source project to pack, ship and run any Linux application in a lighter weight, faster container than a traditional virtual machine.
 
@@ -35,7 +35,7 @@ ports:
       - "6787:6787"   file-watcher-port
 ```
 
-Expose port 3307 inside the container on port 3307 on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/). The port 3307 of the mariadb container and port 8000 of the frappe container is exposed to the host machine and other containers.
+Expose port `3307` inside the container on port `3307` on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/). The port `3307` of the mariadb container and port `8000` of the frappe container is exposed to the host machine and other containers.
 
 #### Volumes
 
@@ -97,7 +97,7 @@ Express dependency between services, which has two effects:
 
   1. Build and start the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command.
 
-            ./dbench --setup -d
+            ./dbench --setup -u
 
       Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.  
       It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones the bench-repo from [here](https://github.com/frappe/bench)
@@ -126,7 +126,7 @@ For more info on how to build this docker container refer to this [Wiki](https:/
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, or `localhost:8000`
 
-The default username is "Administrator" and password is what you set when you created the new site. The default admin password is set in common_site_config.json, and is set to 'admin' in this docker image.
+The default username is `Administrator` and password is what you set when you created the new site. The default admin password is set in `common_site_config.json`, and is set to `admin` in this docker image.
 
 ## Built With
 
