@@ -48,7 +48,7 @@ positional=()
 while [[ $# -gt 0 ]]; do
 key="$1"
 
-  case "key" in
+  case "$key" in
     -h | --help)
       usage
       exit 0
