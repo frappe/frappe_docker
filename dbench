@@ -46,7 +46,7 @@ cmd=0
 
 positional=()
 
-if ! $key1; then
+if [[ $# -gt 0 ]]; then
   docker exec -it frappe bash
   exit 0
 fi
