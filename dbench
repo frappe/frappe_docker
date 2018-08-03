@@ -60,11 +60,11 @@ while true; do
     -d | --developer)
       shift; # The arg is next in position args
       dev=1
-      site="$optopt"
+      site="$1"
       ;;
     -c)
       shift
-      docker exec -it frappe bash -c "bench $optarg"
+      docker exec -it frappe bash -c "bench $*"
       ;;
     -u)
       d=1
@@ -80,7 +80,6 @@ while true; do
       ;;
     --init)
       init=1
-      site="$optarg"
       ;;
     --start)
       start=1
@@ -91,6 +90,10 @@ while true; do
     esac
     shift
 done
+
+if [ $site == "" ]; then
+  site=$1
+fi
 
 if [ $setup == 1 ]; then
   docker-compose build
