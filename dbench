@@ -63,7 +63,8 @@ while true; do
       site="$optopt"
       ;;
     -c)
-      docker exec -it frappe bash -c "$optopt"
+      shift
+      docker exec -it frappe bash -c "bench $optarg"
       ;;
     -u)
       d=1
@@ -79,7 +80,7 @@ while true; do
       ;;
     --init)
       init=1
-      site="$optopt"
+      site="$optarg"
       ;;
     --start)
       start=1
