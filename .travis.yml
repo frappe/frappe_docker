@@ -17,6 +17,7 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - chmod ugo+x ./dbench
+  - chmod ugo+x ./curl-travis
 
 install:
   - ./dbench --setup -u
@@ -35,3 +36,4 @@ script:
   - docker-compose ps | grep -i mariadb
   - python test.py
   - docker-compose stop
+  - ./curl-travis
