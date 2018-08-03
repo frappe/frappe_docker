@@ -106,19 +106,34 @@ if [ $init == 1 ]; then
   if ! $site; then
     site="site1.local"
   fi
+
   frappe_installer $site
+
+  if [ $mgr == 1 ]; then
+    echo "installing bench manager"
+    docker exec -it frappe bash -c "bench setup manager"
+  fi
+
+  if [ $erp == 1 ]; then
+    echo "installing erpnext"
+    docker exec -it frappe bash -c "bench get-app erpnext"
+    docker exec -it frappe bash -c "bench --site $site install-app erpnext"
+    docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+    echo "finished"
+  fi
+  
+  if [ $d == 1 ]; then
+    docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+  fi
+  exit 0
 fi
 
-if [ $mgr == 1 ]; then
-  docker exec -it frappe bash -c "bench setup manager"
-fi
-
-if [ $erp == 1 ]; then
-  echo "installing erpnext"
-  docker exec -it frappe bash -c "bench get-app erpnext"
-  docker exec -it frappe bash -c "bench --site $site install-app erpnext"
-  docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
-  echo "finished"
+if [ $start == 1 ]; then
+  docker-compose start
+  ./dbench -a
+  if [ $bench == 1 ]; then
+    docker exec -it frappe bash -c "bench start"
+  fi
 fi
 
 if [ $d == 1 ]; then

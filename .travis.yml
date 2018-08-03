@@ -20,7 +20,7 @@ before_install:
 
 install:
   - ./dbench --setup -u
-  - ./dbench --init
+  - ./dbench --init site2.local
   - ./dbench --start
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
