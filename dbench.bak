@@ -1,0 +1,113 @@
+#!/bin/bash
+
+function usage {
+  echo "Usage: dbench [-hda [sitename] | --init [-ed] [sitename] | --setup [-d] | --start [-b] | -c \"<command to be executed on bench inside container>\"]"
+  echo ''
+  echo 'where:'
+  echo '    -h    show this help text'
+  echo '    -c    send a command to the frappe container'
+  echo '    -d [sitename]    enables developer mode for specified site'  
+  echo '    -a    adds site-names to /etc/hosts file in the container to facilitate multisite access'
+  echo '    --setup [-d]   builds docker containers, NOTE: assumes you have docker installed'
+  echo '            -d    start up docker containers as well'
+  echo '    --start [-b]   starts frappe docker'
+  echo '            -b    starts bench as well'
+  echo '    --init [-e | -d] [sitename] initializes frappe-bench in docker and adds a site "sitename" (if not specified, it will default to site1.local)'
+  echo '           -e  initializes frappe-bench and installs erpnext'
+  echo '           -d  initializes frappe-bench and enables developer mode'
+}
+
+function frappe_installer {
+  echo "starting frappe_docker setup"
+  docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*" 
+  docker exec -it frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
+  docker exec -it frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
+  echo "frappe-bench folder setup"
+  docker exec -it -u root frappe bash -c "apt-get install vim -y && apt-get install sudo -y && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+  echo "adding $1"
+  docker exec -it frappe bash -c "bench new-site $1"
+  docker exec -i -u root frappe bash -c "echo 127.0.0.1   $1 >> /etc/hosts"
+  sudo su -c 'echo 127.0.0.1   $1 >> /etc/hosts'
+  echo "$1 added"
+}
+
+if [[ $# -eq 0 ]]; then
+  echo "entering container"
+  docker exec -it frappe bash
+
+elif [ $1 == '--init' ]; then
+  site=$3
+  if [ -z "$3" ]; then 
+    site="site1.local"
+  fi
+  if [ -z "$2" ]; then 
+    site="site1.local"
+  else
+    site=$2
+  fi
+  echo "$site"
+  frappe_installer "$site"
+  if [ "$2" == '-e' ]; then
+    echo "installing erpnext"
+    docker exec -it frappe bash -c "bench get-app erpnext"
+    docker exec -it frappe bash -c "bench --site $site install-app erpnext"
+    echo "finished"
+  elif [ "$2" == '-d' ]; then
+    docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+  elif [ "$2" == '-ed' ]; then
+    echo "installing erpnext"
+    docker exec -it frappe bash -c "bench get-app erpnext"
+    docker exec -it frappe bash -c "bench --site $site install-app erpnext"
+    docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+    echo "finished"
+  fi
+
+elif [ "$1" == '--setup' ]; then
+  docker-compose build
+  if [ "$2" == '-d' ]; then
+    docker-compose up -d
+  else
+    docker-compose up
+  fi
+elif [ "$1" == '--start' ]; then
+  docker-compose start
+  ./dbench -a
+  if [ "$2" == '-b' ]; then
+    docker exec -i frappe bash -c "bench start"
+  fi
+
+else
+  while getopts ':hadc:' option; do
+    case "$option" in
+      h)
+         display_usage
+         exit
+         ;;
+      a)
+         a=$(docker exec -i frappe bash -c "cd ~/frappe-bench && ls sites/*/site_config.json" | grep -o '/.\+/')
+         a="${a//$'\n'/ }"
+         a=$(echo $a | tr -d / )
+         result="127.0.0.1 ${a}"
+         echo $result
+         docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
+         docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+         ;;
+      d)
+        docker exec -it -u root frappe bash -c "bench --site $OPTARG set-config \"developer_mode\" 1 &&  bench clear-cache"
+        ;;
+      c)
+        docker exec -it -u root frappe bash -c "bench $OPTARG"
+        ;;
+      \?)
+        echo "Invalid option: -$OPTARG" >&2
+        usage
+        exit 1
+        ;;
+      :)
+        echo "Option -$OPTARG requires an argument." >&2
+        usage
+        exit 1
+        ;;
+    esac
+  done
+fi
