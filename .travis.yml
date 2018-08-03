@@ -20,7 +20,7 @@ before_install:
 
 install:
   - ./dbench --setup -u
-  - ./dbench --init -med
+  - ./dbench --init -m -e -d
   - ./dbench --start
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
