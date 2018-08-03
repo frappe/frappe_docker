@@ -1,7 +1,7 @@
 # frappe_docker
 
-| `latest` | `preview` |
-|:--------:|:-----:|
+| `latest` | `develop` |
+|:--------:|:---------:|
 | [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=master)](https://travis-ci.org/chabad360/frappe_docker) | [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=develop)](https://travis-ci.org/chabad360/frappe_docker) |
 
 - [Docker](https://docker.com/) is an open source project to pack, ship and run any Linux application in a lighter weight, faster container than a traditional virtual machine.
@@ -74,9 +74,9 @@ depends_on:
 
 Express dependency between services, which has two effects:
 
-1. `docker-compose up -d` will start services in dependency order. In the following example, mariadb and redis will be started before frappe.
+1. `docker-compose up -d` will start services in dependency order. In the following example, MariaDB and Redis will be started before Frappe.
 
-2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, `docker-compose up -d frappe` will also create and start mariadb and redis.
+2. `docker-compose up SERVICE` will automatically include `SERVICE`’s dependencies. In the following example, `docker-compose up -d frappe` will also create and start MariaDB and Redis.
 
 ### Installation
 
@@ -86,11 +86,11 @@ Express dependency between services, which has two effects:
 
 - Install [Docker Compose](https://docs.docker.com/compose/install/) (only for Linux users). Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose
 
-#### 2. Build the container and install bench
+#### 2. Build the container
 
 - Clone this repo and change your working directory to frappe_docker
 
-            git clone --depth 1 https://github.com/frappe/frappe_docker.git
+            git clone --depth 1 https://github.com/chabad360/frappe_docker.git
             cd frappe_docker
 
 - Build the container and install bench inside the container.
@@ -104,9 +104,7 @@ Express dependency between services, which has two effects:
 
       Note: Please do not remove the bench-repo directory the above commands will create
 
-#### Basic Usage
-
-##### Make sure your current directory is frappe_docker
+#### 3. Install and Start Bench
 
 1. First time setup
 
@@ -120,9 +118,9 @@ Express dependency between services, which has two effects:
 
             ./dbench
 
-4. All bench commands can also be directly run from the host machine by using `dbench`. For instance `bench start` can be executed by running `./dbench -c start`. Just preface the option with `./dbench -c`. For more information on `dbench` run the command `./dbench -h`.
+- All bench commands can also be directly run from the host machine by using `dbench`. For instance `bench start` can be executed by running `./dbench -c start`. Just preface the option with `./dbench -c`. For more information on `dbench` run the command `./dbench -h`.
 
-For more info on how to build this docker container refer to this [Wiki](https://github.com/chabad360/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
+For more info on how to build this docker container refer to this [Wiki](https://github.com/chabad360/frappe_docker/wiki/First-Timers-Manual)
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, or `localhost:8000`
 
