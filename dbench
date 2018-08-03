@@ -102,7 +102,7 @@ fi
 
 if [ $init == 1 ]; then
 
-  frappe_installer $site
+  frappe_installer "$site"
 
   if [ $mgr == 1 ]; then
     echo "installing bench manager"
