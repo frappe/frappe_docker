@@ -98,7 +98,7 @@ done
 set -- "${positional[@]}"
 
 site="$1"
-if ! $1; then
+if [ -z "$1" ]; then
  site="site1.local"
 fi
 
