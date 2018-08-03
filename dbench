@@ -16,10 +16,9 @@ erp=0
 mgr=0
 site=0
 bench=0
-initf=0
 
 function usage {
-  echo "Usage: dbench "
+  echo "Usage: dbench [ --setup [-d] | --init [-med] [sitename] | "
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
@@ -103,7 +102,7 @@ if [ $setup == 1 ]; then
 fi
 
 if [ $init == 1 ]; then
-  if ! $site; then
+  if [ "$site" == 0 ] || [ "$site" == "" ]; then
     site="site1.local"
   fi
 
@@ -126,6 +125,14 @@ if [ $init == 1 ]; then
     docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
   fi
   exit 0
+fi
+
+if [ $d == 1 ]; then
+  if [ "$site" == 0 ]; then
+    site="site1.local"
+  fi
+   docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+   exit 0
 fi
 
 if [ $start == 1 ]; then
