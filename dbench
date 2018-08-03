@@ -1,22 +1,5 @@
 #!/bin/bash
 
-if ! options=$(getopt -o hdaceumb --long add,help,developer,setup,start,init -- "$@") 
-then 
-  echo "entering container"
-  docker exec -it frappe bash
-fi
-
-add=0
-setup=0
-d=0
-start=0
-init=0
-dev=0
-erp=0
-mgr=0
-site=0
-bench=0
-
 function usage {
   echo "Usage: dbench [ --setup [-d] | --init [-med] [sitename] | "
   echo ''
@@ -47,9 +30,25 @@ function frappe_installer {
   echo "$1 added"
 }
 
-eval set -- "$options"
-while true; do
-  case "$1" in
+
+add=0
+setup=0
+d=0
+start=0
+init=0
+dev=0
+erp=0
+mgr=0
+site=0
+bench=0
+cmd=0
+
+positional=()
+
+while [[ $# -gt 0 ]]; do
+key="$1"
+
+  case "key" in
     -h | --help)
       usage
       exit 0
@@ -58,13 +57,10 @@ while true; do
       add=1
       ;;
     -d | --developer)
-      shift; # The arg is next in position args
       dev=1
-      site="$1"
       ;;
     -c)
-      shift
-      docker exec -it frappe bash -c "bench $*"
+      cmd=1
       ;;
     -u)
       d=1
@@ -84,16 +80,14 @@ while true; do
     --start)
       start=1
       ;;
-    --)
-      break
+    *)
+      positional+="$key"
       ;;
     esac
     shift
 done
-
-if [ $site == "" ]; then
-  site=$1
-fi
+set -- "${POSITIONAL[@]}"
+site="$1"
 
 if [ $setup == 1 ]; then
   docker-compose build
@@ -106,9 +100,6 @@ if [ $setup == 1 ]; then
 fi
 
 if [ $init == 1 ]; then
-  if [ "$site" == 0 ] || [ "$site" == "" ]; then
-    site="site1.local"
-  fi
 
   frappe_installer $site
 
@@ -152,4 +143,19 @@ if [ $d == 1 ]; then
   exit 0
 fi
 
+if [ $cmd == 1 ]; then
+  docker exec -it frappe bash -c "bench $*"
+  exit 0
+fi
+
+if [ $add == 1 ]; then
+  a=$(docker exec -i frappe bash -c "cd ~/frappe-bench && ls sites/*/site_config.json" | grep -o '/.\+/')
+  a="${a//$'\n'/ }"
+  a=$(echo $a | tr -d / )
+  result="127.0.0.1 ${a}"
+  echo $result
+  docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
+  docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+         
+fi
 exit 0
