@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! options=$(getopt -o hd:aceu --long add,help,developer:,setup,start,init -- "$@") 
+if ! options=$(getopt -o hdaceumb --long add,help,developer,setup,start,init -- "$@") 
 then 
   echo "entering container"
   docker exec -it frappe bash
@@ -13,11 +13,13 @@ start=0
 init=0
 dev=0
 erp=0
-mangr=0
+mgr=0
 site=0
+bench=0
+initf=0
 
 function usage {
-  echo "Usage: dbench [-had sitename | --init [-e] [sitename] | --setup [-d] | --start [-b] | -c \"<command to be executed on bench inside container>\"]"
+  echo "Usage: dbench "
   echo ''
   echo 'where:'
   echo '    -h    show this help text'
@@ -59,7 +61,7 @@ while true; do
     -d | --developer)
       shift; # The arg is next in position args
       dev=1
-      site=$1
+      site="$optopt"
       ;;
     -c)
       docker exec -it frappe bash -c "$optopt"
@@ -67,12 +69,21 @@ while true; do
     -u)
       d=1
       ;;
+    -m)
+      mgr=1
+      ;;
+    -b)
+      bench=1
+      ;;
     --setup)
       setup=1
       ;;
     --init)
       init=1
       site="$optopt"
+      ;;
+    --start)
+      start=1
       ;;
     --)
       break
@@ -84,9 +95,9 @@ done
 if [ $setup == 1 ]; then
   docker-compose build
   if [ $d == 1 ]; then
-    docker-compose -d
+    docker-compose up -d
   else
-    docker-compose
+    docker-compose up
   fi
   exit 0
 fi
@@ -97,3 +108,22 @@ if [ $init == 1 ]; then
   fi
   frappe_installer $site
 fi
+
+if [ $mgr == 1 ]; then
+  docker exec -it frappe bash -c "bench setup manager"
+fi
+
+if [ $erp == 1 ]; then
+  echo "installing erpnext"
+  docker exec -it frappe bash -c "bench get-app erpnext"
+  docker exec -it frappe bash -c "bench --site $site install-app erpnext"
+  docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+  echo "finished"
+fi
+
+if [ $d == 1 ]; then
+  docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+  exit 0
+fi
+
+exit 0
