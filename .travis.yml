@@ -36,4 +36,3 @@ script:
   - docker-compose ps | grep -i mariadb
   - python test.py
   - docker-compose stop
-  - ./curl-travis
