@@ -20,12 +20,12 @@ function usage {
 function frappe_installer {
   echo "starting frappe_docker setup"
   docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*" 
-  docker exec -it frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
-  docker exec -it frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
+  docker exec -i frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
+  docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
   echo "frappe-bench folder setup"
-  docker exec -it -u root frappe bash -c "apt-get install vim -y && apt-get install sudo -y && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+  docker exec -i -u root frappe bash -c "apt-get install vim -y && apt-get install sudo -y && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
   echo "adding $1"
-  docker exec -it frappe bash -c "bench new-site $1"
+  docker exec -i frappe bash -c "bench new-site $1"
   docker exec -i -u root frappe bash -c "echo 127.0.0.1   $1 >> /etc/hosts"
   sudo su -c 'echo 127.0.0.1   $1 >> /etc/hosts'
   echo "$1 added"
@@ -124,9 +124,9 @@ if [ $init == 1 ]; then
 
   if [ $erp == 1 ]; then
     echo "installing erpnext"
-    docker exec -it frappe bash -c "bench get-app erpnext"
-    docker exec -it frappe bash -c "bench --site $site install-app erpnext"
-    docker exec -it -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
+    docker exec -i frappe bash -c "bench get-app erpnext"
+    docker exec -i frappe bash -c "bench --site $site install-app erpnext"
+    docker exec -i -u root frappe bash -c "bench --site $site set-config \"developer_mode\" 1 &&  bench clear-cache"
     echo "finished"
   fi
   
