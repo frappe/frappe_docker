@@ -1,21 +1,28 @@
+sudo: required
+
 language: python
+  
 python:
   - "2.7"
+
 env:
   - DOCKER_COMPOSE_VERSION: 1.8.0
 
 services:
   - docker
 
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - chmod ugo+x ./dbench
+  - chmod ugo+x ./curl-travis
+
 install:
-  - docker-compose build
-  - docker-compose up -d
-  - docker exec -it -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
-  - docker exec -i frappe bash -c "cd .. && bench init frappe-bench --skip-bench-mkdir --skip-redis-config-generation && cd frappe-bench"
-  - docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
-  - docker exec -i frappe bash -c "bench new-site site1.local"
-  - docker exec -i -u root frappe bash -c "echo 127.0.0.1   site1.local >> /etc/hosts"
-  - sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
+  - ./dbench --setup -u
+  - ./dbench --init
+  - ./dbench --start
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
   - source testenv/bin/activate
@@ -29,3 +36,4 @@ script:
   - docker-compose ps | grep -i mariadb
   - python test.py
   - docker-compose stop
+  - ./curl-travis

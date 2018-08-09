@@ -1,5 +1,8 @@
 # frappe_docker
-[![Build Status](https://travis-ci.org/frappe/frappe_docker.svg?branch=master)](https://travis-ci.org/frappe/frappe_docker)
+
+| `latest` | `develop` | `arm` |
+|:--------:|:---------:|:-----:|
+| [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=master)](https://travis-ci.org/chabad360/frappe_docker) | [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=develop)](https://travis-ci.org/chabad360/frappe_docker) | [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=arm)](https://travis-ci.org/chabad360/frappe_docker) |
 
 - [Docker](https://docker.com/) is an open source project to pack, ship and run any Linux application in a lighter weight, faster container than a traditional virtual machine.
 
@@ -19,9 +22,9 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Container Configuration
 
-#### ports:
+#### Ports
 
-```
+```bash
 ports:
       - "3307:3307"   mariadb-port
       - "8000:8000"   webserver-port
@@ -32,11 +35,11 @@ ports:
       - "6787:6787"   file-watcher-port
 ```
 
-Expose port 3307 inside the container on port 3307 on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/). The port 3307 of the mariadb container and port 8000 of the frappe container is exposed to the host machine and other containers.
+Expose port `3307` inside the container on port `3307` on ALL local host interfaces. In order to bind to only one interface, you may specify the host's IP address as `([<host_interface>:[host_port]])|(<host_port>):<container_port>[/udp]` as defined in the [docker port binding documentation](http://docs.docker.com/userguide/dockerlinks/). The port `3307` of the mariadb container and port `8000` of the frappe container is exposed to the host machine and other containers.
 
-#### volumes:
+#### Volumes
 
-```
+```bash
 volumes:
      - ./frappe-bench:/home/frappe/frappe-bench
      - ./conf/mariadb-conf.d:/etc/mysql/conf.d
@@ -44,11 +47,12 @@ volumes:
      - ./redis-conf/redis_queue.conf:/etc/conf.d/redis.conf
      - ./redis-conf/redis_cache.conf:/etc/conf.d/redis.conf
 ```
+
 Exposes a directory inside the host to the container.
 
-#### links:
+#### Links
 
-```
+```bash
 links:
       - redis-cache
       - redis-queue
@@ -58,20 +62,21 @@ links:
 
 Links allow you to define extra aliases by which a service is reachable from another service.
 
-#### depends_on:
+#### Depends_on
 
-```
+```bash
 depends_on:
       - mariadb
       - redis-cache
       - redis-queue
       - redis-socketio
 ```
+
 Express dependency between services, which has two effects:
 
-1. docker-compose up will start services in dependency order. In the following example, mariadb and redis will be started before frappe.
+1. `docker-compose up -d` will start services in dependency order. In the following example, MariaDB and Redis will be started before Frappe.
 
-2. docker-compose up SERVICE will automatically include SERVICE’s dependencies. In the following example, docker-compose up docker_frappe will also create and start mariadb and redis.
+2. `docker-compose up SERVICE` will automatically include `SERVICE`’s dependencies. In the following example, `docker-compose up -d frappe` will also create and start MariaDB and Redis.
 
 ### Installation
 
@@ -81,54 +86,49 @@ Express dependency between services, which has two effects:
 
 - Install [Docker Compose](https://docs.docker.com/compose/install/) (only for Linux users). Docker for Mac, Docker for Windows, and Docker Toolbox include Docker Compose
 
-#### 2. Build the container and install bench
+#### 2. Build the container
 
-* Clone this repo and change your working directory to frappe_docker
-	
-		git clone --depth 1 https://github.com/frappe/frappe_docker.git
-		cd frappe_docker
+- Clone this repo and change your working directory to frappe_docker
 
-* Build the container and install bench inside the container.
+            git clone --depth 1 https://github.com/chabad360/frappe_docker.git
+            cd frappe_docker
 
-	1.Build the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command. 	 Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.
-	It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones
-	the bench-repo from [here](https://github.com/frappe/bench)
+- Build the container and install bench inside the container.
 
-		docker-compose up -d
+  1. Build and start the 5 linked containers frappe, mariadb, redis-cache, redis-queue and redis-socketio using this command.
 
-	Note: Please do not remove the bench-repo directory the above commands will create
+            ./dbench --setup -u
 
+      Make sure your current working directory is frappe_docker which contains the docker-compose.yml and Dockerfile.  
+      It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones the bench-repo from [here](https://github.com/frappe/bench)
 
+      Note: Please do not remove the bench-repo directory the above commands will create
 
-#### Basic Usage
-##### Make sure your current directory is frappe_docker
-1.	First time setup 
- 
-		./dbench init
+#### 3. Install and Start Bench
 
-2.	Command to start all the containers
+1. First time setup
 
-		docker-compose start
+            ./dbench --init
 
-3.	Command to be executed everytime after starting your containers
+2. Command to start all the containers
 
-		./dbench -s
+            ./dbench --start
 
-4.	Command to enter your container  
+3. Command to enter your container  
 
-		docker exec -it frappe bash 
+            ./dbench
 
-5.	All bench commands can also be directly run from the host machine by using dbench. For instance ```bench start``` can be executed by running ```./dbench -c start```. Just preface the option with <b>./dbench -c</b>. For more information on dbench run the command ```./dbench -h```.
+- All bench commands can also be directly run from the host machine by using `dbench`. For instance `bench start` can be executed by running `./dbench -c start`. Just preface the option with `./dbench -c`. For more information on `dbench` run the command `./dbench -h`.
 
-For more info on how to build this docker container refer to this [Wiki](https://github.com/frappe/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
+For more info on how to build this docker container refer to this [Wiki](https://github.com/chabad360/frappe_docker/wiki/First-Timers-Manual)
 
-To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
+To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, or `localhost:8000`
 
-The default username is "Administrator" and password is what you set when you created the new site. The default admin password is set in common_site_config.json, and is set to 'admin' in this docker image. 
+The default username is `Administrator` and password is what you set when you created the new site. The default admin password is set in `common_site_config.json`, and is set to `admin` in this docker image.
 
 ## Built With
 
-* [Docker](https://www.docker.com/)
+- [Docker](https://www.docker.com/)
 
 ## Contributing
 

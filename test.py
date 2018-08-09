@@ -13,7 +13,7 @@ def print_out(val,delay):
 		elif val == 2:
 			try:
 				global r
-				r = requests.get("http://site1.local:8000")
+				r = requests.get("http://localhost:8000")
 				print(r)
 			except requests.exceptions.ConnectionError as e:
 				print(e)

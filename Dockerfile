@@ -1,8 +1,8 @@
-
+﻿
 #bench Dockerfile
 
 FROM ubuntu:16.04
-MAINTAINER frappé
+LABEL Author frappé
 
 USER root
 RUN apt-get update
@@ -18,6 +18,7 @@ RUN apt-get install -y curl
 RUN apt-get install -y rlwrap
 RUN apt-get install redis-tools
 RUN apt-get install -y nano
+RUN apt-get install -y cron
 
 # Generate locale C.UTF-8 for mariadb and general locale data
 ENV LANG C.UTF-8
@@ -37,7 +38,8 @@ USER root
 RUN pip install -e bench-repo
 RUN apt-get install -y libmysqlclient-dev mariadb-client mariadb-common
 RUN npm install -g yarn
-RUN chown -R frappe:frappe /home/frappe/*
+RUN chown -R frappe:frappe /home/frappe
+ENV PATH /home/frappe/.local/bin:$PATH
 
 USER frappe
 WORKDIR /home/frappe/frappe-bench
