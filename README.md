@@ -1,8 +1,8 @@
 # frappe_docker
 
-| `latest` | `develop` |
-|:--------:|:---------:|
-| [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=master)](https://travis-ci.org/chabad360/frappe_docker) | [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=develop)](https://travis-ci.org/chabad360/frappe_docker) |
+| `latest` | `develop` | `arm` |
+|:--------:|:---------:|:-----:|
+| [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=master)](https://travis-ci.org/chabad360/frappe_docker) | [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=develop)](https://travis-ci.org/chabad360/frappe_docker) || [![Build Status](https://travis-ci.org/chabad360/frappe_docker.svg?branch=arm)](https://travis-ci.org/chabad360/frappe_docker) |
 
 - [Docker](https://docker.com/) is an open source project to pack, ship and run any Linux application in a lighter weight, faster container than a traditional virtual machine.
 
