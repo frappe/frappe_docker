@@ -1,33 +1,37 @@
 
 #bench Dockerfile
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 MAINTAINER frappé
 
 USER root
-RUN apt-get update
+RUN apt-get update -y
 RUN apt-get install -y iputils-ping
 RUN apt-get install -y git build-essential python-setuptools python-dev libffi-dev libssl-dev
 RUN apt-get install -y redis-tools software-properties-common libxrender1 libxext6 xfonts-75dpi xfonts-base
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get -yq install tzdata
+RUN ln -fs /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
 RUN apt-get install -y libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev python-tk apt-transport-https libsasl2-dev libldap2-dev libtiff5-dev tcl8.6-dev tk8.6-dev
-RUN apt-get install -y wget
+RUN apt-get install -y wget wkhtmltopdf curl rlwrap vim
+
 RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py
 RUN pip install --upgrade setuptools pip
+
+# Add user frappe and set as sudoers
+RUN apt-get install -y sudo
 RUN useradd -ms /bin/bash frappe
-RUN apt-get install -y curl
-RUN apt-get install -y rlwrap
-RUN apt-get install redis-tools
-RUN apt-get install -y nano
+RUN usermod -aG sudo frappe
+RUN printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe
 
 # Generate locale C.UTF-8 for mariadb and general locale data
 ENV LANG C.UTF-8
 
 #nodejs
-RUN apt-get install curl
-RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1nodesource1~xenial1_amd64.deb > node.deb \
- && dpkg -i node.deb \
- && rm node.deb
-RUN apt-get install -y wkhtmltopdf
+RUN curl --silent --location https://deb.nodesource.com/setup_8.x | bash -
+RUN apt-get install -y nodejs
 
 USER frappe
 WORKDIR /home/frappe
