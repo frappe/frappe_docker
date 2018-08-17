@@ -2,7 +2,7 @@
 #bench Dockerfile
 
 FROM ubuntu:18.04
-MAINTAINER Facgure
+MAINTAINER frappé
 
 USER root
 RUN apt-get update -y
