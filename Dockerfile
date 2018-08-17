@@ -1,7 +1,7 @@
 
 #bench Dockerfile
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 MAINTAINER Facgure
 
 USER root
