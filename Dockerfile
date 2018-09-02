@@ -27,7 +27,14 @@ RUN apt-get install curl
 RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1nodesource1~xenial1_amd64.deb > node.deb \
  && dpkg -i node.deb \
  && rm node.deb
-RUN apt-get install -y wkhtmltopdf
+
+# Install patched wkhtmltopdf
+RUN apt-get install -y libxrender1 libxext6 xfonts-75dpi xfonts-base
+RUN wget https://github.com/frappe/wkhtmltopdf/raw/master/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz -O /tmp/wkhtmltox.tar.xz
+RUN mkdir /tmp/wkhtmltox; \
+  tar xvf /tmp/wkhtmltox.tar.xz -C /tmp; \
+  cp /tmp/wkhtmltox/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf; \
+  chmod o+x /usr/local/bin/wkhtmltopdf
 
 USER frappe
 WORKDIR /home/frappe
