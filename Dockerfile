@@ -8,7 +8,7 @@ USER root
 RUN apt-get update
 RUN apt-get install -y iputils-ping
 RUN apt-get install -y git build-essential python-setuptools python-dev libffi-dev libssl-dev
-RUN apt-get install -y redis-tools software-properties-common libxrender1 libxext6 xfonts-75dpi xfonts-base
+RUN apt-get install -y redis-tools redis-server software-properties-common libxrender1 libxext6 xfonts-75dpi xfonts-base
 RUN apt-get install -y libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev python-tk apt-transport-https libsasl2-dev libldap2-dev libtiff5-dev tcl8.6-dev tk8.6-dev
 RUN apt-get install -y wget
 RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py
