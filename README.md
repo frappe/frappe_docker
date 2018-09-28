@@ -94,7 +94,7 @@ Express dependency between services, which has two effects:
 	It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones
 	the bench-repo from [here](https://github.com/frappe/bench)
 
-		docker-compose up -d
+		sudo docker-compose up -d
 
 	Note: Please do not remove the bench-repo directory the above commands will create
 
