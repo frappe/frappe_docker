@@ -1,7 +1,7 @@
 version: '2'
 services:
   mariadb:
-    image: "mariadb"
+    image: mariadb
     environment:
       - MYSQL_ROOT_PASSWORD=123
       - MYSQL_USER=root
@@ -13,15 +13,34 @@ services:
 
   redis-cache:
     image: redis:alpine
+
+    volumes:
+      - ./redis-conf/redis_cache.conf:/etc/conf.d/redis.conf
+
+    command: ["redis-server","/etc/conf.d/redis.conf"]
+
     container_name: redis-cache
 
   redis-queue:
     image: redis:alpine
+
+    volumes:
+      - ./redis-conf/redis_queue.conf:/etc/conf.d/redis.conf
+
+    command: ["redis-server","/etc/conf.d/redis.conf"]
+
     container_name: redis-queue
 
   redis-socketio:
     image: redis:alpine
+
+    volumes:
+      - ./redis-conf/redis_socketio.conf:/etc/conf.d/redis.conf
+
+    command: ["redis-server","/etc/conf.d/redis.conf"]
+
     container_name: redis-socketio
+
 
   frappe:
     volumes:
