@@ -15,9 +15,9 @@ services:
     image: redis:alpine
 
     volumes:
-      - ./redis-conf/redis_cache.conf:/etc/conf.d/redis.conf
+      - ./redis-conf/:/etc/conf.d/
 
-    command: ["redis-server","/etc/conf.d/redis.conf"]
+    command: ["redis-server","/etc/conf.d/redis_cache.conf"]
 
     container_name: redis-cache
 
@@ -25,9 +25,9 @@ services:
     image: redis:alpine
 
     volumes:
-      - ./redis-conf/redis_queue.conf:/etc/conf.d/redis.conf
+      - ./redis-conf/:/etc/conf.d/
 
-    command: ["redis-server","/etc/conf.d/redis.conf"]
+    command: ["redis-server","/etc/conf.d/redis_queue.conf"]
 
     container_name: redis-queue
 
@@ -35,9 +35,9 @@ services:
     image: redis:alpine
 
     volumes:
-      - ./redis-conf/redis_socketio.conf:/etc/conf.d/redis.conf
+      - ./redis-conf/:/etc/conf.d/
 
-    command: ["redis-server","/etc/conf.d/redis.conf"]
+    command: ["redis-server","/etc/conf.d/redis_socketio.conf"]
 
     container_name: redis-socketio
 
