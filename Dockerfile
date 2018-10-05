@@ -32,4 +32,3 @@ RUN pip install -e bench-repo \
 
 USER frappe
 WORKDIR /home/frappe/frappe-bench
-WORKDIR /home/frappe/frappe-bench
