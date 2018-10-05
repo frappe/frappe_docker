@@ -3,10 +3,11 @@
 if [[ $# -eq 0 ]]; then
     docker exec -it frappe bash
 elif [ "$1" == 'init' ]; then
-    docker exec -it root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
-    docker exec -it frappe bash -c "bench init frappe-bench --ignore-exist --skip-redis-config-generation && mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
+    docker exec -it -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
+    docker exec -i frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation"
+    docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
 elif [ "$1" == 'setup' ] && [ "$2" == 'docker' ]; then
-    if [ "$3" == 'swarm' ]; then
+    if [ "$3" == '--swarm-mode' ]; then
         echo "Docker swarm mode is not currently supported"
     else
         docker-compose up -d
@@ -15,7 +16,8 @@ elif [ "$1" == '-c' ]; then
     shift
     user=$1
     shift
-    docker exec -it -u "$user" frappe bash -c "$@"
+    docker exec -i -u "$user" frappe bash -c "$@"
 else
-    docker exec -it frappe bash -c bench "$@"
+    IFS=" "
+    docker exec -i frappe bash -c "bench $*"
 fi
