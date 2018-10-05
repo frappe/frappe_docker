@@ -12,7 +12,7 @@ install:
   - ./dbench setup docker
   - ./dbench init frappe-bench
   - ./dbench new-site site1.local
-  - ./dbench setup hosts
+  - sudo ./dbench setup hosts
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
   - source testenv/bin/activate
