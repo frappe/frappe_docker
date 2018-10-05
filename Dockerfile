@@ -2,7 +2,7 @@
 #bench Dockerfile
 
 FROM ubuntu:16.04
-MAINTAINER frappé
+LABEL MAINTAINER frappé
 
 USER root
 RUN useradd -ms /bin/bash frappe
