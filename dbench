@@ -1,57 +1,34 @@
+
 #!/bin/bash
 
-display_usage() {
-  echo "$(basename "$0") [-h] [-c \"<command to be executed inside container>\"]"
-  echo ''
-  echo 'where:'
-  echo '    -h    show this help text'
-  echo '    -c    execute a command inside docker using docker exec'
-  echo '    -s    adds site-names to /etc/hosts file in the container to facilitate multisite access'
-  echo '    init  initializes frappe-bench adds a new-site bench-manager.local and installs the bench_manager app
-            app onto it'
-}
-
 if [[ $# -eq 0 ]]; then
-  docker exec -it frappe bash
-
-elif [ $1 == 'init' ]
-then
-  docker exec -i -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
-  docker exec -it frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
-  docker exec -it frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json"
-  docker exec -it -u root frappe bash -c "apt-get install -y vim sudo && usermod -aG sudo frappe && printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
-  docker exec -it frappe bash -c "bench set-mariadb-host mariadb"
-  docker exec -it frappe bash -c "bench new-site site1.local"
-  docker exec -it frappe bash -c "bench get-app erpnext"
-  docker exec -it frappe bash -c "bench --site site1.local install-app erpnext"
-
+    docker exec -it frappe bash
+elif [ "$1" == 'init' ]; then
+    docker exec -it -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
+    docker exec -i frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation"
+    docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
+elif [ "$1" == 'setup' ]; then
+    if [ "$2" == 'docker' ]; then
+        if [ "$3" == '--swarm-mode' ]; then
+            echo "Docker swarm mode is not currently supported"
+        else
+            docker-compose up -d
+        fi
+    elif [ "$2" == 'hosts' ]; then
+        a=$(cd frappe-bench && ls sites/*/site_config.json | grep -o '/.\+/')
+        a="${a//$'\n'/ }"
+        a=$(echo $a | tr -d / )
+        result="127.0.0.1 ${a}"
+        sudo echo $result >> /etc/hosts
+        docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
+        docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
+    fi
+elif [ "$1" == '-c' ]; then
+    shift
+    user=$1
+    shift
+    docker exec -i -u "$user" frappe bash -c "$@"
 else
-  while getopts ':hsc:' option; do
-    case "$option" in
-      h)
-         display_usage
-         exit
-         ;;
-      c)
-         docker exec -it frappe bash -c "bench $OPTARG"
-         ;;
-      s)
-         a=$(cd frappe-bench && ls sites/*/site_config.json | grep -o '/.\+/')
-         a="${a//$'\n'/ }"
-         a=$(echo $a | tr -d / )
-         result="127.0.0.1 ${a}"
-         echo $result
-         docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
-         docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
-         ;;
-      \?)
-        echo "Invalid option: -$OPTARG" >&2
-        exit 1
-        ;;
-      :)
-        echo "Option -$OPTARG requires an argument." >&2
-        exit 1
-        ;;
-    esac
-  done
+    IFS=" "
+    docker exec -i frappe bash -c "bench $*"
 fi

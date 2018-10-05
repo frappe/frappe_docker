@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 env:
-  - DOCKER_COMPOSE_VERSION: 1.8.0
+  - DOCKER_COMPOSE_VERSION: 1.22.0
 
 services:
   - docker
@@ -12,8 +12,7 @@ install:
   - ./bench setup docker
   - ./bench init frappe-bench
   - ./bench new-site site1.local
-  - ./bench -c root "echo 127.0.0.1   site1.local >> /etc/hosts"
-  - sudo su -c 'echo 127.0.0.1   site1.local >> /etc/hosts'
+  - ./bench setup hosts'
   - pip install --upgrade virtualenv
   - virtualenv -p python3 testenv
   - source testenv/bin/activate
