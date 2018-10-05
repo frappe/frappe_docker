@@ -4,7 +4,7 @@ if [[ $# -eq 0 ]]; then
     docker exec -it frappe bash
 elif [ "$1" == 'init' ]; then
     docker exec -itu root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
-    docker exec -i frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation"
+    docker exec -i frappe bash -c "cd .. && bench init $2 --ignore-exist --skip-redis-config-generation"
     docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
 elif [ "$1" == 'setup' ]; then
     if [ "$2" == 'docker' ]; then
@@ -18,7 +18,7 @@ elif [ "$1" == 'setup' ]; then
         a="${a//$'\n'/ }"
         a=$(echo $a | tr -d / )
         result="127.0.0.1 ${a}"
-        sudo echo $result >> /etc/hosts
+        echo $result | sudo tee -a /etc/hosts
         docker exec -iu root frappe bash -c "echo ${result} | tee --append /etc/hosts"
         docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
     fi
@@ -27,6 +27,23 @@ elif [ "$1" == '-c' ]; then
     user=$1
     shift
     docker exec -iu "$user" frappe bash -c "$@"
+elif [ "$1" == '-h' ]; then
+    echo "$0 [-h] | [ -c frappe | root <command to run in frappe container, under selceted user> ] [ command to send to bench ]"
+    echo ""
+    echo "$0 extends the Frappe Bench tool, and is used like it. However, it extends the tool in a few places."
+    echo "Usage:"
+    echo "    $0"
+    echo "                Launches you into an interactive shell in the container as user frappe"
+    echo "    $0 init [bench folder name]"
+    echo "                Runs \"bench init\" along with some other commands"
+    echo "    $0 setup docker"
+    echo "                starts docker using \"docker-compose up -d\""
+    echo "    $0 setup hosts"
+    echo "                adds all sites to the hosts file, run with sudo"
+    echo "    $0 -c frappe | root <command to run>"
+    echo "                Runs a command in the container, as the selected user"
+    echo "    $0 [ command to send to bench ]"
+    echo "                Runs a command in bench, i.e. $0 new-site site1.local = bench new-site site1.local"
 else
     IFS=" "
     docker exec -it frappe bash -c "bench $*"
