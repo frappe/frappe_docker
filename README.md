@@ -84,7 +84,7 @@ Express dependency between services, which has two effects:
 #### 2. Build the container and install bench
 
 * Clone this repo and change your working directory to frappe_docker
-	
+
 		git clone --depth 1 https://github.com/frappe/frappe_docker.git
 		cd frappe_docker
 
@@ -94,7 +94,7 @@ Express dependency between services, which has two effects:
 	It creates a user, frappe inside the frappe container, whose working directory is /home/frappe. It also clones
 	the bench-repo from [here](https://github.com/frappe/bench)
 
-		docker-compose up -d
+		./dbench setup docker
 
 	Note: Please do not remove the bench-repo directory the above commands will create
 
@@ -102,29 +102,25 @@ Express dependency between services, which has two effects:
 
 #### Basic Usage
 ##### Make sure your current directory is frappe_docker
-1.	First time setup 
- 
+1.	First time setup
+
 		./dbench init
 
-2.	Command to start all the containers
+2.	Command to be executed everytime after starting your containers
 
-		docker-compose start
+		./dbench setup hosts
 
-3.	Command to be executed everytime after starting your containers
+3.	Command to enter your container
 
-		./dbench -s
+		./dbench
 
-4.	Command to enter your container  
-
-		docker exec -it frappe bash 
-
-5.	All bench commands can also be directly run from the host machine by using dbench. For instance ```bench start``` can be executed by running ```./dbench -c start```. Just preface the option with <b>./dbench -c</b>. For more information on dbench run the command ```./dbench -h```.
+4.	All bench commands can also be directly run from the host machine by using dbench. For instance ```bench start``` can be executed by running ```./dbench start```. Just preface the option with **`./dbench`**. For more information on dbench run the command ```./dbench -h```.
 
 For more info on how to build this docker container refer to this [Wiki](https://github.com/frappe/frappe_docker/wiki/Hitchhiker's-guide-to-building-this-frappe_docker-image)
 
 To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:8000`, probably `localhost:8000`
 
-The default username is "Administrator" and password is what you set when you created the new site. The default admin password is set in common_site_config.json, and is set to 'admin' in this docker image. 
+The default username is "Administrator" and password is what you set when you created the new site. The default admin password is set in common_site_config.json, and is set to 'admin' in this docker image.
 
 ## Built With
 
