@@ -5,7 +5,6 @@ FROM ubuntu:16.04
 LABEL MAINTAINER frappé
 
 USER root
-RUN useradd -ms /bin/bash frappe
 RUN apt-get update
 RUN apt-get install -y iputils-ping git build-essential python-setuptools python-dev libffi-dev libssl-dev \
   redis-tools redis-server software-properties-common libxrender1 libxext6 xfonts-75dpi xfonts-base \
@@ -28,7 +27,8 @@ RUN git clone -b master https://github.com/frappe/bench.git bench-repo
 USER root
 RUN pip install -e bench-repo \
   && npm install -g yarn \
-  && chown -R frappe:frappe /home/frappe/*
-  
+  && chown -R frappe:frappe /home/frappe/* \
+  && && rm -rf /var/lib/apt/lists/*
+
 USER frappe
 WORKDIR /home/frappe/frappe-bench

@@ -1,10 +1,9 @@
-
 #!/bin/bash
 
 if [[ $# -eq 0 ]]; then
     docker exec -it frappe bash
 elif [ "$1" == 'init' ]; then
-    docker exec -it -u root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
+    docker exec -itu root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
     docker exec -i frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation"
     docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
 elif [ "$1" == 'setup' ]; then
@@ -20,15 +19,15 @@ elif [ "$1" == 'setup' ]; then
         a=$(echo $a | tr -d / )
         result="127.0.0.1 ${a}"
         sudo echo $result >> /etc/hosts
-        docker exec -u root -i frappe bash -c "echo ${result} | tee --append /etc/hosts"
+        docker exec -iu root frappe bash -c "echo ${result} | tee --append /etc/hosts"
         docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
     fi
 elif [ "$1" == '-c' ]; then
     shift
     user=$1
     shift
-    docker exec -i -u "$user" frappe bash -c "$@"
+    docker exec -iu "$user" frappe bash -c "$@"
 else
     IFS=" "
-    docker exec -i frappe bash -c "bench $*"
+    docker exec -it frappe bash -c "bench $*"
 fi
