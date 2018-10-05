@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ "$1" == 'init' ]; then
+    docker exec -it frappe bash -c "bench init frappe-bench --ignore-exist --skip-redis-config-generation && mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
+elif [[ $# -eq 0 ]]; then
+    docker exec -it frappe bash
+elif [ "$1" == '-c' ]; then
+    shift
+    docker exec -it root frappe bash -c "$@"
+else
+    docker exec -it frappe bash -c "bench $@"
+fi
