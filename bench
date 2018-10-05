@@ -1,12 +1,19 @@
 #!/bin/bash
 
 if [ "$1" == 'init' ]; then
+    docker exec -it root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
     docker exec -it frappe bash -c "bench init frappe-bench --ignore-exist --skip-redis-config-generation && mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
-elif [[ $# -eq 0 ]]; then
-    docker exec -it frappe bash
+elif [ "$1" == 'setup' && "$2" == 'docker' ]; then
+    if [ "$3" == 'swarm' ]; then
+        echo "Docker swarm mode is not currently supported"
+    else
+        docker-compose up -d
+    fi
 elif [ "$1" == '-c' ]; then
     shift
     docker exec -it root frappe bash -c "$@"
+elif [[ $# -eq 0 ]]; then
+    docker exec -it frappe bash
 else
     docker exec -it frappe bash -c "bench $@"
 fi
