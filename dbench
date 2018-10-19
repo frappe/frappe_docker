@@ -6,14 +6,13 @@ elif [ "$1" == 'init' ]; then
     docker exec -itu root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
     docker exec -i frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
     docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
-elif [ "$1" == 'setup' ]; then
-    if [ "$2" == 'docker' ]; then
+elif [ "$1" == 'setup' ] && [ "$2" == 'docker' ]; then
         if [ "$3" == '--swarm-mode' ]; then
             echo "Docker swarm mode is not currently supported"
         else
             docker-compose up -d
         fi
-    elif [ "$2" == 'hosts' ]; then
+elif [ "$1" == 'setup' ] && [ "$2" == 'hosts' ]; then
         a=$(cd frappe-bench && ls sites/*/site_config.json | grep -o '/.\+/')
         a="${a//$'\n'/ }"
         a=$(echo $a | tr -d / )
@@ -21,7 +20,6 @@ elif [ "$1" == 'setup' ]; then
         echo $result | sudo tee -a /etc/hosts
         docker exec -iu root frappe bash -c "echo ${result} | tee --append /etc/hosts"
         docker exec -itu root frappe bash -c "printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe"
-    fi
 elif [ "$1" == '-c' ]; then
     shift
     user=$1
