@@ -135,8 +135,7 @@ docker run \
     -e REDIS_QUEUE=localhost \
     -e REDIS_SOCKETIO=localhost \
     -e REDIS_CACHE=localhost \
-    -v /home/revant/tmp/frappesites:/home/frappe/frappe-bench/sites \
-    -it start
+    -it frappe:alpine new-site test_site1.localhost
 
 ```
 

@@ -1,0 +1,72 @@
+version: '2'
+services:
+  mariadb:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=123
+      - MYSQL_USER=root
+    volumes:
+      - ./conf/mariadb-conf.d:/etc/mysql/conf.d
+      - /var/lib/mysql
+    ports:
+      - "3307:3306" #mariadb-port
+    container_name: mariadb
+
+  redis-cache:
+    image: redis:alpine
+
+    volumes:
+      - ./redis-conf:/etc/conf.d
+
+    command: ["redis-server","/etc/conf.d/redis_cache.conf"]
+
+    container_name: redis-cache
+
+  redis-queue:
+    image: redis:alpine
+
+    volumes:
+      - ./redis-conf:/etc/conf.d
+
+    command: ["redis-server","/etc/conf.d/redis_queue.conf"]
+
+    container_name: redis-queue
+
+  redis-socketio:
+    image: redis:alpine
+
+    volumes:
+      - ./redis-conf:/etc/conf.d
+
+    command: ["redis-server","/etc/conf.d/redis_socketio.conf"]
+
+    container_name: redis-socketio
+
+
+  frappe:
+    environment:
+      - DB_HOST=mariadb
+      - DB_PASSWORD=123
+      - ADMIN_PASSWORD=admin
+      - REDIS_QUEUE=redis-queue
+      - REDIS_SOCKETIO=redis-socketio
+      - REDIS_CACHE=redis-cache
+
+    image: frappe:alpine
+    ports:
+      - "8000:8000" #webserver_port
+      - "9000:9000" #socketio_port
+      - "6787:6787" #file_watcher_port
+    stdin_open: true
+    tty: true
+    links:
+      - redis-cache
+      - redis-queue
+      - redis-socketio
+      - mariadb
+    depends_on:
+      - mariadb
+      - redis-cache
+      - redis-queue
+      - redis-socketio
+    container_name: frappe
