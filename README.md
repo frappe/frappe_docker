@@ -122,6 +122,33 @@ To login to Frappe / ERPNext, open your browser and go to `[your-external-ip]:80
 
 The default username is "Administrator" and password is what you set when you created the new site. The default admin password is set in common_site_config.json, and is set to 'admin' in this docker image.
 
+## Dockerfile-frappe-alpine
+
+this file has docker entrypoint, following command works
+
+```
+docker run \
+    --network host \
+    -e DB_HOST=localhost \
+    -e DB_PASSWORD=$DB_PASSWORD \
+    -e ADMIN_PASSWORD=admin \
+    -e REDIS_QUEUE=localhost \
+    -e REDIS_SOCKETIO=localhost \
+    -e REDIS_CACHE=localhost \
+    -v /home/revant/tmp/frappesites:/home/frappe/frappe-bench/sites \
+    -it start
+
+```
+
+Commands internal to container are
+
+```
+new-site test_site1.localhost # creates new site on db/password mentioned via env vars.
+start # does bench start
+migrate test_site1.localhost # migrates the specified site
+
+```
+
 ## Built With
 
 * [Docker](https://www.docker.com/)
