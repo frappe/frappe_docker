@@ -52,7 +52,11 @@ RUN cd /home/frappe \
 
 WORKDIR /home/frappe/frappe-bench
 
+VOLUME /home/frappe/frappe-bench/sites
+
 EXPOSE 8000
+EXPOSE 9000
+EXPOSE 6787
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start"]

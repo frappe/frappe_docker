@@ -7,7 +7,7 @@ services:
       - MYSQL_USER=root
     volumes:
       - ./conf/mariadb-conf.d:/etc/mysql/conf.d
-      - /var/lib/mysql
+      - /tmp/mysql-data:/var/lib/mysql
     ports:
       - "3307:3306" #mariadb-port
     container_name: mariadb
