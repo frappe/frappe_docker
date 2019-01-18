@@ -29,6 +29,7 @@ USER root
 RUN pip install -e bench-repo && rm -rf ~/.cache/pip \
   && npm install -g yarn \
   && chown -R frappe:frappe /home/frappe/*
+RUN printf '# User rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe
 
 USER frappe
 WORKDIR /home/frappe/frappe-bench
