@@ -9,6 +9,10 @@ elif [ "$1" == 'init' ]; then
 elif [ "$1" == 'setup' ] && [ "$2" == 'docker' ]; then
         if [ "$3" == '--swarm-mode' ]; then
             echo "Docker swarm mode is not currently supported"
+        elif [ "$3" == 'down' ]; then
+            docker-compose down
+        elif [ "$3" == 'stop' ]; then
+            docker-compose stop
         else
             docker-compose up -d
         fi
@@ -22,7 +26,7 @@ elif [ "$1" == '-c' ]; then
     shift
     user=$1
     shift
-    docker exec -iu "$user" frappe bash -c "$@"
+    docker exec -iu $user frappe bash -c "$@"
 elif [ "$1" == '-h' ]; then
     echo "$0 [-h] | [ -c frappe | root <command to run> ] [ <command to send to bench> ]"
     echo ""
@@ -30,12 +34,12 @@ elif [ "$1" == '-h' ]; then
     echo "Usage:"
     echo "    $0"
     echo "                Launches you into an interactive shell in the container as user frappe"
-    echo "    $0 init bench-folder-name"
+    echo "    $0 init [ bench-folder-name ]"
     echo "                Runs \"bench init\" along with some other commands"
-    echo "    $0 setup docker"
+    echo "    $0 setup docker [ stop | down ]"
     echo "                Starts and builds the docker containers using \"docker-compose up -d\""
     echo "    $0 setup hosts"
-    echo "                Adds all sites to the hosts file, run with sudo"
+    echo "                Adds all sites to the containers hosts file"
     echo "    $0 -c frappe | root <command to run>"
     echo "                Runs a command in the container, as the selected user"
     echo "    $0 -h"
