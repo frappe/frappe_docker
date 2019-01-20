@@ -20,7 +20,7 @@ services:
     image: redis:alpine
 
     volumes:
-      - ./conf/redis-conf:/etc/conf.d
+      - ./conf/redis-conf.d:/etc/conf.d
 
     command: ["redis-server","/etc/conf.d/redis_cache.conf"]
 
@@ -30,7 +30,7 @@ services:
     image: redis:alpine
 
     volumes:
-      - ./conf/redis-conf:/etc/conf.d
+      - ./conf/redis-conf.d:/etc/conf.d
 
     command: ["redis-server","/etc/conf.d/redis_queue.conf"]
 
@@ -40,7 +40,7 @@ services:
     image: redis:alpine
 
     volumes:
-      - ./conf/redis-conf:/etc/conf.d
+      - ./conf/redis-conf.d:/etc/conf.d
 
     command: ["redis-server","/etc/conf.d/redis_socketio.conf"]
 
@@ -50,9 +50,9 @@ services:
   frappe:
     volumes:
       - ./frappe-bench:/home/frappe/frappe-bench
-      - ./conf/redis-conf/redis_cache.conf:/home/frappe/frappe-bench/config/redis_cache.conf
-      - ./conf/redis-conf/redis_queue.conf:/home/frappe/frappe-bench/config/redis_queue.conf
-      - ./conf/redis-conf/redis_socketio.conf:/home/frappe/frappe-bench/config/redis_socketio.conf
+      - ./conf/redis-conf.d/redis_cache.conf:/home/frappe/frappe-bench/config/redis_cache.conf
+      - ./conf/redis-conf.d/redis_queue.conf:/home/frappe/frappe-bench/config/redis_queue.conf
+      - ./conf/redis-conf.d/redis_socketio.conf:/home/frappe/frappe-bench/config/redis_socketio.conf
     build: .
     ports:
       - "8000:8000" #webserver_port
