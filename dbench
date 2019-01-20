@@ -3,7 +3,7 @@
 if [[ $# -eq 0 ]]; then
     docker exec -it frappe bash
 elif [ "$1" == 'init' ]; then
-    docker exec -itu root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
+#    docker exec -itu root frappe bash -c "cd /home/frappe && chown -R frappe:frappe ./*"
     docker exec -i frappe bash -c "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
     docker exec -i frappe bash -c "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
 elif [ "$1" == 'setup' ] && [ "$2" == 'docker' ]; then
@@ -34,8 +34,6 @@ elif [ "$1" == '-h' ]; then
     echo "Usage:"
     echo "    $0"
     echo "                Launches you into an interactive shell in the container as user frappe"
-    echo "    $0 init [ bench-folder-name ]"
-    echo "                Runs \"bench init\" along with some other commands"
     echo "    $0 setup docker [ stop | down ]"
     echo "                Starts and builds the docker containers using \"docker-compose up -d\""
     echo "    $0 setup hosts"
