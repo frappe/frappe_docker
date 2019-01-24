@@ -31,4 +31,5 @@ RUN pip install -e bench-repo && rm -rf ~/.cache/pip \
   && npm install -g yarn
 
 USER frappe
+ADD ./frappe-bench /home/frappe/frappe-bench
 WORKDIR /home/frappe/frappe-bench
