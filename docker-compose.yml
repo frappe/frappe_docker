@@ -1,54 +1,67 @@
-version: '2'
+version: '2.1'
 services:
+
+  shared-conf:
+    volumes:
+      - redis-conf:/redis_conf
+      - frappe-docker-conf:/frappe_docker_conf
+      - mariadb-conf:/mariadb_conf
+    build:
+      context: .
+      dockerfile: Dockerfile.shared_conf
+    command: ["sh", "-c", "tail -f /dev/null"]
+    container_name: shared-conf
+
   mariadb:
-    image: mariadb
+    image: mariadb:10.3.12
     environment:
-      - MYSQL_ROOT_PASSWORD=123
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-123}
       - MYSQL_USER=root
     volumes:
-      - ./conf/mariadb-conf.d:/etc/mysql/conf.d
-      - /var/lib/mysql
+      - mariadb-conf:/etc/mysql/conf.d
+      - mariadb-data:/var/lib/mysql
+    depends_on:
+      - shared-conf
     ports:
       - "3307:3306" #mariadb-port
     container_name: mariadb
 
   redis-cache:
-    image: redis:alpine
-
+    image: redis:5.0.3-alpine3.8
     volumes:
-      - ./redis-conf:/etc/conf.d
-
+      - redis-conf:/etc/conf.d
+      - redis-cache-data:/data
+    depends_on:
+      - shared-conf
     command: ["redis-server","/etc/conf.d/redis_cache.conf"]
-
     container_name: redis-cache
 
   redis-queue:
-    image: redis:alpine
-
+    image: redis:5.0.3-alpine3.8
     volumes:
-      - ./redis-conf:/etc/conf.d
-
+      - redis-conf:/etc/conf.d
+      - redis-queue-data:/data
+    depends_on:
+      - shared-conf
     command: ["redis-server","/etc/conf.d/redis_queue.conf"]
-
     container_name: redis-queue
 
   redis-socketio:
-    image: redis:alpine
-
+    image: redis:5.0.3-alpine3.8
     volumes:
-      - ./redis-conf:/etc/conf.d
-
+      - redis-conf:/etc/conf.d
+      - redis-socketio-data:/data
+    depends_on:
+      - shared-conf
     command: ["redis-server","/etc/conf.d/redis_socketio.conf"]
-
     container_name: redis-socketio
 
 
   frappe:
     volumes:
-      - ./frappe-bench:/home/frappe/frappe-bench
-      - ./redis-conf/redis_cache.conf:/home/frappe/frappe-bench/config/redis_cache.conf
-      - ./redis-conf/redis_queue.conf:/home/frappe/frappe-bench/config/redis_queue.conf
-      - ./redis-conf/redis_socketio.conf:/home/frappe/frappe-bench/config/redis_socketio.conf
+      - frappe-bench:/home/frappe/frappe-bench
+      - redis-conf:/home/frappe/frappe-bench/config
+      - frappe-docker-conf:/home/frappe/frappe-docker-conf
     build: .
     ports:
       - "8000:8000" #webserver_port
@@ -62,8 +75,27 @@ services:
       - redis-socketio
       - mariadb
     depends_on:
+      - shared-conf
       - mariadb
       - redis-cache
       - redis-queue
       - redis-socketio
     container_name: frappe
+
+volumes:
+  mariadb-conf:
+    name: mariadb-conf
+  mariadb-data:
+    name: mariadb-data
+  redis-conf:
+    name: redis-conf
+  redis-cache-data:
+    name: redis-cache-data
+  redis-queue-data:
+    name: redis-queue-data
+  redis-socketio-data:
+    name: redis-socketio-data
+  frappe-bench:
+    name: frappe-bench
+  frappe-docker-conf:
+    name: frappe-docker-conf
