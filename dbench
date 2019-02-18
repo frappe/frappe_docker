@@ -24,7 +24,7 @@ elif [[ "$1" == 'setup' ]]; then
             docker-compose up -d
         fi
     elif [[ "$2" == 'hosts' ]]; then
-        a=$(cd ~/frappe-bench && ls sites/*/site_config.json | grep -o '/.\+/')
+        a=$(run frappe "ls sites/*/site_config.json | grep -o '/.\+/'") \
         a="${a//$'\n'/ }"
         a=$(echo "$a" | tr -d / )
         result="127.0.0.1 ${a}"
