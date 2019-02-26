@@ -3,7 +3,7 @@
 FROM ubuntu:16.04
 LABEL author=frappé
 
-# Generate locale C.UTF-8 for mariadb and general locale data
+# Set locale C.UTF-8 for mariadb and general locale data
 ENV LANG C.UTF-8
 
 # Install all neccesary packages
@@ -31,7 +31,7 @@ COPY --chown=frappe:frappe ./frappe-bench /home/frappe/frappe-bench
 
 USER root
 # Install bench
-RUN pip install -e git+https://github.com/frappe/bench.git \
+RUN pip install -e git+https://github.com/frappe/bench.git#egg=bench \
   && rm -rf ~/.cache/pip
 
 USER frappe
