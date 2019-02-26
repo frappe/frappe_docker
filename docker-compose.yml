@@ -29,6 +29,7 @@ services:
   redis-queue:
     image: redis:alpine
 
+
     volumes:
       - ./conf/redis-conf.d:/etc/conf.d
 
