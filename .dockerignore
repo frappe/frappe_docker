@@ -2,6 +2,9 @@
 
 conf/*
 .travis.yml
-test.py
+test.sh
+README.md
+LICENSE.md
+.gitignore
 dbench
 docker-*.yml
