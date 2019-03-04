@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./dbench start > /tmp/bench.log &
+./dbench start &
 
 while ! [[ $i == 20 ]]
 do
