@@ -1,3 +1,10 @@
+dist: xenial
+
+addons:
+  apt:
+    packages:
+    - curl
+
 env:
   - DOCKER_COMPOSE_VERSION: 1.23.1
 
