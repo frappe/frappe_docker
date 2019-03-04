@@ -1,6 +1,8 @@
 #!/bin/bash
 
-./dbench start &
+cat <(./dbench start) &
+
+sleep 5
 
 while ! [[ $i == 20 ]]
 do
