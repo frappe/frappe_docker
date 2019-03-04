@@ -2,5 +2,13 @@
 
 ./dbench start > /tmp/bench.log &
 
-curl --version
-curl --retry 20 --retry-delay 1 --retry-connrefused "http://localhost:8000/login" | grep '<title> Login </title>' || exit 1
+output=$(
+  while ! curl "http://localhost:8000/login"
+  do
+      { echo "Exit status of curl: $?"
+      } 1>&2
+      sleep 1
+  done
+)
+
+echo "${output}" | grep '<title> Login </title>' || exit 1
