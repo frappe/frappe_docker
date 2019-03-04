@@ -7,7 +7,7 @@ LABEL author=frappé
 ENV LANG C.UTF-8
 
 # Install all neccesary packages
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential cron curl git iputils-ping libffi-dev \
+RUN apt-get update && apt-get install -y --no-install-suggests --no-install-recommends build-essential cron curl git iputils-ping libffi-dev \
   liblcms2-dev libldap2-dev libmariadbclient-dev libsasl2-dev libssl-dev libtiff5-dev libwebp-dev mariadb-client \
   python-dev python-pip python-setuptools python-tk redis-tools rlwrap software-properties-common sudo tk8.6-dev \
   vim xfonts-75dpi xfonts-base wget wkhtmltopdf \

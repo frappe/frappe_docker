@@ -1,17 +1,26 @@
 dist: xenial
 
+env:
+  - DOCKER_COMPOSE_VERSION: 1.23.1
+
 addons:
   apt:
     packages:
-    - curl
-
-env:
-  - DOCKER_COMPOSE_VERSION: 1.23.1
+      - build-essential
+      - nghttp2
+      - libnghttp2-dev
+      - libssl-dev
 
 services:
   - docker
 
 before_install:
+  - wget https://curl.haxx.se/download/curl-7.63.0.tar.gz && tar xzf curl-7.63.0.tar.gz
+  - cd curl-7.63.0
+  - sudo apt-get -y remove curl
+  - ./configure --with-nghttp2 --with-ssl
+  - make && sudo make install
+  - sudo ldconfig && cd ..
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update
