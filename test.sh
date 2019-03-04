@@ -3,7 +3,7 @@
 ./dbench start > /tmp/bench.log &
 
 output=$(
-  while ! curl "http://localhost:8000/login"
+  while ! curl "http://localhost:8000"
   do
       { echo "Exit status of curl: $?"
       } 1>&2
