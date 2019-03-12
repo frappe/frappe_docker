@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-suggests --no-install-reco
   iputils-ping python-dev python-pip python-setuptools python-tk redis-tools rlwrap software-properties-common sudo tk8.6-dev \
   vim xfonts-75dpi xfonts-base wget wkhtmltopdf \
   && apt-get clean && rm -rf /var/lib/apt/lists/* \
-  && pip install --upgrade setuptools pip --no-cache \
   && curl https://deb.nodesource.com/node_10.x/pool/main/n/nodejs/nodejs_10.10.0-1nodesource1_amd64.deb > node.deb \
   && dpkg -i node.deb \
   && rm node.deb \
@@ -20,16 +19,17 @@ RUN apt-get update && apt-get install -y --no-install-suggests --no-install-reco
 
 # Add frappe user and setup sudo
 RUN useradd -ms /bin/bash -G sudo frappe \
-  && printf '# Sudo rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/frappe
-
-WORKDIR /home/frappe
+  && printf '# Sudo rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/frappe \
+  && chown -R frappe:frappe /home/frappe
 
 # Install bench
 RUN pip install -e git+https://github.com/frappe/bench.git#egg=bench --no-cache
 
 USER frappe
+
 # Add some bench files
 COPY --chown=frappe:frappe ./frappe-bench /home/frappe/frappe-bench
+
 WORKDIR /home/frappe/frappe-bench
 
 EXPOSE 8000 9000 6787
