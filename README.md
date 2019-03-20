@@ -1,6 +1,6 @@
 # Frappe on Docker
 
-[![Build Status](https://travis-ci.org/frappe/frappe_docker.svg?branch=develop)](https://travis-ci.org/frappe/frappe_docker)
+[![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=develop)](https://travis-ci.org/frappe/frappe_docker)
 
 This is a repo designed to aide setting up frappe/ERPNext on docker.
 
