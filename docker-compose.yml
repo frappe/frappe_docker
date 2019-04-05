@@ -1,22 +1,26 @@
-version: '2'
+version: '3.7'
 services:
   mariadb:
     image: mariadb
+
     environment:
       - MYSQL_ROOT_PASSWORD=123
       - MYSQL_USER=root
+    
     volumes:
       - ./conf/mariadb-conf.d:/etc/mysql/conf.d
       - /var/lib/mysql
+    
     ports:
-      - "3307:3306" #mariadb-port
+      - "3307:3306" # MariaDB Port
+    
     container_name: mariadb
 
   redis-cache:
     image: redis:alpine
 
     volumes:
-      - ./redis-conf:/etc/conf.d
+      - ./conf/redis-conf.d:/etc/conf.d
 
     command: ["redis-server","/etc/conf.d/redis_cache.conf"]
 
@@ -25,8 +29,9 @@ services:
   redis-queue:
     image: redis:alpine
 
+
     volumes:
-      - ./redis-conf:/etc/conf.d
+      - ./conf/redis-conf.d:/etc/conf.d
 
     command: ["redis-server","/etc/conf.d/redis_queue.conf"]
 
@@ -36,7 +41,7 @@ services:
     image: redis:alpine
 
     volumes:
-      - ./redis-conf:/etc/conf.d
+      - ./conf/redis-conf.d:/etc/conf.d
 
     command: ["redis-server","/etc/conf.d/redis_socketio.conf"]
 
@@ -44,26 +49,32 @@ services:
 
 
   frappe:
+    build: .
+
     volumes:
       - ./frappe-bench:/home/frappe/frappe-bench
-      - ./redis-conf/redis_cache.conf:/home/frappe/frappe-bench/config/redis_cache.conf
-      - ./redis-conf/redis_queue.conf:/home/frappe/frappe-bench/config/redis_queue.conf
-      - ./redis-conf/redis_socketio.conf:/home/frappe/frappe-bench/config/redis_socketio.conf
-    build: .
+      - ./conf/redis-conf.d/redis_cache.conf:/home/frappe/frappe-bench/config/redis_cache.conf
+      - ./conf/redis-conf.d/redis_queue.conf:/home/frappe/frappe-bench/config/redis_queue.conf
+      - ./conf/redis-conf.d/redis_socketio.conf:/home/frappe/frappe-bench/config/redis_socketio.conf
+    
     ports:
-      - "8000:8000" #webserver_port
-      - "9000:9000" #socketio_port
-      - "6787:6787" #file_watcher_port
+      - "8000:8000" # Webserver Port
+      - "9000:9000" # Socketio Port
+      - "6787:6787" # File Watcher Port
+    
     stdin_open: true
     tty: true
+
     links:
       - redis-cache
       - redis-queue
       - redis-socketio
       - mariadb
+
     depends_on:
       - mariadb
       - redis-cache
       - redis-queue
       - redis-socketio
+
     container_name: frappe

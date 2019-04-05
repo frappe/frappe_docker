@@ -1,0 +1,10 @@
+# frappe_docker .dockerignore file
+
+conf/*
+.travis.yml
+test.sh
+README.md
+LICENSE.md
+.gitignore
+dbench
+docker-*.yml
