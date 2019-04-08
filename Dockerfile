@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-suggests --no-install-reco
 
 # Add frappe user and setup sudo
 RUN groupadd -g 500 frappe \
-  && useradd -ms /bin/bash -u 500 -G 500 sudo frappe \
+  && useradd -ms /bin/bash -u 500 -G frappe sudo frappe \
   && printf '# Sudo rules for frappe\nfrappe ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/frappe \
   && chown -R 500:500 /home/frappe
 
