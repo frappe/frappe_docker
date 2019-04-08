@@ -28,7 +28,7 @@ elif [[ "$1" == 'setup' ]]; then
         a="${a//$'\n'/ }"
         a=$(echo "$a" | tr -d / )
         result="127.0.0.1 ${a}"
-        run root "echo ${result} | tee --append /etc/hosts"
+        run root "echo ${result} | tee -a /etc/hosts"
     else
         IFS=" "
         run frappe "bench $*"
