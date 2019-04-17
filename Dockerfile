@@ -4,11 +4,10 @@ FROM debian:9.6-slim
 LABEL author=frappé
 
 # Set locale en_us.UTF-8 for mariadb and general locale data
-RUN apt-get update && apt-get install -y --no-install-suggests --no-install-recommends locales \
-  && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
-  && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
-  && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
-  && locale-gen en_US.UTF-8 \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-suggests --no-install-recommends locales \
+  && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+  && dpkg-reconfigure --frontend=noninteractive locales \
+  && update-locale LANG=en_US.UTF-8 \
   && apt-get remove -y locales && apt-get auto-remove -y \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
