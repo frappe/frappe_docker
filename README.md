@@ -8,7 +8,7 @@ This is a repo designed to aide setting up frappe/ERPNext on docker.
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-Unfortunetly, this container is not curently suited for a production enviorment (but we're working towards that goal!).
+Unfortunately, this container is not curently suited for a production environment (but we're working towards that goal!).
 
 ### Build the container and initialize the bench
 
