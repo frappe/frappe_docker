@@ -10,10 +10,11 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
 # Install all neccesary packages
-RUN apt-get update && apt-get install -y --no-install-suggests --no-install-recommends build-essential cron curl git locales \
-  libffi-dev liblcms2-dev libldap2-dev libmariadbclient-dev libsasl2-dev libssl-dev libtiff5-dev libwebp-dev mariadb-client \
-  iputils-ping python-dev python-pip python-setuptools python-tk redis-tools rlwrap software-properties-common sudo tk8.6-dev \
-  vim xfonts-75dpi xfonts-base wget wkhtmltopdf \
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get update \
+  && apt-get install -y --no-install-suggests --no-install-recommends build-essential cron curl git locales libffi-dev \
+  liblcms2-dev libldap2-dev libmariadbclient-dev libsasl2-dev libssl-dev libtiff5-dev libwebp-dev mariadb-client iputils-ping \
+  python-dev python-pip python-setuptools python-tk redis-tools rlwrap software-properties-common sudo tk8.6-dev vim \
+  xfonts-75dpi xfonts-base wget wkhtmltopdf \
   && apt-get clean && rm -rf /var/lib/apt/lists/* \
   && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
   && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
