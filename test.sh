@@ -1,5 +1,11 @@
 #!/bin/bash
 
+docker container ls | grep -i frappe
+docker container ls | grep -i redis-cache
+docker container ls | grep -i redis-queue
+docker container ls | grep -i redis-socketio
+docker container ls | grep -i mariadb
+
 cat <(./dbench start) &
 
 sleep 5
