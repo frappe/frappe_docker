@@ -19,10 +19,10 @@ RUN apt-get update && apt-get install -y --no-install-suggests --no-install-reco
   && npm install -g yarn
 
 # Install wkhtmltox correctly
-RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
-RUN tar xvf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
-RUN mv wkhtmltox/bin/wkhtmlto* /usr/bin/
-RUN ln -nfs /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
+RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
+  &&  tar xvf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
+  &&  mv wkhtmltox/bin/wkhtmlto* /usr/bin/ \
+  && ln -nfs /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 
 # Add frappe user and setup sudo
 RUN useradd -ms /bin/bash -G sudo frappe \
