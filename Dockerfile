@@ -10,13 +10,19 @@ ENV LANG C.UTF-8
 RUN apt-get update && apt-get install -y --no-install-suggests --no-install-recommends build-essential cron curl git iputils-ping libffi-dev \
   liblcms2-dev libldap2-dev libmariadbclient-dev libsasl2-dev libssl-dev libtiff5-dev libwebp-dev mariadb-client \
   python-dev python-pip python-setuptools python-tk redis-tools rlwrap software-properties-common sudo tk8.6-dev \
-  vim xfonts-75dpi xfonts-base wget wkhtmltopdf \
+  vim xfonts-75dpi xfonts-base wget \
   && apt-get clean && rm -rf /var/lib/apt/lists/* \
   && pip install --upgrade setuptools pip --no-cache \
   && curl https://deb.nodesource.com/node_10.x/pool/main/n/nodejs/nodejs_10.10.0-1nodesource1_amd64.deb > node.deb \
   && dpkg -i node.deb \
   && rm node.deb \
   && npm install -g yarn
+
+# Install wkhtmltox correctly
+RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+RUN tar xvf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+RUN mv wkhtmltox/bin/wkhtmlto* /usr/bin/
+RUN ln -nfs /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 
 # Add frappe user and setup sudo
 RUN useradd -ms /bin/bash -G sudo frappe \
