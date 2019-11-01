@@ -25,7 +25,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   && rm node.deb \
   && npm install -g yarn
 
-
 # Add frappe user and setup sudo
 RUN groupadd -g 500 frappe \
   && useradd -ms /bin/bash -u 500 -g 500 -G sudo frappe \
