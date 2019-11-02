@@ -16,14 +16,18 @@ ENV LC_ALL=en_US.UTF-8
 
 # Install all neccesary packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-suggests --no-install-recommends \
-  build-essential cron curl git libffi-dev liblcms2-dev libldap2-dev libmariadbclient-dev libsasl2-dev libssl-dev libtiff5-dev \
+  build-essential cron curl git libffi-dev liblcms2-dev libldap2-dev libmariadbclient-dev libsasl2-dev libssl1.0-dev libtiff5-dev \
   libwebp-dev mariadb-client iputils-ping python-dev python-pip python-setuptools python-tk redis-tools rlwrap \
-  software-properties-common sudo tk8.6-dev vim xfonts-75dpi xfonts-base wget wkhtmltopdf \
+  software-properties-common sudo tk8.6-dev vim xfonts-75dpi xfonts-base wget wkhtmltopdf fonts-cantarell \
   && apt-get clean && rm -rf /var/lib/apt/lists/* \
   && curl https://deb.nodesource.com/node_10.x/pool/main/n/nodejs/nodejs_10.10.0-1nodesource1_amd64.deb > node.deb \
   && dpkg -i node.deb \
   && rm node.deb \
   && npm install -g yarn
+
+# Install wkhtmltox correctly
+RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
+RUN dpkg -i wkhtmltox_0.12.5-1.stretch_amd64.deb && rm wkhtmltox_0.12.5-1.stretch_amd64.deb
 
 # Add frappe user and setup sudo
 RUN groupadd -g 500 frappe \
