@@ -49,7 +49,7 @@ services:
         - "traefik.enable=true"
         - "traefik.port=8000"
         - "traefik.docker.network=traefik_traefik-net"
-        - "traefik.frontend.rule=Host:test.mh-receptions.com,erpnext.mh-receptions.com"
+        - "traefik.frontend.rule=Host:erpnext.example.com"
         - "traefik.frontend.entryPoints=https,http"
 
 networks:
