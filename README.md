@@ -1,6 +1,6 @@
 # Frappe on Docker
 
-[![Build Status](https://travis-ci.org/frappe/frappe_docker.svg?branch=develop)](https://travis-ci.org/frappe/frappe_docker)
+[![Build Status](https://travis-ci.com/frappe/frappe_docker.svg)](https://travis-ci.com/frappe/frappe_docker)
 
 This is a repo designed to aide setting up frappe/ERPNext on docker.
 
@@ -38,7 +38,7 @@ Unfortunately, this container is not curently suited for a production environmen
     ./dbench start
     ```
 
-4. Use Frappe:  
+4. Use Frappe:
     Open your browser to `localhost:8000/login`. Then login using the username `Administrator` and the password `admin`.
 
 ### Basic Usage of `./dbench`
@@ -51,7 +51,7 @@ Unfortunately, this container is not curently suited for a production environmen
   - `stop`: Stops the containers with `docker-compose stop`.
   - `down`: Deletes the containers and the coresponding volumes with `docker-compose down`.
 
-- `./dbench setup hosts`: Adds all sites to the containers hosts file.  
+- `./dbench setup hosts`: Adds all sites to the containers hosts file.
   **Note:** Run this after you've added a new site to avoid errors.
 
 - `./dbench -c frappe | root <command to run>`: Runs a command in the container, as the selected user.
