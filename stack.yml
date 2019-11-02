@@ -1,0 +1,86 @@
+version: '3'
+services:
+  mariadb:
+    image: mariadb
+    networks:
+      - frappe
+    environment:
+      - MYSQL_ROOT_PASSWORD=123
+      - MYSQL_USER=root
+    volumes:
+      - mariadb-conf:/etc/mysql/conf.d
+      - mariadb-data:/var/lib/mysql
+  redis-cache:
+    image: redis:alpine
+    networks:
+      - frappe
+    volumes:
+      - redis-conf:/etc/conf.d
+    command: ["redis-server","/etc/conf.d/redis_cache.conf"]
+
+  redis-queue:
+    image: redis:alpine
+    networks:
+      - frappe
+    volumes:
+      - redis-conf:/etc/conf.d
+    command: ["redis-server","/etc/conf.d/redis_queue.conf"]
+  redis-socketio:
+    image: redis:alpine
+    networks:
+      - frappe
+    volumes:
+      - redis-conf:/etc/conf.d
+    command: ["redis-server","/etc/conf.d/redis_socketio.conf"]
+  frappe:
+    build: .
+    image: frappe_docker_frappe:latest #have to build it locally
+    networks:
+      - frappe
+      - traefik_traefik-net
+    volumes:
+      - frappe-bench:/home/frappe/frappe-bench
+      - redis-conf:/home/frappe/frappe-bench/config
+    stdin_open: true
+    tty: true
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.port=8000"
+        - "traefik.docker.network=traefik_traefik-net"
+        - "traefik.frontend.rule=Host:test.mh-receptions.com,erpnext.mh-receptions.com"
+        - "traefik.frontend.entryPoints=https,http"
+
+networks:
+  traefik_traefik-net:
+    external: true
+  frappe:
+    external: false
+ 
+# using existing volumes, you may have to comment them and copy folders or change type (o: bind)
+volumes:
+  mariadb-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /root/frappe/frappe_docker/frappe_docker/db
+  mariadb-conf:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /root/frappe/frappe_docker/frappe_docker/conf/mariadb-conf.d
+  redis-conf:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /root/frappe/frappe_docker/frappe_docker/conf/redis-conf.d
+  frappe-bench:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /root/frappe/frappe_docker/frappe_docker/frappe-bench
