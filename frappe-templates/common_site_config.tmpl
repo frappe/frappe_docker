@@ -1,0 +1,21 @@
+{
+    "auto_update": false,
+    "background_workers": 1,
+    "db_host": "{{ default .Env.MARIADB_HOST "mariadb" }}",
+    "file_watcher_port": 6787,
+    "frappe_user": "frappe",
+    "gunicorn_workers": 4,
+    "rebase_on_pull": false,
+    "redis_cache": "redis://{{ default .Env.REDIS_CACHE_HOST "redis_cache" }}:13000",
+    "redis_queue": "redis://{{ default .Env.REDIS_QUEUE_HOST "redis_queue" }}:11000",
+    "redis_socketio": "redis://{{ default .Env.REDIS_SOCKETIO_HOST "redis_socketio" }}:12000",
+    "restart_supervisor_on_update": false,
+    "root_password": "{{ default .Env.MYSQL_ROOT_PASSWORD "root" }}",
+    "serve_default_site": true,
+    "shallow_clone": true,
+    "socketio_port": {{ default .Env.SOCKETIO_PORT "9000" }},
+    "update_bench_on_update": true,
+    "webserver_port": {{ default .Env.WEBSERVER_PORT "8000" }},
+    "admin_password": "{{ default .Env.ADMIN_PASSWORD "admin" }}",
+    "developer_mode": {{ default .Env.DEV_MODE "0" }}
+}

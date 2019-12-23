@@ -1,4 +1,4 @@
-web: bench serve --port 8000
+web: bench serve --port {{ default .Env.WEBSERVER_PORT "8000" }}
 
 socketio: /usr/bin/node apps/frappe/socketio.js
 watch: bench watch

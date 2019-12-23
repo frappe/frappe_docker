@@ -6,11 +6,10 @@ docker container ls | grep redis-cache
 docker container ls | grep redis-queue
 docker container ls | grep redis-socketio
 
-cat <(./dbench start) &
 
 while ! [[ $i == 20 ]]
 do
-    output=$( curl "http://localhost:8000" )
+    output=$( curl "http://localhost" )
     { echo "Exit status of curl: $?"
     } 1>&2
     sleep 2

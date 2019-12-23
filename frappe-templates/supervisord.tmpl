@@ -1,0 +1,109 @@
+; Notes:
+; priority=1 --> Lower priorities indicate programs that start first and shut down last
+; killasgroup=true --> send kill signal to child processes too
+
+[supervisord]
+nodaemon=true
+
+[program:frappe-bench-nginx]
+command=/usr/sbin/nginx -g "daemon off;"
+priority=900
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+username=frappe
+autorestart=true
+
+[program:frappe-bench-frappe-web]
+command={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/env/bin/gunicorn -b 127.0.0.1:{{ default .Env.WEBSERVER_PORT "8000" }} -w 4 -t 120 frappe.app:application --preload
+priority=4
+autostart=true
+autorestart=true
+stdout_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/web.log
+stderr_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/web.error.log
+user=frappe
+directory={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/sites
+
+
+[program:frappe-bench-frappe-schedule]
+command=/usr/local/bin/bench schedule
+priority=3
+autostart=true
+autorestart=true
+stdout_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/schedule.log
+stderr_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/schedule.error.log
+user=frappe
+directory={{ default .Env.BENCH "/home/frappe/frappe-bench" }}
+
+[program:frappe-bench-frappe-default-worker]
+command=/usr/local/bin/bench worker --queue default
+priority=4
+autostart=true
+autorestart=true
+stdout_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/worker.log
+stderr_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/worker.error.log
+user=frappe
+stopwaitsecs=156
+directory={{ default .Env.BENCH "/home/frappe/frappe-bench" }}
+killasgroup=true
+numprocs=1
+process_name=%(program_name)s-%(process_num)d
+
+[program:frappe-bench-frappe-short-worker]
+command=/usr/local/bin/bench worker --queue short
+priority=4
+autostart=true
+autorestart=true
+stdout_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/worker.log
+stderr_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/worker.error.log
+user=frappe
+stopwaitsecs=360
+directory={{ default .Env.BENCH "/home/frappe/frappe-bench" }}
+killasgroup=true
+numprocs=1
+process_name=%(program_name)s-%(process_num)d
+
+[program:frappe-bench-frappe-long-worker]
+command=/usr/local/bin/bench worker --queue long
+priority=4
+autostart=true
+autorestart=true
+stdout_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/worker.log
+stderr_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/worker.error.log
+user=frappe
+stopwaitsecs=1560
+directory={{ default .Env.BENCH "/home/frappe/frappe-bench" }}
+killasgroup=true
+numprocs=1
+process_name=%(program_name)s-%(process_num)d
+
+
+[program:frappe-bench-node-socketio]
+command=/usr/bin/node {{ default .Env.BENCH "/home/frappe/frappe-bench" }}/apps/frappe/socketio.js
+priority=4
+autostart=true
+autorestart=true
+stdout_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/node-socketio.log
+stderr_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/node-socketio.error.log
+user=frappe
+directory={{ default .Env.BENCH "/home/frappe/frappe-bench" }}
+
+
+[program:frappe-bench-watch]
+command=/usr/local/bin/bench watch
+priority=4
+autostart={{ default .Env.DEV_MODE "false" }}
+autorestart=true
+stdout_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/watch.log
+stderr_logfile={{ default .Env.BENCH "/home/frappe/frappe-bench" }}/logs/watch.error.log
+user=frappe
+directory={{ default .Env.BENCH "/home/frappe/frappe-bench" }}
+
+
+[group:frappe-bench-web]
+programs=frappe-bench-frappe-web,frappe-bench-node-socketio,frappe-bench-nginx,frappe-bench-watch
+
+
+[group:frappe-bench-workers]
+programs=frappe-bench-frappe-schedule,frappe-bench-frappe-default-worker,frappe-bench-frappe-short-worker,frappe-bench-frappe-long-worker

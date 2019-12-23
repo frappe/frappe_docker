@@ -3,7 +3,6 @@ dist: xenial
 env:
   - DOCKER_COMPOSE_VERSION: 1.23.1
 
-
 services:
   - docker
 
@@ -20,11 +19,9 @@ before_install:
 install:
   - chmod ugo+x ./dbench
   - chmod ugo+x ./test.sh
-  - ./dbench setup docker
-  - ./dbench init frappe-bench
-  - ./dbench new-site site1.local
-  - ./dbench setup hosts
+  - ./dbench setup docker &
+  - sleep 8m
 
 script:
   - ./test.sh
-  - ./dbench setup docker stop
+  - ./dbench setup docker down

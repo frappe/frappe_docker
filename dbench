@@ -8,10 +8,6 @@ function run () {
 
 if [[ $# -eq 0 ]]; then
     docker exec -it frappe bash
-elif [[ "$1" == 'init' ]]; then
-    run root "chown -R frappe:frappe /home/frappe"
-    run frappe "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
-    run frappe "mv Procfile_docker Procfile && mv sites/common_site_config_docker.json sites/common_site_config.json && bench set-mariadb-host mariadb"
 elif [[ "$1" == 'setup' ]]; then
     if [[ "$2" == 'docker' ]]; then
         if [[ "$3" == '--swarm-mode' ]]; then
@@ -20,15 +16,12 @@ elif [[ "$1" == 'setup' ]]; then
             docker-compose down
         elif [[ "$3" == 'stop' ]]; then
             docker-compose stop
-        else
+        elif [[ "$3" == '-d' ]]; then
             docker-compose up -d
+        else
+
+            docker-compose up
         fi
-    elif [[ "$2" == 'hosts' ]]; then
-        a=$(run frappe "ls sites/*/site_config.json | grep -o '/.\+/'")
-        a="${a//$'\n'/ }"
-        a=$(echo "$a" | tr -d / )
-        result="127.0.0.1 ${a}"
-        run root "echo ${result} | tee -a /etc/hosts"
     else
         IFS=" "
         run frappe "bench $*"
@@ -49,10 +42,11 @@ elif [[ "$1" == '-h' ]]; then
     echo "                Launches you into an interactive shell in the container as user frappe"
     echo "    $0 <command to send to bench>"
     echo "                Runs the bench command <command>, i.e. $0 new-site \"site1.local\" = bench new-site \"site1.local\""
-    echo "    $0 setup docker [ stop | down ]"
-    echo "                Builds and starts the docker containers using \"docker-compose up -d\""
-    echo "    $0 setup hosts"
-    echo "                Adds all site names to the containers hosts file"
+    echo "    $0 setup docker [ -d | stop | down ]"
+    echo "                Builds and starts the docker containers using \"docker-compose up\""
+    echo "          -d      |   Run containers in a detatched mode"
+    echo "          stop    |   Stops containers"
+    echo "          down    |   Deletes containers and assosiatated files (other than the files in volumes)."
     echo "    $0 -c frappe | root <command to run>"
     echo "                Runs a command in the container, as the selected user"
 else
