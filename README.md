@@ -8,7 +8,7 @@ This is a repo designed to aide setting up frappe/ERPNext on docker.
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-Unfortunately, this container is not curently suited for a production environment (but we're working towards that goal!).
+Unfortunately, this container is not currently suited for a production environment (but we're working towards that goal!).
 
 ### Build the container and initialize the bench
 
@@ -39,7 +39,7 @@ Unfortunately, this container is not curently suited for a production environmen
     ```
 
 4. Use Frappe:
-    Open your browser to `localhost:8000/login`. Then login using the username `Administrator` and the password `admin`.
+    Open your browser to `localhost:8000/login`. Then log in using the username `Administrator` and the password `admin`.
 
 ### Basic Usage of `./dbench`
 
@@ -49,7 +49,7 @@ Unfortunately, this container is not curently suited for a production environmen
 
 - `./dbench setup docker [ stop | down ]`: Starts and builds the docker containers using `docker-compose up -d`.
   - `stop`: Stops the containers with `docker-compose stop`.
-  - `down`: Deletes the containers and the coresponding volumes with `docker-compose down`.
+  - `down`: Deletes the containers and the corresponding volumes with `docker-compose down`.
 
 - `./dbench setup hosts`: Adds all sites to the containers hosts file.
   **Note:** Run this after you've added a new site to avoid errors.
