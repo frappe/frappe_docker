@@ -1,30 +1,49 @@
+sudo: required
+
 dist: xenial
-
-env:
-  - DOCKER_COMPOSE_VERSION: 1.23.1
-
 
 services:
   - docker
 
 before_install:
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  - sudo apt-get update
-  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - if [ $BUILD == "development" ];then
+      sudo apt-get update;
+      sudo apt-get -y install docker-compose;
+    fi
 
 install:
-  - chmod ugo+x ./dbench
-  - chmod ugo+x ./test.sh
-  - ./dbench setup docker
-  - ./dbench init frappe-bench
-  - ./dbench new-site site1.local
-  - ./dbench setup hosts
+  - if [ $BUILD == "development" ];then
+      chmod ugo+x ./dbench;
+      chmod ugo+x ./test.sh;
+      ./dbench setup docker;
+      ./dbench init frappe-bench;
+      ./dbench new-site site1.local;
+      ./dbench setup hosts;
+    fi
 
-script:
-  - ./test.sh
-  - ./dbench setup docker stop
+after_success:
+  - docker --version
+
+matrix:
+  include:
+    - name: "Test frappe / erpnext development"
+      env: BUILD=development
+      script:
+        - ./test.sh
+        - ./dbench setup docker stop
+    - name: "Build frappe / erpnext python environment"
+      script:
+        - docker build -t erpnext-python build/erpnext-python
+        - docker tag erpnext-python frappe/erpnext-python:edge
+        - docker push frappe/erpnext-python:edge
+    - name: "Build frappe / erpnext nginx + static assets"
+      script:
+        - docker build -t erpnext-assets build/erpnext-assets
+        - docker tag erpnext-assets frappe/erpnext-assets:edge
+        - docker push frappe/erpnext-assets:edge
+    - name: "Build frappe socketio service"
+      script:
+        - docker build -t frappe-socketio build/frappe-socketio
+        - docker tag frappe-socketio frappe/frappe-socketio:edge
+        - docker push frappe/frappe-socketio:edge
