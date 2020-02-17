@@ -27,22 +27,32 @@ after_success:
 
 matrix:
   include:
-    - name: "Test frappe / erpnext development"
+    - name: "Test Frappe / ERPNext development"
       env: BUILD=development
       script:
         - ./test.sh
         - ./dbench setup docker stop
-    - name: "Build frappe / erpnext python environment"
+    - name: "Build Frappe python environment"
       script:
-        - docker build -t erpnext-python build/erpnext-python
-        - docker tag erpnext-python frappe/erpnext-python:edge
-        - docker push frappe/erpnext-python:edge
-    - name: "Build frappe / erpnext nginx + static assets"
+        - docker build -t frappe-worker build/frappe-worker
+        - docker tag frappe-worker frappe/frappe-worker:edge
+        - docker push frappe/frappe-worker:edge
+    - name: "Build Frappe nginx + static assets"
+      script:
+        - docker build -t frappe-assets build/frappe-assets
+        - docker tag frappe-assets frappe/frappe-assets:edge
+        - docker push frappe/frappe-assets:edge
+    - name: "Build ERPNext python environment"
+      script:
+        - docker build -t erpnext-worker build/erpnext-worker
+        - docker tag erpnext-worker frappe/erpnext-worker:edge
+        - docker push frappe/erpnext-worker:edge
+    - name: "Build ERPNext nginx + static assets"
       script:
         - docker build -t erpnext-assets build/erpnext-assets
         - docker tag erpnext-assets frappe/erpnext-assets:edge
         - docker push frappe/erpnext-assets:edge
-    - name: "Build frappe socketio service"
+    - name: "Build Frappe socketio service"
       script:
         - docker build -t frappe-socketio build/frappe-socketio
         - docker tag frappe-socketio frappe/frappe-socketio:edge
