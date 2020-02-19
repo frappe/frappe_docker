@@ -18,12 +18,12 @@ RUN cd /home/frappe/frappe-bench/apps/frappe \
 
 RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
     && mkdir -p /var/www/error_pages \
-    && mkdir -p /home/frappe/frappe-bench/sites/assets/erpnext \
-    && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
+    && mkdir -p /home/frappe/frappe-bench/sites/assets/erpnext
 
 RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
     && cp -R /home/frappe/frappe-bench/apps/frappe/node_modules /home/frappe/frappe-bench/sites/assets/frappe/ \
-    && cp -R /home/frappe/frappe-bench/apps/erpnext/erpnext/public/* /home/frappe/frappe-bench/sites/assets/erpnext
+    && cp -R /home/frappe/frappe-bench/apps/erpnext/erpnext/public/* /home/frappe/frappe-bench/sites/assets/erpnext \
+    && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
 
 FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
