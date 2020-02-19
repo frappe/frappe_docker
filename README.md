@@ -29,6 +29,12 @@ Unfortunately, this container is not currently suited for a production environme
     ```
 
     **Note:** This will take a while, as docker will now build the container.
+    
+    **Docker for Windows only:** You can run `dbench` in Windows e.g. using [Git Bash for Windows](https://gitforwindows.org/). However, due to [this issue](https://github.com/docker/for-win/issues/1588) you will get this error: `the input device is not a TTY.  If you are using mintty, try prefixing the command with 'winpty'`. As a workaround, you will need to prefix `winpty` to every `docker` command. Use this before calling `dbench` commands above:
+    
+    ```bash
+    alias docker='winpty docker'
+    ```
 
 3. Add a new site and start Frappe:
 
