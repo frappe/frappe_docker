@@ -3,11 +3,21 @@
 function run () {
     user=$1
     shift
-    docker exec -itu "${user}" frappe bash -c "$@"
+    if [ -f '/usr/bin/winpty' ]; then
+        # Workaround for https://github.com/docker/for-win/issues/1588
+        /usr/bin/winpty docker exec -itu "${user}" frappe bash -c "$@"
+    else
+        docker exec -itu "${user}" frappe bash -c "$@"
+    fi
 }
 
 if [[ $# -eq 0 ]]; then
-    docker exec -it frappe bash
+    if [ -f '/usr/bin/winpty' ]; then
+        # Workaround for https://github.com/docker/for-win/issues/1588
+        /usr/bin/winpty docker exec -it frappe bash
+    else
+        docker exec -it frappe bash
+    fi
 elif [[ "$1" == 'init' ]]; then
     run root "chown -R frappe:frappe /home/frappe"
     run frappe "cd .. && bench init frappe-bench --ignore-exist --skip-redis-config-generation && cd frappe-bench"
