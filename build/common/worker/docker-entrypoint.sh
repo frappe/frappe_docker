@@ -28,11 +28,11 @@ function configureEnv() {
       exit 1
     fi
 
-    envsubst "${MARIADB_HOST}
+    envsubst '${MARIADB_HOST}
       ${REDIS_CACHE}
       ${REDIS_QUEUE}
       ${REDIS_SOCKETIO}
-      ${SOCKETIO_PORT}" < /opt/frappe/common_site_config.json.template > /home/frappe/frappe-bench/sites/common_site_config.json
+      ${SOCKETIO_PORT}' < /opt/frappe/common_site_config.json.template > /home/frappe/frappe-bench/sites/common_site_config.json
   fi
 }
 

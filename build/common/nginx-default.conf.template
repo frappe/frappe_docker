@@ -1,5 +1,5 @@
-upstream erpnext-server {
-    server ${ERPNEXT_PY}:${ERPNEXT_PY_PORT} fail_timeout=0;
+upstream frappe-server {
+    server ${FRAPPE_PY}:${FRAPPE_PY_PORT} fail_timeout=0;
 }
 
 upstream socketio-server {
@@ -44,7 +44,7 @@ server {
         proxy_read_timeout 120;
         proxy_redirect off;
 
-        proxy_pass  http://erpnext-server;
+        proxy_pass  http://frappe-server;
     }
 
     # error pages
