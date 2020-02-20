@@ -151,6 +151,23 @@ elif [ "$1" = 'backup' ]; then
     python /home/frappe/frappe-bench/commands/backup.py
   fi
 
+elif [ "$1" = 'console' ]; then
+
+  if [[ -z "$2" ]]; then
+    echo "Need to specify a sitename with the command:"
+    echo "console <sitename>"
+    exit 1
+  fi
+
+  if [[ -z "$RUN_AS_ROOT" ]]; then
+    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
+      && python /home/frappe/frappe-bench/commands/console.py $2"
+    exit
+  else
+    . /home/frappe/frappe-bench/env/bin/activate
+    python /home/frappe/frappe-bench/commands/console.py "$2"
+  fi
+
 else
 
   exec su frappe -c "$@"
