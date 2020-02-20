@@ -64,7 +64,7 @@ matrix:
         - git fetch --tags
         - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
-        - docker build -t frappe-worker:$VERSION -f build/frappe-worker/Dockerfile .
+        - docker build -t frappe/frappe-worker:$VERSION -f build/frappe-worker/Dockerfile .
         - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:v12
         - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:$VERSION
         - docker push frappe/frappe-worker:$VERSION
