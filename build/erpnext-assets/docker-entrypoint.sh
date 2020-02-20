@@ -29,7 +29,7 @@ if [[ -z "$FRAPPE_SOCKETIO_PORT" ]]; then
     export FRAPPE_SOCKETIO_PORT=9000
 fi
 
-envsubst '${API_HOST} ${API_PORT} ${ERPNEXT_PY} ${ERPNEXT_PY_PORT} ${FRAPPE_SOCKETIO} ${FRAPPE_SOCKETIO_PORT}' \
+envsubst "${API_HOST} ${API_PORT} ${ERPNEXT_PY} ${ERPNEXT_PY_PORT} ${FRAPPE_SOCKETIO} ${FRAPPE_SOCKETIO_PORT}" \
     < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 exec "$@"

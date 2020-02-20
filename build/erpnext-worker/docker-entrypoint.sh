@@ -28,11 +28,11 @@ function configureEnv() {
       exit 1
     fi
 
-    envsubst '${MARIADB_HOST}
+    envsubst "${MARIADB_HOST}
       ${REDIS_CACHE}
       ${REDIS_QUEUE}
       ${REDIS_SOCKETIO}
-      ${SOCKETIO_PORT}' < /opt/frappe/common_site_config.json.template > /home/frappe/frappe-bench/sites/common_site_config.json
+      ${SOCKETIO_PORT}" < /opt/frappe/common_site_config.json.template > /home/frappe/frappe-bench/sites/common_site_config.json
   fi
 }
 
@@ -45,7 +45,7 @@ function checkConfigExists() {
   COUNTER=0
   while [[ ! -e /home/frappe/frappe-bench/sites/common_site_config.json ]] && [[ $COUNTER -le 30 ]] ; do
       sleep 1
-      let COUNTER=COUNTER+1
+      (( COUNTER=COUNTER+1 ))
       echo "config file not created, retry $COUNTER"
   done
 
@@ -56,7 +56,7 @@ function checkConfigExists() {
 }
 
 if [[ ! -e /home/frappe/frappe-bench/sites/apps.txt ]]; then
-  ls -1 /home/frappe/frappe-bench/apps | sort -r > /home/frappe/frappe-bench/sites/apps.txt
+  find /home/frappe/frappe-bench/apps -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -r > /home/frappe/frappe-bench/sites/apps.txt
 fi
 
 if [ "$1" = 'start' ]; then
