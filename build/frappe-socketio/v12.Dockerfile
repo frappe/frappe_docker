@@ -8,7 +8,7 @@ RUN useradd -ms /bin/bash frappe
 # Make bench directories
 RUN mkdir -p /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/apps/frappe
 
-COPY package.json /home/frappe/frappe-bench/apps/frappe
+COPY build/frappe-socketio/package.json /home/frappe/frappe-bench/apps/frappe
 
 
 # get socketio
@@ -21,11 +21,11 @@ RUN cd /home/frappe/frappe-bench/apps/frappe \
 RUN cd /home/frappe/frappe-bench/apps/frappe \
     && npm install --only=production
 
-COPY health.js /home/frappe/frappe-bench/apps/frappe/health.js
+COPY build/frappe-socketio/health.js /home/frappe/frappe-bench/apps/frappe/health.js
 RUN chown -R frappe:frappe /home/frappe
 
 # Setup docker-entrypoint
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY build/frappe-socketio/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 WORKDIR /home/frappe/frappe-bench/sites

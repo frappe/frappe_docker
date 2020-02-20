@@ -1,7 +1,8 @@
 FROM bitnami/node:12-prod
 
 WORKDIR /home/frappe/frappe-bench
-COPY sites/apps.txt /home/frappe/frappe-bench/sites/apps.txt
+RUN mkdir -p /home/frappe/frappe-bench/sites \
+    && echo -e "frappe\nerpnext" > /home/frappe/frappe-bench/sites/apps.txt
 
 RUN install_packages git
 
@@ -18,18 +19,19 @@ RUN cd /home/frappe/frappe-bench/apps/frappe \
 
 RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
     && mkdir -p /var/www/error_pages \
-    && mkdir -p /home/frappe/frappe-bench/sites/assets/erpnext
+    && cp -r /tmp/bench/bench/config/templates/502.html /var/www/error_pages
 
 RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
     && cp -R /home/frappe/frappe-bench/apps/frappe/node_modules /home/frappe/frappe-bench/sites/assets/frappe/ \
     && cp -R /home/frappe/frappe-bench/apps/erpnext/erpnext/public/* /home/frappe/frappe-bench/sites/assets/erpnext \
+    && mkdir -p /home/frappe/frappe-bench/sites/assets/erpnext \
     && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
 
 FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
 COPY --from=0 /var/www/error_pages /var/www/
-COPY nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY docker-entrypoint.sh /
+COPY build/erpnext-assets/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
+COPY build/common/docker-entrypoint.sh /
 
 RUN apt-get update && apt-get install -y rsync && apt-get clean
 

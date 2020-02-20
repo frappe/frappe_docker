@@ -31,11 +31,11 @@ RUN virtualenv env \
     && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe \
     && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/erpnext
 
-COPY ./commands/* /home/frappe/frappe-bench/commands/
-COPY ./common_site_config.json.template /opt/frappe/common_site_config.json.template
+COPY build/common/commands/* /home/frappe/frappe-bench/commands/
+COPY build/common/common_site_config.json.template /opt/frappe/common_site_config.json.template
 
 # Setup docker-entrypoint
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY build/common/worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 WORKDIR /home/frappe/frappe-bench/sites

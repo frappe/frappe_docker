@@ -1,7 +1,8 @@
 FROM bitnami/node:12-prod
 
 WORKDIR /home/frappe/frappe-bench
-COPY sites/apps.txt /home/frappe/frappe-bench/sites/apps.txt
+RUN mkdir -p /home/frappe/frappe-bench/sites \
+    && echo "frappe" > /home/frappe/frappe-bench/sites/apps.txt
 
 RUN install_packages git
 
@@ -25,8 +26,8 @@ RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/fra
 FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
 COPY --from=0 /var/www/error_pages /var/www/
-COPY nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY docker-entrypoint.sh /
+COPY build/common/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
+COPY build/frappe-assets/docker-entrypoint.sh /
 
 RUN apt-get update && apt-get install -y rsync && apt-get clean
 

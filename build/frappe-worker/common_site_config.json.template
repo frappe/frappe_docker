@@ -1,7 +1,0 @@
-{
-    "db_host": "${MARIADB_HOST}",
-    "redis_cache": "redis://${REDIS_CACHE}",
-    "redis_queue": "redis://${REDIS_QUEUE}",
-    "redis_socketio": "redis://${REDIS_SOCKETIO}",
-    "socketio_port": ${SOCKETIO_PORT}
-}
