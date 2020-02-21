@@ -7,8 +7,8 @@ services:
 
 before_install:
   - if [[ "$BUILD" -ne "development" ]]; then
-    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    sudo apt-get update && sudo apt-get -y install git
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
+    sudo apt-get update && sudo apt-get -y install git;
     fi
   - if [[ $BUILD == "development" ]];then
     sudo apt-get update && sudo apt-get -y install docker-compose;
