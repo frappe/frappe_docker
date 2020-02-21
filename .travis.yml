@@ -6,10 +6,12 @@ services:
   - docker
 
 before_install:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - sudo apt-get update && sudo apt-get -y install git
+  - if [ $BUILD != "development"]; then
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    sudo apt-get update && sudo apt-get -y install git
+    fi
   - if [ $BUILD == "development" ];then
-    sudo apt-get -y install docker-compose;
+    sudo apt-get update && sudo apt-get -y install docker-compose;
     fi
 
 install:
