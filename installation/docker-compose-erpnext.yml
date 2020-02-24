@@ -29,7 +29,7 @@ services:
       - assets-vol:/assets:rw
 
   erpnext-python:
-    image: frappe/frappe-worker:${VERSION}
+    image: frappe/erpnext-worker:${VERSION}
     restart: on-failure
     environment:
       - MARIADB_HOST=mariadb
@@ -52,7 +52,7 @@ services:
       - ./sites:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-default:
-    image: frappe/frappe-worker:${VERSION}
+    image: frappe/erpnext-worker:${VERSION}
     restart: on-failure
     command: worker
     depends_on:
@@ -65,7 +65,7 @@ services:
       - ./sites:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-short:
-    image: frappe/frappe-worker:${VERSION}
+    image: frappe/erpnext-worker:${VERSION}
     restart: on-failure
     command: worker
     environment:
@@ -80,7 +80,7 @@ services:
       - ./sites:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-long:
-    image: frappe/frappe-worker:${VERSION}
+    image: frappe/erpnext-worker:${VERSION}
     restart: on-failure
     command: worker
     environment:
@@ -95,7 +95,7 @@ services:
       - ./sites:/home/frappe/frappe-bench/sites:rw
 
   frappe-schedule:
-    image: frappe/frappe-worker:${VERSION}
+    image: frappe/erpnext-worker:${VERSION}
     restart: on-failure
     command: schedule
     depends_on:
