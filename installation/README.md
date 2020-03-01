@@ -17,11 +17,11 @@ cp .env.sample .env
 ```sh
 cd $HOME
 git clone https://github.com/frappe/frappe_docker.git
-cd frappe_docker/installation
-cp env-example .env
+cd frappe_docker
+cp installation/env-example .env
 
 # make directory for sites
-mkdir sites
+mkdir installation/sites
 ```
 
 ### Setup Environment Variables
@@ -42,10 +42,11 @@ DNS needs to be configured for following to work
 
 ```sh
 docker-compose \
-    --project-name frappe-bench-00 \
+    --project-name frappebench00 \
     -f installation/docker-compose-common.yml \
-    -f installation/docker-conpose-erpnext.yml \
-    --project-directory . up -d
+    -f installation/docker-compose-erpnext.yml \
+    -f installation/docker-compose-networks.yml \
+    --project-directory installation up -d
 ```
 
 Note: use `docker-compose-frappe.yml` in case you need bench with just frappe installed
@@ -56,13 +57,13 @@ Note: Wait for mariadb to start. If new site creation fails re-try again after m
 
 ```sh
 # Create ERPNext site
-docker exec \
+docker exec -it \
     -e "SITE_NAME=site1.domain.com" \
     -e "DB_ROOT_USER=root" \
     -e "DB_ROOT_PASSWORD=admin" \
     -e "ADMIN_PASSWORD=admin" \
     -e "INSTALL_ERPNEXT=1" \
-    frappe-bench-00_erpnext-python_1 new
+    frappebench00_erpnext-python_1 docker-entrypoint.sh new
 ```
 
 Environment Variables:
@@ -82,10 +83,10 @@ Environment Variables
 - `WITH_FILES` if set to 1, it will back up user uploaded files for the sites
 
 ```sh
-docker exec \
+docker exec -it \
     -e "SITES=site1.domain.com:site2.domain.com" \
     -e "WITH_FILES=1" \
-    frappe-bench-00_erpnext-python_1 backup
+    frappebench00_erpnext-python_1 docker-entrypoint.sh backup
 ```
 
 Backup will be available in `sites` mounted volume
@@ -104,19 +105,20 @@ docker-compose \
 
 # Restart containers
 docker-compose \
-    --project-name frappe-bench-00 \
+    --project-name frappebench00 \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
-    --project-directory . restart
+    -f installation/docker-compose-networks.yml \
+    --project-directory installation up -d
 
-docker exec \
+docker exec -it \
     -e "MAINTENANCE_MODE=1" \
-    frappe-bench-00_erpnext-python_1 migrate
+    frappebench00_erpnext-python_1 docker-entrypoint.sh migrate
 ```
 
 ### Troubleshoot
 
-1. Clearing redis cache:
+Clearing redis cache:
 
 ```
 # change to repo root
@@ -124,30 +126,33 @@ cd $HOME/frappe_docker
 
 # Stop all bench containers
 docker-compose \
-    --project-name frappe-bench-00 \
-    -f docker/docker-compose-common.yml \
-    -f docker/docker-compose-erpnext.yml \
-    --project-directory . stop
+    --project-name frappebench00 \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-erpnext.yml \
+    -f installation/docker-compose-networks.yml \
+    --project-directory installation stop
 
 # Remove redis containers
 docker-compose \
-    --project-name frappe-bench-00 \
-    -f docker/docker-compose-common.yml \
-    -f docker/docker-compose-erpnext.yml \
-    --project-directory . rm redis-cache redis-queue redis-socketio
+    --project-name frappebench00 \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-erpnext.yml \
+    -f installation/docker-compose-networks.yml \
+    --project-directory installation rm redis-cache redis-queue redis-socketio
 
 # Clean redis volumes
 docker volume rm \
-    frappe-bench-00_redis-cache-vol \
-    frappe-bench-00_redis-queue-vol \
-    frappe-bench-00_redis-socketio-vol
+    frappebench00_redis-cache-vol \
+    frappebench00_redis-queue-vol \
+    frappebench00_redis-socketio-vol
 
 # Restart project
 docker-compose \
-    --project-name frappe-bench-00 \
-    -f docker/docker-compose-common.yml \
-    -f docker/docker-compose-erpnext.yml \
-    --project-directory . up -d
+    --project-name frappebench00 \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-erpnext.yml \
+    -f installation/docker-compose-networks.yml \
+    --project-directory installation up -d
 ```
 
 Note: Environment variables from `.env` file located at current working directory will be used.
