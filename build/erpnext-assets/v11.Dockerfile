@@ -2,9 +2,9 @@ FROM bitnami/node:10-prod
 
 WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p /home/frappe/frappe-bench/sites \
-    && echo -e "frappe\nerpnext" > /home/frappe/frappe-bench/sites/apps.txt
+    && echo "frappe\nerpnext" > /home/frappe/frappe-bench/sites/apps.txt
 
-RUN install_packages git
+RUN install_packages git python2
 
 RUN mkdir -p apps sites/assets  \
     && cd apps \
@@ -23,9 +23,8 @@ RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
 
 RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
     && cp -R /home/frappe/frappe-bench/apps/frappe/node_modules /home/frappe/frappe-bench/sites/assets/frappe/ \
-    && cp -R /home/frappe/frappe-bench/apps/erpnext/erpnext/public/* /home/frappe/frappe-bench/sites/assets/erpnext \
     && mkdir -p /home/frappe/frappe-bench/sites/assets/erpnext \
-    && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
+    && cp -R /home/frappe/frappe-bench/apps/erpnext/erpnext/public/* /home/frappe/frappe-bench/sites/assets/erpnext
 
 FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/

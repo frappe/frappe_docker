@@ -4,7 +4,7 @@ WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p /home/frappe/frappe-bench/sites \
     && echo "frappe\nerpnext" > /home/frappe/frappe-bench/sites/apps.txt
 
-RUN install_packages git
+RUN install_packages git python2
 
 RUN mkdir -p apps sites/assets  \
     && cd apps \
