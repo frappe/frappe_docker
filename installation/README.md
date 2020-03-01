@@ -2,6 +2,8 @@
 
 ### Setup Letsencrypt Nginx Proxy Companion
 
+DNS needs to be configured for following to work
+
 Read more: https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion
 
 ```sh
@@ -26,7 +28,7 @@ mkdir installation/sites
 
 ### Setup Environment Variables
 
-3 Environment variables are set to pass secret and variable data.
+Environment variables are set to pass secret and variable data.
 
 If `env-example` is copied to `.env` following values are set.
 
@@ -37,8 +39,6 @@ If `env-example` is copied to `.env` following values are set.
 - `LETSENCRYPT_EMAIL=your.email@your.domain.com` email for letsencrypt expiry notification
 
 ### Start frappe-bench services
-
-DNS needs to be configured for following to work
 
 ```sh
 docker-compose \
@@ -96,6 +96,9 @@ Backup will be available in `sites` mounted volume
 ```sh
 # Change to repo root
 cd $HOME/frappe_docker
+
+# Update environment variable VERSION
+nano .env
 
 # Pull new images
 docker-compose \
