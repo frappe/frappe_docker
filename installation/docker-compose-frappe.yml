@@ -32,7 +32,7 @@ services:
     image: frappe/frappe-worker:${VERSION}
     restart: on-failure
     environment:
-      - MARIADB_HOST=mariadb
+      - MARIADB_HOST=${MARIADB_HOST}
       - REDIS_CACHE=redis-cache:6379
       - REDIS_QUEUE=redis-queue:6379
       - REDIS_SOCKETIO=redis-socketio:6379
