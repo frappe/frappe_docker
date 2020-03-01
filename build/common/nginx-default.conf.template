@@ -3,7 +3,7 @@ upstream frappe-server {
 }
 
 upstream socketio-server {
-    server ${FRAPPE_SOCKETIO}:${FRAPPE_SOCKETIO_PORT} fail_timeout=0;
+    server ${FRAPPE_SOCKETIO}:${SOCKETIO_PORT} fail_timeout=0;
 }
 
 server {

@@ -25,8 +25,8 @@ if [[ -z "$FRAPPE_SOCKETIO" ]]; then
     export FRAPPE_SOCKETIO=0.0.0.0
 fi
 
-if [[ -z "$FRAPPE_SOCKETIO_PORT" ]]; then
-    export FRAPPE_SOCKETIO_PORT=9000
+if [[ -z "$SOCKETIO_PORT" ]]; then
+    export SOCKETIO_PORT=9000
 fi
 
 envsubst '${API_HOST}
@@ -34,7 +34,7 @@ envsubst '${API_HOST}
     ${FRAPPE_PY}
     ${FRAPPE_PY_PORT}
     ${FRAPPE_SOCKETIO}
-    ${FRAPPE_SOCKETIO_PORT}' \
+    ${SOCKETIO_PORT}' \
     < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 exec "$@"
