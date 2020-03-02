@@ -1,0 +1,17 @@
+{
+  "name": "frappe-socketio",
+  "version": "1.0.0",
+  "description": "Frappe SocketIO Server",
+  "main": "socketio.js",
+  "scripts": {
+    "start": "node socketio.js"
+  },
+  "author": "Revant Nandgaonkar",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "redis": "^2.8.0",
+    "socket.io": "^2.3.0",
+    "superagent": "^5.1.0"
+  }
+}

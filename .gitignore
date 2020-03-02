@@ -1,1 +1,7 @@
 *.code-workspace
+
+# Environment Variables
+.env
+
+# mounted volume
+sites
