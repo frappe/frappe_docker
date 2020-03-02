@@ -29,8 +29,8 @@ RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/fra
 FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
 COPY --from=0 /var/www/error_pages /var/www/
-COPY build/erpnext-assets/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY build/common/docker-entrypoint.sh /
+COPY build/common/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
+COPY build/erpnext-assets/docker-entrypoint.sh /
 
 RUN apt-get update && apt-get install -y rsync && apt-get clean
 
