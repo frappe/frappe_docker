@@ -14,26 +14,11 @@ before_install:
     sudo apt-get update && sudo apt-get -y install docker-compose;
     fi
 
-install:
-  - if [[ $BUILD == "development" ]];then
-    chmod ugo+x ./dbench;
-    chmod ugo+x ./test.sh;
-    ./dbench setup docker;
-    ./dbench init frappe-bench;
-    ./dbench new-site site1.local;
-    ./dbench setup hosts;
-    fi
-
 after_success:
   - docker --version
 
 matrix:
   include:
-    - name: "Test Frappe / ERPNext development"
-      env: BUILD=development
-      script:
-        - ./test.sh
-        - ./dbench setup docker stop
     - name: "Build Frappe python environment (edge)"
       if: branch = develop AND type != pull_request
       script:
