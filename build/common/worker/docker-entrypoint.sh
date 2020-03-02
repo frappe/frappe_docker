@@ -59,6 +59,9 @@ if [[ ! -e /home/frappe/frappe-bench/sites/apps.txt ]]; then
   find /home/frappe/frappe-bench/apps -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -r > /home/frappe/frappe-bench/sites/apps.txt
 fi
 
+# Allow user process to create files in logs directory
+chown -R frappe:frappe /home/frappe/frappe-bench/logs
+
 if [ "$1" = 'start' ]; then
   configureEnv
   checkConnection
