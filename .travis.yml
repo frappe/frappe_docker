@@ -39,30 +39,35 @@ matrix:
       script:
         - docker build -t frappe-worker -f build/frappe-worker/Dockerfile .
         - docker tag frappe-worker frappe/frappe-worker:edge
+        - docker tag frappe-worker frappe/frappe-worker:develop
         - docker push frappe/frappe-worker:edge
     - name: "Build Frappe nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t frappe-assets -f build/frappe-assets/Dockerfile .
         - docker tag frappe-assets frappe/frappe-assets:edge
+        - docker tag frappe-assets frappe/frappe-assets:develop
         - docker push frappe/frappe-assets:edge
     - name: "Build ERPNext python environment (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t erpnext-worker -f build/erpnext-worker/Dockerfile .
         - docker tag erpnext-worker frappe/erpnext-worker:edge
+        - docker tag erpnext-worker frappe/erpnext-worker:develop
         - docker push frappe/erpnext-worker:edge
     - name: "Build ERPNext nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t erpnext-assets -f build/erpnext-assets/Dockerfile .
         - docker tag erpnext-assets frappe/erpnext-assets:edge
+        - docker tag erpnext-assets frappe/erpnext-assets:develop
         - docker push frappe/erpnext-assets:edge
     - name: "Build Frappe socketio service (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t frappe-socketio -f build/frappe-socketio/Dockerfile .
         - docker tag frappe-socketio frappe/frappe-socketio:edge
+        - docker tag frappe-socketio frappe/frappe-socketio:develop
         - docker push frappe/frappe-socketio:edge
     - name: "Build Frappe python environment (v12)"
       if: branch = master AND type != pull_request
@@ -73,6 +78,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/frappe-worker:$VERSION -f build/frappe-worker/v12.Dockerfile .
+        - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:version-12
         - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:v12
         - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:$VERSION
         - docker push frappe/frappe-worker:$VERSION
@@ -85,6 +91,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/frappe-assets:$VERSION -f build/frappe-assets/v12.Dockerfile .
+        - docker tag frappe/frappe-assets:$VERSION frappe/frappe-assets:version-12
         - docker tag frappe/frappe-assets:$VERSION frappe/frappe-assets:v12
         - docker push frappe/frappe-assets:$VERSION
     - name: "Build ERPNext python environment (v12)"
@@ -96,6 +103,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/erpnext-worker:$VERSION -f build/erpnext-worker/v12.Dockerfile .
+        - docker tag frappe/erpnext-worker:$VERSION frappe/erpnext-worker:version-12
         - docker tag frappe/erpnext-worker:$VERSION frappe/erpnext-worker:v12
         - docker push frappe/erpnext-worker:$VERSION
     - name: "Build ERPNext nginx + static assets (v12)"
@@ -107,6 +115,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/erpnext-assets:$VERSION -f build/erpnext-assets/v12.Dockerfile .
+        - docker tag frappe/erpnext-assets:$VERSION frappe/erpnext-assets:version-12
         - docker tag frappe/erpnext-assets:$VERSION frappe/erpnext-assets:v12
         - docker push frappe/erpnext-assets:$VERSION
     - name: "Build Frappe socketio service (v12)"
@@ -118,6 +127,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/frappe-socketio:$VERSION -f build/frappe-socketio/v12.Dockerfile .
+        - docker tag frappe/frappe-socketio:$VERSION frappe/frappe-socketio:version-12
         - docker tag frappe/frappe-socketio:$VERSION frappe/frappe-socketio:v12
         - docker push frappe/frappe-socketio:$VERSION
     - name: "Build Frappe python environment (v11)"
@@ -129,6 +139,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/frappe-worker:$VERSION -f build/frappe-worker/v11.Dockerfile .
+        - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:version-11
         - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:v11
         - docker push frappe/frappe-worker:$VERSION
     - name: "Build Frappe nginx + static assets (v11)"
@@ -140,6 +151,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/frappe-assets:$VERSION -f build/frappe-assets/v11.Dockerfile .
+        - docker tag frappe/frappe-assets:$VERSION frappe/frappe-assets:version-11
         - docker tag frappe/frappe-assets:$VERSION frappe/frappe-assets:v11
         - docker push frappe/frappe-assets:$VERSION
     - name: "Build ERPNext python environment (v11)"
@@ -151,6 +163,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/erpnext-worker:$VERSION -f build/erpnext-worker/v11.Dockerfile .
+        - docker tag frappe/erpnext-worker:$VERSION frappe/erpnext-worker:version-11
         - docker tag frappe/erpnext-worker:$VERSION frappe/erpnext-worker:v11
         - docker push frappe/erpnext-worker:$VERSION
     - name: "Build ERPNext nginx + static assets (v11)"
@@ -162,6 +175,7 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/erpnext-assets:$VERSION -f build/erpnext-assets/v11.Dockerfile .
+        - docker tag frappe/erpnext-assets:$VERSION frappe/erpnext-assets:version-11
         - docker tag frappe/erpnext-assets:$VERSION frappe/erpnext-assets:v11
         - docker push frappe/erpnext-assets:$VERSION
     - name: "Build Frappe socketio service (v11)"
@@ -173,5 +187,6 @@ matrix:
         - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
         - cd ..
         - docker build -t frappe/frappe-socketio:$VERSION -f build/frappe-socketio/v11.Dockerfile .
+        - docker tag frappe/frappe-socketio:$VERSION frappe/frappe-socketio:version-11
         - docker tag frappe/frappe-socketio:$VERSION frappe/frappe-socketio:v11
         - docker push frappe/frappe-socketio:$VERSION
