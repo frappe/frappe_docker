@@ -6,7 +6,7 @@ services:
   - docker
 
 before_install:
-  - if [[ "$BUILD" -ne "development" ]]; then
+  - if [[ "$BUILD" != "development" ]]; then
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
     sudo apt-get update && sudo apt-get -y install git;
     fi
