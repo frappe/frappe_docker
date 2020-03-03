@@ -13,6 +13,7 @@ before_install:
   - if [[ $BUILD == "development" ]];then
     sudo apt-get update && sudo apt-get -y install docker-compose;
     fi
+  - chmod u+x ./travis.sh
 
 after_success:
   - docker --version
@@ -22,43 +23,28 @@ matrix:
     - name: "Build Frappe python environment (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t frappe-worker -f build/frappe-worker/Dockerfile .
-        - docker tag frappe-worker frappe/frappe-worker:edge
-        - docker tag frappe-worker frappe/frappe-worker:develop
-        - docker push frappe/frappe-worker:edge
-        - docker push frappe/frappe-worker:develop
+        - ./travis.sh --worker --tag edge --name frappe
+        - ./travis.sh --worker --tag develop --name frappe --tag-only
     - name: "Build Frappe nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t frappe-assets -f build/frappe-assets/Dockerfile .
-        - docker tag frappe-assets frappe/frappe-assets:edge
-        - docker tag frappe-assets frappe/frappe-assets:develop
-        - docker push frappe/frappe-assets:edge
-        - docker push frappe/frappe-assets:develop
+        - ./travis.sh --assets --tag edge --name frappe
+        - ./travis.sh --assets --tag develop --name frappe --tag-only
     - name: "Build ERPNext python environment (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t erpnext-worker -f build/erpnext-worker/Dockerfile .
-        - docker tag erpnext-worker frappe/erpnext-worker:edge
-        - docker tag erpnext-worker frappe/erpnext-worker:develop
-        - docker push frappe/erpnext-worker:edge
-        - docker push frappe/erpnext-worker:develop
+        - ./travis.sh --worker --tag edge --name erpnext
+        - ./travis.sh --worker --tag develop --name erpnext --tag-only
     - name: "Build ERPNext nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t erpnext-assets -f build/erpnext-assets/Dockerfile .
-        - docker tag erpnext-assets frappe/erpnext-assets:edge
-        - docker tag erpnext-assets frappe/erpnext-assets:develop
-        - docker push frappe/erpnext-assets:edge
-        - docker push frappe/erpnext-assets:develop
+        - ./travis.sh --assets --tag edge --name erpnext
+        - ./travis.sh --assets --tag develop --name erpnext --tag-only
     - name: "Build Frappe socketio service (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t frappe-socketio -f build/frappe-socketio/Dockerfile .
-        - docker tag frappe-socketio frappe/frappe-socketio:edge
-        - docker tag frappe-socketio frappe/frappe-socketio:develop
-        - docker push frappe/frappe-socketio:edge
-        - docker push frappe/frappe-socketio:develop
+        - ./travis.sh --socketio --tag edge --name frappe
+        - ./travis.sh --socketio --tag develop --name frappe --tag-only
     - name: "Build Frappe python environment (v12)"
       if: branch = master AND type != pull_request
       script:
