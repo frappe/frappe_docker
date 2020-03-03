@@ -23,85 +23,87 @@ matrix:
     - name: "Build Frappe python environment (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.sh --worker --tag edge --name frappe
-        - ./travis.sh --worker --tag develop --name frappe --tag-only
+        - ./travis.sh --worker --service frappe --tag edge 
+        - ./travis.sh --worker --service frappe --tag develop --tag-only
     - name: "Build Frappe nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.sh --assets --tag edge --name frappe
-        - ./travis.sh --assets --tag develop --name frappe --tag-only
+        - ./travis.sh --assets --service frappe --tag edge
+        - ./travis.sh --assets --service frappe --tag develop--tag-only
     - name: "Build ERPNext python environment (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.sh --worker --tag edge --name erpnext
-        - ./travis.sh --worker --tag develop --name erpnext --tag-only
+        - ./travis.sh --worker --service erpnext --tag edge
+        - ./travis.sh --worker --service erpnext --tag develop --tag-only
     - name: "Build ERPNext nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.sh --assets --tag edge --name erpnext
-        - ./travis.sh --assets --tag develop --name erpnext --tag-only
+        - ./travis.sh --assets --service erpnext --tag edge 
+        - ./travis.sh --assets --service erpnext --tag develop --tag-only
     - name: "Build Frappe socketio service (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.sh --socketio --tag edge --name frappe
-        - ./travis.sh --socketio --tag develop --name frappe --tag-only
+        - ./travis.sh --socketio --service frappe --tag edge
+        - ./travis.sh --socketio --service frappe --tag develop --tag-only
     - name: "Build Frappe python environment (v12)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.sh --worker --git-branch 12 --name frappe 
-        - ./travis.sh --worker --tag v12 --name frappe --tag-only
-        - ./travis.sh --worker --tag version-12 --name frappe --tag-only
+        - ./travis.sh --worker --service frappe --git-branch 12 
+        - ./travis.sh --worker --service frappe --tag v12 --tag-only
+        - ./travis.sh --worker --service frappe --tag version-12 --tag-only
     - name: "Build Frappe nginx + static assets (v12)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.sh --assets --git-branch 12 --name frappe 
-        - ./travis.sh --assets --tag v12 --name frappe --tag-only
-        - ./travis.sh --assets --tag version-12 --name frappe --tag-only
+        - ./travis.sh --assets --service frappe --git-branch 12 
+        - ./travis.sh --assets --service frappe --tag v12 --tag-only
+        - ./travis.sh --assets --service frappe --tag version-12 --tag-only
     - name: "Build ERPNext python environment (v12)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.sh --worker --git-branch 12 --name erpnext
-        - ./travis.sh --worker --tag v12 --name erpnext --tag-only
-        - ./travis.sh --worker --tag version-12 --name erpnext --tag-only
+        - ./travis.sh --worker --service erpnext --git-branch 12
+        - ./travis.sh --worker --service erpnext --tag v12 --tag-only
+        - ./travis.sh --worker --service erpnext --tag version-12 --tag-only
     - name: "Build ERPNext nginx + static assets (v12)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.sh --assets --git-branch 12 --name erpnext
-        - ./travis.sh --assets --tag v12 --name erpnext --tag-only
-        - ./travis.sh --assets --tag version-12 --name erpnext --tag-only
-    - name: "Build Frappe socketio service (v12)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.sh --socketio --git-branch 12 --name frappe
-        - ./travis.sh --socketio --tag v12 --name frappe --tag-only
-        - ./travis.sh --socketio --tag version-12 --name frappe --tag-only
-    - name: "Build Frappe python environment (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.sh --worker --git-branch 11 --name frappe
-        - ./travis.sh --worker --tag v11 --name frappe --tag-only
-        - ./travis.sh --worker --tag version-11 --name frappe --tag-only
-    - name: "Build Frappe nginx + static assets (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.sh --assets --git-branch 11 --name frappe
-        - ./travis.sh --assets --tag v11 --name frappe --tag-only
-        - ./travis.sh --assets --tag version-11 --name frappe --tag-only
-    - name: "Build ERPNext python environment (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.sh --worker --git-branch 11 --name erpnext
-        - ./travis.sh --worker --tag v11 --name erpnext --tag-only
-        - ./travis.sh --worker --tag version-11 --name erpnext --tag-only
-    - name: "Build ERPNext nginx + static assets (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.sh --assets --git-branch 11 --name erpnext
-        - ./travis.sh --assets --tag v11 --name erpnext --tag-only
-        - ./travis.sh --assets --tag version-11 --name erpnext --tag-only
+        - ./travis.sh --assets --service erpnext--git-branch 12
+        - ./travis.sh --assets --service erpnext --tag v12 --tag-only
+        - ./travis.sh --assets --service erpnext --tag version-12 --tag-only
     - name: "Build Frappe socketio service (v11)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.sh --socketio --git-branch 11 --name erpnext
-        - ./travis.sh --socketio --tag v11 --name erpnext --tag-only
-        - ./travis.sh --socketio --tag version-11 --name erpnext --tag-only
+        - ./travis.sh --socketio --service frappe --git-branch 11
+        - ./travis.sh --socketio --service frappe --tag v11 --tag-only
+        - ./travis.sh --socketio --service frappe --tag version-11 --tag-only
+    - name: "Build Frappe python environment (v11)"
+      if: branch = master AND type != pull_request
+      script:
+        - ./travis.sh --worker --service frappe --git-branch 11 
+        - ./travis.sh --worker --service frappe --tag v11 --tag-only
+        - ./travis.sh --worker --service frappe --tag version-11 --tag-only
+    - name: "Build Frappe nginx + static assets (v11)"
+      if: branch = master AND type != pull_request
+      script:
+        - ./travis.sh --assets --service frappe --git-branch 11 
+        - ./travis.sh --assets --service frappe --tag v11 --tag-only
+        - ./travis.sh --assets --service frappe --tag version-11 --tag-only
+    - name: "Build ERPNext python environment (v11)"
+      if: branch = master AND type != pull_request
+      script:
+        - ./travis.sh --worker --service erpnext --git-branch 11
+        - ./travis.sh --worker --service erpnext --tag v11 --tag-only
+        - ./travis.sh --worker --service erpnext --tag version-11 --tag-only
+    - name: "Build ERPNext nginx + static assets (v11)"
+      if: branch = master AND type != pull_request
+      script:
+        - ./travis.sh --assets --service erpnext--git-branch 11
+        - ./travis.sh --assets --service erpnext --tag v11 --tag-only
+        - ./travis.sh --assets --service erpnext --tag version-11 --tag-only
+    - name: "Build Frappe socketio service (v11)"
+      if: branch = master AND type != pull_request
+      script:
+        - ./travis.sh --socketio --service frappe --git-branch 11
+        - ./travis.sh --socketio --service frappe --tag v11 --tag-only
+        - ./travis.sh --socketio --service frappe --tag version-11 --tag-only
+        
+    
