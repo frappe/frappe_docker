@@ -8,8 +8,8 @@ RUN install_packages git python2
 
 RUN mkdir -p apps sites/assets  \
     && cd apps \
-    && git clone --depth 1 https://github.com/frappe/frappe --branch version-12 \
-    && git clone --depth 1 https://github.com/frappe/erpnext --branch version-12
+    && git clone --depth 1 https://github.com/frappe/frappe \
+    && git clone --depth 1 https://github.com/frappe/erpnext
 
 RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn \
@@ -30,7 +30,7 @@ FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
 COPY --from=0 /var/www/error_pages /var/www/
 COPY build/common/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY build/erpnext-assets/docker-entrypoint.sh /
+COPY build/erpnext-nginx/docker-entrypoint.sh /
 
 RUN apt-get update && apt-get install -y rsync && apt-get clean
 

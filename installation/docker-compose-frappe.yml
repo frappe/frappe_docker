@@ -1,8 +1,8 @@
 version: '3'
 
 services:
-  frappe-assets:
-    image: frappe/frappe-assets:${VERSION}
+  frappe-nginx:
+    image: frappe/frappe-nginx:${VERSION}
     restart: on-failure
     environment:
       - FRAPPE_PY=frappe-python
