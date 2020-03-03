@@ -4,7 +4,6 @@
 # This script takes care of the common steps 
 # found in the Travis CI builds. 
 
-POSITIONAL=()
 while [[ $# -gt 0 ]]; do
   key="$1"
 
@@ -35,12 +34,23 @@ while [[ $# -gt 0 ]]; do
       TAGONLY=1
       shift
     ;;
-    *)    # unknown option
-      POSITIONAL+=("$1") # save it in an array for later
-      shift # past argument
+    -g|--git-branch)
+      BRANCH="$2"
+      shift
+      shift 
     ;;
   esac
 done
+
+function gitVersion() {
+  echo "Pulling ${1} v${2}"
+  git clone https://github.com/frappe/${1} --branch version-${2}
+  cd ${1}
+  git fetch --tags
+  TAG=$(git tag --list --sort=-version:refname "v${2}*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
+  cd ..
+  DOCKERFILE="v${2}.Dockerfile"
+}
 
 function tagAndPush() {
   echo "Tagging ${1} as \"${2}\" and pushing"
@@ -49,27 +59,33 @@ function tagAndPush() {
 }
 
 function build () {
-  echo "Building ${1} ${3} image"
-  docker build -t ${1}-${3} -f build/${1}-worker/Dockerfile .
+  echo "Building ${1} ${3} image using ${4}"
+  docker build -t ${1}-${3} -f build/${1}-${3}/${4:-Dockerfile} .
   tagAndPush "${1}-${3}" ${2}
 }
 
+if [[ $BRANCH ]]; then
+  gitVersion $NAME $BRANCH 
+fi
+
+DOCKERFILE=${DOCKERFILE:-Dockerfile}
+
 if [[ $WORKER ]]; then
   if [[ $TAGONLY ]]; then
-    tagAndPush "${NAME}-worker" ${TAG}
+    tagAndPush "${NAME}-worker" ${TAG} 
   else 
-    build $NAME $TAG worker
+    build $NAME $TAG worker ${DOCKERFILE} 
   fi
 elif [[ $ASSETS ]]; then 
   if [[ $TAGONLY ]]; then
     tagAndPush "${NAME}-assets" ${TAG}
   else 
-    build $NAME $TAG assets
+    build $NAME $TAG assets ${DOCKERFILE}
   fi
 elif [[ $SOCKETIO ]]; then
   if [[ $TAGONLY ]]; then
     tagAndPush "${NAME}-socketio" ${TAG}
   else 
-    build $NAME $TAG socketio
+    build $NAME $TAG socketio ${DOCKERFILE}
   fi
 fi
