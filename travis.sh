@@ -1,13 +1,61 @@
 #!/bin/bash
 
-################# travis.sh #################
+################# ./travis.sh #################
 # This script takes care of the common steps 
-# found in the Travis CI builds. 
+# found in the frappe_docker Travis CI builds. 
+#
+#   Usage: [-a | -s | -w | -h] [-n <name of service>] [-t <tag> | -g <version number>] [-o]
+#
+# Argumets:
+#
+#   -a | --assets (exclusive): Build the nginx + static assets image
+#   -s | --socketio (exclusive): Build the frappe-socketio image
+#   -w | --worker (exclusive): Build the python environment image
+#   -h | --help (exclusive): Print this page
+#   
+#   -n | --service <name of service>: Name of the service to build: "erpnext" or "frappe"
+#     Note: --socketio does not respect this argument
+#     Note: This will build an image with the name "$SERVICE-assets" (i.e. "erpnext-worker", "frappe-assets", etc.)
+#
+#   -t | --tag <tag> (exclusive): The image tag (i.e. erpnext-worker:$TAG )
+#   -g | --git-version <version number> (exclusive): The version number of --service (i.e. "11", "12", etc.)
+#     Note: This must be a number, not a string!
+#
+#   -o | --tag-only: Only tag an image and push it.
+#
+#
+
 
 while [[ $# -gt 0 ]]; do
   key="$1"
 
   case $key in
+    -a|--assets)
+      ASSETS=1
+      shift 
+    ;;
+    -g|--git-version)
+      version="$2"
+      shift
+      shift
+    ;;
+    -h|--help)
+      HELP=1
+      shift
+    ;;
+    -n|--service)
+      SERVICE="$2"
+      shift
+      shift 
+    ;;
+    -o|--tag-only)
+      TAGONLY=1
+      shift
+    ;;
+    -s|--socketio)
+      SOCKETIO=1
+      shift 
+    ;;
     -t|--tag)
       TAG="$2"
       shift
@@ -17,30 +65,36 @@ while [[ $# -gt 0 ]]; do
       WORKER=1
       shift 
     ;;
-    -a|--assets)
-      ASSETS=1
-      shift 
-    ;;
-    -s|--socketio)
-      SOCKETIO=1
-      shift 
-    ;;
-    -n|--name)
-      NAME="$2"
+    *)
+      HELP=1
       shift
-      shift 
-    ;;
-    -o|--tag-only)
-      TAGONLY=1
-      shift
-    ;;
-    -g|--git-branch)
-      BRANCH="$2"
-      shift
-      shift 
     ;;
   esac
 done
+
+function help() {
+  echo "################ $0 #################"
+  echo " This script takes care of the common steps found in the frappe_docker Travis CI builds."
+  echo ""
+  echo "   Usage: [-a | -s | -w | -h] [-n <name of service>] [-t <tag> | -g <version number>] [-o]"
+  echo ""
+  echo " Argumets:"
+  echo ""
+  echo "   -a | --assets (exclusive): Build the nginx + static assets image"
+  echo "   -s | --socketio (exclusive): Build the frappe-socketio image"
+  echo "   -w | --worker (exclusive): Build the python environment image"
+  echo "   -h | --help (exclusive): Print this page"
+  echo ""
+  echo "   -n | --service <name of service>: Name of the service to build: \"erpnext\" or \"frappe\""
+  echo "     Note: --socketio does not respect this argument"
+  echo "     Note: This will build an image with the name \"\$SERVICE-assets\" (i.e. \"erpnext-worker\", \"frappe-assets\", etc.)"
+  echo ""
+  echo "   -t | --tag <tag> (exclusive): The image tag (i.e. erpnext-worker:\$TAG)"
+  echo "   -g | --git-version <version number> (exclusive): The version number of --service (i.e. \"11\", \"12\", etc.)"
+  echo "     Note: This must be a number, not a string!"
+  echo ""
+  echo "   -o | --tag-only: Only tag an image and push it."
+}
 
 function gitVersion() {
   echo "Pulling ${1} v${2}"
@@ -64,28 +118,33 @@ function build () {
   tagAndPush "${1}-${3}" ${2}
 }
 
-if [[ $BRANCH ]]; then
-  gitVersion $NAME $BRANCH 
+if [[ HELP ]]; then
+  help
+  exit 1
+fi
+
+if [[ $VERSION ]]; then
+  gitVersion $SERVICE $VERSION 
 fi
 
 DOCKERFILE=${DOCKERFILE:-Dockerfile}
 
 if [[ $WORKER ]]; then
   if [[ $TAGONLY ]]; then
-    tagAndPush "${NAME}-worker" ${TAG} 
+    tagAndPush "${SERVICE}-worker" ${TAG} 
   else 
-    build $NAME $TAG worker ${DOCKERFILE} 
+    build $SERVICE $TAG worker ${DOCKERFILE} 
   fi
 elif [[ $ASSETS ]]; then 
   if [[ $TAGONLY ]]; then
-    tagAndPush "${NAME}-assets" ${TAG}
+    tagAndPush "${SERVICE}-assets" ${TAG}
   else 
-    build $NAME $TAG assets ${DOCKERFILE}
+    build $SERVICE $TAG assets ${DOCKERFILE}
   fi
 elif [[ $SOCKETIO ]]; then
   if [[ $TAGONLY ]]; then
-    tagAndPush "${NAME}-socketio" ${TAG}
+    tagAndPush "frappe-socketio" ${TAG}
   else 
-    build $NAME $TAG socketio ${DOCKERFILE}
+    build frappe $TAG socketio ${DOCKERFILE}
   fi
 fi
