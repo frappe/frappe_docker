@@ -2,6 +2,7 @@
 
 APP_NAME=${1}
 APP_REPO=${2}
+APP_BRANCH=${3}
 
 cd /home/frappe/frappe-bench/
 
@@ -9,5 +10,8 @@ cd /home/frappe/frappe-bench/
 
 cd apps
 
-git clone --depth 1 -o upstream ${APP_REPO}
+[ "${APP_BRANCH}" ] && \ 
+  BRANCH="-b ${APP_BRANCH}"
+
+git clone --depth 1 -o upstream ${APP_REPO} ${BRANCH}
 pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/APP_NAME
