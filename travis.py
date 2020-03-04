@@ -6,18 +6,17 @@ import os
 
 parser = argparse.ArgumentParser(description='frappe_docker common CI elements', add_help=True)
 
+parser.add_argument('service', action='store', type=str, help='Name of the service to build: "erpnext" or "frappe"')
+parser.add_argument('-o', '--tag-only', required=False, action='store_true', dest='tag_only', help='Only tag an image and push it.')
+
 image_type = parser.add_mutually_exclusive_group(required=True)
 image_type.add_argument('-a', '--nginx', action='store_const', dest='image_type', const='nginx', help='Build the nginx + static assets image')
 image_type.add_argument('-s', '--socketio', action='store_const', dest='image_type', const='socketio', help='Build the frappe-socketio image')
 image_type.add_argument('-w', '--worker', action='store_const', dest='image_type', const='worker', help='Build the python environment image')
 
-parser.add_argument('service', action='store', type=str, help='Name of the service to build: "erpnext" or "frappe"')
-
 tag_type = parser.add_mutually_exclusive_group(required=True)
 tag_type.add_argument('-g', '--git-version', action='store', type=int, dest='version', help='The version number of --service (i.e. "11", "12", etc.)')
 tag_type.add_argument('-t', '--tag', action='store', type=str, dest='tag', help='The image tag (i.e. erpnext-worker:$TAG )')
-
-parser.add_argument('-o', '--tag-only', required=False, action='store_true', dest='tag_only', help='Only tag an image and push it.')
 
 args = parser.parse_args()
 
