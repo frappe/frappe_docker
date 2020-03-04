@@ -47,7 +47,7 @@ def main():
 
   if args.version:
     tag = git_version(args.service, args.version)
-    dockerfile = 'v{!r}.Dockerfile'.format(args.version)
+    dockerfile = f'v{args.version}.Dockerfile'
   else:
     tag = args.tag
     dockerfile = 'Dockerfile'
