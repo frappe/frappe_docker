@@ -17,9 +17,9 @@ before_install:
 after_success:
   - docker --version
 
-matrix:
+jobs:
   include:
-    - name: "Build Frappe python environment (edge)"
+    - stage: "Build Frappe python environment (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t frappe-worker -f build/frappe-worker/Dockerfile .
@@ -27,7 +27,7 @@ matrix:
         - docker tag frappe-worker frappe/frappe-worker:develop
         - docker push frappe/frappe-worker:edge
         - docker push frappe/frappe-worker:develop
-    - name: "Build Frappe nginx + static assets (edge)"
+    - stage: "Build Frappe nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t frappe-assets -f build/frappe-assets/Dockerfile .
@@ -35,7 +35,7 @@ matrix:
         - docker tag frappe-assets frappe/frappe-assets:develop
         - docker push frappe/frappe-assets:edge
         - docker push frappe/frappe-assets:develop
-    - name: "Build ERPNext python environment (edge)"
+    - stage: "Build ERPNext python environment (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t erpnext-worker -f build/erpnext-worker/Dockerfile .
@@ -43,7 +43,7 @@ matrix:
         - docker tag erpnext-worker frappe/erpnext-worker:develop
         - docker push frappe/erpnext-worker:edge
         - docker push frappe/erpnext-worker:develop
-    - name: "Build ERPNext nginx + static assets (edge)"
+    - stage: "Build ERPNext nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t erpnext-assets -f build/erpnext-assets/Dockerfile .
@@ -51,7 +51,7 @@ matrix:
         - docker tag erpnext-assets frappe/erpnext-assets:develop
         - docker push frappe/erpnext-assets:edge
         - docker push frappe/erpnext-assets:develop
-    - name: "Build Frappe socketio service (edge)"
+    - stage: "Build Frappe socketio service (edge)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t frappe-socketio -f build/frappe-socketio/Dockerfile .
@@ -59,7 +59,7 @@ matrix:
         - docker tag frappe-socketio frappe/frappe-socketio:develop
         - docker push frappe/frappe-socketio:edge
         - docker push frappe/frappe-socketio:develop
-    - name: "Build Frappe python environment (v12)"
+    - stage: "Build Frappe python environment (v12)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/frappe --branch version-12
@@ -73,7 +73,7 @@ matrix:
         - docker push frappe/frappe-worker:$VERSION
         - docker push frappe/frappe-worker:version-12
         - docker push frappe/frappe-worker:v12
-    - name: "Build Frappe nginx + static assets (v12)"
+    - stage: "Build Frappe nginx + static assets (v12)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/frappe --branch version-12
@@ -87,7 +87,7 @@ matrix:
         - docker push frappe/frappe-assets:$VERSION
         - docker push frappe/frappe-assets:version-12
         - docker push frappe/frappe-assets:v12
-    - name: "Build ERPNext python environment (v12)"
+    - stage: "Build ERPNext python environment (v12)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/erpnext --branch version-12
@@ -101,7 +101,7 @@ matrix:
         - docker push frappe/erpnext-worker:$VERSION
         - docker push frappe/erpnext-worker:version-12
         - docker push frappe/erpnext-worker:v12
-    - name: "Build ERPNext nginx + static assets (v12)"
+    - stage: "Build ERPNext nginx + static assets (v12)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/erpnext --branch version-12
@@ -115,7 +115,7 @@ matrix:
         - docker push frappe/erpnext-assets:$VERSION
         - docker push frappe/erpnext-assets:version-12
         - docker push frappe/erpnext-assets:v12
-    - name: "Build Frappe socketio service (v12)"
+    - stage: "Build Frappe socketio service (v12)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/frappe --branch version-12
@@ -129,7 +129,7 @@ matrix:
         - docker push frappe/frappe-socketio:$VERSION
         - docker push frappe/frappe-socketio:version-12
         - docker push frappe/frappe-socketio:v12
-    - name: "Build Frappe python environment (v11)"
+    - stage: "Build Frappe python environment (v11)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/frappe --branch version-11
@@ -143,7 +143,7 @@ matrix:
         - docker push frappe/frappe-worker:$VERSION
         - docker push frappe/frappe-worker:version-11
         - docker push frappe/frappe-worker:v11
-    - name: "Build Frappe nginx + static assets (v11)"
+    - stage: "Build Frappe nginx + static assets (v11)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/frappe --branch version-11
@@ -157,7 +157,7 @@ matrix:
         - docker push frappe/frappe-assets:$VERSION
         - docker push frappe/frappe-assets:version-11
         - docker push frappe/frappe-assets:v11
-    - name: "Build ERPNext python environment (v11)"
+    - stage: "Build ERPNext python environment (v11)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/erpnext --branch version-11
@@ -171,7 +171,7 @@ matrix:
         - docker push frappe/erpnext-worker:$VERSION
         - docker push frappe/erpnext-worker:version-11
         - docker push frappe/erpnext-worker:v11
-    - name: "Build ERPNext nginx + static assets (v11)"
+    - stage: "Build ERPNext nginx + static assets (v11)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/erpnext --branch version-11
@@ -185,7 +185,7 @@ matrix:
         - docker push frappe/erpnext-assets:$VERSION
         - docker push frappe/erpnext-assets:version-11
         - docker push frappe/erpnext-assets:v11
-    - name: "Build Frappe socketio service (v11)"
+    - stage: "Build Frappe socketio service (v11)"
       if: branch = master AND type != pull_request
       script:
         - git clone https://github.com/frappe/frappe --branch version-11
