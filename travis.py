@@ -21,12 +21,6 @@ parser.add_argument('-o', '--tag-only', required=False, action='store_true', des
 
 args = parser.parse_args()
 
-print('image_type     = {!r}'.format(args.image_type))
-print('service        = {!r}'.format(args.service))
-print('version        = {!r}'.format(args.version))
-print('tag            = {!r}'.format(args.tag))
-print('tag_only       = {!r}'.format(args.tag_only))
-
 def git_version(service, version):
   print(f'Pulling {service} v{version}')
   subprocess.run(f'git clone https://github.com/frappe/{service} --branch version-{version}', shell=True)
