@@ -1,4 +1,4 @@
-### Getting Started
+## Getting Started
 
 The templates in this repository will help deploy Frappe/ERPNext docker in a production environment.
 
@@ -8,31 +8,13 @@ This docker installation takes care of the following:
 * Setting up all the system requirements: eg. MariaDB, Node, Redis.
 * [OPTIONAL] Configuring networking for remote access and setting up LetsEncrypt
 
-### Installation Process
+## Deployment
 
-#### Setting up Pre-requisites
+### Setting up Pre-requisites
 
 This repository requires Docker and Git to be setup on the instance to be used.
 
-#### Setup Letsencrypt Nginx Proxy Companion
-
-This is an optional first step. This step is only required if you want to have SSL setup on your docker instance.
-
-This step also assumes that the DNS is preconfigured since it automatically handles setup and renewal of SSL certificates.
-
-For more details, see: https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion
-
-To setup the proxy companion, run the following steps:
-
-```sh
-cd $HOME
-git clone https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion.git
-cd docker-compose-letsencrypt-nginx-proxy-companion
-cp .env.sample .env
-./start.sh
-```
-
-#### Setting up Frappe/ERPNext Docker
+### Cloning the repository and preliminary steps
 
 Clone this repository somewhere in your system:
 
@@ -43,7 +25,7 @@ cd frappe_docker
 
 Copy the example docker environment file to `.env`:
 
-```
+```sh
 cp installation/env-example installation/.env
 ```
 
@@ -53,9 +35,7 @@ Make a directory for sites:
 mkdir installation/sites
 ```
 
-#### Setup Environment Variables
-
-Docker allows passing an environment file to aide in setting up containers, which is used by this repository to pass secret and variable data.
+### Setup Environment Variables
 
 To get started, copy the existing `env-example` file to `.env` inside the `installation` directory. By default, the file will contain the following variables:
 
@@ -68,13 +48,70 @@ To get started, copy the existing `env-example` file to `.env` inside the `insta
     - In case of a separately managed database setup, set the value to the database's hostname/IP/domain.
 - `SITES=site1.domain.com,site2.domain.com`
     - List of sites that are part of the deployment "bench". Each site is separated by a comma(,).
-    - If LetsEncrypt is being setup, make sure that the DNS for all the site domains are pointing to the current instance.
+    - If LetsEncrypt is being setup, make sure that the DNS for all the site's domains are pointing to the current instance.
 - `LETSENCRYPT_EMAIL=your.email@your.domain.com`
-    - Email for LetsEncrypt expiry notification. This is only required if you are setting up the nginx proxy companion.
+    - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
+
+
+### Deployment for local development
+
+To start the Frappe/ERPNext services for production, run the following command:
+
+For Erpnext:
+
+
+```sh
+docker-compose \ 
+    --project-name <project-name> \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-erpnext.yml \
+    -f installation/docker-compose-networks.yml \
+    --project-directory installation run --publish 80:80 erpnext-nginx
+```
+
+For Frappe:
+```sh
+docker-compose \ 
+    --project-name <project-name> \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-frappe.yml \
+    -f installation/docker-compose-networks.yml \
+    --project-directory installation run --publish 80:80 frappe-nginx
+```
+
+Make sure to replace `<project-name>` with any desired name you wish to set for the project.
+
+Note: this command does not run docker-compose in daemon mode. You will need to keep the terminal window open.
+Note: the local deployment is for testing only. The site names are limited to patterns matching \*.localhost.
+
+
+### Deployment for production
+
+#### Setup Letsencrypt Nginx Proxy Companion
+
+
+
+Letsencrypt Nginx Proxy Companion can optionally be setup to provide SSL. This is recommended for istances accessed over the internet. 
+
+Your DNS will need to be configured correctly in order for Letsencrypt to verify your domain.
+
+To setup the proxy companion, run the following commands:
+
+```sh
+cd $HOME
+git clone https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion.git
+cd docker-compose-letsencrypt-nginx-proxy-companion
+cp .env.sample .env
+./start.sh
+```
+
+For more details, see: https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion
+Letsencrypt Nginx Proxy Companion works by automatically proxing to containers with the `VIRTUAL_HOST` environmental variable.
+
 
 #### Start Frappe/ERPNext Services
 
-To start the Frappe/ERPNext services, run the following command:
+To start the Frappe/ERPNext services for production, run the following command:
 
 ```sh
 docker-compose \
@@ -86,8 +123,45 @@ docker-compose \
 ```
 
 Make sure to replace `<project-name>` with any desired name you wish to set for the project.
+Note: use `docker-compose-frappe.yml` in case you need only Frappe without ERPNext.
 
-Note: use `docker-compose-frappe.yml` in case you need bench with just frappe installed.
+
+### Docker containers
+
+This repository contains the following docker-compose files each one containing the described images:
+* docker-compose-common.yml
+    * redis-cache
+        * volume: redis-cache-vol
+    * redis-queue
+        * volume: redis-queue-vol
+    * redis-socketio
+        * volume: redis-socketio-vol
+    * mariadb: main database
+        * volume: mariadb-vol
+* docker-compose-erpnext.yml
+    * erpnext-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port. 
+        * volume: assets
+    * erpnext-python: main application code
+    * frappe-socketio: enables realtime comunication to the user interface through websockets
+    * frappe-worker-default: background runner
+    * frappe-worker-short: background runner for short-running jobs
+    * frappe-worker-long: background runner for long-running jobs
+    * frappe-schedule
+
+* docker-compose-frappe.yml
+    * frappe-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port. 
+        * volume: assets
+    * erpnext-python: main application code
+    * frappe-socketio: enables realtime comunication to the user interface through websockets
+    * frappe-worker-default: background runner
+    * frappe-worker-short: background runner for short-running jobs
+    * frappe-worker-long: background runner for long-running jobs
+    * frappe-schedule
+
+* docker-compose-networks.yml: this yml define the network to comunicate with *Letsencrypt Nginx Proxy Companion*.
+
+
+### Site operations
 
 #### Setup New Sites
 
@@ -161,7 +235,7 @@ docker exec -it \
     <project-name>_erpnext-python_1 docker-entrypoint.sh migrate
 ```
 
-### Troubleshoot
+## Troubleshoot
 
 1. Remove containers and volumes, and clear redis cache:
 
