@@ -28,3 +28,5 @@ mkdir -p /home/frappe/frappe-bench/sites/assets/${APP_NAME}
 cp -R /home/frappe/frappe-bench/apps/${APP_NAME}/${APP_NAME}/public/* /home/frappe/frappe-bench/sites/assets/${APP_NAME}
 
 echo "rsync -a --delete /var/www/html/assets/${APP_NAME} /assets" > /rsync
+
+rm /home/frappe/frappe-bench/sites/apps.txt
