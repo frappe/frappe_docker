@@ -20,7 +20,7 @@ after_success:
 
 matrix:
   include:
-    - name: "Build Frappe bench development environment(latest)"
+    - name: "Build Frappe bench development environment (latest)"
       if: branch = develop AND type != pull_request
       script:
         - docker build -t frappe/bench:latest -f build/bench/Dockerfile .
@@ -30,7 +30,7 @@ matrix:
         script:
           - ./travis.py frappe --nginx --tag edge
           - ./travis.py frappe --nginx --tag develop--tag-only
-      - name: "Build Frappe nginx + static assets (edge)"
+    - name: "Build Frappe nginx + static assets (edge)"
       if: branch = develop AND type != pull_request
       script:
         - ./travis.py frappe --nginx --tag edge
