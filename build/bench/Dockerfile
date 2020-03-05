@@ -21,30 +21,31 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   software-properties-common sudo tk8.6-dev vim xfonts-75dpi xfonts-base wget wkhtmltopdf fonts-cantarell \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Add frappe user and setup sudo
+RUN groupadd -g 1000 frappe \
+  && useradd -ms /bin/bash -u 1000 -g 1000 -G sudo frappe \
+  && chown -R 1000:1000 /home/frappe \
+  && echo '. "$NVM_DIR/nvm.sh"' >> /home/frappe/.bashrc
+
 # Install nvm with node
-ENV NVM_DIR /usr/local/nvm
+ENV NVM_DIR /home/frappe/.nvm
 ENV NODE_VERSION 12.16.1
-RUN mkdir /usr/local/nvm \
+RUN mkdir /home/frappe/.nvm \
     && wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.35.2/install.sh | bash \
     && . $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm install 10.19.0 \
+    && npm install yarn -g \
     && nvm alias default $NODE_VERSION \
     && nvm use default \
-    && npm install yarn -g
+    && npm install yarn -g \
+    && chown -R frappe:frappe /home/frappe
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/v$NODE_VERSION/bin:$PATH
 
 # Install wkhtmltox correctly
 RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
 RUN dpkg -i wkhtmltox_0.12.5-1.stretch_amd64.deb && rm wkhtmltox_0.12.5-1.stretch_amd64.deb
-
-
-# Add frappe user and setup sudo
-RUN groupadd -g 1000 frappe \
-  && useradd -ms /bin/bash -u 1000 -g 1000 -G sudo frappe \
-  && chown -R 1000:1000 /home/frappe \
-  && echo '. "$NVM_DIR/nvm.sh"' >> /home/frappe/.bashrc
 
 # Install bench
 RUN pip3 install -e git+https://github.com/frappe/bench.git#egg=bench --no-cache
