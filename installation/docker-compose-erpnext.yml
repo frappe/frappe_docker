@@ -1,8 +1,8 @@
 version: '3'
 
 services:
-  erpnext-assets:
-    image: frappe/erpnext-assets:${VERSION}
+  erpnext-nginx:
+    image: frappe/erpnext-nginx:${VERSION}
     restart: on-failure
     environment:
       - FRAPPE_PY=erpnext-python
