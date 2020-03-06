@@ -8,10 +8,10 @@ cd /home/frappe/frappe-bench/
 
 . env/bin/activate
 
-cd apps
+cd ./apps
 
 [ "${APP_BRANCH}" ] && \ 
   BRANCH="-b ${APP_BRANCH}"
 
 git clone --depth 1 -o upstream ${APP_REPO} ${BRANCH}
-pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/APP_NAME
+pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/${APP_NAME}
