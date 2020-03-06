@@ -1,6 +1,6 @@
 FROM bitnami/node:12-prod
 
-COPY build/erpnext-assets/install_app.sh /install_app
+COPY build/erpnext-nginx/install_app.sh /install_app
 
 RUN /install_app erpnext https://github.com/frappe/erpnext
 
