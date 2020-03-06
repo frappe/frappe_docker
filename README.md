@@ -258,54 +258,54 @@ docker exec -it \
 
 To add your own apps to the image, we'll need to create a custom image with the help of a special wrapper script
 
-1. Create two folders called `[custom]-worker` and `[custom]-assets` in the `build` folder.
+1. Create two folders called `[custom]-worker` and `[custom]-nginx` in the `build` folder.
 
-  ```bash
-  cd frappe_docker
-  mkdir ./build/[custom]-worker ./build/[custom]-assets
-  ```
+    ```bash
+    cd frappe_docker
+    mkdir ./build/[custom]-worker ./build/[custom]-nginx
+    ```
 
 2. Create a `Dockerfile` in `./build/[custom]-worker` with the following content:
 
-  ```Dockerfile
-  FROM frappe/erpnext-worker:edge
+    ```Dockerfile
+    FROM frappe/erpnext-worker:edge
 
-  RUN install_app [custom] https://github.com/[username]/[custom] [branch]
-  # Only add the branch if you are using a specific tag or branch.
-  ```
+    RUN install_app [custom] https://github.com/[username]/[custom] [branch]
+    # Only add the branch if you are using a specific tag or branch.
+    ```
 
-3. Create a `Dockerfile` in `./build/[custom]-assets` with the following content:
+3. Create a `Dockerfile` in `./build/[custom]-nginx` with the following content:
 
-  ```Dockerfile
-  FROM bitnami/node:12-prod
+    ```Dockerfile
+    FROM bitnami/node:12-prod
 
-  COPY build/[custom]-assets/install_app.sh /install_app
+    COPY build/[custom]-nginx/install_app.sh /install_app
 
-  RUN /install_app [custom] https://github.com/[username]/[custom]
+    RUN /install_app [custom] https://github.com/[username]/[custom]
 
-  FROM frappe/erpnext-assets:edge
+    FROM frappe/erpnext-nginx:edge
 
-  COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
-  COPY --from=0 /rsync /rsync
-  RUN echo -n "\nerpnext" >> /var/www/html/apps.txt
+    COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
+    COPY --from=0 /rsync /rsync
+    RUN echo -n "\n[custom]" >> /var/www/html/apps.txt
 
-  VOLUME [ "/assets" ]
+    VOLUME [ "/assets" ]
 
-  ENTRYPOINT ["/docker-entrypoint.sh"]
-  CMD ["nginx", "-g", "daemon off;"]
-  ```
+    ENTRYPOINT ["/docker-entrypoint.sh"]
+    CMD ["nginx", "-g", "daemon off;"]
+    ```
 
-4. Copy over the `install_app.sh` file from `./build/erpnext-assets`
+4. Copy over the `install_app.sh` file from `./build/erpnext-nginx`
 
-  ```bash
-  cp ./build/erpnext-assets/install.sh ./build/[custom]-assets
-  ```
+    ```bash
+    cp ./build/erpnext-nginx/install.sh ./build/[custom]-nginx
+    ```
 
 5. Open up `./installation/docker-compose-custom.yml` and replace all instances of `[app]` with the name of your app.
 
-  ```bash
-  sed -i "s#\[app\]#[custom]#" ./installation/docker-compose-custom.yml
-  ```
+    ```bash
+    sed -i "s#\[app\]#[custom]#" ./installation/docker-compose-custom.yml
+    ```
 
 6. Install like usuall, except that when you set the `INSTALL_APPS` variable set it to `erpnext,[custom]`.
 
