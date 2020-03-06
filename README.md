@@ -8,6 +8,8 @@ This docker installation takes care of the following:
 * Setting up all the system requirements: eg. MariaDB, Node, Redis.
 * [OPTIONAL] Configuring networking for remote access and setting up LetsEncrypt
 
+For docker based development refer this [README](development/README.md)
+
 ## Deployment
 
 ### Setting up Pre-requisites
@@ -53,45 +55,62 @@ To get started, copy the existing `env-example` file to `.env` inside the `insta
     - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
 
 
-### Deployment for local development
+### Local deployment
 
-To start the Frappe/ERPNext services for production, run the following command:
+For trying out locally or to develop apps using ERPNext ReST API port 80 must be published.
+First start the containers and then run an additional command to publish port of *-nginx container.
+
+To start and publish Frappe/ERPNext services as local api, run the following commands:
 
 For Erpnext:
 
-
 ```sh
-docker-compose \ 
+# Start services
+docker-compose \
     --project-name <project-name> \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
-    -f installation/docker-compose-networks.yml \
-    --project-directory installation run --publish 80:80 erpnext-nginx
+    --project-directory installation up -d
+
+# Publish port
+docker-compose \
+    --project-name <project-name> \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-erpnext.yml \
+    --project-directory installation run --publish 80:80 -d erpnext-nginx
 ```
 
 For Frappe:
+
 ```sh
-docker-compose \ 
+# Start services
+docker-compose \
     --project-name <project-name> \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-frappe.yml \
-    -f installation/docker-compose-networks.yml \
-    --project-directory installation run --publish 80:80 frappe-nginx
+    --project-directory installation up -d
+
+# Publish port
+docker-compose \
+    --project-name <project-name> \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-frappe.yml \
+    --project-directory installation run --publish 80:80 -d frappe-nginx
 ```
 
 Make sure to replace `<project-name>` with any desired name you wish to set for the project.
 
-Note: this command does not run docker-compose in daemon mode. You will need to keep the terminal window open.
-Note: the local deployment is for testing only. The site names are limited to patterns matching \*.localhost.
-
+Note:
+ - This command adds an additional container for frappe-nginx with published ports.
+ - The local deployment is for testing and REST API development purpose only.
+ - The site names are limited to patterns matching \*.localhost by default
+ - Additional site name patterns can be added to /etc/hosts of desired container or host
 
 ### Deployment for production
 
 #### Setup Letsencrypt Nginx Proxy Companion
 
-
-
-Letsencrypt Nginx Proxy Companion can optionally be setup to provide SSL. This is recommended for istances accessed over the internet. 
+Letsencrypt Nginx Proxy Companion can optionally be setup to provide SSL. This is recommended for instances accessed over the internet.
 
 Your DNS will need to be configured correctly in order for Letsencrypt to verify your domain.
 
@@ -106,8 +125,7 @@ cp .env.sample .env
 ```
 
 For more details, see: https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion
-Letsencrypt Nginx Proxy Companion works by automatically proxing to containers with the `VIRTUAL_HOST` environmental variable.
-
+Letsencrypt Nginx Proxy Companion works by automatically proxying to containers with the `VIRTUAL_HOST` environmental variable.
 
 #### Start Frappe/ERPNext Services
 
@@ -125,7 +143,6 @@ docker-compose \
 Make sure to replace `<project-name>` with any desired name you wish to set for the project.
 Note: use `docker-compose-frappe.yml` in case you need only Frappe without ERPNext.
 
-
 ### Docker containers
 
 This repository contains the following docker-compose files each one containing the described images:
@@ -139,26 +156,26 @@ This repository contains the following docker-compose files each one containing 
     * mariadb: main database
         * volume: mariadb-vol
 * docker-compose-erpnext.yml
-    * erpnext-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port. 
+    * erpnext-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
         * volume: assets
     * erpnext-python: main application code
-    * frappe-socketio: enables realtime comunication to the user interface through websockets
+    * frappe-socketio: enables realtime communication to the user interface through websockets
     * frappe-worker-default: background runner
     * frappe-worker-short: background runner for short-running jobs
     * frappe-worker-long: background runner for long-running jobs
     * frappe-schedule
 
 * docker-compose-frappe.yml
-    * frappe-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port. 
+    * frappe-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
         * volume: assets
     * erpnext-python: main application code
-    * frappe-socketio: enables realtime comunication to the user interface through websockets
+    * frappe-socketio: enables realtime communication to the user interface through websockets
     * frappe-worker-default: background runner
     * frappe-worker-short: background runner for short-running jobs
     * frappe-worker-long: background runner for long-running jobs
     * frappe-schedule
 
-* docker-compose-networks.yml: this yml define the network to comunicate with *Letsencrypt Nginx Proxy Companion*.
+* docker-compose-networks.yml: this yml define the network to communicate with *Letsencrypt Nginx Proxy Companion*.
 
 
 ### Site operations
