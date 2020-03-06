@@ -8,7 +8,7 @@
 
 ### Bootstrap Containers for development
 
-Clone and change working directory to frappe_docker directory
+Clone and change to frappe_docker directory
 
 ```shell
 git clone https://github.com/frappe/frappe_docker.git
@@ -17,30 +17,34 @@ cd frappe_docker
 
 #### Manually start containers
 
+In case VS Code is not used follow these steps.
+
 ```shell
 docker-compose -f .devcontainer/docker-compose.yml up -d
 ```
 
-Enter the bench container
+Enter the bench container at location `/workspace/development`
 
 ```shell
-docker exec -e "TERM=xterm-256color" -w /workspace/development -it frappe bash
+docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer_frappe_1 bash
 ```
 
-#### Use VSCode Remote Containers extension
+#### Use VS Code Remote Containers extension
 
-- Install Remote Development Pack / Remote Containers extension
-- Install VSCode Python extension
-- Open frappe_docker in VSCode
-- From Command Palette (Ctrl + Shift + P) Execute Remote Containers : Reopen in Container
+Follow these in case VS Code is used. Do not start containers manually.
+
+- Install Remote Development Pack / Remote Containers extension.
+- Install VS Code Python extension.
+- Open frappe_docker in VS Code.
+- From Command Palette (Ctrl + Shift + P) Execute Remote Containers : Reopen in Container.
 
 ### Setup Docker specific bench environment
 
 Notes:
 
-- `development` directory is ignored by it. It is mounted and available in container. Create all your benches inside this directory
-- Execute these commands from container
-- nvm with node v12 and v10 is installed. Check with `nvm ls`. Node v12 is default
+- `development` directory is ignored by git. It is mounted and available in container. Create all your benches inside this directory.
+- Execute these commands from container.
+- nvm with node v12 and v10 is installed. Check with `nvm ls`. Node v12 is default.
 
 #### Setup first bench
 
@@ -62,7 +66,7 @@ bench set-redis-socketio-host redis-socketio:6379
 
 - honcho/Procfile starts processes required for development.
 - By default Procfile has 3 redis processes that it starts. Comment (`#`) or remove these lines and then run `bench start`.
-- Another option is to run following command
+- Another option is to run following command :
 
 ```shell
 honcho start \
@@ -94,15 +98,16 @@ mysql -uroot -p123 -hmariadb
 Execute following queries
 
 ```sql
-UPDATE mysql.user SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
-SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
-GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
+UPDATE mysql.user SET Host = '%' where User = 'db_name';
+SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password');
+GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%';
+FLUSH PRIVILEGES;
 ```
 
 ### Visual Studio Code Python Debugging
 
-- Install VSCode Python Extension once in remote container
-- Reload VSCode
+- Install VS Code Python Extension once in remote container
+- Reload VS Code
 - Do not start `web` process with honcho
 
 ```shell
