@@ -77,9 +77,7 @@ RUN echo '. "$NVM_DIR/nvm.sh"' >> /home/frappe/.bashrc
 RUN pip3 install -e git+https://github.com/frappe/bench.git#egg=bench --no-cache
 
 USER frappe
-
 WORKDIR /home/frappe/frappe-bench
-
 EXPOSE 8000 9000 6787
 
 VOLUME [ "/home/frappe/frappe-bench" ]
