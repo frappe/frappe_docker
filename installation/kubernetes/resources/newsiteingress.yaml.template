@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ${INGRESS_NAME}
+  # Optional Labels
+  labels:
+    app.kubernetes.io/instance: ${ERPNEXT_SERVICE}
+  annotations:
+    # required for cert-manager letsencrypt
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # other annotations as needed, e.g timestamp
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+spec:
+  rules:
+  - host: ${SITE_NAME}
+    http:
+      paths:
+      - backend:
+          serviceName: ${ERPNEXT_SERVICE}
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - ${SITE_NAME}
+    secretName: ${TLS_SECRET_NAME}

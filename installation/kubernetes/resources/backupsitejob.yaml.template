@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: backup-site-${SITE_NAME}-${TIMESTAMP}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      securityContext:
+        supplementalGroups: [1000]
+      containers:
+      - name: erpnext
+        image: castlecraft/erpnext-python:${VERSION}
+        command: ["docker-entrypoint.sh"]
+        args: ["backup"]
+        imagePullPolicy: Always
+        env:
+          - name: "WITH_FILES"
+            value: "1"
+          - name: "SITES"
+            value: "${SITE_NAME}"
+        volumeMounts:
+          - name: sites-dir
+            mountPath: /home/frappe/frappe-bench/sites
+      restartPolicy: Never
+      volumes:
+        - name: sites-dir
+          persistentVolumeClaim:
+            claimName: ${SITES_PVC}
+            readOnly: false

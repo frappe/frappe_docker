@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-new-site-${SITE_NAME}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      securityContext:
+        supplementalGroups: [1000]
+      containers:
+      - name: erpnext
+        image: castlecraft/erpnext-python:${VERSION}
+        command: ["docker-entrypoint.sh"]
+        args: ["new"]
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: sites-dir
+            mountPath: /home/frappe/frappe-bench/sites
+        env:
+          - name: "SITE_NAME"
+            value: ${SITE_NAME}
+          - name: "DB_ROOT_USER"
+            value: ${DB_ROOT_USER}
+          - name: "DB_ROOT_PASSWORD"
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: mariadb-root-password
+          - name: "ADMIN_PASSWORD"
+            value: ${ADMIN_PASSWORD}
+          - name: "INSTALL_APPS"
+            value: "erpnext"
+      restartPolicy: Never
+      volumes:
+        - name: sites-dir
+          persistentVolumeClaim:
+            claimName: ${SITES_PVC}
+            readOnly: false

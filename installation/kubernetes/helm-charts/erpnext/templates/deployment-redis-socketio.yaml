@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "erpnext.fullname" . }}-redis-socketio
+  labels:
+    {{- include "erpnext.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "erpnext.name" . }}-redis-socketio
+      app.kubernetes.io/instance: {{ .Release.Name }}-redis-socketio
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "erpnext.name" . }}-redis-socketio
+        app.kubernetes.io/instance: {{ .Release.Name }}-redis-socketio
+    spec:
+      containers:
+      - name: master
+        image: redis:5-alpine
+        resources:
+        ports:
+        - containerPort: 6379
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 10

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "erpnext.fullname" . }}-redis-cache
+  labels:
+    {{- include "erpnext.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "erpnext.name" . }}-redis-cache
+      app.kubernetes.io/instance: {{ .Release.Name }}-redis-cache
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "erpnext.name" . }}-redis-cache
+        app.kubernetes.io/instance: {{ .Release.Name }}-redis-cache
+    spec:
+      containers:
+      - name: master
+        image: redis:5-alpine
+        command: ["redis-server"]
+        args:
+          - "--maxmemory 292mb"
+          - "--maxmemory-policy allkeys-lru"
+          - "--appendonly no"
+          - "--save \"\""
+        resources: {}
+        ports:
+        - containerPort: 6379
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 10

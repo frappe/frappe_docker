@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "erpnext.fullname" . }}-erpnext
+  labels:
+    {{- include "erpnext.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "erpnext.name" . }}-backend
+      app.kubernetes.io/instance: {{ .Release.Name }}-backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "erpnext.name" . }}-backend
+        app.kubernetes.io/instance: {{ .Release.Name }}-backend
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "erpnext.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-assets
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.nginxImage.repository }}:{{ .Values.nginxImage.tag }}"
+          volumeMounts:
+          - name: assets-cache
+            mountPath: /assets
+          - name: sites-dir
+            mountPath: /var/www/html/sites
+          imagePullPolicy: {{ .Values.nginxImage.pullPolicy }}
+          env:
+            - name: "FRAPPE_PYERPNEXT_PY"
+              value: "0.0.0.0"
+            - name: "FRAPPE_PY_PORT"
+              value: {{ .Values.frappePyPort | quote }}
+            - name: "FRAPPE_SOCKETIO"
+              value: {{ template "erpnext.fullname" . }}-socketio
+            - name: "SOCKETIO_PORT"
+              value: {{ .Values.socketIOPort | quote }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        - name: {{ .Chart.Name }}-python
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.pythonImage.repository }}:{{ .Values.pythonImage.tag }}"
+          volumeMounts:
+          - name: assets-cache
+            mountPath: /home/frappe/frappe-bench/sites/assets
+          - name: sites-dir
+            mountPath: /home/frappe/frappe-bench/sites
+          imagePullPolicy: {{ .Values.pythonImage.pullPolicy }}
+          env:
+            {{ if .Values.runAsRoot }}
+            - name: "RUN_AS_ROOT"
+              value: "1"
+            {{ end }}
+            - name: "MARIADB_HOST"
+              value: {{ .Values.mariadbHost }}
+            - name: "REDIS_QUEUE"
+              value: {{ include "erpnext.fullname" . }}-redis-queue:{{ .Values.redisQueueService.port }}
+            - name: "REDIS_CACHE"
+              value: {{ include "erpnext.fullname" . }}-redis-cache:{{ .Values.redisCacheService.port }}
+            - name: "REDIS_SOCKETIO"
+              value: {{ include "erpnext.fullname" . }}-redis-socketio:{{ .Values.redisSocketIOService.port }}
+            - name: "SOCKETIO_PORT"
+              value: {{ .Values.socketIOPort | quote }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.frappePyPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.frappePyPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: assets-cache
+          emptyDir: {}
+        - name: sites-dir
+          persistentVolumeClaim:
+            claimName: {{ template "erpnext.fullname" . }}
+            readOnly: false
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

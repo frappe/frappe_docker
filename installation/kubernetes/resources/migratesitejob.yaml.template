@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-site-${SITE_NAME}-${TIMESTAMP}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      securityContext:
+        supplementalGroups: [1000]
+      containers:
+      - name: erpnext
+        image: castlecraft/erpnext-python:${VERSION}
+        command: ["docker-entrypoint.sh"]
+        args: ["migrate"]
+        imagePullPolicy: Always
+        env:
+          - name: "SITES"
+            value: "${SITE_NAME}"
+        volumeMounts:
+          - name: sites-dir
+            mountPath: /home/frappe/frappe-bench/sites
+      restartPolicy: Never
+      volumes:
+        - name: sites-dir
+          persistentVolumeClaim:
+            claimName: ${SITES_PVC}
+            readOnly: false

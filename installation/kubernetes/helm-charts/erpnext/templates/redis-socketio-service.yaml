@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "erpnext.fullname" . }}-redis-socketio
+  labels:
+    {{- include "erpnext.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.redisSocketIOService.type }}
+  ports:
+    - port: {{ .Values.redisSocketIOService.port }}
+      targetPort: 6379
+  selector:
+    app.kubernetes.io/name: {{ include "erpnext.name" . }}-redis-socketio
+    app.kubernetes.io/instance: {{ .Release.Name }}-redis-socketio
