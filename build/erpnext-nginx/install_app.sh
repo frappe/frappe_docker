@@ -8,7 +8,7 @@ APP_BRANCH=${3}
 
 mkdir -p /home/frappe/frappe-bench/sites/assets
 cd /home/frappe/frappe-bench
-echo "frappe\n${APP_NAME}" > /home/frappe/frappe-bench/sites/apps.txt
+echo -e "frappe\n${APP_NAME}" > /home/frappe/frappe-bench/sites/apps.txt
 
 install_packages git python2
 
@@ -19,7 +19,7 @@ git clone --depth 1 ${APP_REPO} ${BRANCH}
 
 cd /home/frappe/frappe-bench/apps/frappe
 yarn
-yarn  production
+yarn production
 rm -fr node_modules
 yarn install --production=true
 
