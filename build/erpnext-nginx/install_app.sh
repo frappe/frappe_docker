@@ -6,13 +6,13 @@ APP_BRANCH=${3}
 
 [ "${APP_BRANCH}" ] && BRANCH="-b ${APP_BRANCH}"
 
+mkdir -p /home/frappe/frappe-bench/sites/assets
 cd /home/frappe/frappe-bench
-mkdir -p /home/frappe/frappe-bench/sites
 echo "frappe\n${APP_NAME}" > /home/frappe/frappe-bench/sites/apps.txt
 
 install_packages git python2
 
-mkdir -p apps sites/assets
+mkdir -p apps
 cd apps
 git clone --depth 1 https://github.com/frappe/frappe ${BRANCH}
 git clone --depth 1 ${APP_REPO} ${BRANCH}
