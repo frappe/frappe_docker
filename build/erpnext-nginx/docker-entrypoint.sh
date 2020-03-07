@@ -9,7 +9,7 @@ set -e
 rsync -a --delete /var/www/html/assets/js /assets
 rsync -a --delete /var/www/html/assets/css /assets
 rsync -a --delete /var/www/html/assets/frappe /assets
-rsync -a --delete /var/www/html/assets/erpnext /assets
+. /rsync
 
 chmod -R 755 /assets
 

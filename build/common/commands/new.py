@@ -6,7 +6,7 @@ site_name = os.environ.get("SITE_NAME", 'site1.localhost')
 mariadb_root_username = os.environ.get("DB_ROOT_USER", 'root')
 mariadb_root_password = os.environ.get("MYSQL_ROOT_PASSWORD", 'admin')
 force = True if os.environ.get("FORCE", None) else False
-install_apps = ['erpnext'] if os.environ.get("INSTALL_ERPNEXT", None) else []
+install_apps = if os.environ.get("INSTALL_APPS").split(",") else []
 frappe.init(site_name, new_site=True)
 
 _new_site(

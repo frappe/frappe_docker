@@ -196,7 +196,7 @@ docker exec -it \
     -e "DB_ROOT_USER=$DB_ROOT_USER" \
     -e "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
     -e "ADMIN_PASSWORD=$ADMIN_PASSWORD" \
-    -e "INSTALL_ERPNEXT=1" \
+    -e "INSTALL_APPS='erpnext'" \
     <project-name>_erpnext-python_1 docker-entrypoint.sh new
 ```
 
@@ -206,7 +206,7 @@ Environment Variables needed:
 - `DB_ROOT_USER`: MariaDB Root user. The user that can create databases.
 - `MYSQL_ROOT_PASSWORD`: In case of mariadb docker container use the one set in `MYSQL_ROOT_PASSWORD` in previous steps. In case of managed database use appropriate password.
 - `ADMIN_PASSWORD`: set the administrator password for new site.
-- `INSTALL_ERPNEXT=1`: available only in erpnext-worker and erpnext containers. Installs ERPNext on this new site.
+- `INSTALL_APPS='erpnext'`: available only in erpnext-worker and erpnext containers (or other containers with custom apps). Installs ERPNext (and/or the specified apps, comma-delinieated) on this new site. 
 - `FORCE=1`: is optional variable which force installs the same site.
 
 #### Backup Sites
@@ -251,6 +251,63 @@ docker exec -it \
     -e "MAINTENANCE_MODE=1" \
     <project-name>_erpnext-python_1 docker-entrypoint.sh migrate
 ```
+
+### Custom apps
+
+> For the sake of example, we'll be using a place holder called `[custom]`, and we'll be building off the edge image.
+
+To add your own apps to the image, we'll need to create a custom image with the help of a special wrapper script
+
+1. Create two folders called `[custom]-worker` and `[custom]-nginx` in the `build` folder.
+
+    ```bash
+    cd frappe_docker
+    mkdir ./build/[custom]-worker ./build/[custom]-nginx
+    ```
+
+2. Create a `Dockerfile` in `./build/[custom]-worker` with the following content:
+
+    ```Dockerfile
+    FROM frappe/erpnext-worker:edge
+
+    RUN install_app [custom] https://github.com/[username]/[custom] [branch]
+    # Only add the branch if you are using a specific tag or branch.
+    ```
+
+3. Create a `Dockerfile` in `./build/[custom]-nginx` with the following content:
+
+    ```Dockerfile
+    FROM bitnami/node:12-prod
+
+    COPY build/[custom]-nginx/install_app.sh /install_app
+
+    RUN /install_app [custom] https://github.com/[username]/[custom]
+
+    FROM frappe/erpnext-nginx:edge
+
+    COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
+    COPY --from=0 /rsync /rsync
+    RUN echo -n "\n[custom]" >> /var/www/html/apps.txt
+
+    VOLUME [ "/assets" ]
+
+    ENTRYPOINT ["/docker-entrypoint.sh"]
+    CMD ["nginx", "-g", "daemon off;"]
+    ```
+
+4. Copy over the `install_app.sh` file from `./build/erpnext-nginx`
+
+    ```bash
+    cp ./build/erpnext-nginx/install.sh ./build/[custom]-nginx
+    ```
+
+5. Open up `./installation/docker-compose-custom.yml` and replace all instances of `[app]` with the name of your app.
+
+    ```bash
+    sed -i "s#\[app\]#[custom]#" ./installation/docker-compose-custom.yml
+    ```
+
+6. Install like usuall, except that when you set the `INSTALL_APPS` variable set it to `erpnext,[custom]`.
 
 ## Troubleshoot
 
