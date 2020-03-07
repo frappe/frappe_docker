@@ -28,8 +28,8 @@ jobs:
     - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --nginx --tag edge
-        - ./travis.py frappe --nginx --tag develop--tag-only
+        - ./travis.py frappe --worker --tag edge
+        - ./travis.py frappe --worker --tag develop--tag-only
     - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
