@@ -18,7 +18,7 @@ ENV LC_ALL=en_US.UTF-8
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-suggests --no-install-recommends \
   build-essential cron curl git libffi-dev liblcms2-dev libldap2-dev libmariadbclient-dev libsasl2-dev libssl1.0-dev libtiff5-dev \
   libwebp-dev mariadb-client iputils-ping python3-dev python3-pip python3-setuptools python3-tk redis-tools rlwrap \
-  software-properties-common sudo tk8.6-dev vim xfonts-75dpi xfonts-base wget wkhtmltopdf fonts-cantarell \
+  software-properties-common sudo tk8.6-dev vim xfonts-75dpi xfonts-base wget wkhtmltopdf fonts-cantarell net-tools \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add frappe user and setup sudo
