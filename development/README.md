@@ -98,10 +98,9 @@ mysql -uroot -p123 -hmariadb
 Execute following queries
 
 ```sql
-UPDATE mysql.user SET Host = '%' where User = 'db_name';
-SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password');
-GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%';
-FLUSH PRIVILEGES;
+UPDATE mysql.user SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
+SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
+GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
 ```
 
 ### Visual Studio Code Python Debugging
