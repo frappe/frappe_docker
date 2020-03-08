@@ -55,12 +55,11 @@ To get started, copy the existing `env-example` file to `.env` inside the `insta
     - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
 
 
-### Local deployment
+### Local deployment for testing
 
-For trying out locally or to develop apps using ERPNext ReST API port 80 must be published.
-First start the containers and then run an additional command to publish port of *-nginx container.
+For trying out locally or to develop apps using ERPNext REST API port 80 must be published.
+The first command will start the containers, the second command will publish the port of the *-nginx container.
 
-To start and publish Frappe/ERPNext services as local api, run the following commands:
 
 For Erpnext:
 
@@ -98,13 +97,13 @@ docker-compose \
     --project-directory installation run --publish 80:80 -d frappe-nginx
 ```
 
-Make sure to replace `<project-name>` with any desired name you wish to set for the project.
+Make sure to replace `<project-name>` with the desired name you wish to set for the project.
 
-Note:
- - This command adds an additional container for frappe-nginx with published ports.
- - The local deployment is for testing and REST API development purpose only.
+Notes:
+ - The local deployment is for testing and REST API development purpose only
+-  A more complete development environment is available [here](Development/README.md)
  - The site names are limited to patterns matching \*.localhost by default
- - Additional site name patterns can be added to /etc/hosts of desired container or host
+ - Additional site name patterns can be added by editing /etc/hosts of your host machine
 
 ### Deployment for production
 
@@ -124,8 +123,7 @@ cp .env.sample .env
 ./start.sh
 ```
 
-For more details, see: https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion
-Letsencrypt Nginx Proxy Companion works by automatically proxying to containers with the `VIRTUAL_HOST` environmental variable.
+For more details, see the [Letsencrypt Nginx Proxy Companion github repo](https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion). Letsencrypt Nginx Proxy Companion github repo works by automatically proxying to containers with the `VIRTUAL_HOST` environmental variable.
 
 #### Start Frappe/ERPNext Services
 
@@ -254,68 +252,69 @@ docker exec -it \
 
 ### Custom apps
 
-> For the sake of example, we'll be using a place holder called `[custom]`, and we'll be building off the edge image.
+To add your own Frappe/ERPNext apps to the image, we'll need to create a custom image with the help of a special wrapper script
 
-To add your own apps to the image, we'll need to create a custom image with the help of a special wrapper script
+> For the sake of simplicity, in this example, we'll be using a place holder called `[custom]`, and we'll be building off the edge image.
 
-1. Create two folders called `[custom]-worker` and `[custom]-nginx` in the `build` folder.
+Create two directories called `[custom]-worker` and `[custom]-nginx` in the `build` directory.
 
-    ```bash
-    cd frappe_docker
-    mkdir ./build/[custom]-worker ./build/[custom]-nginx
-    ```
+```shell
+cd frappe_docker
+mkdir ./build/[custom]-worker ./build/[custom]-nginx
+```
 
-2. Create a `Dockerfile` in `./build/[custom]-worker` with the following content:
+Create a `Dockerfile` in `./build/[custom]-worker` with the following content:
 
-    ```Dockerfile
-    FROM frappe/erpnext-worker:edge
+```Dockerfile
+FROM frappe/erpnext-worker:edge
 
-    RUN install_app [custom] https://github.com/[username]/[custom] [branch]
-    # Only add the branch if you are using a specific tag or branch.
-    ```
+RUN install_app [custom] https://github.com/[username]/[custom] [branch]
+# Only add the branch if you are using a specific tag or branch.
+```
 
-3. Create a `Dockerfile` in `./build/[custom]-nginx` with the following content:
+Create a `Dockerfile` in `./build/[custom]-nginx` with the following content:
 
-    ```Dockerfile
-    FROM bitnami/node:12-prod
+```Dockerfile
+FROM bitnami/node:12-prod
 
-    COPY build/[custom]-nginx/install_app.sh /install_app
+COPY build/[custom]-nginx/install_app.sh /install_app
 
-    RUN /install_app [custom] https://github.com/[username]/[custom]
+RUN /install_app [custom] https://github.com/[username]/[custom]
 
-    FROM frappe/erpnext-nginx:edge
+FROM frappe/erpnext-nginx:edge
 
-    COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
-    COPY --from=0 /rsync /rsync
-    RUN echo -n "\n[custom]" >> /var/www/html/apps.txt
+COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
+COPY --from=0 /rsync /rsync
+RUN echo -n "\n[custom]" >> /var/www/html/apps.txt
 
-    VOLUME [ "/assets" ]
+VOLUME [ "/assets" ]
 
-    ENTRYPOINT ["/docker-entrypoint.sh"]
-    CMD ["nginx", "-g", "daemon off;"]
-    ```
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
+```
 
-4. Copy over the `install_app.sh` file from `./build/erpnext-nginx`
+Copy over the `install_app.sh` file from `./build/erpnext-nginx`
 
-    ```bash
-    cp ./build/erpnext-nginx/install.sh ./build/[custom]-nginx
-    ```
+```shell
+cp ./build/erpnext-nginx/install.sh ./build/[custom]-nginx
+```
 
-5. Open up `./installation/docker-compose-custom.yml` and replace all instances of `[app]` with the name of your app.
+Open up `./installation/docker-compose-custom.yml` and replace all instances of `[app]` with the name of your app.
 
-    ```bash
-    sed -i "s#\[app\]#[custom]#" ./installation/docker-compose-custom.yml
-    ```
+```shell
+sed -i "s#\[app\]#[custom]#" ./installation/docker-compose-custom.yml
+```
 
-6. Install like usuall, except that when you set the `INSTALL_APPS` variable set it to `erpnext,[custom]`.
+Install like usual, except that when you set the `INSTALL_APPS` variable set it to `erpnext,[custom]`.
 
 ## Troubleshoot
 
-1. Remove containers and volumes, and clear redis cache:
+### Failed migration after image upgrade
 
-This can be used when existing images are upgraded and migration fails.
+Issue: After upgrade of the containers, the automatic migration fails.
+Solution: Remove containers and volumes, and clear redis cache:
 
-```
+```shell
 # change to repo root
 cd $HOME/frappe_docker
 
@@ -350,9 +349,10 @@ docker-compose \
     --project-directory installation up -d
 ```
 
-2. Clear redis cache using `docker exec` command:
+### ValueError: There exists an active worker named XXX already
 
-In case of following error during container restarts:
+Issue: You have the following error during container restart
+
 
 ```
 frappe-worker-short_1    | Traceback (most recent call last):
@@ -367,7 +367,7 @@ frappe-worker-short_1    |     raise ValueError(msg.format(self.name))
 frappe-worker-short_1    | ValueError: There exists an active worker named '8dfe5c234085.10.short' already
 ```
 
-Use commands :
+Solution: Clear redis cache using `docker exec` command (take care of replacing `<project-name>` accordingly):
 
 ```sh
 # Clear the cache which is causing problem.
@@ -378,3 +378,13 @@ docker exec -it <project-name>_redis-socketio_1 redis-cli FLUSHALL
 ```
 
 Note: Environment variables from `.env` file located at current working directory will be used.
+
+## Development
+
+This repository includes a complete setup to develop with Frappe/ERPNext and Bench, Including the following features:
+
+- VSCode containers integration
+- VSCode Python debugger
+- Pre-configured Docker containers for an easy start
+
+A complete Readme is available in [development/README.md](development/README.md)
