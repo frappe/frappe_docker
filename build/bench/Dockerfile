@@ -72,17 +72,15 @@ RUN bench --version
 # Print version and verify bashrc is properly sourced so that everything works in the interactive shell
 RUN bash -c "bench --version"
 
-
-# Install nvm with node
-# !!! UPDATE PERIODICALLY WITH LATEST VERSIONS !!!
+# !!! UPDATE NODEJS PERIODICALLY WITH LATEST VERSIONS !!!
 # https://nodejs.org/en/about/releases/
 # https://nodejs.org/download/release/latest-v10.x/
 # https://nodejs.org/download/release/latest-v12.x/
 # https://nodejs.org/download/release/latest-v13.x/
-
 ENV NODE_VERSION=12.16.1
 ENV NODE_VERSION_FRAPPEV11=10.19.0
 
+# Install nvm with node
 RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh
 RUN chmod +x install.sh
 RUN ./install.sh
@@ -99,13 +97,13 @@ ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN npm install -g yarn
 
 # Print version and verify bashrc is properly sourced so that everything works in the Dockerfile
-RUN node --version
-RUN npm --version
-RUN yarn --version
+RUN node --version \
+    && npm --version \ 
+    && yarn --version
 # Print version and verify bashrc is properly sourced so that everything works in the interactive shell
-RUN bash -c "node --version"
-RUN bash -c "npm --version"
-RUN bash -c "yarn --version"
+RUN bash -c "node --version" \
+    && bash -c "npm --version" \
+    && bash -c "yarn --version"
 
 
 WORKDIR /home/frappe/frappe-bench
