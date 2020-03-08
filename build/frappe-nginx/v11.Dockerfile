@@ -31,6 +31,10 @@ COPY build/frappe-nginx/docker-entrypoint.sh /
 
 RUN apt-get update && apt-get install -y rsync && apt-get clean
 
+RUN node --version
+RUN npm --version
+RUN yarn --version
+
 VOLUME [ "/assets" ]
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

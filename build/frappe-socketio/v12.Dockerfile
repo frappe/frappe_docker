@@ -30,5 +30,8 @@ RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 WORKDIR /home/frappe/frappe-bench/sites
 
+RUN node --version
+RUN npm --version
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start"]
