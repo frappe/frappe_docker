@@ -32,7 +32,7 @@ For most people getting started with Frappe development, the best solution is to
 Notes:
 
 - The `development` directory is ignored by git. It is mounted and available inside the container. Create all your benches (installations of bench, the tool that manages frappe) inside this directory.
-- nvm with node v12 and v10 is installed. Check with `nvm ls`. Node v12 is default.
+- nvm with node v12 and v10 is installed. Check with `nvm ls`. Node v12 is used by default.
 
 ### Setup first bench
 
@@ -56,9 +56,9 @@ bench set-redis-socketio-host redis-socketio:6379
 
 ### Edit Honcho's Procfile
 
-Honcho is the tool used by Bench to manage all the processes Frappe requires. Usually, these all run in localhost, but in this case we have external containers for Redis. For this reason, we have to stop Honcho from trying to start Redis processes.
+Honcho is the tool used by Bench to manage all the processes Frappe requires. Usually, these all run in localhost, but in this case, we have external containers for Redis. For this reason, we have to stop Honcho from trying to start Redis processes.
 
-Open the Procfile file and remove the three lines containing the configuration from Redis, either by editing manually the file
+Open the Procfile file and remove the three lines containing the configuration from Redis, either by editing manually the file.
 
 ```shell
 code Procfile
@@ -71,7 +71,7 @@ sed -i '/redis/d' ./Procfile
 
 ### Create a new site with bench
 
-You can create a new site with the following command
+You can create a new site with the following command:
 
 ```shell
 bench new-site sitename
@@ -89,7 +89,7 @@ Your website will now be accessible on [localhost on port 8000](http://locahost:
 ### Fixing MariaDB issues after rebuilding the container
 
 The `bench new-site` command creates a user in MariaDB with container IP as host, for this reason after rebuilding the container there is a chance that you will not be able to access MariaDB correctly with the previous configuration
-The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database properly assigned to the user.
+The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
 
 Open sites/common_site_config.json:
 
@@ -133,7 +133,7 @@ docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer_
 
 To enable Python debugging inside Visual Studio Code, you must first install the `ms-python.python` extension inside the container.
 
-- Click on the extensions icon of VSCode
+- Click on the extension icon inside VSCode
 - Search `ms-python.python`
 - Click on `Install on Dev Container: Frappe Bench`
 - Click on 'Reload'
@@ -150,4 +150,4 @@ honcho start \
     worker_default
 ```
 
-This command starts all processes but Redis (which is already running in separate container) and the `web` process, which we can finally start from the debugger tab of VSCode.
+This command starts all processes with the exception of Redis (which is already running in separate container) and the `web` process. The latter can can finally be started from the debugger tab of VSCode.
