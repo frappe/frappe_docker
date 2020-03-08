@@ -21,6 +21,9 @@ RUN install_packages \
     vim \
     sudo \
     iputils-ping \
+    watch \
+    tree \
+    nano \
     software-properties-common \
     # For psycopg2
     libpq-dev \
