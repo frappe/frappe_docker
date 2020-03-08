@@ -35,7 +35,7 @@ spec:
             mountPath: /var/www/html/sites
           imagePullPolicy: {{ .Values.nginxImage.pullPolicy }}
           env:
-            - name: "FRAPPE_PYERPNEXT_PY"
+            - name: "FRAPPE_PY"
               value: "0.0.0.0"
             - name: "FRAPPE_PY_PORT"
               value: {{ .Values.frappePyPort | quote }}

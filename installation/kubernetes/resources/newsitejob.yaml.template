@@ -10,7 +10,7 @@ spec:
         supplementalGroups: [1000]
       containers:
       - name: erpnext
-        image: castlecraft/erpnext-python:${VERSION}
+        image: frappe/erpnext-worker:${VERSION}
         command: ["docker-entrypoint.sh"]
         args: ["new"]
         imagePullPolicy: Always
@@ -22,7 +22,7 @@ spec:
             value: ${SITE_NAME}
           - name: "DB_ROOT_USER"
             value: ${DB_ROOT_USER}
-          - name: "DB_ROOT_PASSWORD"
+          - name: "MYSQL_ROOT_PASSWORD"
             valueFrom:
               secretKeyRef:
                 key: password

@@ -10,7 +10,7 @@ spec:
         supplementalGroups: [1000]
       containers:
       - name: erpnext
-        image: castlecraft/erpnext-python:${VERSION}
+        image: frappe/erpnext-worker:${VERSION}
         command: ["docker-entrypoint.sh"]
         args: ["migrate"]
         imagePullPolicy: Always
