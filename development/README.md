@@ -19,15 +19,22 @@ cd frappe_docker
 
 For most people getting started with Frappe development, the best solution is to use [ VSCode Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 
+VSCode should automatically inquiry you to install the required extensions, that can also be installed manually as follows:
+
 - Install Remote - Containers for VSCode
     - through command line `code --install-extension ms-vscode-remote.remote-containers`
-    - clicking on the following link: [install](vscode:extension/ms-vscode-remote.remote-containers)
+    - clicking on the button at the following link: [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+    - searching for extension `ms-vscode-remote.remote-containers`
 - Install Python for VSCode
     - through command line `code --install-extension ms-python.python`
-    - clicking on the following link: [install](vscode:extension/ms-python.python)
+    - clicking on the button at the following link: [install](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+    - searching for extension `ms-python.python`
+
+After the extensions are installed, you can:
+
 - Open frappe_docker folder in VS Code.
     - `code .`
-- From Command Palette (Ctrl + Shift + P) Execute Remote Containers : Reopen in Container. You can also click in the bottom left corner to access the remote container menu.
+- Launch the command, from Command Palette (Ctrl + Shift + P) `Execute Remote Containers : Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
 
 Notes:
 
