@@ -108,5 +108,3 @@ RUN bash -c "node --version" \
 
 WORKDIR /home/frappe/frappe-bench
 EXPOSE 8000 9000 6787
-
-VOLUME [ "/root/frappe-bench" ]
