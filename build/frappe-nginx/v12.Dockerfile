@@ -14,7 +14,10 @@ RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn \
     && yarn run production \
     && rm -fr node_modules \
-    && yarn install --production=true
+    && yarn install --production=true \
+    && node --version \
+    && npm --version \
+    && yarn --version
 
 RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
     && mkdir -p /var/www/error_pages \
@@ -22,10 +25,6 @@ RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
 
 RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
     && cp -R /home/frappe/frappe-bench/apps/frappe/node_modules /home/frappe/frappe-bench/sites/assets/frappe/
-
-RUN node --version
-RUN npm --version
-RUN yarn --version
 
 FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
