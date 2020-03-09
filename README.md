@@ -195,17 +195,17 @@ docker exec -it \
     -e "DB_ROOT_USER=$DB_ROOT_USER" \
     -e "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
     -e "ADMIN_PASSWORD=$ADMIN_PASSWORD" \
-    -e "INSTALL_APPS='erpnext'" \
+    -e "INSTALL_APPS=erpnext" \
     <project-name>_erpnext-python_1 docker-entrypoint.sh new
 ```
 
 Environment Variables needed:
 
 - `SITE_NAME`: name of the new site to create.
-- `DB_ROOT_USER`: MariaDB Root user. 
+- `DB_ROOT_USER`: MariaDB Root user.
 - `MYSQL_ROOT_PASSWORD`: In case of the MariaDB docker container use the one set in `MYSQL_ROOT_PASSWORD` in previous steps. In case of a managed database use the appropriate password.
 - `ADMIN_PASSWORD`: set the administrator password for the new site.
-- `INSTALL_APPS='erpnext'`: available only in erpnext-worker and erpnext containers (or other containers with custom apps). Installs ERPNext (and/or the specified apps, comma-delinieated) on this new site. 
+- `INSTALL_APPS=erpnext`: available only in erpnext-worker and erpnext containers (or other containers with custom apps). Installs ERPNext (and/or the specified apps, comma-delinieated) on this new site.
 - `FORCE=1`: optional variable which force installation of the same site.
 
 #### Backup Sites
