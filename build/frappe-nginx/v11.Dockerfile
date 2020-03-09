@@ -23,6 +23,10 @@ RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
 RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
     && cp -R /home/frappe/frappe-bench/apps/frappe/node_modules /home/frappe/frappe-bench/sites/assets/frappe/
 
+RUN node --version
+RUN npm --version
+RUN yarn --version
+
 FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
 COPY --from=0 /var/www/error_pages /var/www/
@@ -30,10 +34,6 @@ COPY build/common/nginx-default.conf.template /etc/nginx/conf.d/default.conf.tem
 COPY build/frappe-nginx/docker-entrypoint.sh /
 
 RUN apt-get update && apt-get install -y rsync && apt-get clean
-
-RUN node --version
-RUN npm --version
-RUN yarn --version
 
 VOLUME [ "/assets" ]
 
