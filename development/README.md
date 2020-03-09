@@ -45,7 +45,7 @@ cd frappe-bench
 
 ### Setup hosts
 
-We need to tell bench to use the right containers instead of localhosts. Run the following commands inside the container:
+We need to tell bench to use the right containers instead of localhost. Run the following commands inside the container:
 
 ```shell
 bench set-mariadb-host mariadb
@@ -83,7 +83,8 @@ for example:
 bench new-site localhost
 ```
 
-The command will ask the MariaDB root password. The default root password is `123`
+The command will ask the MariaDB root password. The default root password is `123`.
+This will create a new site and a `localhost` directory under `frappe-bench/sites`.
 Your website will now be accessible on [localhost on port 8000](http://locahost:8000)
 
 ### Fixing MariaDB issues after rebuilding the container
@@ -91,11 +92,14 @@ Your website will now be accessible on [localhost on port 8000](http://locahost:
 The `bench new-site` command creates a user in MariaDB with container IP as host, for this reason after rebuilding the container there is a chance that you will not be able to access MariaDB correctly with the previous configuration
 The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
 
-Open sites/common_site_config.json:
+This step has to be repeated for all sites available under the current bench.
+Example shows the queries to be executed for site `localhost`
+
+Open sites/localhost/site_config.json:
 
 
 ```shell
-code sites/common_site_config.json
+code sites/localhost/site_config.json
 ```
 
 and take note of the parameters `db_name` and `db_password`.
@@ -106,7 +110,7 @@ Enter MariaDB Interactive shell:
 mysql -uroot -p123 -hmariadb
 ```
 
-Execute following queries replacing db_name` and `db_password` with the values found in common_site_config.json.
+Execute following queries replacing `db_name` and `db_password` with the values found in site_config.json.
 
 ```sql
 UPDATE mysql.user SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
