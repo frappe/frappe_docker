@@ -85,13 +85,15 @@ ENV NODE_VERSION_FRAPPEV11=10.19.0
 RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh
 RUN chmod +x install.sh
 RUN ./install.sh
-
 ENV NVM_DIR=/home/frappe/.nvm
-RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+
+# Install node for Frappe V11, install yarn
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION_FRAPPEV11}
-RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION_FRAPPEV11} && npm install -g yarn 
+# Install node for latest frappe, set as default, install node
+RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}  && npm install -g yarn 
 RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
-# Add NVM path for user in Dockerfile, interactive shell is already managed by the NVM install script
 ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 # Install yarn
