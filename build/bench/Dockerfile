@@ -53,8 +53,9 @@ RUN install_packages \
 RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
 RUN dpkg -i wkhtmltox_0.12.5-1.stretch_amd64.deb && rm wkhtmltox_0.12.5-1.stretch_amd64.deb
 
-# Create new user with directory, add user to sudo group, allow passwordless sudo, switch to that user and change directory to user home directory
-RUN useradd --no-log-init -r -m -g  sudo frappe
+# Create new user with home directory, improve docker compatibility with UID/GID 1000, add user to sudo group, allow passwordless sudo, switch to that user and change directory to user home directory
+RUN groupadd -g 1000 frappe
+RUN useradd --no-log-init -r -m -u 1000 -g 1000 -G  sudo frappe
 RUN echo "frappe ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER frappe
 WORKDIR /home/frappe
