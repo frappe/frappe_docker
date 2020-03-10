@@ -65,13 +65,13 @@ bench set-redis-socketio-host redis-socketio:6379
 
 Honcho is the tool used by Bench to manage all the processes Frappe requires. Usually, these all run in localhost, but in this case, we have external containers for Redis. For this reason, we have to stop Honcho from trying to start Redis processes.
 
-Open the Procfile file and remove the three lines containing the configuration from Redis, either by editing manually the file.
+Open the Procfile file and remove the three lines containing the configuration from Redis, either by editing manually the file:
 
 ```shell
 code Procfile
 ```
 
-or running the following command:
+Or running the following command:
 ```shell
 sed -i '/redis/d' ./Procfile
 ```
@@ -93,6 +93,15 @@ bench new-site localhost
 The command will ask the MariaDB root password. The default root password is `123`.
 This will create a new site and a `localhost` directory under `frappe-bench/sites`.
 Your website will now be accessible on [localhost on port 8000](http://locahost:8000)
+
+### Set bench developer mode on the new site
+
+To develop a new app, the last step will be setting the site into developer mode. Documentation is available at [this link](https://frappe.io/docs/user/en/guides/app-development/how-enable-developer-mode-in-frappe).
+
+```shell
+bench set-config developer_mode 1
+bench clear-cache
+```
 
 ### Fixing MariaDB issues after rebuilding the container
 
