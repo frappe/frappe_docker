@@ -14,7 +14,10 @@ RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn \
     && yarn run production \
     && rm -fr node_modules \
-    && yarn install --production=true
+    && yarn install --production=true \
+    && node --version \
+    && npm --version \
+    && yarn --version
 
 RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
     && mkdir -p /var/www/error_pages \
