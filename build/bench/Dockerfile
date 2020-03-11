@@ -25,9 +25,9 @@ RUN install_packages \
     tree \
     nano \
     software-properties-common \
+    bash-completion \
     # For psycopg2
     libpq-dev \
-    build-essential \ 
     # Other
     libffi-dev \
     liblcms2-dev \
@@ -39,7 +39,6 @@ RUN install_packages \
     redis-tools \
     rlwrap \
     tk8.6-dev \
-    fonts-cantarell \
     # VSCode container requirements
     net-tools \
     # PYTHON
@@ -64,9 +63,9 @@ WORKDIR /home/frappe
 RUN pip3 install --user  git+https://github.com/frappe/bench.git#egg=bench --no-cache
 
 # Export python executables for Dockerfile
-ENV PATH=/home/frappe/.local/bin/:$PATH
+ENV PATH=/home/frappe/.local/bin:$PATH
 # Export python executables for interactive shell
-RUN echo "export PATH=/home/frappe/.local/bin/:\$PATH" >> /home/frappe/.bashrc
+RUN echo "export PATH=/home/frappe/.local/bin:\$PATH" >> /home/frappe/.bashrc
 
 # Print version and verify bashrc is properly sourced so that everything works in the Dockerfile
 RUN bench --version
@@ -89,10 +88,10 @@ ENV NVM_DIR=/home/frappe/.nvm
 
 # Install node for Frappe V11, install yarn
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION_FRAPPEV11}
-RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION_FRAPPEV11} && npm install -g yarn 
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION_FRAPPEV11} && npm install -g yarn
 # Install node for latest frappe, set as default, install node
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}  && npm install -g yarn 
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}  && npm install -g yarn
 RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
@@ -101,13 +100,11 @@ RUN npm install -g yarn
 
 # Print version and verify bashrc is properly sourced so that everything works in the Dockerfile
 RUN node --version \
-    && npm --version \ 
+    && npm --version \
     && yarn --version
 # Print version and verify bashrc is properly sourced so that everything works in the interactive shell
 RUN bash -c "node --version" \
     && bash -c "npm --version" \
     && bash -c "yarn --version"
 
-
-WORKDIR /home/frappe/frappe-bench
 EXPOSE 8000 9000 6787
