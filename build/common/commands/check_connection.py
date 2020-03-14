@@ -1,6 +1,13 @@
 import socket, os, json, time
 from six.moves.urllib.parse import urlparse
 
+COMMON_SITE_CONFIG_FILE = 'common_site_config.json'
+REDIS_QUEUE_KEY = 'redis_queue'
+REDIS_CACHE_KEY = 'redis_cache'
+REDIS_SOCKETIO_KEY = 'redis_socketio'
+DB_HOST_KEY = 'db_host'
+DB_PORT = 3306
+
 def is_open(ip, port, timeout=30):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(timeout)
@@ -13,10 +20,11 @@ def is_open(ip, port, timeout=30):
     finally:
         s.close()
 
-def check_host(ip, port, retry=10, delay=3):
+def check_host(ip, port, retry=10, delay=3, print_attempt=True):
     ipup = False
     for i in range(retry):
-        print("Attempt {i} to connect to {ip}:{port}".format(ip=ip,port=port,i=i+1))
+        if print_attempt:
+            print("Attempt {i} to connect to {ip}:{port}".format(ip=ip,port=port,i=i+1))
         if is_open(ip, port):
             ipup = True
             break
@@ -25,43 +33,87 @@ def check_host(ip, port, retry=10, delay=3):
     return ipup
 
 # Check connection to servers
-config = None
-try:
-    with open('common_site_config.json') as config_file:
-        config = json.load(config_file)
-except FileNotFoundError:
-    raise FileNotFoundError("common_site_config.json missing")
-except:
-    raise ValueError("common_site_config.json is not valid")
+def get_config():
+    config = None
+    try:
+        with open(COMMON_SITE_CONFIG_FILE) as config_file:
+            config = json.load(config_file)
+    except FileNotFoundError as exception:
+        print(exception)
+        exit(1)
+    except:
+        print(COMMON_SITE_CONFIG_FILE+" is not valid")
+        exit(1)
+    return config
 
 # Check mariadb
-check_mariadb = False
-check_mariadb = check_host(config.get('db_host', 'mariadb'), 3306)
-if not check_mariadb:
-    raise ConnectionError("Connection to mariadb timed out")
+def check_mariadb(retry=10, delay=3, print_attempt=True):
+    config = get_config()
+    check_mariadb = False
+    check_mariadb = check_host(
+        config.get(DB_HOST_KEY, 'mariadb'),
+        DB_PORT,
+        retry,
+        delay,
+        print_attempt)
+    if not check_mariadb:
+        print("Connection to MariaDB timed out")
+        exit(1)
 
 # Check redis queue
-check_redis_queue = False
-redis_queue_url = urlparse(config.get("redis_queue","redis://redis:6379")).netloc
-redis_queue, redis_queue_port = redis_queue_url.split(":")
-check_redis_queue = check_host(redis_queue, redis_queue_port)
-if not check_redis_queue:
-    raise ConnectionError("Connection to redis queue timed out")
+def check_redis_queue(retry=10, delay=3, print_attempt=True):
+    check_redis_queue = False
+    config = get_config()
+    redis_queue_url = urlparse(config.get(REDIS_QUEUE_KEY,"redis://redis-queue:6379")).netloc
+    redis_queue, redis_queue_port = redis_queue_url.split(":")
+    check_redis_queue = check_host(
+        redis_queue,
+        redis_queue_port,
+        retry,
+        delay,
+        print_attempt)
+    if not check_redis_queue:
+        print("Connection to redis queue timed out")
+        exit(1)
 
 # Check redis cache
-check_redis_cache = False
-redis_cache_url = urlparse(config.get("redis_cache","redis://redis:6379")).netloc
-redis_cache, redis_cache_port = redis_cache_url.split(":")
-check_redis_cache = check_host(redis_cache, redis_cache_port)
-if not check_redis_cache:
-    raise ConnectionError("Connection to redis cache timed out")
+def check_redis_cache(retry=10, delay=3, print_attempt=True):
+    check_redis_cache = False
+    config = get_config()
+    redis_cache_url = urlparse(config.get(REDIS_CACHE_KEY,"redis://redis-cache:6379")).netloc
+    redis_cache, redis_cache_port = redis_cache_url.split(":")
+    check_redis_cache = check_host(
+        redis_cache,
+        redis_cache_port,
+        retry,
+        delay,
+        print_attempt)
+    if not check_redis_cache:
+        print("Connection to redis cache timed out")
+        exit(1)
 
 # Check redis socketio
-check_redis_socketio = False
-redis_socketio_url = urlparse(config.get("redis_socketio","redis://redis:6379")).netloc
-redis_socketio, redis_socketio_port = redis_socketio_url.split(":")
-check_redis_socketio = check_host(redis_socketio, redis_socketio_port)
-if not check_redis_socketio:
-    raise ConnectionError("Connection to redis socketio timed out")
+def check_redis_socketio(retry=10, delay=3, print_attempt=True):
+    check_redis_socketio = False
+    config = get_config()
+    redis_socketio_url = urlparse(config.get(REDIS_SOCKETIO_KEY,"redis://redis-socketio:6379")).netloc
+    redis_socketio, redis_socketio_port = redis_socketio_url.split(":")
+    check_redis_socketio = check_host(
+        redis_socketio,
+        redis_socketio_port,
+        retry,
+        delay,
+        print_attempt)
+    if not check_redis_socketio:
+        print("Connection to redis socketio timed out")
+        exit(1)
 
-print('Connections OK')
+def main():
+    check_mariadb()
+    check_redis_queue()
+    check_redis_cache()
+    check_redis_socketio()
+    print('Connections OK')
+
+if __name__ == "__main__":
+   main()
