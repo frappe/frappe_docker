@@ -89,9 +89,9 @@ jobs:
     - stage: "Frappe (v11)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.py erpnext frappe --nginx --git-version 11
-        - ./travis.py erpnext frappe --nginx --tag v11 --tag-only
-        - ./travis.py erpnext frappe --nginx --tag version-11 --tag-only
+        - ./travis.py frappe --nginx --git-version 11
+        - ./travis.py frappe --nginx --tag v11 --tag-only
+        - ./travis.py frappe --nginx --tag version-11 --tag-only
     - stage: "Frappe (v11)"
       if: branch = master AND type != pull_request
       script:
