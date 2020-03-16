@@ -8,7 +8,7 @@ FROM frappe/frappe-nginx:v11
 
 COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
 COPY --from=0 /rsync /rsync
-RUN echo -n "\nerpnext" >> /home/frappe/frappe-bench/sites/apps.txt
+RUN echo -n "\nerpnext" >> /var/www/html/apps.txt
 
 VOLUME [ "/assets" ]
 
