@@ -33,6 +33,8 @@ COPY build/common/common_site_config.json.template /opt/frappe/common_site_confi
 COPY build/common/worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
+COPY build/common/worker/install_app.sh /usr/local/bin/install_app
+
 WORKDIR /home/frappe/frappe-bench/sites
 
 ENTRYPOINT ["docker-entrypoint.sh"]

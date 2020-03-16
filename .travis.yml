@@ -1,6 +1,6 @@
 sudo: required
 
-dist: xenial
+dist: bionic
 
 services:
   - docker
@@ -13,189 +13,100 @@ before_install:
   - if [[ $BUILD == "development" ]];then
     sudo apt-get update && sudo apt-get -y install docker-compose;
     fi
+  - chmod u+x ./travis.py
 
 after_success:
   - docker --version
 
-matrix:
+jobs:
   include:
-    - name: "Build Frappe python environment (edge)"
+    - stage: "Build Frappe bench development environment (latest)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t frappe-worker -f build/frappe-worker/Dockerfile .
-        - docker tag frappe-worker frappe/frappe-worker:edge
-        - docker tag frappe-worker frappe/frappe-worker:develop
-        - docker push frappe/frappe-worker:edge
-        - docker push frappe/frappe-worker:develop
-    - name: "Build Frappe nginx + static assets (edge)"
+        - docker build -t frappe/bench:latest -f build/bench/Dockerfile .
+        - docker push frappe/bench:latest
+    - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t frappe-assets -f build/frappe-assets/Dockerfile .
-        - docker tag frappe-assets frappe/frappe-assets:edge
-        - docker tag frappe-assets frappe/frappe-assets:develop
-        - docker push frappe/frappe-assets:edge
-        - docker push frappe/frappe-assets:develop
-    - name: "Build ERPNext python environment (edge)"
+        - ./travis.py frappe --worker --tag edge
+        - ./travis.py frappe --worker --tag develop --tag-only
+    - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t erpnext-worker -f build/erpnext-worker/Dockerfile .
-        - docker tag erpnext-worker frappe/erpnext-worker:edge
-        - docker tag erpnext-worker frappe/erpnext-worker:develop
-        - docker push frappe/erpnext-worker:edge
-        - docker push frappe/erpnext-worker:develop
-    - name: "Build ERPNext nginx + static assets (edge)"
+        - ./travis.py frappe --nginx --tag edge
+        - ./travis.py frappe --nginx --tag develop --tag-only
+    - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t erpnext-assets -f build/erpnext-assets/Dockerfile .
-        - docker tag erpnext-assets frappe/erpnext-assets:edge
-        - docker tag erpnext-assets frappe/erpnext-assets:develop
-        - docker push frappe/erpnext-assets:edge
-        - docker push frappe/erpnext-assets:develop
-    - name: "Build Frappe socketio service (edge)"
+        - ./travis.py frappe --socketio --tag edge
+        - ./travis.py frappe --socketio --tag develop --tag-only
+    - stage: "ERPNext (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t frappe-socketio -f build/frappe-socketio/Dockerfile .
-        - docker tag frappe-socketio frappe/frappe-socketio:edge
-        - docker tag frappe-socketio frappe/frappe-socketio:develop
-        - docker push frappe/frappe-socketio:edge
-        - docker push frappe/frappe-socketio:develop
-    - name: "Build Frappe python environment (v12)"
+        - ./travis.py erpnext --worker --tag edge
+        - ./travis.py erpnext --worker --tag develop --tag-only
+    - stage: "ERPNext (edge)"
+      if: branch = develop AND type != pull_request
+      script:
+        - ./travis.py erpnext --nginx --tag edge
+        - ./travis.py erpnext --nginx --tag develop --tag-only
+    - stage: "Frappe (v12)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/frappe --branch version-12
-        - cd frappe
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/frappe-worker:$VERSION -f build/frappe-worker/v12.Dockerfile .
-        - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:version-12
-        - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:v12
-        - docker push frappe/frappe-worker:$VERSION
-        - docker push frappe/frappe-worker:version-12
-        - docker push frappe/frappe-worker:v12
-    - name: "Build Frappe nginx + static assets (v12)"
+        - ./travis.py frappe --worker --git-branch 12
+        - ./travis.py frappe --worker --tag v12 --tag-only
+        - ./travis.py frappe --worker --tag version-12 --tag-only
+    - stage: "Frappe (v12)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/frappe --branch version-12
-        - cd frappe
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/frappe-assets:$VERSION -f build/frappe-assets/v12.Dockerfile .
-        - docker tag frappe/frappe-assets:$VERSION frappe/frappe-assets:version-12
-        - docker tag frappe/frappe-assets:$VERSION frappe/frappe-assets:v12
-        - docker push frappe/frappe-assets:$VERSION
-        - docker push frappe/frappe-assets:version-12
-        - docker push frappe/frappe-assets:v12
-    - name: "Build ERPNext python environment (v12)"
+        - ./travis.py frappe --nginx --git-branch 12
+        - ./travis.py frappe --nginx --tag v12 --tag-only
+        - ./travis.py frappe --nginx --tag version-12 --tag-only
+    - stage: "Frappe (v12)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/erpnext --branch version-12
-        - cd erpnext
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/erpnext-worker:$VERSION -f build/erpnext-worker/v12.Dockerfile .
-        - docker tag frappe/erpnext-worker:$VERSION frappe/erpnext-worker:version-12
-        - docker tag frappe/erpnext-worker:$VERSION frappe/erpnext-worker:v12
-        - docker push frappe/erpnext-worker:$VERSION
-        - docker push frappe/erpnext-worker:version-12
-        - docker push frappe/erpnext-worker:v12
-    - name: "Build ERPNext nginx + static assets (v12)"
+        - ./travis.py frappe --socketio --git-branch 12
+        - ./travis.py frappe --socketio --tag v12 --tag-only
+        - ./travis.py frappe --socketio --tag version-12 --tag-only
+    - stage: "ERPNext (v12)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/erpnext --branch version-12
-        - cd erpnext
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/erpnext-assets:$VERSION -f build/erpnext-assets/v12.Dockerfile .
-        - docker tag frappe/erpnext-assets:$VERSION frappe/erpnext-assets:version-12
-        - docker tag frappe/erpnext-assets:$VERSION frappe/erpnext-assets:v12
-        - docker push frappe/erpnext-assets:$VERSION
-        - docker push frappe/erpnext-assets:version-12
-        - docker push frappe/erpnext-assets:v12
-    - name: "Build Frappe socketio service (v12)"
+        - ./travis.py erpnext --worker --git-branch 12
+        - ./travis.py erpnext --worker --tag v12 --tag-only
+        - ./travis.py erpnext --worker --tag version-12 --tag-only
+    - stage: "ERPNext (v12)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/frappe --branch version-12
-        - cd frappe
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/frappe-socketio:$VERSION -f build/frappe-socketio/v12.Dockerfile .
-        - docker tag frappe/frappe-socketio:$VERSION frappe/frappe-socketio:version-12
-        - docker tag frappe/frappe-socketio:$VERSION frappe/frappe-socketio:v12
-        - docker push frappe/frappe-socketio:$VERSION
-        - docker push frappe/frappe-socketio:version-12
-        - docker push frappe/frappe-socketio:v12
-    - name: "Build Frappe python environment (v11)"
+        - ./travis.py erpnext --nginx --git-branch 12
+        - ./travis.py erpnext --nginx --tag v12 --tag-only
+        - ./travis.py erpnext --nginx --tag version-12 --tag-only
+    - stage: "Frappe (v11)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/frappe --branch version-11
-        - cd frappe
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/frappe-worker:$VERSION -f build/frappe-worker/v11.Dockerfile .
-        - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:version-11
-        - docker tag frappe/frappe-worker:$VERSION frappe/frappe-worker:v11
-        - docker push frappe/frappe-worker:$VERSION
-        - docker push frappe/frappe-worker:version-11
-        - docker push frappe/frappe-worker:v11
-    - name: "Build Frappe nginx + static assets (v11)"
+        - ./travis.py frappe --worker --git-branch 11
+        - ./travis.py frappe --worker --tag v11 --tag-only
+        - ./travis.py frappe  --worker --tag version-11 --tag-only
+    - stage: "Frappe (v11)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/frappe --branch version-11
-        - cd frappe
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/frappe-assets:$VERSION -f build/frappe-assets/v11.Dockerfile .
-        - docker tag frappe/frappe-assets:$VERSION frappe/frappe-assets:version-11
-        - docker tag frappe/frappe-assets:$VERSION frappe/frappe-assets:v11
-        - docker push frappe/frappe-assets:$VERSION
-        - docker push frappe/frappe-assets:version-11
-        - docker push frappe/frappe-assets:v11
-    - name: "Build ERPNext python environment (v11)"
+        - ./travis.py erpnext frappe --nginx --git-branch 11
+        - ./travis.py erpnext frappe --nginx --tag v11 --tag-only
+        - ./travis.py erpnext frappe --nginx --tag version-11 --tag-only
+    - stage: "Frappe (v11)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/erpnext --branch version-11
-        - cd erpnext
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/erpnext-worker:$VERSION -f build/erpnext-worker/v11.Dockerfile .
-        - docker tag frappe/erpnext-worker:$VERSION frappe/erpnext-worker:version-11
-        - docker tag frappe/erpnext-worker:$VERSION frappe/erpnext-worker:v11
-        - docker push frappe/erpnext-worker:$VERSION
-        - docker push frappe/erpnext-worker:version-11
-        - docker push frappe/erpnext-worker:v11
-    - name: "Build ERPNext nginx + static assets (v11)"
+        - ./travis.py frappe --socketio --git-branch 11
+        - ./travis.py frappe --socketio --tag v11 --tag-only
+        - ./travis.py frappe --socketio --tag version-11 --tag-only
+    - stage: "ERPNext (v11)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/erpnext --branch version-11
-        - cd erpnext
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/erpnext-assets:$VERSION -f build/erpnext-assets/v11.Dockerfile .
-        - docker tag frappe/erpnext-assets:$VERSION frappe/erpnext-assets:version-11
-        - docker tag frappe/erpnext-assets:$VERSION frappe/erpnext-assets:v11
-        - docker push frappe/erpnext-assets:$VERSION
-        - docker push frappe/erpnext-assets:version-11
-        - docker push frappe/erpnext-assets:v11
-    - name: "Build Frappe socketio service (v11)"
+        - ./travis.py erpnext --worker --git-branch 11
+        - ./travis.py erpnext --worker --tag v11 --tag-only
+        - ./travis.py erpnext --worker --tag version-11 --tag-only
+    - stage: "ERPNext (v11)"
       if: branch = master AND type != pull_request
       script:
-        - git clone https://github.com/frappe/frappe --branch version-11
-        - cd frappe
-        - git fetch --tags
-        - export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#')
-        - cd ..
-        - docker build -t frappe/frappe-socketio:$VERSION -f build/frappe-socketio/v11.Dockerfile .
-        - docker tag frappe/frappe-socketio:$VERSION frappe/frappe-socketio:version-11
-        - docker tag frappe/frappe-socketio:$VERSION frappe/frappe-socketio:v11
-        - docker push frappe/frappe-socketio:$VERSION
-        - docker push frappe/frappe-socketio:version-11
-        - docker push frappe/frappe-socketio:v11
+        - ./travis.py erpnext --nginx --git-branch 11
+        - ./travis.py erpnext --nginx --tag v11 --tag-only
+        - ./travis.py erpnext --nginx --tag version-11 --tag-only

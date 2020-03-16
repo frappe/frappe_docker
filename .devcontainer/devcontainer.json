@@ -1,0 +1,12 @@
+{
+  "name": "Frappe Bench",
+  "appPort": [8000, 9000, 6787],
+  "remoteUser": "frappe",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "frappe",
+  "workspaceFolder": "/workspace/development",
+  "shutdownAction": "stopCompose"
+}

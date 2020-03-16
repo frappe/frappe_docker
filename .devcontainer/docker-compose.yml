@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  mariadb:
+    image: mariadb:10.3
+    environment:
+      - MYSQL_ROOT_PASSWORD=123
+      - MYSQL_USER=root
+    volumes:
+      - ../installation/frappe-mariadb.cnf:/etc/mysql/conf.d/frappe.cnf
+      - mariadb-vol:/var/lib/mysql
+
+  redis-cache:
+    image: redis:alpine
+
+  redis-queue:
+    image: redis:alpine
+
+  redis-socketio:
+    image: redis:alpine
+
+  frappe:
+    image: frappe/bench:latest
+    command: sleep infinity
+    volumes:
+      - ..:/workspace:cached
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+
+volumes:
+  mariadb-vol:

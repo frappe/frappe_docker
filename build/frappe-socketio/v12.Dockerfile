@@ -19,7 +19,9 @@ RUN cd /home/frappe/frappe-bench/apps/frappe \
         --output /home/frappe/frappe-bench/apps/frappe/node_utils.js
 
 RUN cd /home/frappe/frappe-bench/apps/frappe \
-    && npm install --only=production
+    && npm install --only=production \
+    && node --version \
+    && npm --version
 
 COPY build/frappe-socketio/health.js /home/frappe/frappe-bench/apps/frappe/health.js
 RUN chown -R frappe:frappe /home/frappe

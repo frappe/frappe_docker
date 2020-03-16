@@ -5,3 +5,6 @@
 
 # mounted volume
 sites
+
+development
+!development/README.md
