@@ -40,5 +40,9 @@ COPY build/common/worker/install_app.sh /usr/local/bin/install_app
 
 WORKDIR /home/frappe/frappe-bench/sites
 
+RUN chown -R frappe:frappe /home/frappe/frappe-bench/sites
+
+VOLUME [ "/home/frappe/frappe-bench/sites" ]
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start"]
