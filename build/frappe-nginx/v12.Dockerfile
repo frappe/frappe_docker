@@ -32,7 +32,9 @@ COPY --from=0 /var/www/error_pages /var/www/
 COPY build/common/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY build/frappe-nginx/docker-entrypoint.sh /
 
-RUN apt-get update && apt-get install -y rsync && apt-get clean
+RUN apt-get update && apt-get install -y rsync && apt-get clean \
+    && echo "#!/bin/bash" > /rsync \
+    && chmod +x /rsync
 
 VOLUME [ "/assets" ]
 
