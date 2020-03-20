@@ -108,6 +108,13 @@ def check_redis_socketio(retry=10, delay=3, print_attempt=True):
         print("Connection to redis socketio timed out")
         exit(1)
 
+# Get site_config.json
+def get_site_config(site_name):
+    site_config = None
+    with open('{site_name}/site_config.json'.format(site_name=site_name)) as site_config_file:
+        site_config = json.load(site_config_file)
+    return site_config
+
 def main():
     check_mariadb()
     check_redis_queue()
@@ -116,4 +123,4 @@ def main():
     print('Connections OK')
 
 if __name__ == "__main__":
-   main()
+    main()
