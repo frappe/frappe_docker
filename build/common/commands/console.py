@@ -20,6 +20,6 @@ def console(site):
     print("Apps in this namespace:\n{}".format(", ".join(all_apps)))
     IPython.embed(display_banner="", header="")
 
-
-site = sys.argv[-1]
-console(site)
+def main():
+    site = sys.argv[-1]
+    console(site)
