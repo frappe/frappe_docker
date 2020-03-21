@@ -1,7 +1,10 @@
 import frappe
 from frappe.utils.scheduler import start_scheduler
 
-print("Starting background scheduler . . .")
-start_scheduler()
+def main():
+    print("Starting background scheduler . . .")
+    start_scheduler()
+    exit(0)
 
-exit(0)
+if __name__ == "__main__":
+    main()
