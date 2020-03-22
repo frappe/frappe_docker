@@ -69,7 +69,6 @@ def main():
     if not version_file:
         version_file = container_versions
         save_version_file(version_file)
-        is_ready = True
 
     for app in apps:
         container_version = None
