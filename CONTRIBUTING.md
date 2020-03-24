@@ -2,11 +2,11 @@
 ## Branches
 
 * *master*:  images on the master branch are built monthly.
-* *develop*: images on this branch are when commits are pushed.
+* *develop*: images on this branch are built daily.
 
 # Pull Requests
 
-Please send all pull request exclusively to the *develop* branch. 
+Please **send all pull request exclusively to the *develop*** branch. 
 When the PR are merged, the merge will trigger the image build automatically.
 
 Please test all PR as extensively as you can, considering that the software can be run in different modes:
