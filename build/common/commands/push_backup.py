@@ -6,6 +6,8 @@ import datetime
 from glob import glob
 from frappe.utils import get_sites
 
+DATE_FORMAT = "%Y%m%d_%H%M%S"
+
 def get_file_ext():
     return {
         "database": "-database.sql.gz",
@@ -84,8 +86,9 @@ def upload_file_to_s3(filename, folder, conn, bucket):
         print("Error uploading: %s" % (e))
         exit(1)
 
-def delete_old_backups(limit, bucket, folder):
+def delete_old_backups(limit, bucket, site_name):
     all_backups = list()
+    all_backup_dates = list()
     backup_limit = int(limit)
     check_environment_variables()
     bucket_dir = os.environ.get('BUCKET_DIR')
@@ -104,29 +107,46 @@ def delete_old_backups(limit, bucket, folder):
 
     if objects:
         for obj in objects.get('CommonPrefixes'):
-            if obj.get('Prefix') in folder:
+            if obj.get('Prefix') == bucket_dir + '/':
                 for backup_obj in bucket.objects.filter(Prefix=obj.get('Prefix')):
                     try:
-                        backup_dir = backup_obj.key.split('/')[1]
-                        all_backups.append(backup_dir)
-                    except expression as error:
+                        # backup_obj.key is bucket_dir/site/date_time/backupfile.extension
+                        bucket_dir, site_slug, date_time, backupfile = backup_obj.key.split('/')
+                        date_time_object = datetime.datetime.strptime(
+                            date_time, DATE_FORMAT
+                        )
+
+                        if site_name in backup_obj.key:
+                            all_backup_dates.append(date_time_object)
+                            all_backups.append(backup_obj.key)
+                    except IndexError as error:
                         print(error)
                         exit(1)
 
-    all_backups = set(sorted(all_backups))
-    if len(all_backups) > backup_limit:
-        latest_backup = sorted(all_backups)[0] if len(all_backups) > 0 else None
-        print("Deleting Backup: {0}".format(latest_backup))
-        for obj in bucket.objects.filter(Prefix=bucket_dir + '/' + latest_backup):
-            # delete all keys that are inside the latest_backup
-            if bucket_dir in obj.key:
-                try:
-                    delete_directory = obj.key.split('/')[1]
-                    print('Deleteing ' + obj.key)
-                    s3.Object(bucket.name, obj.key).delete()
-                except expression as error:
-                    print(error)
-                    exit(1)
+    oldest_backup_date = min(all_backup_dates)
+
+    if len(all_backups) / 3 > backup_limit:
+        oldest_backup = None
+        for backup in all_backups:
+            try:
+                # backup is bucket_dir/site/date_time/backupfile.extension
+                backup_dir, site_slug, backup_dt_string, filename = backup.split('/')
+                backup_datetime = datetime.datetime.strptime(
+                    backup_dt_string, DATE_FORMAT
+                )
+                if backup_datetime == oldest_backup_date:
+                    oldest_backup = backup
+
+            except IndexError as error:
+                print(error)
+                exit(1)
+
+            if oldest_backup:
+                for obj in bucket.objects.filter(Prefix=oldest_backup):
+                    # delete all keys that are inside the oldest_backup
+                    if bucket_dir in obj.key:
+                        print('Deleteing ' + obj.key)
+                        s3.Object(bucket.name, obj.key).delete()
 
 def main():
     details = dict()
@@ -136,23 +156,22 @@ def main():
     for site in sites:
         details = get_backup_details(site)
         db_file = details.get('database', {}).get('file_path')
-        folder = None
+        folder = os.environ.get('BUCKET_DIR') + '/' + site + '/'
         if db_file:
-            folder = os.environ.get('BUCKET_DIR') + '/' + os.path.basename(db_file)[:15] + '/'
+            folder = os.environ.get('BUCKET_DIR') + '/' + site + '/' + os.path.basename(db_file)[:15] + '/'
             upload_file_to_s3(db_file, folder, conn, bucket)
 
         public_files = details.get('public_files', {}).get('file_path')
         if public_files:
-            folder = os.environ.get('BUCKET_DIR') + '/' + os.path.basename(public_files)[:15] + '/'
+            folder = os.environ.get('BUCKET_DIR') + '/' + site + '/' + os.path.basename(public_files)[:15] + '/'
             upload_file_to_s3(public_files, folder, conn, bucket)
 
         private_files = details.get('private_files', {}).get('file_path')
         if private_files:
-            folder = os.environ.get('BUCKET_DIR') + '/' + os.path.basename(private_files)[:15] + '/'
+            folder = os.environ.get('BUCKET_DIR') + '/' + site + '/' + os.path.basename(private_files)[:15] + '/'
             upload_file_to_s3(private_files, folder, conn, bucket)
 
-        if folder:
-            delete_old_backups(os.environ.get('BACKUP_LIMIT', '3'), bucket, folder)
+        delete_old_backups(os.environ.get('BACKUP_LIMIT', '3'), bucket, site)
 
     print('push-backup complete')
     exit(0)

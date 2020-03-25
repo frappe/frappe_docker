@@ -244,6 +244,13 @@ docker exec -it \
     -e "BUCKET_DIR=frappe-bench-v12" \
 ```
 
+Note:
+
+- Above example will backup files in bucket called `backup` at location `frappe-bench-v12/site.name.com/DATE_TIME/DATE_TIME-site_name_com-{filetype}.{extension}`,
+- example DATE_TIME: 20200325_042020.
+- example filetype: database, files or private-files
+- example extension: sql.gz or tar
+
 #### Updating and Migrating Sites
 
 Switch to the root of the `frappe_docker` directory before running the following commands:
