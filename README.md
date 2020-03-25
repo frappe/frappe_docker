@@ -224,6 +224,26 @@ docker exec -it \
 
 The backup will be available in the `sites` mounted volume.
 
+#### Push backup to s3 compatible storage
+
+Environment Variables
+
+- `BUCKET_NAME`, Required to set bucket created on S3 compatible storage.
+- `ACCESS_KEY_ID`, Required to set access key.
+- `SECRET_ACCESS_KEY`, Required to set secret access key.
+- `ENDPOINT_URL`, Required to set URL of S3 compatible storage.
+- `BUCKET_DIR`, Required to set directory in bucket where sites from this deployment will be backed up.
+- `BACKUP_LIMIT`, Optionally set this to limit number of backups in bucket directory. Defaults to 3.
+
+```sh
+docker exec -it \
+    -e "BUCKET_NAME=backups" \
+    -e "ACCESS_KEY_ID=access_id_from_provider" \
+    -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
+    -e "ENDPOINT_URL=https://region.storage-provider.com" \
+    -e "BUCKET_DIR=frappe-bench-v12" \
+```
+
 #### Updating and Migrating Sites
 
 Switch to the root of the `frappe_docker` directory before running the following commands:

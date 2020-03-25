@@ -175,6 +175,12 @@ elif [ "$1" = 'console' ]; then
     python /home/frappe/frappe-bench/commands/console.py "$2"
   fi
 
+elif [ "$1" = 'push-backup' ]; then
+
+  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/push_backup.py"
+  exit
+
 else
 
   exec su frappe -c "$@"
