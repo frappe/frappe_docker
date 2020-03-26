@@ -181,6 +181,12 @@ elif [ "$1" = 'push-backup' ]; then
     && python /home/frappe/frappe-bench/commands/push_backup.py"
   exit
 
+elif [ "$1" = 'restore-backup' ]; then
+
+  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/restore_backup.py"
+  exit
+
 else
 
   exec su frappe -c "$@"
