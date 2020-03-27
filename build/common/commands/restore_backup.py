@@ -8,7 +8,7 @@ import boto3
 from push_backup import DATE_FORMAT, check_environment_variables
 from frappe.utils import get_sites, random_string
 from frappe.commands.site import _new_site
-from frappe.installer import make_conf, get_conf_params
+from frappe.installer import make_conf, get_conf_params, make_site_dirs
 from check_connection import get_site_config, get_config
 
 def list_directories(path):
@@ -44,8 +44,8 @@ def restore_database(files_base, site):
         exit(1)
 
     db_root_user = os.environ.get("DB_ROOT_USER", 'root')
-    # restore database
 
+    # restore database
     database_file = files_base + '-database.sql.gz'
     decompress_db(files_base, site)
     config = get_config()
@@ -57,6 +57,12 @@ def restore_database(files_base, site):
         db_host=config.get('db_host'),
         db_password=db_root_password
     )
+
+    # drop db if exists for clean restore
+    drop_database = mysql_command + "\"DROP DATABASE IF EXISTS \`{db_name}\`;\"".format(
+        db_name=site_config.get('db_name')
+    )
+    os.system(drop_database)
 
     # create db
     create_database = mysql_command + "\"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\"".format(
@@ -70,6 +76,13 @@ def restore_database(files_base, site):
         db_password=site_config.get('db_password')
     )
     os.system(create_user)
+
+    # create user password
+    set_user_password = mysql_command + "\"UPDATE mysql.user SET authentication_string = PASSWORD('{db_password}') WHERE User = \'{db_name}\' AND Host = \'%\';\"".format(
+        db_name=site_config.get('db_name'),
+        db_password=site_config.get('db_password')
+    )
+    os.system(set_user_password)
 
     # grant db privileges to user
     grant_privileges = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
@@ -162,9 +175,9 @@ def main():
             frappe.local.site_path = os.getcwd() + '/' + site
             make_conf(
                 db_name=site_config.get('db_name'),
-                db_password=site_config.get('db_name'),
+                db_password=site_config.get('db_password'),
             )
-
+            make_site_dirs()
             restore_database(files_base, site)
             restore_private_files(files_base)
             restore_files(files_base)

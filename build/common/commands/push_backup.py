@@ -92,6 +92,7 @@ def delete_old_backups(limit, bucket, site_name):
     backup_limit = int(limit)
     check_environment_variables()
     bucket_dir = os.environ.get('BUCKET_DIR')
+    oldest_backup_date = None
 
     s3 = boto3.resource(
         's3',
@@ -123,7 +124,8 @@ def delete_old_backups(limit, bucket, site_name):
                         print(error)
                         exit(1)
 
-    oldest_backup_date = min(all_backup_dates)
+    if len(all_backup_dates) > 0:
+        oldest_backup_date = min(all_backup_dates)
 
     if len(all_backups) / 3 > backup_limit:
         oldest_backup = None

@@ -29,36 +29,27 @@ def main():
 
     site_config = get_site_config(site_name)
 
-    # update User's host to '%' required to connect from any container
-    command = 'mysql -h{db_host} -u{mariadb_root_username} -p{mariadb_root_password} -e '.format(
+    mysql_command = 'mysql -h{db_host} -u{mariadb_root_username} -p{mariadb_root_password} -e '.format(
         db_host=config.get('db_host'),
         mariadb_root_username=mariadb_root_username,
         mariadb_root_password=mariadb_root_password
     )
-    command += "\"UPDATE mysql.user SET Host = '%' where User = '{db_name}'; FLUSH PRIVILEGES;\"".format(
+
+    # update User's host to '%' required to connect from any container
+    command = mysql_command + "\"UPDATE mysql.user SET Host = '%' where User = '{db_name}'; FLUSH PRIVILEGES;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(command)
 
     # Set db password
-    command = 'mysql -h{db_host} -u{mariadb_root_username} -p{mariadb_root_password} -e '.format(
-        db_host=config.get('db_host'),
-        mariadb_root_username=mariadb_root_username,
-        mariadb_root_password=mariadb_root_password
-    )
-    command += "\"SET PASSWORD FOR '{db_name}'@'%' = PASSWORD('{db_password}'); FLUSH PRIVILEGES;\"".format(
+    command = mysql_command + "\"UPDATE mysql.user SET authentication_string = PASSWORD('{db_password}') WHERE User = \'{db_name}\' AND Host = \'%\';\"".format(
         db_name=site_config.get('db_name'),
         db_password=site_config.get('db_password')
     )
     os.system(command)
 
     # Grant permission to database
-    command = 'mysql -h{db_host} -u{mariadb_root_username} -p{mariadb_root_password} -e '.format(
-        db_host=config.get('db_host'),
-        mariadb_root_username=mariadb_root_username,
-        mariadb_root_password=mariadb_root_password
-    )
-    command += "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
+    command = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(command)
