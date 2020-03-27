@@ -224,6 +224,36 @@ docker exec -it \
 
 The backup will be available in the `sites` mounted volume.
 
+#### Push backup to s3 compatible storage
+
+Environment Variables
+
+- `BUCKET_NAME`, Required to set bucket created on S3 compatible storage.
+- `ACCESS_KEY_ID`, Required to set access key.
+- `SECRET_ACCESS_KEY`, Required to set secret access key.
+- `ENDPOINT_URL`, Required to set URL of S3 compatible storage.
+- `BUCKET_DIR`, Required to set directory in bucket where sites from this deployment will be backed up.
+- `BACKUP_LIMIT`, Optionally set this to limit number of backups in bucket directory. Defaults to 3.
+
+```sh
+ docker run \
+    -e "BUCKET_NAME=backups" \
+    -e "ACCESS_KEY_ID=access_id_from_provider" \
+    -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
+    -e "ENDPOINT_URL=https://region.storage-provider.com" \
+    -e "BUCKET_DIR=frappe-bench-v12" \
+    -v ./installation/sites:/home/frappe/frappe-bench/sites \
+    --network <project-name>_default \
+    frappe/frappe-worker:v12 push-backup
+```
+
+Note:
+
+- Above example will backup files in bucket called `backup` at location `frappe-bench-v12/site.name.com/DATE_TIME/DATE_TIME-site_name_com-{filetype}.{extension}`,
+- example DATE_TIME: 20200325_042020.
+- example filetype: database, files or private-files
+- example extension: sql.gz or tar
+
 #### Updating and Migrating Sites
 
 Switch to the root of the `frappe_docker` directory before running the following commands:
@@ -250,6 +280,44 @@ docker exec -it \
     -e "MAINTENANCE_MODE=1" \
     <project-name>_erpnext-python_1 docker-entrypoint.sh migrate
 ```
+
+#### Restore backups
+
+Environment Variables
+
+- `MYSQL_ROOT_PASSWORD`, Required to restore mariadb backups.
+- `BUCKET_NAME`, Required to set bucket created on S3 compatible storage.
+- `ACCESS_KEY_ID`, Required to set access key.
+- `SECRET_ACCESS_KEY`, Required to set secret access key.
+- `ENDPOINT_URL`, Required to set URL of S3 compatible storage.
+- `BUCKET_DIR`, Required to set directory in bucket where sites from this deployment will be backed up.
+
+```sh
+docker run \
+    -e "MYSQL_ROOT_PASSWORD=admin" \
+    -e "BUCKET_NAME=backups" \
+    -e "ACCESS_KEY_ID=access_id_from_provider" \
+    -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
+    -e "ENDPOINT_URL=https://region.storage-provider.com" \
+    -e "BUCKET_DIR=frappe-bench-v12" \
+    -v ./installation/sites:/home/frappe/frappe-bench/sites \
+    -v ./backups:/home/frappe/backups \
+    --network <project-name>_default \
+    frappe/frappe-worker:v12 restore-backup
+```
+
+Note:
+
+- Volume must be mounted at location `/home/frappe/backups` for restoring sites
+- If no backup files are found in volume, it will use s3 credentials to pull backups
+- Backup structure for mounted volume or downloaded from s3:
+    - /home/frappe/backups
+        - site1.domain.com
+            - 20200420_162000
+                - 20200420_162000-site1_domain_com-*
+        - site2.domain.com
+            - 20200420_162000
+                - 20200420_162000-site2_domain_com-*
 
 ### Custom apps
 
