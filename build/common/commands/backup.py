@@ -20,10 +20,13 @@ def backup(sites, with_files=False):
             print("private files backup taken -", odb.backup_path_private_files, "- on", now())
         frappe.destroy()
 
-installed_sites = ":".join(get_sites())
-sites = os.environ.get("SITES", installed_sites).split(":")
-with_files=True if os.environ.get("WITH_FILES") else False
+def main():
+    installed_sites = ":".join(get_sites())
+    sites = os.environ.get("SITES", installed_sites).split(":")
+    with_files=True if os.environ.get("WITH_FILES") else False
 
-backup(sites, with_files)
+    backup(sites, with_files)
+    exit(0)
 
-exit(0)
+if __name__ == "__main__":
+    main()

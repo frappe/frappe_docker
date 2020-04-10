@@ -76,6 +76,10 @@ if [ "$1" = 'start' ]; then
     export FRAPPE_PORT=8000
   fi
 
+  if [[ ! -z "$AUTO_MIGRATE" ]]; then
+    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
+      && python /home/frappe/frappe-bench/commands/auto_migrate.py"
+  fi
 
   if [[ -z "$RUN_AS_ROOT" ]]; then
     su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
@@ -170,6 +174,18 @@ elif [ "$1" = 'console' ]; then
     . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/console.py "$2"
   fi
+
+elif [ "$1" = 'push-backup' ]; then
+
+  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/push_backup.py"
+  exit
+
+elif [ "$1" = 'restore-backup' ]; then
+
+  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/restore_backup.py"
+  exit
 
 else
 

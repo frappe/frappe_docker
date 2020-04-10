@@ -37,6 +37,7 @@ services:
       - REDIS_QUEUE=redis-queue:6379
       - REDIS_SOCKETIO=redis-socketio:6379
       - SOCKETIO_PORT=9000
+      - AUTO_MIGRATE=1
     volumes:
       - ./sites:/home/frappe/frappe-bench/sites:rw
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
