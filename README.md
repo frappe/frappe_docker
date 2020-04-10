@@ -101,6 +101,7 @@ Make sure to replace `<project-name>` with the desired name you wish to set for 
 
 Notes:
 
+- New site (first site) needs to be added after starting the services.
 - The local deployment is for testing and REST API development purpose only
 - A complete development environment is available [here](Development/README.md)
 - The site names are limited to patterns matching \*.localhost by default
@@ -140,7 +141,11 @@ docker-compose \
 ```
 
 Make sure to replace `<project-name>` with any desired name you wish to set for the project.
-Note: use `docker-compose-frappe.yml` in case you need only Frappe without ERPNext.
+
+Notes:
+
+- Use `docker-compose-frappe.yml` in case you need only Frappe without ERPNext.
+- New site (first site) needs to be added after starting the services.
 
 ### Docker containers
 
