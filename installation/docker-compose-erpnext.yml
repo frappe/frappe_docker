@@ -25,7 +25,7 @@ services:
       - frappe-worker-long
       - frappe-worker-short
     volumes:
-      - ./sites:/var/www/html/sites:rw
+      - sites-vol:/var/www/html/sites:rw
       - assets-vol:/assets:rw
 
   erpnext-python:
@@ -39,7 +39,7 @@ services:
       - SOCKETIO_PORT=9000
       - AUTO_MIGRATE=1
     volumes:
-      - ./sites:/home/frappe/frappe-bench/sites:rw
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
 
   frappe-socketio:
@@ -50,7 +50,7 @@ services:
     links:
       - redis-socketio
     volumes:
-      - ./sites:/home/frappe/frappe-bench/sites:rw
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-default:
     image: frappe/erpnext-worker:${VERSION}
@@ -63,7 +63,7 @@ services:
       - redis-queue
       - redis-cache
     volumes:
-      - ./sites:/home/frappe/frappe-bench/sites:rw
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-short:
     image: frappe/erpnext-worker:${VERSION}
@@ -78,7 +78,7 @@ services:
       - redis-queue
       - redis-cache
     volumes:
-      - ./sites:/home/frappe/frappe-bench/sites:rw
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-long:
     image: frappe/erpnext-worker:${VERSION}
@@ -93,7 +93,7 @@ services:
       - redis-queue
       - redis-cache
     volumes:
-      - ./sites:/home/frappe/frappe-bench/sites:rw
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   frappe-schedule:
     image: frappe/erpnext-worker:${VERSION}
@@ -106,7 +106,8 @@ services:
       - redis-queue
       - redis-cache
     volumes:
-      - ./sites:/home/frappe/frappe-bench/sites:rw
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
 
 volumes:
   assets-vol:
+  sites-vol:
