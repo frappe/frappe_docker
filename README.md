@@ -31,12 +31,6 @@ Copy the example docker environment file to `.env`:
 cp installation/env-example installation/.env
 ```
 
-Make a directory for sites:
-
-```sh
-mkdir installation/sites
-```
-
 ### Setup Environment Variables
 
 To get started, copy the existing `env-example` file to `.env` inside the `installation` directory. By default, the file will contain the following variables:
