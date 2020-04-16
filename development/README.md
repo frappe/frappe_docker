@@ -122,6 +122,16 @@ bench get-app myapp https://github.com/myusername/myapp.git
 bench --site my.site install-app myapp
 ```
 
+### Start development
+
+Execute following command from the `frappe-bench` directory.
+
+```shell
+bench start
+```
+
+Note: To start bench with debugger refer section for debugging.
+
 ### Fixing MariaDB issues after rebuilding the container
 
 The `bench new-site` command creates a user in MariaDB with container IP as host, for this reason after rebuilding the container there is a chance that you will not be able to access MariaDB correctly with the previous configuration
