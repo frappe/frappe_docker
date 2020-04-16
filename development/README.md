@@ -47,7 +47,7 @@ Run the following commands in the terminal inside the container. You might need 
 
 ```shell
 bench init --skip-redis-config-generation --frappe-branch version-12 frappe-bench
-cd frappe-bench
+cd frappe-bench∏
 ```
 
 ### Setup hosts
@@ -78,6 +78,7 @@ sed -i '/redis/d' ./Procfile
 
 ### Create a new site with bench
 
+Your installation already includes a site for [localhost](http://locahost:8000)
 You can create a new site with the following command:
 
 ```shell
@@ -87,11 +88,20 @@ bench new-site sitename
 for example:
 
 ```shell
-bench new-site localhost
+bench new-site mysite.localhost
 ```
 
 The command will ask the MariaDB root password. The default root password is `123`.
-This will create a new site and a `localhost` directory under `frappe-bench/sites`.
+This will create a new site and a `mysite.localhost` directory under `frappe-bench/sites`.
+You may need to configure your system /etc/hosts if you're on Linux, Mac, or its Windows equivalent.
+
+### Launching 
+
+To launch witho
+```shell
+bench new-site mysite.localhost
+```
+
 Your website will now be accessible on [localhost on port 8000](http://locahost:8000)
 
 ### Set bench developer mode on the new site
@@ -99,8 +109,17 @@ Your website will now be accessible on [localhost on port 8000](http://locahost:
 To develop a new app, the last step will be setting the site into developer mode. Documentation is available at [this link](https://frappe.io/docs/user/en/guides/app-development/how-enable-developer-mode-in-frappe).
 
 ```shell
-bench set-config developer_mode 1
-bench clear-cache
+bench --site my.site set-config developer_mode 1
+bench --site my.site clear-cache
+```
+
+### Install an app
+
+To install an app we need to fetch it from the appropriate git repo, then install in on the appropriate site
+
+```shell
+bench get-app myapp https://github.com/myusername/myapp.git
+bench --site my.site install-app myapp
 ```
 
 ### Fixing MariaDB issues after rebuilding the container
