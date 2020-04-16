@@ -5,6 +5,7 @@ import hashlib
 import frappe
 import boto3
 
+from new import get_password
 from push_backup import DATE_FORMAT, check_environment_variables
 from frappe.utils import get_sites, random_string
 from frappe.commands.site import _new_site
@@ -38,7 +39,7 @@ def decompress_db(files_base, site):
     os.system(command)
 
 def restore_database(files_base, site):
-    db_root_password = os.environ.get('MYSQL_ROOT_PASSWORD')
+    db_root_password = get_password('MYSQL_ROOT_PASSWORD')
     if not db_root_password:
         print('Variable MYSQL_ROOT_PASSWORD not set')
         exit(1)
@@ -158,7 +159,7 @@ def main():
             restore_private_files(files_base)
             restore_files(files_base)
         else:
-            mariadb_root_password = os.environ.get('MYSQL_ROOT_PASSWORD')
+            mariadb_root_password = get_password('MYSQL_ROOT_PASSWORD')
             if not mariadb_root_password:
                 print('Variable MYSQL_ROOT_PASSWORD not set')
                 exit(1)
