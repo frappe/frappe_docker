@@ -226,7 +226,7 @@ More likely, you may want to launch VSCoode interactive console based on Jupyter
 
 Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Python: Select interpreter to start Jupyter server` and select `/workspace/development/frappe-bench/env/bin/python`.
 
-Then, run the commmand `Python: Show Python interactive windows` from the VSCode command palette.
+Then, run the commmand `Python: Show Python interactive window` from the VSCode command palette.
 
 Replace `my.site` with your site and run the following code in a Jupyter cell:
 
