@@ -209,7 +209,9 @@ Environment Variables needed:
 - `SITE_NAME`: name of the new site to create.
 - `DB_ROOT_USER`: MariaDB Root user.
 - `MYSQL_ROOT_PASSWORD`: In case of the MariaDB docker container use the one set in `MYSQL_ROOT_PASSWORD` in previous steps. In case of a managed database use the appropriate password.
+- `MYSQL_ROOT_PASSWORD_FILE` - When the MariaDB root password is stored using docker secrets.
 - `ADMIN_PASSWORD`: set the administrator password for the new site.
+- `ADMIN_PASSWORD_FILE`: set the administrator password for the new site using docker secrets.
 - `INSTALL_APPS=erpnext`: available only in erpnext-worker and erpnext containers (or other containers with custom apps). Installs ERPNext (and/or the specified apps, comma-delinieated) on this new site.
 - `FORCE=1`: optional variable which force installation of the same site.
 
@@ -293,7 +295,7 @@ docker exec -it \
 
 Environment Variables
 
-- `MYSQL_ROOT_PASSWORD`, Required to restore mariadb backups.
+- `MYSQL_ROOT_PASSWORD` or `MYSQL_ROOT_PASSWORD_FILE`(when using docker secrets), Required to restore mariadb backups.
 - `BUCKET_NAME`, Required to set bucket created on S3 compatible storage.
 - `ACCESS_KEY_ID`, Required to set access key.
 - `SECRET_ACCESS_KEY`, Required to set secret access key.
