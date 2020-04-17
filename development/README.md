@@ -102,15 +102,6 @@ The command will ask the MariaDB root password. The default root password is `12
 This will create a new site and a `mysite.localhost` directory under `frappe-bench/sites`.
 You may need to configure your system /etc/hosts if you're on Linux, Mac, or its Windows equivalent.
 
-### Launching 
-
-To launch witho
-```shell
-bench new-site mysite.localhost
-```
-
-Your website will now be accessible on [localhost on port 8000](http://locahost:8000)
-
 ### Set bench developer mode on the new site
 
 To develop a new app, the last step will be setting the site into developer mode. Documentation is available at [this link](https://frappe.io/docs/user/en/guides/app-development/how-enable-developer-mode-in-frappe).
@@ -140,7 +131,7 @@ bench start
 ```
 
 You can now login with user `Administrator` and the password you choose when creating the site.
-
+Your website will now be accessible on [on port 8000](http://locahost:8000)
 Note: To start bench with debugger refer section for debugging.
 
 ### Fixing MariaDB issues after rebuilding the container

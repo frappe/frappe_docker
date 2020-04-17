@@ -8,8 +8,6 @@ services:
     volumes:
       - ../installation/frappe-mariadb.cnf:/etc/mysql/conf.d/frappe.cnf
       - mariadb-vol:/var/lib/mysql
-    ports:
-      - 3306:3306
 
   redis-cache:
     image: redis:alpine
