@@ -2,9 +2,16 @@
 
 ## Prerequisites
 
+In order to start deveping you need to satisfy the folowing prerequisites:
+
 - Docker
 - docker-compose
 - user added to docker group
+
+It is recommended you allocate at least 4GB of RAM to docker:
+
+- [Instructions for Windows](https://docs.docker.com/docker-for-windows/#resources)
+- [Instructions for MacOOS](https://docs.docker.com/docker-for-mac/#resources)
 
 ## Bootstrap Containers for development
 
@@ -47,7 +54,7 @@ Run the following commands in the terminal inside the container. You might need 
 
 ```shell
 bench init --skip-redis-config-generation --frappe-branch version-12 frappe-bench
-cd frappe-bench∏
+cd frappe-bench
 ```
 
 ### Setup hosts
@@ -115,20 +122,24 @@ bench --site my.site clear-cache
 
 ### Install an app
 
-To install an app we need to fetch it from the appropriate git repo, then install in on the appropriate site
+To install an app we need to fetch it from the appropriate git repo, then install in on the appropriate site:
+
+You can check [VSCode container remote extension documentation](https://code.visualstudio.com/docs/remote/containers#_sharing-git-credentials-with-your-container) regarding git creedential sharing.
 
 ```shell
 bench get-app myapp https://github.com/myusername/myapp.git
 bench --site my.site install-app myapp
 ```
 
-### Start development
+### Start Frappe without debugging
 
 Execute following command from the `frappe-bench` directory.
 
 ```shell
 bench start
 ```
+
+You can now login with user `Administrator` and the password you choose when creating the site.
 
 Note: To start bench with debugger refer section for debugging.
 
@@ -178,7 +189,7 @@ And enter the interactive shell for the development container with the following
 docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer_frappe_1 bash
 ```
 
-### Visual Studio Code Python Debugging
+### Start Frappe with Visual Studio Code Python Debugging
 
 To enable Python debugging inside Visual Studio Code, you must first install the `ms-python.python` extension inside the container.
 
@@ -199,4 +210,35 @@ honcho start \
     worker_default
 ```
 
-This command starts all processes with the exception of Redis (which is already running in separate container) and the `web` process. The latter can can finally be started from the debugger tab of VSCode.
+This command starts all processes with the exception of Redis (which is already running in separate container) and the `web` process. The latter can can finally be started from the debugger tab of VSCode by clicking on the "play" button.
+
+You can now login with user `Administrator` and the password you choose when creating the site.
+
+## Developing using the interactive console
+
+You can launch the interactive shell console with:
+
+```shell
+bench console
+```
+
+To work with a more advanced interactive environment that supports full Jupyter Notebooks you can run JupyterLab inside the Python Venv, which will already be activated.
+
+First you'll need to foward port 8090 from your debug container. Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Forward a port` and type port `8090`.
+
+You can then install and launch jupyterlab appropriately:
+
+```shell
+pip install jupyterlab
+jupyter lab --ip=0.0.0.0 --no-browser --port=8090
+```
+
+Then replace `my.site` with your site and run the following code in a Jupyter cell:
+
+```python
+import frappe
+frappe.init(site='my.site', sites_path='/workspace/development/frappe-bench/sites')
+frappe.connect()
+frappe.local.lang = frappe.db.get_default('lang')
+frappe.db.connect()
+```
