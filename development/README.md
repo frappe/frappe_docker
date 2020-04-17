@@ -216,26 +216,21 @@ You can now login with user `Administrator` and the password you choose when cre
 
 ## Developing using the interactive console
 
-You can launch the interactive shell console with:
+You can launch a simple interactive shell console in the terminal with:
 
 ```shell
 bench console
 ```
 
-To work with a more advanced interactive environment that supports full Jupyter Notebooks you can run JupyterLab inside the Python Venv, which will already be activated.
+More likely, you may want to launch VSCoode interactive console based on Jupyter kernel. 
 
-First you'll need to foward port 8090 from your debug container. Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Forward a port` and type port `8090`.
+Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Python: Select interpreter to start Jupyter server` and select `/workspace/development/frappe-bench/env/bin/python`.
 
-You can then install and launch jupyterlab appropriately:
+Then, run the commmand `Python: Show Python interactive windows` from the VSCode command palette.
 
-```shell
-pip install jupyterlab
-jupyter lab --ip=0.0.0.0 --no-browser --port=8090
-```
+Replace `my.site` with your site and run the following code in a Jupyter cell:
 
-Then replace `my.site` with your site and run the following code in a Jupyter cell:
-
-```python
+```python 
 import frappe
 frappe.init(site='my.site', sites_path='/workspace/development/frappe-bench/sites')
 frappe.connect()
