@@ -173,7 +173,7 @@ You can now login with user `Administrator` and the password you choose when cre
 You can launch a simple interactive shell console in the terminal with:
 
 ```shell
-ench --site mysite.localhost console
+bench --site mysite.localhost console
 ```
 
 More likely, you may want to launch VSCode interactive console based on Jupyter kernel. 
