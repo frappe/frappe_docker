@@ -14,8 +14,6 @@
 	"auchenberg.vscode-browser-preview",
 	"grapecity.gc-excelviewer",
 	"mtxr.sqltools",
-	"visualstudioexptteam.vscodeintellicode",
-	"yzhang.markdown-all-in-one",
-	"bierner.markdown-emoji"
+	"visualstudioexptteam.vscodeintellicode"
 ]
 }
