@@ -149,7 +149,7 @@ Note: To start bench with debugger refer section for debugging.
 
 ### Start Frappe with Visual Studio Code Python Debugging
 
-To enable Python debugging inside Visual Studio Code, you must first install the `ms-python.python` extension inside the container.
+To enable Python debugging inside Visual Studio Code, you must first install the `ms-python.python` extension inside the container. This should have already happened automatically, but depending on your VSCode config, you can force it by:
 
 - Click on the extension icon inside VSCode
 - Search `ms-python.python`
@@ -170,7 +170,7 @@ honcho start \
 
 This command starts all processes with the exception of Redis (which is already running in separate container) and the `web` process. The latter can can finally be started from the debugger tab of VSCode by clicking on the "play" button.
 
-You can now login with user `Administrator` and the password you choose when creating the site.
+You can now login with user `Administrator` and the password you choose when creating the site, if you followed this guide's unattended install that password is going to be `admin`.
 
 ## Developing using the interactive console
 
@@ -180,21 +180,29 @@ You can launch a simple interactive shell console in the terminal with:
 bench console
 ```
 
-More likely, you may want to launch VSCoode interactive console based on Jupyter kernel. 
+More likely, you may want to launch VSCode interactive console based on Jupyter kernel. 
+
+First of all, we need to install Jupyter in the correct environment, which can be done with the following command:
+
+```shell
+/workspace/development/frappe-bench/env/bin/python -m pip install jupyter ipykernel
+```
 
 Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Python: Select interpreter to start Jupyter server` and select `/workspace/development/frappe-bench/env/bin/python`.
 
 Then, run the commmand `Python: Show Python interactive window` from the VSCode command palette.
 
-Replace `my.site` with your site and run the following code in a Jupyter cell:
+Replace `mysite.localhost` with your site and run the following code in a Jupyter cell:
 
 ```python 
 import frappe
-frappe.init(site='my.site', sites_path='/workspace/development/frappe-bench/sites')
+frappe.init(site='mysite.localhost', sites_path='/workspace/development/frappe-bench/sites')
 frappe.connect()
 frappe.local.lang = frappe.db.get_default('lang')
 frappe.db.connect()
 ```
+
+The first command can take a few seconds to be executed, this is to be expected.
 
 ### Fixing MariaDB issues after rebuilding the container
 
