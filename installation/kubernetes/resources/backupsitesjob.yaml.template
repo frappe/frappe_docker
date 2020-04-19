@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: migrate-site-${SITE_NAME}-${TIMESTAMP}
+  name: backup-sites-${TIMESTAMP}
 spec:
   backoffLimit: 1
   template:
@@ -11,12 +11,11 @@ spec:
       containers:
       - name: erpnext
         image: frappe/erpnext-worker:${VERSION}
-        command: ["docker-entrypoint.sh"]
-        args: ["migrate"]
-        imagePullPolicy: Always
+        command: "backup"
+        imagePullPolicy: IfNotPresent
         env:
-          - name: "SITES"
-            value: "${SITE_NAME}"
+          - name: "WITH_FILES"
+            value: "1"
         volumeMounts:
           - name: sites-dir
             mountPath: /home/frappe/frappe-bench/sites

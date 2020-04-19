@@ -11,9 +11,8 @@ spec:
       containers:
       - name: erpnext
         image: frappe/erpnext-worker:${VERSION}
-        command: ["docker-entrypoint.sh"]
-        args: ["new"]
-        imagePullPolicy: Always
+        command: "new"
+        imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: sites-dir
             mountPath: /home/frappe/frappe-bench/sites

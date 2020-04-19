@@ -1,0 +1,26 @@
+{{ if .Values.migrateJob }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-sites-1587307712
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      securityContext:
+        supplementalGroups: [1000]
+      containers:
+      - name: erpnext
+        image: frappe/erpnext-worker:v12
+        command: ["migrate"]
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: sites-dir
+            mountPath: /home/frappe/frappe-bench/sites
+      restartPolicy: Never
+      volumes:
+        - name: sites-dir
+          persistentVolumeClaim:
+            claimName: erpnext-v12
+            readOnly: false
+{{ end }}

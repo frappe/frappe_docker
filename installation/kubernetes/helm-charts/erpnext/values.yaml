@@ -7,24 +7,27 @@ replicaCount: 1
 nginxImage:
   repository: frappe/erpnext-nginx
   tag: edge
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 pythonImage:
   repository: frappe/erpnext-worker
   tag: edge
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 socketIOImage:
   repository: frappe/frappe-socketio
   tag: edge
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 # Asset Image Env Variables
 frappePyPort: "8000"
 socketIOPort: "9000"
 
 # Python Image Env Variables
-mariadbHost: "mariadb.mariadb.svc.cluster.local"
+# mariadbHost: "mariadb.mariadb.svc.cluster.local"
+
+# Set this to true to run migrate as part of helm install/upgrade
+migrateJob: false
 
 imagePullSecrets: []
 nameOverride: ""
@@ -75,15 +78,11 @@ redisCacheService:
 persistence:
   enabled: true
   # existingClaim: ""
-  size: 10Gi
-  # storageClass: "csi-s3"
-  # storageClass: "standard"
-  storageClass: "nfs"
+  size: 2Gi
+  # storageClass: "nfs"
 
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
   #   cpu: 100m

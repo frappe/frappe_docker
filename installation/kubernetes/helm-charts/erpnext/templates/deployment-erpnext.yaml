@@ -60,12 +60,8 @@ spec:
             mountPath: /home/frappe/frappe-bench/sites
           imagePullPolicy: {{ .Values.pythonImage.pullPolicy }}
           env:
-            {{ if .Values.runAsRoot }}
-            - name: "RUN_AS_ROOT"
-              value: "1"
-            {{ end }}
             - name: "MARIADB_HOST"
-              value: {{ .Values.mariadbHost }}
+              value: {{ required "A valid .Values.mariadbHost entry required!" .Values.mariadbHost }}
             - name: "REDIS_QUEUE"
               value: {{ include "erpnext.fullname" . }}-redis-queue:{{ .Values.redisQueueService.port }}
             - name: "REDIS_CACHE"

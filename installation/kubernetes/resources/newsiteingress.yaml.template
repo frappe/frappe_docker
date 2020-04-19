@@ -4,7 +4,7 @@ metadata:
   name: ${INGRESS_NAME}
   # Optional Labels
   labels:
-    app.kubernetes.io/instance: ${ERPNEXT_SERVICE}
+    app.kubernetes.io/instance: ${FRAPPE_SERVICE}
   annotations:
     # required for cert-manager letsencrypt
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -17,7 +17,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: ${ERPNEXT_SERVICE}
+          serviceName: ${FRAPPE_SERVICE}
           servicePort: 80
         path: /
   tls:

@@ -35,10 +35,6 @@ spec:
           command: ["docker-entrypoint.sh"]
           args: ["worker"]
           env:
-            {{ if .Values.runAsRoot }}
-            - name: "RUN_AS_ROOT"
-              value: "1"
-            {{ end }}
             - name: "WORKER_TYPE"
               value: "default"
           livenessProbe:

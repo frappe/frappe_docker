@@ -37,10 +37,6 @@ spec:
           env:
             - name: "WORKER_TYPE"
               value: "short"
-            {{ if .Values.runAsRoot }}
-            - name: "RUN_AS_ROOT"
-              value: "1"
-            {{ end }}
           livenessProbe:
             exec:
               command:

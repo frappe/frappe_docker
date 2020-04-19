@@ -5,8 +5,8 @@ if [[ -z "$INGRESS_NAME" ]]; then
     echo "INGRESS_NAME is not set"
     exit 1
 fi
-if [[ -z "$ERPNEXT_SERVICE" ]]; then
-    echo "ERPNEXT_SERVICE is not set"
+if [[ -z "$FRAPPE_SERVICE" ]]; then
+    echo "FRAPPE_SERVICE is not set"
     exit 1
 fi
 if [[ -z "$SITE_NAME" ]]; then
