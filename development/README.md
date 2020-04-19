@@ -32,10 +32,6 @@ VSCode should automatically inquiry you to install the required extensions, that
     - through command line `code --install-extension ms-vscode-remote.remote-containers`
     - clicking on the button at the following link: [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
     - searching for extension `ms-vscode-remote.remote-containers`
-- Install Python for VSCode
-    - through command line `code --install-extension ms-python.python`
-    - clicking on the button at the following link: [install](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-    - searching for extension `ms-python.python`
 
 After the extensions are installed, you can:
 
@@ -177,18 +173,18 @@ You can now login with user `Administrator` and the password you choose when cre
 You can launch a simple interactive shell console in the terminal with:
 
 ```shell
-bench console
+ench --site mysite.localhost console
 ```
 
 More likely, you may want to launch VSCode interactive console based on Jupyter kernel. 
 
-First of all, we need to install Jupyter in the correct environment, which can be done with the following command:
+Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Python: Select interpreter to start Jupyter server` and select `/workspace/development/frappe-bench/env/bin/python`.
+
+The first step is installing and updating the required software. Usually the frappe framework may require an older version of Jupyter, while VSCode likes to move fast, this can [cause issues](https://github.com/jupyter/jupyter_console/issues/158). For this reason we need to run the following command.
 
 ```shell
-/workspace/development/frappe-bench/env/bin/python -m pip install jupyter ipykernel
+/workspace/development/frappe-bench/env/bin/python -m pip install --upgrade jupyter ipykernel ipython
 ```
-
-Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Python: Select interpreter to start Jupyter server` and select `/workspace/development/frappe-bench/env/bin/python`.
 
 Then, run the commmand `Python: Show Python interactive window` from the VSCode command palette.
 
