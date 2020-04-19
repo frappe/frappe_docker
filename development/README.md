@@ -85,7 +85,6 @@ sed -i '/redis/d' ./Procfile
 
 ### Create a new site with bench
 
-Your installation already includes a site for [localhost](http://locahost:8000)
 You can create a new site with the following command:
 
 ```shell
@@ -98,6 +97,12 @@ for example:
 bench new-site mysite.localhost
 ```
 
+The same command can be run non-interactively as well:
+
+```shell
+bench new-site mysite.localhost --mariadb-root-password 123 --admin-password admin
+```
+
 The command will ask the MariaDB root password. The default root password is `123`.
 This will create a new site and a `mysite.localhost` directory under `frappe-bench/sites`.
 You may need to configure your system /etc/hosts if you're on Linux, Mac, or its Windows equivalent.
@@ -107,8 +112,8 @@ You may need to configure your system /etc/hosts if you're on Linux, Mac, or its
 To develop a new app, the last step will be setting the site into developer mode. Documentation is available at [this link](https://frappe.io/docs/user/en/guides/app-development/how-enable-developer-mode-in-frappe).
 
 ```shell
-bench --site my.site set-config developer_mode 1
-bench --site my.site clear-cache
+bench --site mysite.localhost set-config developer_mode 1
+bench --site mysite.localhost clear-cache
 ```
 
 ### Install an app
@@ -119,8 +124,16 @@ You can check [VSCode container remote extension documentation](https://code.vis
 
 ```shell
 bench get-app myapp https://github.com/myusername/myapp.git
-bench --site my.site install-app myapp
+bench --site mysite.localhost install-app myapp
 ```
+
+For example, to install ERPNext (from the master branch):
+
+```shell
+bench get-app erpnext https://github.com/frappe/erpnext.git
+bench --site mysite.localhost install-app erpnext
+```
+
 
 ### Start Frappe without debugging
 
@@ -133,52 +146,6 @@ bench start
 You can now login with user `Administrator` and the password you choose when creating the site.
 Your website will now be accessible on [on port 8000](http://locahost:8000)
 Note: To start bench with debugger refer section for debugging.
-
-### Fixing MariaDB issues after rebuilding the container
-
-The `bench new-site` command creates a user in MariaDB with container IP as host, for this reason after rebuilding the container there is a chance that you will not be able to access MariaDB correctly with the previous configuration
-The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
-
-This step has to be repeated for all sites available under the current bench.
-Example shows the queries to be executed for site `localhost`
-
-Open sites/localhost/site_config.json:
-
-
-```shell
-code sites/localhost/site_config.json
-```
-
-and take note of the parameters `db_name` and `db_password`.
-
-Enter MariaDB Interactive shell:
-
-```shell
-mysql -uroot -p123 -hmariadb
-```
-
-Execute following queries replacing `db_name` and `db_password` with the values found in site_config.json.
-
-```sql
-UPDATE mysql.user SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
-SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
-GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
-EXIT;
-```
-
-## Manually start containers
-
-In case you don't use VSCode, you may start the containers manually with the following command:
-
-```shell
-docker-compose -f .devcontainer/docker-compose.yml up -d
-```
-
-And enter the interactive shell for the development container with the following command:
-
-```shell
-docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer_frappe_1 bash
-```
 
 ### Start Frappe with Visual Studio Code Python Debugging
 
@@ -227,4 +194,50 @@ frappe.init(site='my.site', sites_path='/workspace/development/frappe-bench/site
 frappe.connect()
 frappe.local.lang = frappe.db.get_default('lang')
 frappe.db.connect()
+```
+
+### Fixing MariaDB issues after rebuilding the container
+
+The `bench new-site` command creates a user in MariaDB with container IP as host, for this reason after rebuilding the container there is a chance that you will not be able to access MariaDB correctly with the previous configuration
+The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
+
+This step has to be repeated for all sites available under the current bench.
+Example shows the queries to be executed for site `localhost`
+
+Open sites/localhost/site_config.json:
+
+
+```shell
+code sites/localhost/site_config.json
+```
+
+and take note of the parameters `db_name` and `db_password`.
+
+Enter MariaDB Interactive shell:
+
+```shell
+mysql -uroot -p123 -hmariadb
+```
+
+Execute following queries replacing `db_name` and `db_password` with the values found in site_config.json.
+
+```sql
+UPDATE mysql.user SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
+SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
+GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
+EXIT;
+```
+
+## Manually start containers
+
+In case you don't use VSCode, you may start the containers manually with the following command:
+
+```shell
+docker-compose -f .devcontainer/docker-compose.yml up -d
+```
+
+And enter the interactive shell for the development container with the following command:
+
+```shell
+docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer_frappe_1 bash
 ```
