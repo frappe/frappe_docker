@@ -2,9 +2,16 @@
 
 ## Prerequisites
 
+In order to start deveping you need to satisfy the folowing prerequisites:
+
 - Docker
 - docker-compose
 - user added to docker group
+
+It is recommended you allocate at least 4GB of RAM to docker:
+
+- [Instructions for Windows](https://docs.docker.com/docker-for-windows/#resources)
+- [Instructions for MacOOS](https://docs.docker.com/docker-for-mac/#resources)
 
 ## Bootstrap Containers for development
 
@@ -78,6 +85,7 @@ sed -i '/redis/d' ./Procfile
 
 ### Create a new site with bench
 
+Your installation already includes a site for [localhost](http://locahost:8000)
 You can create a new site with the following command:
 
 ```shell
@@ -87,23 +95,34 @@ bench new-site sitename
 for example:
 
 ```shell
-bench new-site localhost
+bench new-site mysite.localhost
 ```
 
 The command will ask the MariaDB root password. The default root password is `123`.
-This will create a new site and a `localhost` directory under `frappe-bench/sites`.
-Your website will now be accessible on [localhost on port 8000](http://locahost:8000)
+This will create a new site and a `mysite.localhost` directory under `frappe-bench/sites`.
+You may need to configure your system /etc/hosts if you're on Linux, Mac, or its Windows equivalent.
 
 ### Set bench developer mode on the new site
 
 To develop a new app, the last step will be setting the site into developer mode. Documentation is available at [this link](https://frappe.io/docs/user/en/guides/app-development/how-enable-developer-mode-in-frappe).
 
 ```shell
-bench set-config developer_mode 1
-bench clear-cache
+bench --site my.site set-config developer_mode 1
+bench --site my.site clear-cache
 ```
 
-### Start development
+### Install an app
+
+To install an app we need to fetch it from the appropriate git repo, then install in on the appropriate site:
+
+You can check [VSCode container remote extension documentation](https://code.visualstudio.com/docs/remote/containers#_sharing-git-credentials-with-your-container) regarding git creedential sharing.
+
+```shell
+bench get-app myapp https://github.com/myusername/myapp.git
+bench --site my.site install-app myapp
+```
+
+### Start Frappe without debugging
 
 Execute following command from the `frappe-bench` directory.
 
@@ -111,6 +130,8 @@ Execute following command from the `frappe-bench` directory.
 bench start
 ```
 
+You can now login with user `Administrator` and the password you choose when creating the site.
+Your website will now be accessible on [on port 8000](http://locahost:8000)
 Note: To start bench with debugger refer section for debugging.
 
 ### Fixing MariaDB issues after rebuilding the container
@@ -159,7 +180,7 @@ And enter the interactive shell for the development container with the following
 docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer_frappe_1 bash
 ```
 
-### Visual Studio Code Python Debugging
+### Start Frappe with Visual Studio Code Python Debugging
 
 To enable Python debugging inside Visual Studio Code, you must first install the `ms-python.python` extension inside the container.
 
@@ -180,4 +201,30 @@ honcho start \
     worker_default
 ```
 
-This command starts all processes with the exception of Redis (which is already running in separate container) and the `web` process. The latter can can finally be started from the debugger tab of VSCode.
+This command starts all processes with the exception of Redis (which is already running in separate container) and the `web` process. The latter can can finally be started from the debugger tab of VSCode by clicking on the "play" button.
+
+You can now login with user `Administrator` and the password you choose when creating the site.
+
+## Developing using the interactive console
+
+You can launch a simple interactive shell console in the terminal with:
+
+```shell
+bench console
+```
+
+More likely, you may want to launch VSCoode interactive console based on Jupyter kernel. 
+
+Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Python: Select interpreter to start Jupyter server` and select `/workspace/development/frappe-bench/env/bin/python`.
+
+Then, run the commmand `Python: Show Python interactive window` from the VSCode command palette.
+
+Replace `my.site` with your site and run the following code in a Jupyter cell:
+
+```python 
+import frappe
+frappe.init(site='my.site', sites_path='/workspace/development/frappe-bench/sites')
+frappe.connect()
+frappe.local.lang = frappe.db.get_default('lang')
+frappe.db.connect()
+```

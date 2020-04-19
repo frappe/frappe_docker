@@ -1,3 +1,8 @@
+| Develop | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=master)](https://travis-ci.com/frappe/frappe_docker)  |
+|---------|-----------------------------------------------------------------------------------------------------------------------------|
+| Master  | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=develop)](https://travis-ci.com/frappe/frappe_docker) |
+
+
 ## Getting Started
 
 The templates in this repository will help deploy Frappe/ERPNext docker in a production environment.

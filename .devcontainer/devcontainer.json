@@ -8,5 +8,8 @@
   "dockerComposeFile": "./docker-compose.yml",
   "service": "frappe",
   "workspaceFolder": "/workspace/development",
-  "shutdownAction": "stopCompose"
+"shutdownAction": "stopCompose",
+"extensions": [
+	"ms-python.python"
+]
 }
