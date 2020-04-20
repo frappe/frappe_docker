@@ -19,7 +19,7 @@ if [[ -z "$TLS_SECRET_NAME" ]]; then
 fi
 
 envsubst '${INGRESS_NAME}
-    ${ERPNEXT_SERVICE}
+    ${FRAPPE_SERVICE}
     ${SITE_NAME}
     ${TLS_SECRET_NAME}' \
     < ./newsiteingress.yaml.template > newsiteingress_$SITE_NAME.yaml
