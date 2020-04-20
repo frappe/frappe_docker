@@ -39,6 +39,7 @@ RUN install_packages \
     redis-tools \
     rlwrap \
     tk8.6-dev \
+    ssh-client \
     # VSCode container requirements
     net-tools \
     # PYTHON
