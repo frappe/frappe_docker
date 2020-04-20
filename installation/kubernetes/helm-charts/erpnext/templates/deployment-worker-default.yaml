@@ -32,7 +32,6 @@ spec:
           - name: sites-dir
             mountPath: /home/frappe/frappe-bench/sites
           imagePullPolicy: {{ .Values.pythonImage.pullPolicy }}
-          command: ["docker-entrypoint.sh"]
           args: ["worker"]
           env:
             - name: "WORKER_TYPE"

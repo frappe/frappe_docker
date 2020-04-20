@@ -33,9 +33,6 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# Run workers, scheduler and web as root
-runAsRoot: false
-
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

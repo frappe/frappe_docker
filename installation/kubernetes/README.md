@@ -26,8 +26,8 @@ Notes:
 Cert Manager can be used to automate Letsencrypt certificate management.
 During Creation of new ingress, cert-manager annotations are used.
 
-[Installation](https://cert-manager.io/docs/installation/kubernetes/)
-[Configure Issuer](https://cert-manager.io/docs/installation/kubernetes/#configuring-your-first-issuer)
+- [Installation](https://cert-manager.io/docs/installation/kubernetes/)
+- [Configure Issuer](https://cert-manager.io/docs/installation/kubernetes/#configuring-your-first-issuer)
 
 ## Prepare MariaDB
 
@@ -147,7 +147,7 @@ kubectl create namespace erpnext
 helm repo add erpnext https://helm.erpnext.com/repo
 helm repo update
 
-helm install frappe-bench-0001 --namespace erpnext-v12 erpnext \
+helm install frappe-bench-0001 --namespace erpnext erpnext-v12 \
     --set mariadbHost=mariadb.mariadb.svc.cluster.local \
     --set persistence.storageClass=rook-cephfs
 ```

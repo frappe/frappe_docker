@@ -32,13 +32,7 @@ spec:
           - name: sites-dir
             mountPath: /home/frappe/frappe-bench/sites
           imagePullPolicy: {{ .Values.pythonImage.pullPolicy }}
-          command: ["docker-entrypoint.sh"]
           args: ["schedule"]
-          {{ if .Values.runAsRoot }}
-          env:
-            - name: "RUN_AS_ROOT"
-              value: "1"
-          {{ end }}
           livenessProbe:
             exec:
               command:

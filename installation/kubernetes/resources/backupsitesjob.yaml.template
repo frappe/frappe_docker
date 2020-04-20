@@ -11,7 +11,7 @@ spec:
       containers:
       - name: erpnext
         image: frappe/erpnext-worker:${VERSION}
-        command: "backup"
+        args: ["backup"]
         imagePullPolicy: IfNotPresent
         env:
           - name: "WITH_FILES"

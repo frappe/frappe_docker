@@ -11,7 +11,7 @@ spec:
       containers:
       - name: erpnext
         image: frappe/erpnext-worker:${VERSION}
-        command: "migrate"
+        args: ["migrate"]
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: sites-dir
