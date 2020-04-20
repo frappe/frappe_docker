@@ -155,7 +155,7 @@ This repository contains the following docker-compose files, each one containing
         * volume: mariadb-vol
 * docker-compose-erpnext.yml
     * erpnext-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
-        * volume: assets
+        * volume: assets-vol
     * erpnext-python: main application code
     * frappe-socketio: enables realtime communication to the user interface through websockets
     * frappe-worker-default: background runner
@@ -165,13 +165,19 @@ This repository contains the following docker-compose files, each one containing
 
 * docker-compose-frappe.yml
     * frappe-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
-        * volume: assets
+        * volume: assets-vol, sites-vol
     * erpnext-python: main application code
+        * volume: sites-vol
     * frappe-socketio: enables realtime communication to the user interface through websockets
+        * volume: sites-vol
     * frappe-worker-default: background runner
+        * volume: sites-vol
     * frappe-worker-short: background runner for short-running jobs
+        * volume: sites-vol
     * frappe-worker-long: background runner for long-running jobs
+        * volume: sites-vol
     * frappe-schedule
+        * volume: sites-vol
 
 * docker-compose-networks.yml: this yaml define the network to communicate with *Letsencrypt Nginx Proxy Companion*.
 
