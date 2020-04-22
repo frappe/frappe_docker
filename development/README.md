@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-In order to start deveping you need to satisfy the folowing prerequisites:
+In order to start developing you need to satisfy the folowing prerequisites:
 
 - Docker
 - docker-compose
