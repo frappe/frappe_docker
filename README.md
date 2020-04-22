@@ -250,7 +250,7 @@ Environment Variables
     -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
     -e "ENDPOINT_URL=https://region.storage-provider.com" \
     -e "BUCKET_DIR=frappe-bench-v12" \
-    -v sites-vol:/home/frappe/frappe-bench/sites \
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
     frappe/frappe-worker:v12 push-backup
 ```
@@ -308,7 +308,7 @@ docker run \
     -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
     -e "ENDPOINT_URL=https://region.storage-provider.com" \
     -e "BUCKET_DIR=frappe-bench-v12" \
-    -v sites-vol:/home/frappe/frappe-bench/sites \
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     -v ./backups:/home/frappe/backups \
     --network <project-name>_default \
     frappe/frappe-worker:v12 restore-backup
