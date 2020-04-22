@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-In order to start developing you need to satisfy the folowing prerequisites:
+In order to start developing you need to satisfy the following prerequisites:
 
 - Docker
 - docker-compose
@@ -140,7 +140,7 @@ bench start
 ```
 
 You can now login with user `Administrator` and the password you choose when creating the site.
-Your website will now be accessible on [on port 8000](http://locahost:8000)
+Your website will now be accessible at location [mysite.localhost:8000](http://mysite.localhost:8000)
 Note: To start bench with debugger refer section for debugging.
 
 ### Start Frappe with Visual Studio Code Python Debugging
@@ -176,7 +176,7 @@ You can launch a simple interactive shell console in the terminal with:
 bench --site mysite.localhost console
 ```
 
-More likely, you may want to launch VSCode interactive console based on Jupyter kernel. 
+More likely, you may want to launch VSCode interactive console based on Jupyter kernel.
 
 Launch VSCode command palette (cmd+shift+p or ctrl+shift+p), run the command `Python: Select interpreter to start Jupyter server` and select `/workspace/development/frappe-bench/env/bin/python`.
 
@@ -190,7 +190,7 @@ Then, run the commmand `Python: Show Python interactive window` from the VSCode 
 
 Replace `mysite.localhost` with your site and run the following code in a Jupyter cell:
 
-```python 
+```python
 import frappe
 frappe.init(site='mysite.localhost', sites_path='/workspace/development/frappe-bench/sites')
 frappe.connect()
