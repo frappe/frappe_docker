@@ -141,6 +141,21 @@ Notes:
 - Use `docker-compose-frappe.yml` in case you need only Frappe without ERPNext.
 - New site (first site) needs to be added after starting the services.
 
+#### Using Amazon RDS (or any other DBaaS)
+
+To configure usage of RDS, `common_site_config.json` in your `sites-vol` volume has to be edited using:
+
+```sh
+docker run \
+    -it \
+    -v <project-name>_sites-vol:/sites \
+    alpine vi /sites/common_site_config.json
+```
+
+Instead of `alpine` you can use any image you like.
+
+For full instructions, refer to the [wiki](https://github.com/frappe/frappe/wiki/Using-Frappe-with-Amazon-RDS-(or-any-other-DBaaS). Common question can be found in Issues and on forum.
+
 ### Docker containers
 
 This repository contains the following docker-compose files, each one containing the described images:
