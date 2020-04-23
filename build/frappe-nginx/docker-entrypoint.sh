@@ -40,8 +40,8 @@ envsubst '${API_HOST}
 echo "Waiting for frappe-python to be available on $FRAPPE_PY port $FRAPPE_PY_PORT"
 timeout 10 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $FRAPPE_PY $FRAPPE_PY_PORT
 echo "Frappe-python available on $FRAPPE_PY port $FRAPPE_PY_PORT"
-echo "Waiting for frappe-socketio to be available on $FRAPPE_PY port $FRAPPE_PY_PORT"
+echo "Waiting for frappe-socketio to be available on $FRAPPE_SOCKETIO port $SOCKETIO_PORT"
 timeout 10 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $FRAPPE_SOCKETIO $SOCKETIO_PORT
-echo "Frappe-socketio available on $FRAPPE_PY port $FRAPPE_PY_PORT"
+echo "Frappe-socketio available on $FRAPPE_SOCKETIO port $SOCKETIO_PORT"
 
 exec "$@"
