@@ -13,7 +13,7 @@ spec:
       - name: erpnext
         image: "{{ .Values.pythonImage.repository }}:{{ .Values.pythonImage.tag }}"
         args: ["migrate"]
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.pythonImage.pullPolicy }}
         volumeMounts:
           - name: sites-dir
             mountPath: /home/frappe/frappe-bench/sites
