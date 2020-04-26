@@ -121,6 +121,7 @@ def pull_backup_from_s3():
     # https://stackoverflow.com/a/54672690
     s3 = boto3.resource(
         's3',
+        region_name=os.environ.get('REGION'),
         aws_access_key_id=os.environ.get('ACCESS_KEY_ID'),
         aws_secret_access_key=os.environ.get('SECRET_ACCESS_KEY'),
         endpoint_url=os.environ.get('ENDPOINT_URL')
