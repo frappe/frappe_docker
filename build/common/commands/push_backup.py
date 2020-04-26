@@ -47,6 +47,7 @@ def get_s3_config():
 
     conn = boto3.client(
         's3',
+        region_name=os.environ.get('REGION'),
         aws_access_key_id=os.environ.get('ACCESS_KEY_ID'),
         aws_secret_access_key=os.environ.get('SECRET_ACCESS_KEY'),
         endpoint_url=os.environ.get('ENDPOINT_URL')
@@ -75,6 +76,10 @@ def check_environment_variables():
         print('Variable BUCKET_DIR not set')
         exit(1)
 
+    if not 'REGION' in os.environ:
+        print('Variable REGION not set')
+        exit(1)
+
 def upload_file_to_s3(filename, folder, conn, bucket):
 
     destpath = os.path.join(folder, os.path.basename(filename))
@@ -96,6 +101,7 @@ def delete_old_backups(limit, bucket, site_name):
 
     s3 = boto3.resource(
         's3',
+        region_name=os.environ.get('REGION'),
         aws_access_key_id=os.environ.get('ACCESS_KEY_ID'),
         aws_secret_access_key=os.environ.get('SECRET_ACCESS_KEY'),
         endpoint_url=os.environ.get('ENDPOINT_URL')

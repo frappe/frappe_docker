@@ -259,6 +259,7 @@ The backup will be available in the `sites-vol` volume.
 Environment Variables
 
 - `BUCKET_NAME`, Required to set bucket created on S3 compatible storage.
+- `REGION`, Required to set region for S3 compatible storage.
 - `ACCESS_KEY_ID`, Required to set access key.
 - `SECRET_ACCESS_KEY`, Required to set secret access key.
 - `ENDPOINT_URL`, Required to set URL of S3 compatible storage.
@@ -268,6 +269,7 @@ Environment Variables
 ```sh
  docker run \
     -e "BUCKET_NAME=backups" \
+    -e "REGION=region" \
     -e "ACCESS_KEY_ID=access_id_from_provider" \
     -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
     -e "ENDPOINT_URL=https://region.storage-provider.com" \
@@ -320,12 +322,14 @@ Environment Variables
 - `ACCESS_KEY_ID`, Required to set access key.
 - `SECRET_ACCESS_KEY`, Required to set secret access key.
 - `ENDPOINT_URL`, Required to set URL of S3 compatible storage.
+- `REGION`, Required to set region for s3 compatible storage.
 - `BUCKET_DIR`, Required to set directory in bucket where sites from this deployment will be backed up.
 
 ```sh
 docker run \
     -e "MYSQL_ROOT_PASSWORD=admin" \
     -e "BUCKET_NAME=backups" \
+    -e "REGION=region" \
     -e "ACCESS_KEY_ID=access_id_from_provider" \
     -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
     -e "ENDPOINT_URL=https://region.storage-provider.com" \
