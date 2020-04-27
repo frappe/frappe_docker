@@ -201,6 +201,8 @@ This repository contains the following docker-compose files, each one containing
 
 ### Site operations
 
+Use `source .env` file or specify environment variables instead of passing secrets as command arguments. Refer notes section for environment variables required
+
 #### Setup New Sites
 
 Note:
@@ -208,7 +210,6 @@ Note:
 - Wait for the MariaDB service to start before trying to create a new site.
     - If new site creation fails, retry after the MariaDB container is up and running.
     - If you're using a managed database instance, make sure that the database is running before setting up a new site.
-- Use `.env` file or environment variables instead of passing secrets as command arguments.
 
 ```sh
 # Create ERPNext site
