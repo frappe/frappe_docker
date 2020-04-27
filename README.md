@@ -201,7 +201,13 @@ This repository contains the following docker-compose files, each one containing
 
 ### Site operations
 
-Use `source .env` file or specify environment variables instead of passing secrets as command arguments. Refer notes section for environment variables required
+Use env file,
+
+```sh
+source .env
+```
+
+Or specify environment variables instead of passing secrets as command arguments. Refer notes section for environment variables required
 
 #### Setup New Sites
 
@@ -221,7 +227,7 @@ docker run \
     -e "INSTALL_APPS=erpnext" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/erpnext-worker:edge new
+    frappe/erpnext-worker:$VERSION new
 ```
 
 Environment Variables needed:
@@ -251,7 +257,7 @@ docker run \
     -e "WITH_FILES=1" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/erpnext-worker:edge backup
+    frappe/erpnext-worker:$VERSION backup
 ```
 
 The backup will be available in the `sites-vol` volume.
@@ -275,10 +281,10 @@ Environment Variables
     -e "ACCESS_KEY_ID=access_id_from_provider" \
     -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
     -e "ENDPOINT_URL=https://region.storage-provider.com" \
-    -e "BUCKET_DIR=frappe-bench-v12" \
+    -e "BUCKET_DIR=frappe-bench" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/frappe-worker:v12 push-backup
+    frappe/frappe-worker:$VERSION push-backup
 ```
 
 Note:
@@ -314,7 +320,7 @@ docker run \
     -e "MAINTENANCE_MODE=1" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/erpnext-worker:edge migrate
+    frappe/erpnext-worker:$VERSION migrate
 ```
 
 #### Restore backups
@@ -337,11 +343,11 @@ docker run \
     -e "ACCESS_KEY_ID=access_id_from_provider" \
     -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
     -e "ENDPOINT_URL=https://region.storage-provider.com" \
-    -e "BUCKET_DIR=frappe-bench-v12" \
+    -e "BUCKET_DIR=frappe-bench" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     -v ./backups:/home/frappe/backups \
     --network <project-name>_default \
-    frappe/frappe-worker:v12 restore-backup
+    frappe/frappe-worker:$VERSION restore-backup
 ```
 
 Note:
