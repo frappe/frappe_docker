@@ -1,17 +1,19 @@
-import os, frappe, json
+import os
+import frappe
 
 from frappe.commands.site import _new_site
 from check_connection import get_config, get_site_config
+
 
 def get_password(env_var, default=None):
     return os.environ.get(env_var) or _get_password_from_secret(f"{env_var}_FILE") or default
 
 
 def _get_password_from_secret(env_var):
-    """Fetches the secret value from the docker secret file 
+    """Fetches the secret value from the docker secret file
     usually located inside /run/secrets/
     Arguments:
-        env_var {str} -- Name of the environment variable 
+        env_var {str} -- Name of the environment variable
         containing the path to the secret file.
     Returns:
         [str] -- Secret value
@@ -71,11 +73,12 @@ def main():
     os.system(command)
 
     # Grant permission to database
-    command = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
+    command = mysql_command + "\"GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(command)
     exit(0)
+
 
 if __name__ == "__main__":
     main()

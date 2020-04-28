@@ -8,9 +8,9 @@ import boto3
 from new import get_password
 from push_backup import DATE_FORMAT, check_environment_variables
 from frappe.utils import get_sites, random_string
-from frappe.commands.site import _new_site
 from frappe.installer import make_conf, get_conf_params, make_site_dirs
 from check_connection import get_site_config, get_config
+
 
 def list_directories(path):
     directories = []
@@ -19,24 +19,24 @@ def list_directories(path):
             directories.append(name)
     return directories
 
+
 def get_backup_dir():
     return os.path.join(
         os.path.expanduser('~'),
         'backups'
     )
 
+
 def decompress_db(files_base, site):
     database_file = files_base + '-database.sql.gz'
-    config = get_config()
-    site_config = get_site_config(site)
-    db_root_user = os.environ.get('DB_ROOT_USER', 'root')
     command = 'gunzip -c {database_file} > {database_extract}'.format(
         database_file=database_file,
-        database_extract=database_file.replace('.gz','')
+        database_extract=database_file.replace('.gz', '')
     )
 
     print('Extract Database GZip for site {}'.format(site))
     os.system(command)
+
 
 def restore_database(files_base, site):
     db_root_password = get_password('MYSQL_ROOT_PASSWORD')
@@ -60,13 +60,13 @@ def restore_database(files_base, site):
     )
 
     # drop db if exists for clean restore
-    drop_database = mysql_command + "\"DROP DATABASE IF EXISTS \`{db_name}\`;\"".format(
+    drop_database = mysql_command + "\"DROP DATABASE IF EXISTS `{db_name}`;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(drop_database)
 
     # create db
-    create_database = mysql_command + "\"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\"".format(
+    create_database = mysql_command + "\"CREATE DATABASE IF NOT EXISTS `{db_name}`;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(create_database)
@@ -86,7 +86,7 @@ def restore_database(files_base, site):
     os.system(set_user_password)
 
     # grant db privileges to user
-    grant_privileges = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
+    grant_privileges = mysql_command + "\"GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(grant_privileges)
@@ -96,11 +96,12 @@ def restore_database(files_base, site):
         db_host=config.get('db_host'),
         db_password=db_root_password,
         db_name=site_config.get('db_name'),
-        database_file=database_file.replace('.gz',''),
+        database_file=database_file.replace('.gz', ''),
     )
 
     print('Restoring database for site: {}'.format(site))
     os.system(command)
+
 
 def restore_files(files_base):
     public_files = files_base + '-files.tar'
@@ -109,11 +110,13 @@ def restore_files(files_base):
     print('Extracting {}'.format(public_files))
     public_tar.extractall()
 
+
 def restore_private_files(files_base):
     private_files = files_base + '-private-files.tar'
     private_tar = tarfile.open(private_files)
     print('Extracting {}'.format(private_files))
     private_tar.extractall()
+
 
 def pull_backup_from_s3():
     check_environment_variables()
@@ -134,14 +137,15 @@ def pull_backup_from_s3():
     # Change directory to /home/frappe/backups
     os.chdir(get_backup_dir())
 
-    for obj in bucket.objects.filter(Prefix = bucket_dir):
-        backup_file = obj.key.replace(os.path.join(bucket_dir,''),'')
+    for obj in bucket.objects.filter(Prefix=bucket_dir):
+        backup_file = obj.key.replace(os.path.join(bucket_dir, ''), '')
         if not os.path.exists(os.path.dirname(backup_file)):
             os.makedirs(os.path.dirname(backup_file))
         print('Downloading {}'.format(backup_file))
         bucket.download_file(obj.key, backup_file)
 
     os.chdir(os.path.join(os.path.expanduser('~'), 'frappe-bench', 'sites'))
+
 
 def main():
     backup_dir = get_backup_dir()
@@ -150,8 +154,8 @@ def main():
         pull_backup_from_s3()
 
     for site in list_directories(backup_dir):
-        site_slug = site.replace('.','_')
-        backups = [datetime.datetime.strptime(backup, DATE_FORMAT) for backup in list_directories(os.path.join(backup_dir,site))]
+        site_slug = site.replace('.', '_')
+        backups = [datetime.datetime.strptime(backup, DATE_FORMAT) for backup in list_directories(os.path.join(backup_dir, site))]
         latest_backup = max(backups).strftime(DATE_FORMAT)
         files_base = os.path.join(backup_dir, site, latest_backup, '')
         files_base += latest_backup + '-' + site_slug
@@ -164,8 +168,6 @@ def main():
             if not mariadb_root_password:
                 print('Variable MYSQL_ROOT_PASSWORD not set')
                 exit(1)
-            mariadb_root_username = os.environ.get('DB_ROOT_USER', 'root')
-            database_file = files_base + '-database.sql.gz'
 
             site_config = get_conf_params(
                 db_name='_' + hashlib.sha1(site.encode()).hexdigest()[:16],
@@ -185,6 +187,7 @@ def main():
             restore_files(files_base)
 
     exit(0)
+
 
 if __name__ == "__main__":
     main()

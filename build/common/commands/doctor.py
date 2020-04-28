@@ -1,13 +1,10 @@
-import frappe
-import json
-import redis
-from rq import Worker
 from check_connection import (
     check_mariadb,
     check_redis_cache,
     check_redis_queue,
     check_redis_socketio,
 )
+
 
 def main():
     check_mariadb(retry=1, delay=0, print_attempt=False)
@@ -21,6 +18,7 @@ def main():
 
     print("Health check successful")
     exit(0)
+
 
 if __name__ == "__main__":
     main()
