@@ -60,13 +60,13 @@ def restore_database(files_base, site):
     )
 
     # drop db if exists for clean restore
-    drop_database = mysql_command + "\"DROP DATABASE IF EXISTS `{db_name}`;\"".format(
+    drop_database = mysql_command + "\"DROP DATABASE IF EXISTS \`{db_name}\`;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(drop_database)
 
     # create db
-    create_database = mysql_command + "\"CREATE DATABASE IF NOT EXISTS `{db_name}`;\"".format(
+    create_database = mysql_command + "\"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(create_database)
@@ -86,7 +86,7 @@ def restore_database(files_base, site):
     os.system(set_user_password)
 
     # grant db privileges to user
-    grant_privileges = mysql_command + "\"GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
+    grant_privileges = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(grant_privileges)

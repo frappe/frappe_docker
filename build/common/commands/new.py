@@ -73,7 +73,7 @@ def main():
     os.system(command)
 
     # Grant permission to database
-    command = mysql_command + "\"GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
+    command = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
         db_name=site_config.get('db_name')
     )
     os.system(command)
