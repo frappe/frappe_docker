@@ -9,9 +9,11 @@ from check_connection import get_config
 APP_VERSIONS_JSON_FILE = 'app_versions.json'
 APPS_TXT_FILE = 'apps.txt'
 
+
 def save_version_file(versions):
     with open(APP_VERSIONS_JSON_FILE, 'w') as f:
         return json.dump(versions, f, indent=1, sort_keys=True)
+
 
 def get_apps():
     apps = []
@@ -24,39 +26,42 @@ def get_apps():
     except FileNotFoundError as exception:
         print(exception)
         exit(1)
-    except:
+    except Exception:
         print(APPS_TXT_FILE+" is not valid")
         exit(1)
 
     return apps
+
 
 def get_container_versions(apps):
     versions = {}
     for app in apps:
         try:
             version = __import__(app).__version__
-            versions.update({app:version})
-        except:
+            versions.update({app: version})
+        except Exception:
             pass
 
         try:
-            path = os.path.join('..','apps', app)
+            path = os.path.join('..', 'apps', app)
             repo = git.Repo(path)
             commit_hash = repo.head.object.hexsha
-            versions.update({app+'_git_hash':commit_hash})
-        except:
+            versions.update({app+'_git_hash': commit_hash})
+        except Exception:
             pass
 
     return versions
+
 
 def get_version_file():
     versions = None
     try:
         with open(APP_VERSIONS_JSON_FILE) as versions_file:
             versions = json.load(versions_file)
-    except:
+    except Exception:
         pass
     return versions
+
 
 def main():
     is_ready = False
@@ -76,7 +81,7 @@ def main():
         version_file_hash = None
         container_hash = None
 
-        repo = git.Repo(os.path.join('..','apps',app))
+        repo = git.Repo(os.path.join('..', 'apps', app))
         branch = repo.active_branch.name
 
         if branch == 'develop':
@@ -104,6 +109,7 @@ def main():
         migrate_sites(maintenance_mode=True)
         version_file = container_versions
         save_version_file(version_file)
+
 
 if __name__ == "__main__":
     main()

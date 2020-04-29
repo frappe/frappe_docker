@@ -1,7 +1,8 @@
-import os, frappe, compileall, re
+import os
+import frappe
 from frappe.utils.backups import scheduled_backup
-from frappe.utils import now
-from frappe.utils import get_sites
+from frappe.utils import cint, get_sites, now
+
 
 def backup(sites, with_files=False):
     for site in sites:
@@ -20,13 +21,15 @@ def backup(sites, with_files=False):
             print("private files backup taken -", odb.backup_path_private_files, "- on", now())
         frappe.destroy()
 
+
 def main():
     installed_sites = ":".join(get_sites())
     sites = os.environ.get("SITES", installed_sites).split(":")
-    with_files=True if os.environ.get("WITH_FILES") else False
+    with_files = cint(os.environ.get("WITH_FILES"))
 
     backup(sites, with_files)
     exit(0)
+
 
 if __name__ == "__main__":
     main()

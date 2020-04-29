@@ -8,12 +8,14 @@ from frappe.utils import get_sites
 
 DATE_FORMAT = "%Y%m%d_%H%M%S"
 
+
 def get_file_ext():
     return {
         "database": "-database.sql.gz",
         "private_files": "-private-files.tar",
         "public_files": "-files.tar"
     }
+
 
 def get_backup_details(sitename):
     backup_details = dict()
@@ -41,6 +43,7 @@ def get_backup_details(sitename):
 
     return backup_details
 
+
 def get_s3_config():
     check_environment_variables()
     bucket = os.environ.get('BUCKET_NAME')
@@ -55,30 +58,32 @@ def get_s3_config():
 
     return conn, bucket
 
+
 def check_environment_variables():
-    if not 'BUCKET_NAME' in os.environ:
+    if 'BUCKET_NAME' not in os.environ:
         print('Variable BUCKET_NAME not set')
         exit(1)
 
-    if not 'ACCESS_KEY_ID' in os.environ:
+    if 'ACCESS_KEY_ID' not in os.environ:
         print('Variable ACCESS_KEY_ID not set')
         exit(1)
 
-    if not 'SECRET_ACCESS_KEY' in os.environ:
+    if 'SECRET_ACCESS_KEY' not in os.environ:
         print('Variable SECRET_ACCESS_KEY not set')
         exit(1)
 
-    if not 'ENDPOINT_URL' in os.environ:
+    if 'ENDPOINT_URL' not in os.environ:
         print('Variable ENDPOINT_URL not set')
         exit(1)
 
-    if not 'BUCKET_DIR' in os.environ:
+    if 'BUCKET_DIR' not in os.environ:
         print('Variable BUCKET_DIR not set')
         exit(1)
 
-    if not 'REGION' in os.environ:
+    if 'REGION' not in os.environ:
         print('Variable REGION not set')
         exit(1)
+
 
 def upload_file_to_s3(filename, folder, conn, bucket):
 
@@ -90,6 +95,7 @@ def upload_file_to_s3(filename, folder, conn, bucket):
     except Exception as e:
         print("Error uploading: %s" % (e))
         exit(1)
+
 
 def delete_old_backups(limit, bucket, site_name):
     all_backups = list()
@@ -156,6 +162,7 @@ def delete_old_backups(limit, bucket, site_name):
                         print('Deleteing ' + obj.key)
                         s3.Object(bucket.name, obj.key).delete()
 
+
 def main():
     details = dict()
     sites = get_sites()
@@ -183,6 +190,7 @@ def main():
 
     print('push-backup complete')
     exit(0)
+
 
 if __name__ == "__main__":
     main()
