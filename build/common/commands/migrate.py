@@ -42,8 +42,8 @@ def migrate_sites(maintenance_mode=False):
         finally:
             frappe.destroy()
 
-    if maintenance_mode:
-        set_maintenance_mode(False)
+    # Disable maintenance mode after migration
+    set_maintenance_mode(False)
 
 
 def main():
