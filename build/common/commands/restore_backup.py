@@ -79,7 +79,7 @@ def restore_database(files_base, site):
     os.system(create_user)
 
     # create user password
-    set_user_password = mysql_command + "\"UPDATE mysql.user SET authentication_string = PASSWORD('{db_password}') WHERE User = \'{db_name}\' AND Host = \'%\';\"".format(
+    set_user_password = mysql_command + "\"ALTER USER '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\"".format(
         db_name=site_config.get('db_name'),
         db_password=site_config.get('db_password')
     )
