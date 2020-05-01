@@ -19,7 +19,7 @@ For docker based development refer to this [README](development/README.md)
 
 ### Setting up Pre-requisites
 
-This repository requires Docker and Git to be setup on the instance to be used.
+This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
 
 ### Cloning the repository and preliminary steps
 
@@ -33,7 +33,7 @@ cd frappe_docker
 Copy the example docker environment file to `.env`:
 
 ```sh
-cp installation/env-example installation/.env
+cp env-example .env
 ```
 
 ### Setup Environment Variables
@@ -63,37 +63,23 @@ The first command will start the containers; the second command will publish the
 For Erpnext:
 
 ```sh
-# Start services
 docker-compose \
     --project-name <project-name> \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
-    --project-directory installation up -d
-
-# Publish port
-docker-compose \
-    --project-name <project-name> \
-    -f installation/docker-compose-common.yml \
-    -f installation/docker-compose-erpnext.yml \
-    --project-directory installation run --publish 80:80 -d erpnext-nginx
+    -f installation/erpnext-publish.yml \
+    up -d
 ```
 
 For Frappe:
 
 ```sh
-# Start services
 docker-compose \
     --project-name <project-name> \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-frappe.yml \
-    --project-directory installation up -d
-
-# Publish port
-docker-compose \
-    --project-name <project-name> \
-    -f installation/docker-compose-common.yml \
-    -f installation/docker-compose-frappe.yml \
-    --project-directory installation run --publish 80:80 -d frappe-nginx
+    -f installation/frappe-publish.yml \
+    up -d
 ```
 
 Make sure to replace `<project-name>` with the desired name you wish to set for the project.
@@ -124,7 +110,15 @@ cp .env.sample .env
 ./start.sh
 ```
 
+It will create the required network and configure containers for Letencrypt ACME.
+
 For more details, see the [Letsencrypt Nginx Proxy Companion github repo](https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion). Letsencrypt Nginx Proxy Companion github repo works by automatically proxying to containers with the `VIRTUAL_HOST` environmental variable.
+
+Notes:
+
+- `SITES` variables from `env-example` is set as `VIRTUAL_HOST`
+- `LETSENCRYPT_EMAIL` variables from `env-example` is used as it is.
+- This is simple nginx + letsencrypt solution. Any other solution can be setup. Above two variables can be re-used or removed in case any other reverse-proxy is used.
 
 #### Start Frappe/ERPNext Services
 
@@ -136,7 +130,7 @@ docker-compose \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
     -f installation/docker-compose-networks.yml \
-    --project-directory installation up -d
+    up -d
 ```
 
 Make sure to replace `<project-name>` with any desired name you wish to set for the project.
@@ -159,7 +153,7 @@ docker run \
 
 Instead of `alpine` you can use any image you like.
 
-For full instructions, refer to the [wiki](https://github.com/frappe/frappe/wiki/Using-Frappe-with-Amazon-RDS-(or-any-other-DBaaS). Common question can be found in Issues and on forum.
+For full instructions, refer to the [wiki](https://github.com/frappe/frappe/wiki/Using-Frappe-with-Amazon-RDS-(or-any-other-DBaaS)). Common question can be found in Issues and on forum.
 
 ### Docker containers
 
@@ -201,8 +195,19 @@ This repository contains the following docker-compose files, each one containing
 
 * docker-compose-networks.yml: this yaml define the network to communicate with *Letsencrypt Nginx Proxy Companion*.
 
+* erpnext-publish.yml: this yml extends erpnext-nginx service to publish port 80, can only be used with docker-compose-erpnext.yml
+
+* frappe-publish.yml: this yml extends frappe-nginx service to publish port 80, can only be used with docker-compose-frappe.yml
 
 ### Site operations
+
+Use env file,
+
+```sh
+source .env
+```
+
+Or specify environment variables instead of passing secrets as command arguments. Refer notes section for environment variables required
 
 #### Setup New Sites
 
@@ -211,17 +216,18 @@ Note:
 - Wait for the MariaDB service to start before trying to create a new site.
     - If new site creation fails, retry after the MariaDB container is up and running.
     - If you're using a managed database instance, make sure that the database is running before setting up a new site.
-- Use `.env` file or environment variables instead of passing secrets as command arguments.
 
 ```sh
 # Create ERPNext site
-docker exec -it \
+docker run \
     -e "SITE_NAME=$SITE_NAME" \
     -e "DB_ROOT_USER=$DB_ROOT_USER" \
     -e "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
     -e "ADMIN_PASSWORD=$ADMIN_PASSWORD" \
     -e "INSTALL_APPS=erpnext" \
-    <project-name>_erpnext-python_1 docker-entrypoint.sh new
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
+    --network <project-name>_default \
+    frappe/erpnext-worker:$VERSION new
 ```
 
 Environment Variables needed:
@@ -246,10 +252,12 @@ Environment Variables
 - All the files generated by backup are placed at volume location `sites-vol:/{site-name}/private/backups/*`
 
 ```sh
-docker exec -it \
+docker run \
     -e "SITES=site1.domain.com:site2.domain.com" \
     -e "WITH_FILES=1" \
-    <project-name>_erpnext-python_1 docker-entrypoint.sh backup
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
+    --network <project-name>_default \
+    frappe/erpnext-worker:$VERSION backup
 ```
 
 The backup will be available in the `sites-vol` volume.
@@ -259,6 +267,7 @@ The backup will be available in the `sites-vol` volume.
 Environment Variables
 
 - `BUCKET_NAME`, Required to set bucket created on S3 compatible storage.
+- `REGION`, Required to set region for S3 compatible storage.
 - `ACCESS_KEY_ID`, Required to set access key.
 - `SECRET_ACCESS_KEY`, Required to set secret access key.
 - `ENDPOINT_URL`, Required to set URL of S3 compatible storage.
@@ -268,13 +277,14 @@ Environment Variables
 ```sh
  docker run \
     -e "BUCKET_NAME=backups" \
+    -e "REGION=region" \
     -e "ACCESS_KEY_ID=access_id_from_provider" \
     -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
     -e "ENDPOINT_URL=https://region.storage-provider.com" \
-    -e "BUCKET_DIR=frappe-bench-v12" \
+    -e "BUCKET_DIR=frappe-bench" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/frappe-worker:v12 push-backup
+    frappe/frappe-worker:$VERSION push-backup
 ```
 
 Note:
@@ -304,11 +314,13 @@ docker-compose \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
     -f installation/docker-compose-networks.yml \
-    --project-directory installation up -d
+    up -d
 
-docker exec -it \
+docker run \
     -e "MAINTENANCE_MODE=1" \
-    <project-name>_erpnext-python_1 docker-entrypoint.sh migrate
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
+    --network <project-name>_default \
+    frappe/erpnext-worker:$VERSION migrate
 ```
 
 #### Restore backups
@@ -320,20 +332,22 @@ Environment Variables
 - `ACCESS_KEY_ID`, Required to set access key.
 - `SECRET_ACCESS_KEY`, Required to set secret access key.
 - `ENDPOINT_URL`, Required to set URL of S3 compatible storage.
+- `REGION`, Required to set region for s3 compatible storage.
 - `BUCKET_DIR`, Required to set directory in bucket where sites from this deployment will be backed up.
 
 ```sh
 docker run \
     -e "MYSQL_ROOT_PASSWORD=admin" \
     -e "BUCKET_NAME=backups" \
+    -e "REGION=region" \
     -e "ACCESS_KEY_ID=access_id_from_provider" \
     -e "SECRET_ACCESS_KEY=secret_access_from_provider" \
     -e "ENDPOINT_URL=https://region.storage-provider.com" \
-    -e "BUCKET_DIR=frappe-bench-v12" \
+    -e "BUCKET_DIR=frappe-bench" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     -v ./backups:/home/frappe/backups \
     --network <project-name>_default \
-    frappe/frappe-worker:v12 restore-backup
+    frappe/frappe-worker:$VERSION restore-backup
 ```
 
 Note:
@@ -405,78 +419,6 @@ sed -i "s#\[app\]#[custom]#" ./installation/docker-compose-custom.yml
 ```
 
 Install like usual, except that when you set the `INSTALL_APPS` variable to `erpnext,[custom]`.
-
-## Troubleshoot
-
-### Failed migration after image upgrade
-
-Issue: After upgrade of the containers, the automatic migration fails.
-Solution: Remove containers and volumes, and clear redis cache:
-
-```shell
-# change to repo root
-cd $HOME/frappe_docker
-
-# Stop all bench containers
-docker-compose \
-    --project-name <project-name> \
-    -f installation/docker-compose-common.yml \
-    -f installation/docker-compose-erpnext.yml \
-    -f installation/docker-compose-networks.yml \
-    --project-directory installation stop
-
-# Remove redis containers
-docker-compose \
-    --project-name <project-name> \
-    -f installation/docker-compose-common.yml \
-    -f installation/docker-compose-erpnext.yml \
-    -f installation/docker-compose-networks.yml \
-    --project-directory installation rm redis-cache redis-queue redis-socketio
-
-# Clean redis volumes
-docker volume rm \
-    <project-name>_redis-cache-vol \
-    <project-name>_redis-queue-vol \
-    <project-name>_redis-socketio-vol
-
-# Restart project
-docker-compose \
-    --project-name <project-name> \
-    -f installation/docker-compose-common.yml \
-    -f installation/docker-compose-erpnext.yml \
-    -f installation/docker-compose-networks.yml \
-    --project-directory installation up -d
-```
-
-### ValueError: There exists an active worker named XXX already
-
-Issue: You have the following error during container restart
-
-
-```
-frappe-worker-short_1    | Traceback (most recent call last):
-frappe-worker-short_1    |   File "/home/frappe/frappe-bench/commands/worker.py", line 5, in <module>
-frappe-worker-short_1    |     start_worker(queue, False)
-frappe-worker-short_1    |   File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/background_jobs.py", line 147, in start_worker
-frappe-worker-short_1    |     Worker(queues, name=get_worker_name(queue)).work(logging_level = logging_level)
-frappe-worker-short_1    |   File "/home/frappe/frappe-bench/env/lib/python3.7/site-packages/rq/worker.py", line 474, in work
-frappe-worker-short_1    |     self.register_birth()
-frappe-worker-short_1    |   File "/home/frappe/frappe-bench/env/lib/python3.7/site-packages/rq/worker.py", line 261, in register_birth
-frappe-worker-short_1    |     raise ValueError(msg.format(self.name))
-frappe-worker-short_1    | ValueError: There exists an active worker named '8dfe5c234085.10.short' already
-```
-
-Solution: Clear redis cache using `docker exec` command (take care of replacing `<project-name>` accordingly):
-
-```sh
-# Clear the cache which is causing problem.
-
-docker exec -it <project-name>_redis-cache_1 redis-cli FLUSHALL
-docker exec -it <project-name>_redis-queue_1 redis-cli FLUSHALL
-docker exec -it <project-name>_redis-socketio_1 redis-cli FLUSHALL
-```
-
-Note: Environment variables from `.env` file located at the current working directory will be used.
 
 ## Development
 

@@ -15,7 +15,7 @@ image_type.add_argument('-s', '--socketio', action='store_const', dest='image_ty
 image_type.add_argument('-w', '--worker', action='store_const', dest='image_type', const='worker', help='Build the python environment image')
 
 tag_type = parser.add_mutually_exclusive_group(required=True)
-tag_type.add_argument('-g', '--git-version', action='store', type=int, dest='version', help='The version number of --service (i.e. "11", "12", etc.)')
+tag_type.add_argument('-g', '--git-version', action='store', type=str, dest='version', help='The version number of --service (i.e. "11", "12", etc.)')
 tag_type.add_argument('-t', '--tag', action='store', type=str, dest='tag', help='The image tag (i.e. erpnext-worker:$TAG )')
 
 args = parser.parse_args()
@@ -26,6 +26,10 @@ def git_version(service, version):
   cd = os.getcwd()
   os.chdir(os.getcwd() + f'/{service}')
   subprocess.run('git fetch --tags', shell=True)
+
+  # XX-beta becomes XX for tags search
+  version = version.split('-')[0]
+
   version_tag = subprocess.check_output(f'git tag --list --sort=-version:refname "v{version}*" | sed -n 1p | sed -e \'s#.*@\(\)#\\1#\'', shell=True).strip().decode('ascii')
   os.chdir(cd)
   return version_tag
