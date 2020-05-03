@@ -117,16 +117,16 @@ bench --site mysite.localhost clear-cache
 To install an app we need to fetch it from the appropriate git repo, then install in on the appropriate site:
 
 You can check [VSCode container remote extension documentation](https://code.visualstudio.com/docs/remote/containers#_sharing-git-credentials-with-your-container) regarding git creedential sharing.
-
+Both frappe and erpnext must be on branch with same name. e.g. version-12
 ```shell
-bench get-app myapp https://github.com/myusername/myapp.git
+bench get-app --branch version-12 myapp https://github.com/myusername/myapp.git
 bench --site mysite.localhost install-app myapp
 ```
 
 For example, to install ERPNext (from the master branch):
-
+Both frappe and erpnext must be on branch with same name. e.g. version-12
 ```shell
-bench get-app erpnext https://github.com/frappe/erpnext.git
+bench get-app --branch version-12 erpnext https://github.com/frappe/erpnext.git
 bench --site mysite.localhost install-app erpnext
 ```
 
