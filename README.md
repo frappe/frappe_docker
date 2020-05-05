@@ -21,6 +21,16 @@ For docker based development refer to this [README](development/README.md)
 
 This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
 
+Always use non-root user. Add the user to `docker` group instead of using `sudo docker...` commands.
+
+Docker devop basics.
+
+- `docker ps`, check running containers.
+- `docker logs <container_name>`, check logs of given container.
+- `docker run -it image/tag <command> -v ./volume:/location/in/container --network existing_network` start a container with given image, run command, mount volume and use network.
+- `docker exec -it -e "ENVIRONMENT_VARIABLE=VALUE" <container_name> command`, execute command in existing container and use given environment variables.
+- Other important docker commands to manage volumes, containers. Refer Docker documentation.
+
 ### Cloning the repository and preliminary steps
 
 Clone this repository somewhere in your system:
@@ -38,7 +48,7 @@ cp env-example .env
 
 ### Setup Environment Variables
 
-To get started, copy the existing `env-example` file to `.env` inside the `installation` directory. By default, the file will contain the following variables:
+To get started, copy the existing `env-example` file to `.env`. By default, the file will contain the following variables:
 
 - `VERSION=edge`
     - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. version-12, v11.1.15, v11)
@@ -53,12 +63,16 @@ To get started, copy the existing `env-example` file to `.env` inside the `insta
 - `LETSENCRYPT_EMAIL=your.email@your.domain.com`
     - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
 
+Notes:
+
+- docker-compose-erpnext.yml and docker-compose-frappe.yml set `AUTO_MIGRATE` environment variable to `1`.
+- `AUTO_MIGRATE` checks if there is semver bump or git hash change in case of develop branch and automatically migrates the sites on container start up.
+- It is good practice to tag version to specific version instead of latest. e.g `frappe-socketio:v12.5.1`, `erpnext-nginx:v12.7.1`.
 
 ### Local deployment for testing
 
 For trying out locally or to develop apps using ERPNext REST API port 80 must be published.
-The first command will start the containers; the second command will publish the port of the *-nginx container.
-
+Following command will start the needed containers and expose ports.
 
 For Erpnext:
 
