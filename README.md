@@ -59,7 +59,7 @@ Notes:
 
 - docker-compose-erpnext.yml and docker-compose-frappe.yml set `AUTO_MIGRATE` environment variable to `1`.
 - `AUTO_MIGRATE` checks if there is semver bump or git hash change in case of develop branch and automatically migrates the sites on container start up.
-- It is good practice to tag version to specific version instead of latest. e.g `frappe-socketio:v12.5.1`, `erpnext-nginx:v12.7.1`.
+- It is good practice to use image tag for specific version instead of latest. e.g `frappe-socketio:v12.5.1`, `erpnext-nginx:v12.7.1`.
 
 ### Local deployment for testing
 
