@@ -21,15 +21,7 @@ For docker based development refer to this [README](development/README.md)
 
 This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
 
-Always use non-root user. Add the user to `docker` group instead of using `sudo docker...` commands.
-
-Docker devop basics.
-
-- `docker ps`, check running containers.
-- `docker logs <container_name>`, check logs of given container.
-- `docker run -it image/tag <command> -v ./volume:/location/in/container --network existing_network` start a container with given image, run command, mount volume and use network.
-- `docker exec -it -e "ENVIRONMENT_VARIABLE=VALUE" <container_name> command`, execute command in existing container and use given environment variables.
-- Other important docker commands to manage volumes, containers. Refer Docker documentation.
+Docker basics and best practices. Refer Docker documentation.
 
 ### Cloning the repository and preliminary steps
 
