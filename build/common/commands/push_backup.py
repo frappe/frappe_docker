@@ -176,6 +176,10 @@ def main():
             folder = os.environ.get('BUCKET_DIR') + '/' + site + '/' + os.path.basename(db_file)[:15] + '/'
             upload_file_to_s3(db_file, folder, conn, bucket)
 
+            # Archive site_config.json
+            site_config_file = os.path.join(os.getcwd(), site, 'site_config.json')
+            upload_file_to_s3(site_config_file, folder, conn, bucket)
+
         public_files = details.get('public_files', {}).get('file_path')
         if public_files:
             folder = os.environ.get('BUCKET_DIR') + '/' + site + '/' + os.path.basename(public_files)[:15] + '/'
