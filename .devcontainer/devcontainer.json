@@ -8,12 +8,12 @@
   "dockerComposeFile": "./docker-compose.yml",
   "service": "frappe",
   "workspaceFolder": "/workspace/development",
-"shutdownAction": "stopCompose",
-"extensions": [
-	"ms-python.python",
-	"auchenberg.vscode-browser-preview",
-	"grapecity.gc-excelviewer",
-	"mtxr.sqltools",
-	"visualstudioexptteam.vscodeintellicode"
-]
+  "shutdownAction": "stopCompose",
+  "extensions": [
+    "ms-python.python",
+    "auchenberg.vscode-browser-preview",
+    "grapecity.gc-excelviewer",
+    "mtxr.sqltools",
+    "visualstudioexptteam.vscodeintellicode"
+  ]
 }

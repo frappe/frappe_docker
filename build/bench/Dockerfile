@@ -63,8 +63,10 @@ RUN echo "frappe ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER frappe
 WORKDIR /home/frappe
 
-# Install bench in the local user home directory
-RUN pip3 install --user  git+https://github.com/frappe/bench.git#egg=bench --no-cache
+# Clone and install bench in the local user home directory
+# For development, bench source is located in ~/.bench
+RUN git clone https://github.com/frappe/bench.git .bench \
+    && pip3 install --user -e .bench
 
 # Export python executables for Dockerfile
 ENV PATH=/home/frappe/.local/bin:$PATH
@@ -81,8 +83,8 @@ RUN bash -c "bench --version"
 # https://nodejs.org/download/release/latest-v10.x/
 # https://nodejs.org/download/release/latest-v12.x/
 # https://nodejs.org/download/release/latest-v13.x/
-ENV NODE_VERSION=12.16.1
-ENV NODE_VERSION_FRAPPEV11=10.19.0
+ENV NODE_VERSION=12.16.3
+ENV NODE_VERSION_FRAPPEV11=10.20.1
 
 # Install nvm with node
 RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh

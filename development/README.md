@@ -26,7 +26,7 @@ cd frappe_docker
 
 For most people getting started with Frappe development, the best solution is to use [ VSCode Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 
-VSCode should automatically inquiry you to install the required extensions, that can also be installed manually as follows:
+VSCode should automatically inquire you to install the required extensions, that can also be installed manually as follows:
 
 - Install Remote - Containers for VSCode
     - through command line `code --install-extension ms-vscode-remote.remote-containers`
@@ -84,23 +84,24 @@ sed -i '/redis/d' ./Procfile
 You can create a new site with the following command:
 
 ```shell
-bench new-site sitename
+bench new-site sitename --no-mariadb-socket
 ```
 
 for example:
 
 ```shell
-bench new-site mysite.localhost
+bench new-site mysite.localhost --no-mariadb-socket
 ```
 
 The same command can be run non-interactively as well:
 
 ```shell
-bench new-site mysite.localhost --mariadb-root-password 123 --admin-password admin
+bench new-site mysite.localhost --mariadb-root-password 123 --admin-password admin --no-mariadb-socket
 ```
 
 The command will ask the MariaDB root password. The default root password is `123`.
 This will create a new site and a `mysite.localhost` directory under `frappe-bench/sites`.
+The option `--no-mariadb-socket` will configure site's database credentials to work with docker.
 You may need to configure your system /etc/hosts if you're on Linux, Mac, or its Windows equivalent.
 
 ### Set bench developer mode on the new site
@@ -206,7 +207,8 @@ The first command can take a few seconds to be executed, this is to be expected.
 
 ### Fixing MariaDB issues after rebuilding the container
 
-The `bench new-site` command creates a user in MariaDB with container IP as host, for this reason after rebuilding the container there is a chance that you will not be able to access MariaDB correctly with the previous configuration
+For any reason after rebuilding the container if you are not be able to access MariaDB correctly with the previous configuration. Follow these instructions.
+
 The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
 
 This step has to be repeated for all sites available under the current bench.
