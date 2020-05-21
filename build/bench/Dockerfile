@@ -53,8 +53,8 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
   && dpkg-reconfigure --frontend=noninteractive locales
 
 # Install wkhtmltox correctly
-RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
-RUN dpkg -i wkhtmltox_0.12.5-1.stretch_amd64.deb && rm wkhtmltox_0.12.5-1.stretch_amd64.deb
+RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb
+RUN dpkg -i wkhtmltox_0.12.5-1.buster_amd64.deb && rm wkhtmltox_0.12.5-1.buster_amd64.deb
 
 # Create new user with home directory, improve docker compatibility with UID/GID 1000, add user to sudo group, allow passwordless sudo, switch to that user and change directory to user home directory
 RUN groupadd -g 1000 frappe
@@ -63,8 +63,10 @@ RUN echo "frappe ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER frappe
 WORKDIR /home/frappe
 
-# Install bench in the local user home directory
-RUN pip3 install --user  git+https://github.com/frappe/bench.git#egg=bench --no-cache
+# Clone and install bench in the local user home directory
+# For development, bench source is located in ~/.bench
+RUN git clone https://github.com/frappe/bench.git .bench \
+    && pip3 install --user -e .bench
 
 # Export python executables for Dockerfile
 ENV PATH=/home/frappe/.local/bin:$PATH
@@ -81,8 +83,8 @@ RUN bash -c "bench --version"
 # https://nodejs.org/download/release/latest-v10.x/
 # https://nodejs.org/download/release/latest-v12.x/
 # https://nodejs.org/download/release/latest-v13.x/
-ENV NODE_VERSION=12.16.1
-ENV NODE_VERSION_FRAPPEV11=10.19.0
+ENV NODE_VERSION=12.16.3
+ENV NODE_VERSION_FRAPPEV11=10.20.1
 
 # Install nvm with node
 RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh
