@@ -94,7 +94,7 @@ Notes:
 
 - New site (first site) needs to be added after starting the services.
 - The local deployment is for testing and REST API development purpose only
-- A complete development environment is available [here](Development/README.md)
+- A complete development environment is available [here](development)
 - The site names are limited to patterns matching \*.localhost by default
 - Additional site name patterns can be added by editing /etc/hosts of your host machine
 
