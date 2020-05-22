@@ -131,12 +131,39 @@ def pull_backup_from_s3():
     # Change directory to /home/frappe/backups
     os.chdir(get_backup_dir())
 
+    backup_files = []
+    sites = set()
+    site_timestamps = set()
+    download_backups = []
+
     for obj in bucket.objects.filter(Prefix=bucket_dir):
         backup_file = obj.key.replace(os.path.join(bucket_dir, ''), '')
-        if not os.path.exists(os.path.dirname(backup_file)):
-            os.makedirs(os.path.dirname(backup_file))
-        print('Downloading {}'.format(backup_file))
-        bucket.download_file(obj.key, backup_file)
+        backup_files.append(backup_file)
+        site_name, timestamp, backup_type = backup_file.split('/')
+        site_timestamp = site_name + '/' + timestamp
+        sites.add(site_name)
+        site_timestamps.add(site_timestamp)
+
+    # sort sites for latest backups
+    for site in sites:
+        backup_timestamps = []
+        for site_timestamp in site_timestamps:
+            site_name, timestamp = site_timestamp.split('/')
+            if site == site_name:
+                timestamp_datetime = datetime.datetime.strptime(
+                    timestamp, DATE_FORMAT
+                )
+                backup_timestamps.append(timestamp)
+        download_backups.append(site + '/' + max(backup_timestamps))
+
+    # Only download latest backups
+    for backup_file in backup_files:
+        for backup in download_backups:
+            if backup in backup_file:
+                if not os.path.exists(os.path.dirname(backup_file)):
+                    os.makedirs(os.path.dirname(backup_file))
+                print('Downloading {}'.format(backup_file))
+                bucket.download_file(bucket_dir + '/' + backup_file, backup_file)
 
     os.chdir(os.path.join(os.path.expanduser('~'), 'frappe-bench', 'sites'))
 
