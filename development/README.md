@@ -173,6 +173,8 @@ This command starts all processes with the exception of Redis (which is already 
 
 You can now login with user `Administrator` and the password you choose when creating the site, if you followed this guide's unattended install that password is going to be `admin`.
 
+To debug workers, skip starting worker with honcho and start it with VSCode debugger.
+
 ## Developing using the interactive console
 
 You can launch a simple interactive shell console in the terminal with:
