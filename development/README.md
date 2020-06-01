@@ -11,7 +11,7 @@ In order to start developing you need to satisfy the following prerequisites:
 It is recommended you allocate at least 4GB of RAM to docker:
 
 - [Instructions for Windows](https://docs.docker.com/docker-for-windows/#resources)
-- [Instructions for MacOOS](https://docs.docker.com/docker-for-mac/#resources)
+- [Instructions for macOS](https://docs.docker.com/docker-for-mac/#resources)
 
 ## Bootstrap Containers for development
 
@@ -30,8 +30,8 @@ VSCode should automatically inquire you to install the required extensions, that
 
 - Install Remote - Containers for VSCode
     - through command line `code --install-extension ms-vscode-remote.remote-containers`
-    - clicking on the button at the following link: [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-    - searching for extension `ms-vscode-remote.remote-containers`
+    - clicking on the Install button in the Vistual Studio Marketplace: [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+    - View: Extensions command in VSCode (Windows: Ctrl+Shift+X; macOS: Cmd+Shift+X) then search for extension `ms-vscode-remote.remote-containers`
 
 After the extensions are installed, you can:
 
