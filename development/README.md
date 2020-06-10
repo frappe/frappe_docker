@@ -243,10 +243,15 @@ EXIT;
 ## Manually start containers
 
 In case you don't use VSCode, you may start the containers manually with the following command:
+
+### Building the containers
 ```shell
 cd .devcontainer
 docker-compose build
+cd ..
 ```
+
+### Running the containers
 ```shell
 docker-compose -f .devcontainer/docker-compose.yml up -d
 ```
