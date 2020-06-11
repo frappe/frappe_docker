@@ -1,2 +1,0 @@
-FROM frappe/bench:latest
-EXPOSE 8000-8005 9000-9005 6787
