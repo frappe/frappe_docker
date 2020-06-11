@@ -113,4 +113,4 @@ RUN bash -c "node --version" \
     && bash -c "npm --version" \
     && bash -c "yarn --version"
 
-EXPOSE 8000 9000 6787
+EXPOSE 8000-8005 9000-9005 6787
