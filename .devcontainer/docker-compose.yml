@@ -23,9 +23,10 @@ services:
     command: sleep infinity
     volumes:
       - ..:/workspace:cached
+    working_dir: /workspace/development
     ports:
-      - "8000:8000"
-      - "9000:9000"
+      - "8000-8005:8000-8005"
+      - "9000-9005:9000-9005"
 
 volumes:
   mariadb-vol:
