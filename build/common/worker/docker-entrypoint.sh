@@ -125,7 +125,8 @@ elif [ "$1" = 'schedule' ]; then
   fi
 
 elif [ "$1" = 'new' ]; then
-
+  checkConfigExists
+  checkConnection
   if [[ -z "$RUN_AS_ROOT" ]]; then
     su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
       && python /home/frappe/frappe-bench/commands/new.py"
