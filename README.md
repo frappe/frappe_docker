@@ -29,14 +29,14 @@ It takes care of the following:
 * Configure networking for remote access and setting up LetsEncrypt.
 
 1. Single Server Installs
-    1. [Single bench](docs/single-bench). Easiest Install!
-    2. [Multi bench](docs/multi-bench)
+    1. [Single bench](docs/single-bench.md). Easiest Install!
+    2. [Multi bench](docs/multi-bench.md)
 2. Multi Server Installs
     1. [Docker Swarm](docs/docker-swarm.md)
     2. [Kubernetes](https://helm.erpnext.com)
-3. [Site Operations](docs/site-operations)
-4. [Custom apps for production](docs/custom-apps-for-production)
-5. [Tips for moving deployments](docs/tips-for-moving-deployments)
+3. [Site Operations](docs/site-operations.md)
+4. [Custom apps for production](docs/custom-apps-for-production.md)
+5. [Tips for moving deployments](docs/tips-for-moving-deployments.md)
 
 ## Development Setup
 

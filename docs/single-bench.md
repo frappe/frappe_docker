@@ -60,7 +60,7 @@ Make sure to replace `<project-name>` with the desired name you wish to set for 
 Notes:
 
 - The local deployment is for testing and REST API development purpose only
-- A complete development environment is available [here](development)
+- A complete development environment is available [here](../development)
 - The site names are limited to patterns matching \*.localhost by default
 - Additional site name patterns can be added by editing /etc/hosts of your host machine
 
