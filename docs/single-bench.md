@@ -47,6 +47,27 @@ Notes:
 - `AUTO_MIGRATE` variable is set to `1` by default. It checks if there is semver bump or git hash change in case of develop branch and automatically migrates the sites on container start up.
 - It is good practice to use image tag for specific version instead of latest. e.g `frappe-socketio:v12.5.1`, `erpnext-nginx:v12.7.1`.
 
+### HTTP to HTTPS redirection
+
+> Recommended only for **production**
+
+If HTTPS redirection is required, add the following labels block to the **traefik** service/container. This will route any HTTP traffic to HTTPS. (e.g any request going to `http://ernext.example.com` will be redirected to `https://erpnext.example.com`)
+
+```yaml
+    # ...
+    labels:
+      # enable traefik
+      - "traefik.enable=true"
+      # global redirect to https
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+
+      # middleware redirect
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    # ...
+```
+
 ## Start containers
 
 Execute the following command:
