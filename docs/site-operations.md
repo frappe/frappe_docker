@@ -1,114 +1,6 @@
-### Setting up Pre-requisites
+# Site operations
 
-This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
-
-For Docker basics and best practices. Refer Docker documentation.
-
-### Cloning the repository and preliminary steps
-
-Clone this repository somewhere in your system:
-
-```sh
-git clone https://github.com/frappe/frappe_docker.git
-cd frappe_docker
-```
-
-Copy the example docker environment file to `.env`:
-
-For local setup
-
-```sh
-cp env-local .env
-```
-
-For production
-
-```sh
-cp env-production .env
-```
-
-### Setup Environment Variables
-
-To get started, copy the existing `env-local` or `env-production` file to `.env`. By default, the file will contain the following variables:
-
-- `ERPNEXT_VERSION=edge`
-    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. version-12, v11.1.15, v11).
-- `FRAPPE_VERSION=edge`
-    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. version-12, v11.1.15, v11).
-- `MYSQL_ROOT_PASSWORD=admin`
-    - Bootstraps a MariaDB container with this value set as the root password. If a managed MariaDB instance is used, there is no need to set the password here.
-- `MARIADB_HOST=mariadb`
-    - Sets the hostname to `mariadb`. This is required if the database is managed by the containerized MariaDB instance.
-    - In case of a separately managed database setups, set the value to the database's hostname/IP/domain.
-- `SITE_NAME=mysite.localhost`
-    - Creates this site after starting all services and installs ERPNext.
-- ``SITES=`${SITE_NAME}` ``
-    - List of sites that are part of the deployment "bench" Each site is separated by a comma(,) and quoted in backtick (`). By default site created by ``SITE_NAME`` variable is added here.
-    - If LetsEncrypt is being setup, make sure that the DNS for all the site's domains correctly point to the current instance.
-- `LETSENCRYPT_EMAIL=your.email@your.domain.com`
-    - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
-
-Notes:
-
-- `AUTO_MIGRATE` variable is set to `1` by default. It checks if there is semver bump or git hash change in case of develop branch and automatically migrates the sites on container start up.
-- It is good practice to use image tag for specific version instead of latest. e.g `frappe-socketio:v12.5.1`, `erpnext-nginx:v12.7.1`.
-
-### Start containers
-
-Execute the following command:
-
-```sh
-docker-compose --project-name <project-name> up -d
-```
-
-Make sure to replace `<project-name>` with the desired name you wish to set for the project.
-
-Notes:
-
-- The local deployment is for testing and REST API development purpose only
-- A complete development environment is available [here](development)
-- The site names are limited to patterns matching \*.localhost by default
-- Additional site name patterns can be added by editing /etc/hosts of your host machine
-
-#### Using Amazon RDS (or any other DBaaS)
-
-To configure usage of RDS, `common_site_config.json` in your `sites-vol` volume has to be edited using:
-
-```sh
-docker run \
-    -it \
-    -v <project-name>_sites-vol:/sites \
-    alpine vi /sites/common_site_config.json
-```
-
-Instead of `alpine` you can use any image you like.
-
-For full instructions, refer to the [wiki](https://github.com/frappe/frappe/wiki/Using-Frappe-with-Amazon-RDS-(or-any-other-DBaaS)). Common question can be found in Issues and on forum.
-
-### Docker containers
-
-This repository contains the following docker-compose files, each one containing the described images:
-* redis-cache: cache store
-    * volume: redis-cache-vol
-* redis-queue: used by workers
-    * volume: redis-queue-vol
-* redis-socketio: used by socketio service
-    * volume: redis-socketio-vol
-* mariadb: main database
-    * volume: mariadb-vol
-* erpnext-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
-    * volume: assets-vol
-* erpnext-python: main application code
-* frappe-socketio: enables realtime communication to the user interface through websockets
-* erpnext-worker-default: background runner
-* erpnext-worker-short: background runner for short-running jobs
-* erpnext-worker-long: background runner for long-running jobs
-* erpnext-schedule
-    * volume: sites-vol
-
-### Site operations
-
-Use env file,
+Create and use env file to pass environment variables to containers,
 
 ```sh
 source .env
@@ -116,7 +8,7 @@ source .env
 
 Or specify environment variables instead of passing secrets as command arguments. Refer notes section for environment variables required
 
-#### Setup New Site
+## Setup New Site
 
 Note:
 
@@ -148,7 +40,7 @@ Environment Variables needed:
 - `INSTALL_APPS=erpnext`: available only in erpnext-worker and erpnext containers (or other containers with custom apps). Installs ERPNext (and/or the specified apps, comma-delinieated) on this new site.
 - `FORCE=1`: optional variable which force installation of the same site.
 
-#### Add sites to proxy
+## Add sites to proxy
 
 Change `SITES` variable to the list of sites created encapsulated in backtick and separated by comma with no space. e.g. ``SITES=`site1.example.com`,`site2.example.com` ``.
 
@@ -158,7 +50,7 @@ Reload variables with following command.
 docker-compose up --project-name <project-name> -d
 ```
 
-#### Backup Sites
+## Backup Sites
 
 Environment Variables
 
@@ -179,7 +71,7 @@ docker run \
 
 The backup will be available in the `sites-vol` volume.
 
-#### Push backup to s3 compatible storage
+## Push backup to s3 compatible storage
 
 Environment Variables
 
@@ -211,22 +103,7 @@ Note:
 - example filetype: database, files or private-files
 - example extension: sql.gz or tar
 
-#### Updating and Migrating Sites
-
-Switch to the root of the `frappe_docker` directory before running the following commands:
-
-```sh
-# Update environment variable VERSION
-nano .env
-
-# Pull new images
-docker-compose pull
-
-# Restart containers
-docker-compose --project-name <project-name> up -d
-```
-
-#### Restore backups
+## Restore backups
 
 Environment Variables
 
@@ -266,3 +143,19 @@ Note:
             - 20200420_162000
                 - 20200420_162000-site2_domain_com-*
 
+## Edit configs
+
+Editing config manually might be required in some cases,
+one such case is to use Amazon RDS (or any other DBaaS).
+For full instructions, refer to the [wiki](https://github.com/frappe/frappe/wiki/Using-Frappe-with-Amazon-RDS-(or-any-other-DBaaS)). Common question can be found in Issues and on forum.
+
+`common_site_config.json` or `site_config.json` from `sites-vol` volume has to be edited using following command:
+
+```sh
+docker run \
+    -it \
+    -v <project-name>_sites-vol:/sites \
+    alpine vi /sites/common_site_config.json
+```
+
+Instead of `alpine` use any image of your choice.
