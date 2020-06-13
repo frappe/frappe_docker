@@ -133,7 +133,7 @@ services:
 
   site-creator:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
-    restart: no
+    restart: "no"
     command: new
     depends_on:
       - erpnext-python
