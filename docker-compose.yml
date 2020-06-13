@@ -17,8 +17,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - "cert-vol:/letsencrypt"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - cert-vol:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   erpnext-nginx:
     image: frappe/erpnext-nginx:${ERPNEXT_VERSION}
@@ -133,8 +133,8 @@ services:
 
   site-creator:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
-    restart: "no"
-    command: "new"
+    restart: no
+    command: new
     depends_on:
       - erpnext-python
     environment:
