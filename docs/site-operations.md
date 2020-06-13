@@ -31,7 +31,7 @@ docker run \
 
 Environment Variables needed:
 
-- `SITE_NAME`: name of the new site to create.
+- `SITE_NAME`: name of the new site to create. Site name is domain name that resolves. e.g. `erp.example.com` or `erp.localhost`.
 - `DB_ROOT_USER`: MariaDB Root user.
 - `MYSQL_ROOT_PASSWORD`: In case of the MariaDB docker container use the one set in `MYSQL_ROOT_PASSWORD` in previous steps. In case of a managed database use the appropriate password.
 - `MYSQL_ROOT_PASSWORD_FILE` - When the MariaDB root password is stored using docker secrets.

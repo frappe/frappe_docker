@@ -34,12 +34,12 @@ To get started, copy the existing `env-local` or `env-production` file to `.env`
 - `MARIADB_HOST=mariadb`
     - Sets the hostname to `mariadb`. This is required if the database is managed by the containerized MariaDB instance.
     - In case of a separately managed database setups, set the value to the database's hostname/IP/domain.
-- `SITE_NAME=mysite.localhost`
-    - Creates this site after starting all services and installs ERPNext.
-- ``SITES=`${SITE_NAME}` ``
+- `SITE_NAME=erp.example.com`
+    - Creates this site after starting all services and installs ERPNext. Site name is domain name that resolves. e.g. `erp.example.com` or `mysite.localhost`
+- ``SITES=`erp.example.com` ``
     - List of sites that are part of the deployment "bench" Each site is separated by a comma(,) and quoted in backtick (`). By default site created by ``SITE_NAME`` variable is added here.
     - If LetsEncrypt is being setup, make sure that the DNS for all the site's domains correctly point to the current instance.
-- `LETSENCRYPT_EMAIL=your.email@your.domain.com`
+- `LETSENCRYPT_EMAIL=email@example.com`
     - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
 
 Notes:
