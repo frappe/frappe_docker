@@ -13,12 +13,21 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=${LETSENCRYPT_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    labels:
+      # enable traefik
+      - "traefik.enable=true"
+      # global redirect to https for production only
+      - "${HTTPS_REDIRECT_RULE_LABEL}"
+      - "${HTTPS_REDIRECT_ENTRYPOINT_LABEL}"
+      - "${HTTPS_REDIRECT_MIDDLEWARE_LABEL}"
+      # middleware redirect for production only
+      - "${HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL}"
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - "cert-vol:/letsencrypt"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - cert-vol:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   erpnext-nginx:
     image: frappe/erpnext-nginx:${ERPNEXT_VERSION}
@@ -134,7 +143,7 @@ services:
   site-creator:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
     restart: "no"
-    command: "new"
+    command: new
     depends_on:
       - erpnext-python
     environment:
