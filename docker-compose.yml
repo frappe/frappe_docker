@@ -13,6 +13,15 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=${LETSENCRYPT_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    labels:
+      # enable traefik
+      - "traefik.enable=true"
+      # global redirect to https for production only
+      - "${HTTPS_REDIRECT_RULE_LABEL}"
+      - "${HTTPS_REDIRECT_ENTRYPOINT_LABEL}"
+      - "${HTTPS_REDIRECT_MIDDLEWARE_LABEL}"
+      # middleware redirect for production only
+      - "${HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL}"
     ports:
       - "80:80"
       - "443:443"
