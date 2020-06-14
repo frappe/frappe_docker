@@ -57,27 +57,6 @@ Notes:
 - `AUTO_MIGRATE` variable is set to `1` by default. It checks if there is semver bump or git hash change in case of develop branch and automatically migrates the sites on container start up.
 - It is good practice to use image tag for specific version instead of latest. e.g `frappe-socketio:v12.5.1`, `erpnext-nginx:v12.7.1`.
 
-### HTTP to HTTPS redirection
-
-> This step can be skipped, Recommended only for **production**
-
-If HTTPS redirection is required, add the following labels block to the **traefik** service/container. This will route any HTTP traffic to HTTPS. (e.g any request going to `http://ernext.example.com` will be redirected to `https://erpnext.example.com`)
-
-```yaml
-    # ...
-    labels:
-      # enable traefik
-      - "traefik.enable=true"
-      # global redirect to https
-      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=web"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-
-      # middleware redirect
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-    # ...
-```
-
 ## Start containers
 
 Execute the following command:
@@ -90,7 +69,7 @@ Make sure to replace `<project-name>` with the desired name you wish to set for 
 
 Notes:
 
-- If it's the first time running, and site is being initialized, *it can take multiple minutes for the site to be up*
+- If it is the first time running and site is being initialized, *it can take multiple minutes for the site to be up*. Monitor `site-creator` container logs to check progress. Use command `docker logs <project-name>_site-creator_1 -f`
 - After the site is ready the username is `Administrator` and the password is `$ADMIN_PASSWORD`
 - The local deployment is for testing and REST API development purpose only
 - A complete development environment is available [here](../development)
