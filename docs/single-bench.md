@@ -50,7 +50,15 @@ To get started, copy the existing `env-local` or `env-production` file to `.env`
 - `ENTRYPOINT_LABEL=traefik.http.routers.erpnext-nginx.entrypoints=websecure`
     - Related to the traefik configuration, says all traffic from outside should come from HTTP or HTTPS, for local development should be web, for production websecure. if redirection is needed, read below.
 - `CERT_RESOLVER_LABEL=traefik.http.routers.erpnext-nginx.tls.certresolver=myresolver`
-    - Which traefik resolver to use to get TLS certificate, this variable **should only be set in production.**
+    - Which traefik resolver to use to get TLS certificate, sets `erpnext.local.no-cert-resolver` for local setup.
+- ``HTTPS_REDIRECT_RULE_LABEL=traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`) ``
+    - Related to the traefik https redirection configuration, sets `erpnext.local.no-redirect-rule` for local setup.
+- `HTTPS_REDIRECT_ENTRYPOINT_LABEL=traefik.http.routers.http-catchall.entrypoints=web`
+    - Related to the traefik https redirection configuration, sets `erpnext.local.no-entrypoint` for local setup.
+- `HTTPS_REDIRECT_MIDDLEWARE_LABEL=traefik.http.routers.http-catchall.middlewares=redirect-to-https`
+    - Related to the traefik https redirection configuration, sets `erpnext.local.no-middleware` for local setup.
+- `HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL=traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https`
+    - Related to the traefik https redirection configuration, sets `erpnext.local-no-redirect-middleware` for local setup.
 
 Notes:
 
