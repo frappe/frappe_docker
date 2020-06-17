@@ -6,8 +6,6 @@ services:
   - docker
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_189e52c2c347_key -iv $encrypted_189e52c2c347_iv
-    -in deploy_key.enc -out deploy_key -d
   - if [[ "$BUILD" != "development" ]]; then
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
     sudo apt-get update && sudo apt-get -y install git;
@@ -159,3 +157,12 @@ jobs:
         - sudo apt-get update && sudo apt-get -y install docker-compose
       script:
         - ./tests/docker-test.sh
+    - stage: "Helm Chart Release"
+      if: branch = master AND type != pull_request
+      before_install:
+        - openssl aes-256-cbc -K $encrypted_189e52c2c347_key -iv $encrypted_189e52c2c347_iv -in deploy_key.enc -out deploy_key -d
+      script:
+        - git clone https://github.com/frappe/helm.git && cd helm
+        - ./release_wizard/setup.sh
+        - . ./venv/bin/activate
+        - ./release_wizard/wizard 12 patch --remote origin --ci
