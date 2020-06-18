@@ -2,6 +2,11 @@ sudo: required
 
 dist: bionic
 
+language: python
+
+python:
+  - '3.6'
+
 services:
   - docker
 
@@ -159,10 +164,14 @@ jobs:
         - ./tests/docker-test.sh
     - stage: "Helm Chart Release"
       if: branch = master AND type != pull_request
+      env:
+        - GIT_SSH_COMMAND="ssh -i ${PWD}/deploy_key"
       before_install:
-        - openssl aes-256-cbc -K $encrypted_189e52c2c347_key -iv $encrypted_189e52c2c347_iv -in deploy_key.enc -out deploy_key -d
+        - openssl aes-256-cbc -K $encrypted_189e52c2c347_key -iv $encrypted_189e52c2c347_iv -in deploy_key.enc -out deploy_key -d;
+          chmod 400 deploy_key;
+      install:
+        - pip install --upgrade pip
+        - pip install ruamel.yaml==0.16.10 ruamel.yaml.clib==0.2.0 semantic-version==2.8.5 GitPython==3.1.2
       script:
         - git clone https://github.com/frappe/helm.git && cd helm
-        - ./release_wizard/setup.sh
-        - . ./venv/bin/activate
         - ./release_wizard/wizard 12 patch --remote origin --ci
