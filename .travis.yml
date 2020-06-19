@@ -33,27 +33,32 @@ jobs:
     - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --worker --tag edge
+        - ./travis.py frappe --worker --tag latest
+        - ./travis.py frappe --worker --tag edge --tag-only
         - ./travis.py frappe --worker --tag develop --tag-only
     - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --nginx --tag edge
+        - ./travis.py frappe --nginx --tag latest
+        - ./travis.py frappe --nginx --tag edge --tag-only
         - ./travis.py frappe --nginx --tag develop --tag-only
     - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --socketio --tag edge
+        - ./travis.py frappe --socketio --tag latest
+        - ./travis.py frappe --socketio --tag edge --tag-only
         - ./travis.py frappe --socketio --tag develop --tag-only
     - stage: "ERPNext (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py erpnext --worker --tag edge
+        - ./travis.py erpnext --worker --tag latest
+        - ./travis.py erpnext --worker --tag edge --tag-only
         - ./travis.py erpnext --worker --tag develop --tag-only
     - stage: "ERPNext (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py erpnext --nginx --tag edge
+        - ./travis.py erpnext --nginx --tag latest
+        - ./travis.py erpnext --nginx --tag edge --tag-only
         - ./travis.py erpnext --nginx --tag develop --tag-only
     - stage: "Frappe (v13-beta)"
       if: branch = master AND type != pull_request
@@ -165,13 +170,14 @@ jobs:
     - stage: "Helm Chart Release"
       if: branch = master AND type != pull_request
       env:
-        - GIT_SSH_COMMAND="ssh -i ${PWD}/deploy_key"
+        - GIT_SSH_COMMAND="ssh -i ${TRAVIS_BUILD_DIR}/deploy_key"
       before_install:
         - openssl aes-256-cbc -K $encrypted_189e52c2c347_key -iv $encrypted_189e52c2c347_iv -in deploy_key.enc -out deploy_key -d;
           chmod 400 deploy_key;
+        - ssh-keyscan github.com >> $HOME/.ssh/known_hosts 2>/dev/null;
       install:
         - pip install --upgrade pip
-        - pip install ruamel.yaml==0.16.10 ruamel.yaml.clib==0.2.0 semantic-version==2.8.5 GitPython==3.1.2
       script:
-        - git clone https://github.com/frappe/helm.git && cd helm
+        - git clone git@github.com:frappe/helm.git && cd helm
+        - pip install -r release_wizard/requirements.txt
         - ./release_wizard/wizard 12 patch --remote origin --ci

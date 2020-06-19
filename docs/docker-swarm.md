@@ -4,198 +4,7 @@ IMPORTANT: All commands are executed on live server with public IP and DNS Confi
 
 #### Setup docker swarm
 
-Set hostname
-
-```shell
-export USE_HOSTNAME=dog.example.com
-
-echo $USE_HOSTNAME > /etc/hostname
-hostname -F /etc/hostname
-```
-
-Update packages using tools provided by installed linux distribution.
-
-Example on Ubuntu. Use distro specific commands.
-
-```shell
-apt-get update -y && apt-get upgrade
-```
-
-Install Docker using official convenience script
-
-```shell
-# Download Docker
-curl -fsSL get.docker.com -o get-docker.sh
-# Install Docker using the stable channel (instead of the default "edge")
-CHANNEL=stable sh get-docker.sh
-# Remove Docker install script
-rm get-docker.sh
-```
-
-Setup Swarm Mode
-
-```shell
-docker swarm init --advertise-addr 111.111.111.111
-```
-
-Note: Select the public IP of the server instead of 111.111.111.111
-
-Add worker nodes. Execute following command from worker node.
-
-```shell
-docker swarm join --token SWMTKN-1-5tl7ya98erd9qtasdfml4lqbosbhfqv3asdf4p13-dzw6ugasdfk0arn0 111.111.111.111:2377
-```
-
-Note: Replace appropriate token and Public IP of manager in the command.
-
-#### Install Traefik on manager node
-
-Set environment variables
-
-- `EMAIL=user@domain.com`: Letsencrypt Email
-- `DOMAIN`: Domain for traefik dashboard, e.g. traefik.example.com
-- `HASHED_PASSWORD=$(openssl passwd -apr1 $PASSWORD)` where `PASSWORD` is secret string
-
-deploy the following yaml.
-
-```shell
-docker stack deploy -c traefik.yaml traefik
-```
-
-```yaml
-version: "3.3"
-
-services:
-  traefik:
-    image: traefik:v2.2
-    ports:
-      - target: 80
-        published: 80
-        mode: host
-      - target: 443
-        published: 443
-        mode: host
-    command:
-      - --api
-      - --log.level=INFO
-      - --accesslog=true
-      - --metrics.prometheus=true
-      - --providers.docker=true
-      - --providers.docker.endpoint=unix:///var/run/docker.sock
-      - --providers.docker.swarmMode=true
-      - --providers.docker.exposedbydefault=false
-      - --providers.docker.network=traefik-public
-      - --entrypoints.http.address=:80
-      - --entrypoints.https.address=:443
-      - --certificatesResolvers.certbot=true
-      - --certificatesResolvers.certbot.acme.httpChallenge=true
-      - --certificatesResolvers.certbot.acme.httpChallenge.entrypoint=http
-      - --certificatesResolvers.certbot.acme.email=${EMAIL?Variable EMAIL not set}
-      - --certificatesResolvers.certbot.acme.storage=/certs/acme-v2.json
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /data/traefik/certs:/certs
-    networks:
-      - traefik-public
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      labels:
-        # v2.2
-        - "traefik.docker.network=traefik-public"
-        - "traefik.enable=true"
-        - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-        # Http
-        - "traefik.http.routers.traefik.rule=Host(`${DOMAIN?Variable DOMAIN not set}`)"
-        - "traefik.http.routers.traefik.entrypoints=http,https"
-        # Enable Let's encrypt auto certificat creation
-        - "traefik.http.routers.traefik.tls.certresolver=certbot"
-        # Enable authentification
-        - "traefik.http.routers.traefik.middlewares=traefik-auth"
-        - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:${HASHED_PASSWORD?Variable HASHED_PASSWORD not set}"
-        # Redirect All hosts to HTTPS
-        - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-        - "traefik.http.routers.http-catchall.entrypoints=http"
-        - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
-        - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-        - "traefik.http.routers.traefik.service=api@internal"
-        - "traefik.http.routers.traefik.tls"
-
-networks:
-  traefik-public:
-    name: traefik-public
-    attachable: true
-    driver: overlay
-```
-
-#### Install Portainer
-
-Set environment variable `DOMAIN` as domain where portainer is located e.g. `DOMAIN=portainer.example.com`
-
-deploy the following yaml.
-
-```shell
-docker stack deploy -c portainer.yaml portainer
-```
-
-```yaml
-version: "3.3"
-
-services:
-  agent:
-    image: portainer/agent:1.5.1
-    environment:
-      AGENT_CLUSTER_ADDR: tasks.agent
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
-    networks:
-      - agent-network
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - node.platform.os == linux
-
-  portainer:
-    image: portainer/portainer:1.23.2
-    command: -H tcp://tasks.agent:9001 --tlsskipverify
-    volumes:
-      - portainer-data:/data
-    networks:
-      - agent-network
-      - traefik-public
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-          - node.labels.portainer.portainer-data == true
-      labels:
-        - "traefik.docker.network=traefik-public"
-        - "traefik.enable=true"
-        - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-        # Http
-        - "traefik.http.routers.portainer.rule=Host(`${DOMAIN?Variable DOMAIN not set}`)"
-        - "traefik.http.routers.portainer.entrypoints=http,https"
-        # Enable Let's encrypt auto certificate creation
-        - "traefik.http.routers.portainer.tls.certresolver=certbot"
-networks:
-  agent-network:
-    attachable: true
-  traefik-public:
-    external: true
-
-volumes:
-  portainer-data:
-```
+Follow [dockerswarm.rocks](https://dockerswarm.rocks) guide to setup Docker swarm, Traefik and Portainer.
 
 Use Portainer for rest of the guide
 
@@ -297,7 +106,7 @@ networks:
 Stacks > Add Stacks > `frappe-bench-v12`
 
 ```yaml
-version: "3"
+version: "3.7"
 
 services:
   redis-cache:
@@ -331,7 +140,7 @@ services:
       - frappe-network
 
   erpnext-nginx:
-    image: frappe/erpnext-nginx:v12.7.1
+    image: frappe/erpnext-nginx:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
     environment:
       - FRAPPE_PY=erpnext-python
       - FRAPPE_PY_PORT=8000
@@ -349,15 +158,18 @@ services:
       labels:
         - "traefik.docker.network=traefik-public"
         - "traefik.enable=true"
-        - "traefik.http.services.frappe-bench-v12.loadbalancer.server.port=80"
-        # Http
-        - "traefik.http.routers.frappe-bench-v12.rule=Host(${SITES?Variable SITES not set})"
-        - "traefik.http.routers.frappe-bench-v12.entrypoints=http,https"
-        # Enable Let's encrypt auto certificate creation
-        - "traefik.http.routers.frappe-bench-v12.tls.certresolver=certbot"
+        - "traefik.constraint-label=traefik-public"
+        - "traefik.http.routers.erpnext-nginx.rule=Host(${SITES?Variable SITES not set})"
+        - "traefik.http.routers.erpnext-nginx.entrypoints=http"
+        - "traefik.http.routers.erpnext-nginx.middlewares=https-redirect"
+        - "traefik.http.routers.erpnext-nginx-https.rule=Host(${SITES?Variable SITES not set})"
+        - "traefik.http.routers.erpnext-nginx-https.entrypoints=https"
+        - "traefik.http.routers.erpnext-nginx-https.tls=true"
+        - "traefik.http.routers.erpnext-nginx-https.tls.certresolver=le"
+        - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=80"
 
   erpnext-python:
-    image: frappe/erpnext-worker:v12.7.1
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
     deploy:
       restart_policy:
         condition: on-failure
@@ -375,7 +187,7 @@ services:
       - frappe-network
 
   frappe-socketio:
-    image: frappe/frappe-socketio:v12.5.1
+    image: frappe/frappe-socketio:${FRAPPE_VERSION?Variable FRAPPE_VERSION not set}
     deploy:
       restart_policy:
         condition: on-failure
@@ -384,8 +196,8 @@ services:
     networks:
       - frappe-network
 
-  frappe-worker-default:
-    image: frappe/erpnext-worker:v12.7.1
+  erpnext-worker-default:
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
     deploy:
       restart_policy:
         condition: on-failure
@@ -395,8 +207,8 @@ services:
     networks:
       - frappe-network
 
-  frappe-worker-short:
-    image: frappe/erpnext-worker:v12.7.1
+  erpnext-worker-short:
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
     deploy:
       restart_policy:
         condition: on-failure
@@ -408,8 +220,8 @@ services:
     networks:
       - frappe-network
 
-  frappe-worker-long:
-    image: frappe/erpnext-worker:v12.7.1
+  erpnext-worker-long:
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
     deploy:
       restart_policy:
         condition: on-failure
@@ -422,7 +234,7 @@ services:
       - frappe-network
 
   frappe-schedule:
-    image: frappe/erpnext-worker:v12.7.1
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
     deploy:
       restart_policy:
         condition: on-failure
@@ -448,6 +260,8 @@ networks:
 
 Use environment variables:
 
+- `FRAPPE_VERSION` variable to be set to desired version of ERPNext. e.g. 12.10.0
+- `ERPNEXT_VERSION` variable to be set to desired version of Frappe Framework. e.g. 12.7.0
 - `MARIADB_HOST=frappe-mariadb_mariadb-master`
 - `SITES` variable is list of sites in back tick and separated by comma
 ```
