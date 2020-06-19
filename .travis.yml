@@ -33,27 +33,32 @@ jobs:
     - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --worker --tag edge
+        - ./travis.py frappe --worker --tag latest
+        - ./travis.py frappe --worker --tag edge --tag-only
         - ./travis.py frappe --worker --tag develop --tag-only
     - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --nginx --tag edge
+        - ./travis.py frappe --nginx --tag latest
+        - ./travis.py frappe --nginx --tag edge --tag-only
         - ./travis.py frappe --nginx --tag develop --tag-only
     - stage: "Frappe (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --socketio --tag edge
+        - ./travis.py frappe --socketio --tag latest
+        - ./travis.py frappe --socketio --tag edge --tag-only
         - ./travis.py frappe --socketio --tag develop --tag-only
     - stage: "ERPNext (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py erpnext --worker --tag edge
+        - ./travis.py erpnext --worker --tag latest
+        - ./travis.py erpnext --worker --tag edge --tag-only
         - ./travis.py erpnext --worker --tag develop --tag-only
     - stage: "ERPNext (edge)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py erpnext --nginx --tag edge
+        - ./travis.py erpnext --nginx --tag latest
+        - ./travis.py erpnext --nginx --tag edge --tag-only
         - ./travis.py erpnext --nginx --tag develop --tag-only
     - stage: "Frappe (v13-beta)"
       if: branch = master AND type != pull_request
