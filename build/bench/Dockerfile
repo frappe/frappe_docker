@@ -47,7 +47,8 @@ RUN install_packages \
     python3-pip \
     python3-setuptools \
     python3-tk \
-    python-virtualenv
+    python-virtualenv \
+    less
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
   && dpkg-reconfigure --frontend=noninteractive locales
