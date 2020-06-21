@@ -2,7 +2,6 @@ import os
 import frappe
 import json
 
-from frappe.migrate import migrate
 from frappe.utils import cint, get_sites
 from check_connection import get_config
 
@@ -38,6 +37,7 @@ def migrate_sites(maintenance_mode=False):
         frappe.init(site=site)
         frappe.connect()
         try:
+            from frappe.migrate import migrate
             migrate()
         finally:
             frappe.destroy()
