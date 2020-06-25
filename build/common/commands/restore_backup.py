@@ -1,5 +1,6 @@
 import os
 import datetime
+import json
 import tarfile
 import hashlib
 import frappe
@@ -8,7 +9,7 @@ import boto3
 from new import get_password
 from push_backup import DATE_FORMAT, check_environment_variables
 from frappe.utils import get_sites, random_string
-from frappe.installer import make_conf, get_conf_params, make_site_dirs
+from frappe.installer import make_conf, get_conf_params, make_site_dirs, update_site_config
 from check_connection import get_site_config, get_config
 
 
@@ -38,7 +39,7 @@ def decompress_db(files_base, site):
     os.system(command)
 
 
-def restore_database(files_base, site):
+def restore_database(files_base, site_config_path, site):
     db_root_password = get_password('MYSQL_ROOT_PASSWORD')
     if not db_root_password:
         print('Variable MYSQL_ROOT_PASSWORD not set')
@@ -95,6 +96,15 @@ def restore_database(files_base, site):
 
     print('Restoring database for site: {}'.format(site))
     os.system(command)
+
+    if os.path.exists(site_config_path):
+        with open(site_config_path, 'r') as sc:
+            site_config = json.load(sc)
+        encryption_key = site_config.get("encryption_key")
+        if encryption_key:
+            print('Restoring site config for site: {}'.format(site))
+            update_site_config('encryption_key', encryption_key,
+                               site_config_path=os.path.join(os.getcwd(), site, "site_config.json"))
 
 
 def restore_files(files_base):
@@ -180,8 +190,9 @@ def main():
         latest_backup = max(backups).strftime(DATE_FORMAT)
         files_base = os.path.join(backup_dir, site, latest_backup, '')
         files_base += latest_backup + '-' + site_slug
+        site_config_path = os.path.join(backup_dir, site, 'site_config.json')
         if site in get_sites():
-            restore_database(files_base, site)
+            restore_database(files_base, site_config_path, site)
             restore_private_files(files_base)
             restore_files(files_base)
         else:
