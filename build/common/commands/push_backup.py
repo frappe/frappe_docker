@@ -13,7 +13,8 @@ def get_file_ext():
     return {
         "database": "-database.sql.gz",
         "private_files": "-private-files.tar",
-        "public_files": "-files.tar"
+        "public_files": "-files.tar",
+        "site_config": "-site_config_backup.json"
     }
 
 
@@ -177,7 +178,9 @@ def main():
             upload_file_to_s3(db_file, folder, conn, bucket)
 
             # Archive site_config.json
-            site_config_file = os.path.join(os.getcwd(), site, 'site_config.json')
+            site_config_file = details.get('site_config', {}).get('file_path')
+            if not site_config_file:
+                site_config_file = os.path.join(os.getcwd(), site, 'site_config.json')
             upload_file_to_s3(site_config_file, folder, conn, bucket)
 
         public_files = details.get('public_files', {}).get('file_path')
