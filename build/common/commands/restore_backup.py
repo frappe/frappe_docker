@@ -190,7 +190,9 @@ def main():
         latest_backup = max(backups).strftime(DATE_FORMAT)
         files_base = os.path.join(backup_dir, site, latest_backup, '')
         files_base += latest_backup + '-' + site_slug
-        site_config_path = os.path.join(backup_dir, site, 'site_config.json')
+        site_config_path = files_base + '-site_config_backup.json'
+        if not os.path.exists(site_config_path):
+            site_config_path = os.path.join(backup_dir, site, 'site_config.json')
         if site in get_sites():
             restore_database(files_base, site_config_path, site)
             restore_private_files(files_base)
