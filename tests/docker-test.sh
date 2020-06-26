@@ -80,7 +80,7 @@ curl -sS http://test.localhost/api/method/version
 echo -e "\n"
 
 echo -e "\e[1m\e[4mCheck Created Site Index Page\e[0m"
-curl -s http://test.localhost # | w3m -T text/html -dump
+curl -s http://test.localhost | w3m -T text/html -dump
 echo -e "\n"
 
 echo -e "\e[1m\e[4mSet version to edge\e[0m"
@@ -99,12 +99,6 @@ docker-compose \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
     -f installation/erpnext-publish.yml \
-    pull
-docker-compose \
-    --project-name frappebench00 \
-    -f installation/docker-compose-common.yml \
-    -f installation/docker-compose-erpnext.yml \
-    -f installation/erpnext-publish.yml \
     up -d
 
 checkMigrationComplete
@@ -116,7 +110,7 @@ curl -sS http://test.localhost/api/method/version
 echo -e "\n"
 
 echo -e "\e[1m\e[4mCheck Migrated Site Index Page\e[0m"
-curl -s http://test.localhost # | w3m -T text/html -dump
+curl -s http://test.localhost | w3m -T text/html -dump
 echo -e "\n"
 
 echo -e "\e[1m\e[4mBackup site\e[0m"
@@ -227,7 +221,7 @@ echo $RESTORE_STATUS
 echo -e "\n"
 
 echo -e "\e[1m\e[4mCheck Restored Site Index Page\e[0m"
-curl -s http://test.localhost # | w3m -T text/html -dump
+curl -s http://test.localhost | w3m -T text/html -dump
 echo -e "\n"
 
 echo -e "\e[1m\e[4mCreate new site (edge)\e[0m"
@@ -266,7 +260,7 @@ echo $RESTORE_STATUS
 echo -e "\n"
 
 echo -e "\e[1m\e[4mCheck New Edge Index Page\e[0m"
-curl -s http://edge.localhost # | w3m -T text/html -dump
+curl -s http://edge.localhost | w3m -T text/html -dump
 echo -e "\n"
 
 echo -e "\e[1m\e[4mMigrate command in edge container\e[0m"
@@ -320,7 +314,7 @@ echo $RESTORE_STATUS
 echo -e "\n"
 
 echo -e "\e[1m\e[4mCheck Overwritten Index Page\e[0m"
-curl -s http://test.localhost # | w3m -T text/html -dump
+curl -s http://test.localhost | w3m -T text/html -dump
 echo -e "\n"
 
 echo -e "\e[1m\e[4mCheck console command for site test.localhost\e[0m"
