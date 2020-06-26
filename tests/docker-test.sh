@@ -41,13 +41,21 @@ function loopHealthCheck() {
     echo "Health check successful"
 }
 
-echo "Copy env-example file"
+echo -e "\e[1m\e[4mCopy env-example file\e[0m"
 cp env-example .env
+echo -e "\n"
 
-echo "Set version to v12"
+echo -e "\e[1m\e[4mSet version to v12\e[0m"
 sed -i -e "s/edge/v12/g" .env
+echo -e "\n"
 
-echo "Start Services"
+echo -e "\e[1m\e[4mStart Services\e[0m"
+docker-compose \
+    --project-name frappebench00 \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-erpnext.yml \
+    -f installation/erpnext-publish.yml \
+    pull
 docker-compose \
     --project-name frappebench00 \
     -f installation/docker-compose-common.yml \
@@ -56,23 +64,30 @@ docker-compose \
     up -d
 
 loopHealthCheck
+echo -e "\n"
 
-echo "Create new site (v12)"
+echo -e "\e[1m\e[4mCreate new site (v12)\e[0m"
 docker run -it \
     -e "SITE_NAME=test.localhost" \
     -e "INSTALL_APPS=erpnext" \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
     frappe/erpnext-worker:v12 new
+echo -e "\n"
 
-echo "Ping created site"
-curl -S http://test.localhost/api/method/version
-echo ""
+echo -e "\e[1m\e[4mPing created site\e[0m"
+curl -sS http://test.localhost/api/method/version
+echo -e "\n"
 
-echo "Set version to edge"
+echo -e "\e[1m\e[4mCheck Created Site Index Page\e[0m"
+curl -s http://test.localhost # | w3m -T text/html -dump
+echo -e "\n"
+
+echo -e "\e[1m\e[4mSet version to edge\e[0m"
 sed -i -e "s/v12/edge/g" .env
+echo -e "\n"
 
-echo "Restart containers with edge image"
+echo -e "\e[1m\e[4mRestart containers with edge image\e[0m"
 docker-compose \
     --project-name frappebench00 \
     -f installation/docker-compose-common.yml \
@@ -84,34 +99,46 @@ docker-compose \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
     -f installation/erpnext-publish.yml \
+    pull
+docker-compose \
+    --project-name frappebench00 \
+    -f installation/docker-compose-common.yml \
+    -f installation/docker-compose-erpnext.yml \
+    -f installation/erpnext-publish.yml \
     up -d
 
 checkMigrationComplete
+echo -e "\n"
 
-echo "Ping migrated site"
+echo -e "\e[1m\e[4mPing migrated site\e[0m"
 sleep 3
-curl -S http://test.localhost/api/method/version
-echo ""
+curl -sS http://test.localhost/api/method/version
+echo -e "\n"
 
-echo "Backup site"
+echo -e "\e[1m\e[4mCheck Migrated Site Index Page\e[0m"
+curl -s http://test.localhost # | w3m -T text/html -dump
+echo -e "\n"
+
+echo -e "\e[1m\e[4mBackup site\e[0m"
 docker run -it \
     -e "WITH_FILES=1" \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
     frappe/erpnext-worker:edge backup
+echo -e "\n"
 
 export MINIO_ACCESS_KEY="AKIAIOSFODNN7EXAMPLE"
 export MINIO_SECRET_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 
-echo "Start MinIO container for s3 compatible storage"
+echo -e "\e[1m\e[4mStart MinIO container for s3 compatible storage\e[0m"
 docker run -d --name minio \
   -e "MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY" \
   -e "MINIO_SECRET_KEY=$MINIO_SECRET_KEY" \
   --network frappebench00_default \
   minio/minio server /data
+echo -e "\n"
 
-echo "Create bucket named erpnext after 3 sec."
-sleep 3
+echo -e "\e[1m\e[4mCreate bucket named erpnext\e[0m"
 docker run \
     --network frappebench00_default \
     vltgroup/s3cmd:latest s3cmd --access_key=$MINIO_ACCESS_KEY \
@@ -121,8 +148,9 @@ docker run \
     --host=minio:9000 \
     --host-bucket=minio:9000 \
     mb s3://erpnext
+echo -e "\n"
 
-echo "Push backup to MinIO s3"
+echo -e "\e[1m\e[4mPush backup to MinIO s3\e[0m"
 docker run \
     -e BUCKET_NAME=erpnext \
     -e REGION=us-east-1 \
@@ -133,19 +161,22 @@ docker run \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
     frappe/erpnext-worker:edge push-backup
+echo -e "\n"
 
-echo "Stop Services"
+echo -e "\e[1m\e[4mStop Services\e[0m"
 docker-compose \
     --project-name frappebench00 \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
     -f installation/erpnext-publish.yml \
     stop
+echo -e "\n"
 
-echo "Prune Containers"
+echo -e "\e[1m\e[4mPrune Containers\e[0m"
 docker container prune -f && docker volume prune -f
+echo -e "\n"
 
-echo "Start Services"
+echo -e "\e[1m\e[4mStart Services\e[0m"
 docker-compose \
     --project-name frappebench00 \
     -f installation/docker-compose-common.yml \
@@ -154,8 +185,9 @@ docker-compose \
     up -d
 
 loopHealthCheck
+echo -e "\n"
 
-echo "Restore backup from MinIO / S3"
+echo -e "\e[1m\e[4mRestore backup from MinIO / S3\e[0m"
 docker run \
     -e MYSQL_ROOT_PASSWORD=admin \
     -e BUCKET_NAME=erpnext \
@@ -167,15 +199,16 @@ docker run \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
     frappe/erpnext-worker:edge restore-backup
+echo -e "\n"
 
-echo "Check Restored Site"
+echo -e "\e[1m\e[4mCheck Restored Site\e[0m"
 sleep 3
-RESTORE_STATUS=$(curl -S http://test.localhost/api/method/version || echo "")
+RESTORE_STATUS=$(curl -sS http://test.localhost/api/method/version || echo "")
 INCREMENT=0
 while [[ -z "$RESTORE_STATUS" && $INCREMENT -lt 60 ]]; do
     sleep 1
     echo "Wait for restoration to complete ..."
-    RESTORE_STATUS=$(curl -S http://test.localhost/api/method/version || echo "")
+    RESTORE_STATUS=$(curl -sS http://test.localhost/api/method/version || echo "")
     ((INCREMENT=INCREMENT+1))
     if [[ -z "$RESTORE_STATUS" && $INCREMENT -eq 60 ]]; then
         CONTAINER_ID=$(docker-compose \
@@ -189,10 +222,54 @@ while [[ -z "$RESTORE_STATUS" && $INCREMENT -lt 60 ]]; do
     fi
 done
 
-echo "Ping restored site"
+echo -e "\e[1m\e[4mPing restored site\e[0m"
 echo $RESTORE_STATUS
+echo -e "\n"
 
-echo "Migrate command in edge container"
+echo -e "\e[1m\e[4mCheck Restored Site Index Page\e[0m"
+curl -s http://test.localhost # | w3m -T text/html -dump
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCreate new site (edge)\e[0m"
+docker run -it \
+    -e "SITE_NAME=edge.localhost" \
+    -e "INSTALL_APPS=erpnext" \
+    -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    --network frappebench00_default \
+    frappe/erpnext-worker:edge new
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCheck New Edge Site\e[0m"
+sleep 3
+RESTORE_STATUS=$(curl -sS http://edge.localhost/api/method/version || echo "")
+INCREMENT=0
+while [[ -z "$RESTORE_STATUS" && $INCREMENT -lt 60 ]]; do
+    sleep 1
+    echo -e "\e[1m\e[4mWait for restoration to complete ..."
+    RESTORE_STATUS=$(curl -sS http://edge.localhost/api/method/version || echo "")
+    ((INCREMENT=INCREMENT+1))
+    if [[ -z "$RESTORE_STATUS" && $INCREMENT -eq 60 ]]; then
+        CONTAINER_ID=$(docker-compose \
+            --project-name frappebench00 \
+            -f installation/docker-compose-common.yml \
+            -f installation/docker-compose-erpnext.yml \
+            -f installation/erpnext-publish.yml \
+            ps -q erpnext-python)
+        docker logs $CONTAINER_ID
+        exit 1
+    fi
+done
+echo -e "\n"
+
+echo -e "\e[1m\e[4mPing new edge site\e[0m"
+echo $RESTORE_STATUS
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCheck New Edge Index Page\e[0m"
+curl -s http://edge.localhost # | w3m -T text/html -dump
+echo -e "\n"
+
+echo -e "\e[1m\e[4mMigrate command in edge container\e[0m"
 docker run -it \
     -e "MAINTENANCE_MODE=1" \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
@@ -200,16 +277,53 @@ docker run -it \
     frappe/erpnext-worker:edge migrate
 
 checkMigrationComplete
+echo -e "\n"
 
-echo "Create new site (edge)"
-docker run -it \
-    -e "SITE_NAME=edge.localhost" \
-    -e "INSTALL_APPS=erpnext" \
+echo -e "\e[1m\e[4mRestore backup from MinIO / S3 (Overwrite)\e[0m"
+docker run \
+    -e MYSQL_ROOT_PASSWORD=admin \
+    -e BUCKET_NAME=erpnext \
+    -e BUCKET_DIR=local \
+    -e ACCESS_KEY_ID=$MINIO_ACCESS_KEY \
+    -e SECRET_ACCESS_KEY=$MINIO_SECRET_KEY \
+    -e ENDPOINT_URL=http://minio:9000 \
+    -e REGION=us-east-1 \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
-    frappe/erpnext-worker:edge new
+    frappe/erpnext-worker:edge restore-backup
+echo -e "\n"
 
-echo "Check console command for site test.localhost"
+echo -e "\e[1m\e[4mCheck Overwritten Site\e[0m"
+sleep 3
+RESTORE_STATUS=$(curl -sS http://test.localhost/api/method/version || echo "")
+INCREMENT=0
+while [[ -z "$RESTORE_STATUS" && $INCREMENT -lt 60 ]]; do
+    sleep 1
+    echo -e "\e[1m\e[4mWait for restoration to complete ..."
+    RESTORE_STATUS=$(curl -sS http://test.localhost/api/method/version || echo "")
+    ((INCREMENT=INCREMENT+1))
+    if [[ -z "$RESTORE_STATUS" && $INCREMENT -eq 60 ]]; then
+        CONTAINER_ID=$(docker-compose \
+            --project-name frappebench00 \
+            -f installation/docker-compose-common.yml \
+            -f installation/docker-compose-erpnext.yml \
+            -f installation/erpnext-publish.yml \
+            ps -q erpnext-python)
+        docker logs $CONTAINER_ID
+        exit 1
+    fi
+done
+echo -e "\n"
+
+echo -e "\e[1m\e[4mPing overwritten site\e[0m"
+echo $RESTORE_STATUS
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCheck Overwritten Index Page\e[0m"
+curl -s http://test.localhost # | w3m -T text/html -dump
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCheck console command for site test.localhost\e[0m"
 docker run \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
