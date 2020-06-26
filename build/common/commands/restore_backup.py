@@ -216,7 +216,7 @@ def main():
                 db_password=site_config.get('db_password'),
             )
             make_site_dirs()
-            restore_database(files_base, site)
+            restore_database(files_base, site_config_path, site)
             restore_private_files(files_base)
             restore_files(files_base)
 
