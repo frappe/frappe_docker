@@ -15,14 +15,14 @@ image_type.add_argument('-s', '--socketio', action='store_const', dest='image_ty
 image_type.add_argument('-w', '--worker', action='store_const', dest='image_type', const='worker', help='Build the python environment image')
 
 tag_type = parser.add_mutually_exclusive_group(required=True)
-tag_type.add_argument('-g', '--git-version', action='store', type=str, dest='version', help='The version number of --service (i.e. "11", "12", etc.)')
+tag_type.add_argument('-g', '--git-version', action='store', type=str, dest='version', help='The version number of service (i.e. "11", "12", etc.)')
 tag_type.add_argument('-t', '--tag', action='store', type=str, dest='tag', help='The image tag (i.e. erpnext-worker:$TAG )')
 
 args = parser.parse_args()
 
-def git_version(service, version):
+def git_version(service, version, branch):
   print(f'Pulling {service} v{version}')
-  subprocess.run(f'git clone https://github.com/frappe/{service} --branch version-{version}', shell=True)
+  subprocess.run(f'git clone https://github.com/frappe/{service} --branch {branch}', shell=True)
   cd = os.getcwd()
   os.chdir(os.getcwd() + f'/{service}')
   subprocess.run('git fetch --tags', shell=True)
@@ -34,9 +34,15 @@ def git_version(service, version):
   os.chdir(cd)
   return version_tag
 
-def build(service, tag, image, dockerfile):
-  print(f'Building {service} {image} image using {dockerfile}')
-  subprocess.run(f'docker build -t {service}-{image} -f build/{service}-{image}/{dockerfile} .', shell=True)
+def build(service, tag, image, branch):
+  build_args = ''
+  if branch != 'develop':
+    build_args = f'--build-arg GIT_BRANCH={branch}'
+  if service == 'nginx' and branch == 'version-11':
+    build_args += f' --build-arg NODE_IMAGE_TAG=10-prod'
+
+  print(f'Building {service} {image} image')
+  subprocess.run(f'docker build {build_args} -t {service}-{image} -f build/{service}-{image}/Dockerfile .', shell=True)
   tag_and_push(f'{service}-{image}', tag)
 
 def tag_and_push(image_name, tag):
@@ -45,19 +51,16 @@ def tag_and_push(image_name, tag):
   subprocess.run(f'docker push frappe/{image_name}:{tag}', shell=True)
 
 def main():
-  global tag
-  global dockerfile
+  tag = args.tag
+  branch = 'develop'
 
   if args.version:
-    tag = git_version(args.service, args.version)
-    dockerfile = f'v{args.version}.Dockerfile'
-  else:
-    tag = args.tag
-    dockerfile = 'Dockerfile'
+    branch = 'version-' + args.version
+    tag = git_version(args.service, args.version, branch)
 
   if args.tag_only:
     tag_and_push(f'{args.service}-{args.image_type}', tag)
   else:
-    build(args.service, tag, args.image_type, dockerfile)
+    build(args.service, tag, args.image_type, branch)
 
 main()
