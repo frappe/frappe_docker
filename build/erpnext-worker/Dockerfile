@@ -1,5 +1,5 @@
 ARG GIT_BRANCH=develop
-FROM frappe/frappe-worker:${GIT_BRANCH}}
+FROM frappe/frappe-worker:${GIT_BRANCH}
 
 ARG GIT_BRANCH=develop
 RUN install_app erpnext https://github.com/frappe/erpnext ${GIT_BRANCH}

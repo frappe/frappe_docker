@@ -35,9 +35,7 @@ def git_version(service, version, branch):
   return version_tag
 
 def build(service, tag, image, branch):
-  build_args = ''
-  if branch != 'develop':
-    build_args = f'--build-arg GIT_BRANCH={branch}'
+  build_args = f'--build-arg GIT_BRANCH={branch}'
   if service == 'nginx' and branch == 'version-11':
     build_args += f' --build-arg NODE_IMAGE_TAG=10-prod'
 
