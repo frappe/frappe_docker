@@ -10,5 +10,6 @@ tty:
 
 clean:
 	@docker-compose -f .devcontainer/docker-compose.yml down
-	@docker volume prune
+	@docker volume prune -f
+	@docker container prune -f
 	@docker-compose -f .devcontainer/docker-compose.yml up -d
