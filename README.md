@@ -62,3 +62,4 @@ It takes care of complete setup to develop with Frappe/ERPNext and Bench, Includ
 - run `make tty` - you are inside the dev container
 - run `make clean-init`
 - run `make install`
+- run `bench start`
