@@ -37,7 +37,7 @@ RUN python -m venv env \
     && . env/bin/activate \
     && cd apps \
     && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${GIT_BRANCH} \
-    && pip3 install --no-cache-dir /home/frappe/frappe-bench/apps/frappe
+    && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
 
 # Copy scripts and templates
 COPY build/common/commands/* /home/frappe/frappe-bench/commands/
