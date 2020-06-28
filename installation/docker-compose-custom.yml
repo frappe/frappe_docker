@@ -4,11 +4,10 @@ services:
   [app]-assets:
     image: [app]-assets
     build:
-      context: . 
-      dockerfile: ./build/[app]-assets/Dockerfile
+      context: ../build/[app]-nginx
     restart: on-failure
     environment:
-      - FRAPPE_PY=erpnext-python
+      - FRAPPE_PY=[app]-python
       - FRAPPE_PY_PORT=8000
       - FRAPPE_SOCKETIO=frappe-socketio
       - SOCKETIO_PORT=9000
@@ -34,8 +33,7 @@ services:
   [app]-python:
     image: [app]-worker
     build:
-      context: . 
-      dockerfile: ./build/[app]-worker/Dockerfile
+      context: ../build/[app]-worker
     restart: on-failure
     environment:
       - MARIADB_HOST=${MARIADB_HOST}
