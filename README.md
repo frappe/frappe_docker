@@ -55,7 +55,7 @@ It takes care of complete setup to develop with Frappe/ERPNext and Bench, Includ
 - [ERPNext](https://github.com/frappe/erpnext#contributing)
 - [frappe/bench](https://github.com/frappe/bench)
 
-## Development Setup Manual for beginners
+## Manual Development Setup for beginners on Linux Desktop
 - install docker, docker-compose.
 - Clone the repo, cd into it
 - run `make start` if you are doing first time or `make clean` for clean installation
@@ -63,3 +63,4 @@ It takes care of complete setup to develop with Frappe/ERPNext and Bench, Includ
 - run `make clean-init`
 - run `make install`
 - run `bench start` inside frappe-bench folder
+- Access your dev sever at [mysite.localhost:8000](mysite.localhost:8000) (Administrator\admin)
