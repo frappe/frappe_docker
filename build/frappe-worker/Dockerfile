@@ -3,6 +3,7 @@ FROM bitnami/python:3.7-prod
 RUN useradd -ms /bin/bash frappe
 
 ARG GIT_BRANCH=develop
+ENV PYTHONUNBUFFERED 1
 
 # Install dependencies
 WORKDIR /home/frappe/frappe-bench
