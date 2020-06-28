@@ -1,12 +1,12 @@
 ARG NODE_IMAGE_TAG=12-prod
+ARG GIT_BRANCH=develop
 FROM bitnami/node:${NODE_IMAGE_TAG}
 
+ARG GIT_BRANCH
 COPY build/erpnext-nginx/install_app.sh /install_app
 
-ARG GIT_BRANCH=develop
 RUN /install_app erpnext https://github.com/frappe/erpnext ${GIT_BRANCH}
 
-ARG GIT_BRANCH=develop
 FROM frappe/frappe-nginx:${GIT_BRANCH}
 
 COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
