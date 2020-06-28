@@ -4,6 +4,7 @@ clean-init:
 
 install:
 	@cd ./frappe-bench && \
+	  bench config restart_supervisor_on_update off && \
 	  bench set-mariadb-host mariadb && \
 	  bench set-redis-cache-host redis-cache:6379 && \
 	  bench set-redis-queue-host redis-queue:6379 && \
