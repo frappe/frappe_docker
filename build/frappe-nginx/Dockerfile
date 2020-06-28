@@ -1,4 +1,5 @@
-FROM bitnami/node:12-prod
+ARG NODE_IMAGE_TAG=12-prod
+FROM bitnami/node:${NODE_IMAGE_TAG}
 
 WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p /home/frappe/frappe-bench/sites \
@@ -6,26 +7,17 @@ RUN mkdir -p /home/frappe/frappe-bench/sites \
 
 RUN install_packages git
 
+ARG GIT_BRANCH=develop
 RUN mkdir -p apps sites/assets/css  \
     && cd apps \
-    && git clone --depth 1 https://github.com/frappe/frappe
+    && git clone --depth 1 https://github.com/frappe/frappe --branch $GIT_BRANCH
 
 COPY build/frappe-nginx/generate_standard_style_css.js \
     /home/frappe/frappe-bench/apps/frappe/generate_standard_style_css.js
 
-RUN cd /home/frappe/frappe-bench/apps/frappe \
-    && yarn \
-    && yarn run production \
-    && yarn add nunjucks -D \
-    && node generate_standard_style_css.js \
-        frappe/website/doctype/website_theme/website_theme_template.scss > \
-        /home/frappe/standard_templates_string \
-    && node generate_bootstrap_theme.js \
-        /home/frappe/frappe-bench/sites/assets/css/standard_style.css \
-        "$(cat /home/frappe/standard_templates_string)" \
-    && rm -fr node_modules \
-    && yarn install --production=true \
-    && node --version \
+COPY build/frappe-nginx/build.sh /build.sh
+RUN /build.sh
+RUN node --version \
     && npm --version \
     && yarn --version
 

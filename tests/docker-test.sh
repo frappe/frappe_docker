@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function checkMigrationComplete() {
-    echo "Check Auto Migration"
+    echo "Check Migration"
     CONTAINER_ID=$(docker-compose \
         --project-name frappebench00 \
         -f installation/docker-compose-common.yml \
@@ -21,6 +21,9 @@ function checkMigrationComplete() {
             exit 1
         fi
     done
+
+    echo -e "\e[4mMigration Log\e[0m"
+    docker logs $CONTAINER_ID
 }
 
 function loopHealthCheck() {
