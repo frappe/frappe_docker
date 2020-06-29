@@ -1,0 +1,14 @@
+LETSENCRYPT_EMAIL=email@example.com
+FRAPPE_VERSION=edge
+POSTGRES_HOST=postgresql
+POSTGRES_PASSWORD=admin
+SITE_NAME=erp.example.com
+SITES=`erp.example.com`
+DB_ROOT_USER=postgres
+ADMIN_PASSWORD=admin
+ENTRYPOINT_LABEL=traefik.http.routers.erpnext-nginx.entrypoints=websecure
+CERT_RESOLVER_LABEL=traefik.http.routers.erpnext-nginx.tls.certresolver=myresolver
+HTTPS_REDIRECT_RULE_LABEL=traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
+HTTPS_REDIRECT_ENTRYPOINT_LABEL=traefik.http.routers.http-catchall.entrypoints=web
+HTTPS_REDIRECT_MIDDLEWARE_LABEL=traefik.http.routers.http-catchall.middlewares=redirect-to-https
+HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL=traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https

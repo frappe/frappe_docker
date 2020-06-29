@@ -10,7 +10,7 @@ from new import get_password
 from push_backup import DATE_FORMAT, check_environment_variables
 from frappe.utils import get_sites, random_string
 from frappe.installer import make_conf, get_conf_params, make_site_dirs, update_site_config
-from check_connection import get_site_config, get_config
+from check_connection import get_site_config, get_config, COMMON_SITE_CONFIG_FILE
 
 
 def list_directories(path):
@@ -40,71 +40,58 @@ def decompress_db(files_base, site):
 
 
 def restore_database(files_base, site_config_path, site):
-    db_root_password = get_password('MYSQL_ROOT_PASSWORD')
-    if not db_root_password:
-        print('Variable MYSQL_ROOT_PASSWORD not set')
-        exit(1)
-
-    db_root_user = os.environ.get("DB_ROOT_USER", 'root')
-
     # restore database
     database_file = files_base + '-database.sql.gz'
     decompress_db(files_base, site)
     config = get_config()
+
+    # Set db_type if it exists in backup site_config.json
+    set_key_in_site_config('db_type', site, site_config_path)
+    # Set db_host if it exists in backup site_config.json
+    set_key_in_site_config('db_host', site, site_config_path)
+    # Set db_port if it exists in backup site_config.json
+    set_key_in_site_config('db_port', site, site_config_path)
+
+    # get updated site_config
     site_config = get_site_config(site)
 
-    # mysql command prefix
-    mysql_command = 'mysql -u{db_root_user} -h{db_host} -p{db_password} -e '.format(
-        db_root_user=db_root_user,
-        db_host=config.get('db_host'),
-        db_password=db_root_password
-    )
+    # if no db_type exists, default to mariadb
+    db_type = site_config.get('db_type', 'mariadb')
+    is_database_restored = False
 
-    # drop db if exists for clean restore
-    drop_database = mysql_command + "\"DROP DATABASE IF EXISTS \`{db_name}\`;\"".format(
-        db_name=site_config.get('db_name')
-    )
-    os.system(drop_database)
+    if db_type == 'mariadb':
+        restore_mariadb(
+            config=config,
+            site_config=site_config,
+            database_file=database_file)
+        is_database_restored = True
+    elif db_type == 'postgres':
+        restore_postgres(
+            config=config,
+            site_config=site_config,
+            database_file=database_file)
+        is_database_restored = True
 
-    # create db
-    create_database = mysql_command + "\"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\"".format(
-        db_name=site_config.get('db_name')
-    )
-    os.system(create_database)
+    if is_database_restored:
+        # Set encryption_key if it exists in backup site_config.json
+        set_key_in_site_config('encryption_key', site, site_config_path)
 
-    # create user
-    create_user = mysql_command + "\"CREATE USER IF NOT EXISTS \'{db_name}\'@\'%\' IDENTIFIED BY \'{db_password}\'; FLUSH PRIVILEGES;\"".format(
-        db_name=site_config.get('db_name'),
-        db_password=site_config.get('db_password')
-    )
-    os.system(create_user)
 
-    # grant db privileges to user
-    grant_privileges = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\"".format(
-        db_name=site_config.get('db_name'),
-        db_password=site_config.get('db_password')
-    )
-    os.system(grant_privileges)
+def set_key_in_site_config(key, site, site_config_path):
+    site_config = get_site_config_from_path(site_config_path)
+    value = site_config.get(key)
+    if value:
+        print('Set {key} in site config for site: {site}'.format(key=key, site=site))
+        update_site_config(key, value,
+                            site_config_path=os.path.join(os.getcwd(), site, "site_config.json"))
 
-    command = "mysql -u{db_root_user} -h{db_host} -p{db_password} '{db_name}' < {database_file}".format(
-        db_root_user=db_root_user,
-        db_host=config.get('db_host'),
-        db_password=db_root_password,
-        db_name=site_config.get('db_name'),
-        database_file=database_file.replace('.gz', ''),
-    )
 
-    print('Restoring database for site: {}'.format(site))
-    os.system(command)
-
+def get_site_config_from_path(site_config_path):
+    site_config = dict()
     if os.path.exists(site_config_path):
         with open(site_config_path, 'r') as sc:
             site_config = json.load(sc)
-        encryption_key = site_config.get("encryption_key")
-        if encryption_key:
-            print('Restoring site config for site: {}'.format(site))
-            update_site_config('encryption_key', encryption_key,
-                               site_config_path=os.path.join(os.getcwd(), site, "site_config.json"))
+    return site_config
 
 
 def restore_files(files_base):
@@ -178,6 +165,121 @@ def pull_backup_from_s3():
     os.chdir(os.path.join(os.path.expanduser('~'), 'frappe-bench', 'sites'))
 
 
+def restore_postgres(config, site_config, database_file):
+    # common config
+    common_site_config_path = os.path.join(os.getcwd(), COMMON_SITE_CONFIG_FILE)
+
+    db_root_user = config.get('root_login')
+    if not db_root_user:
+        postgres_user = os.environ.get('DB_ROOT_USER')
+        if not postgres_user:
+            print('Variable DB_ROOT_USER not set')
+            exit(1)
+
+        db_root_user = postgres_user
+        update_site_config(
+            "root_login",
+            db_root_user,
+            validate=False,
+            site_config_path=common_site_config_path)
+
+    db_root_password = config.get('root_password')
+    if not db_root_password:
+        root_password = get_password('POSTGRES_PASSWORD')
+        if not root_password:
+            print('Variable POSTGRES_PASSWORD not set')
+            exit(1)
+
+        db_root_password = root_password
+        update_site_config(
+            "root_password",
+            db_root_password,
+            validate=False,
+            site_config_path=common_site_config_path)
+
+    # site config
+    db_host = site_config.get('db_host')
+    db_port = site_config.get('db_port', '5432')
+    db_name = site_config.get('db_name')
+    db_password = site_config.get('db_password')
+
+    psql_command = "psql postgres://{root_login}:{root_password}@{db_host}:{db_port}".format(
+        root_login=db_root_user,
+        root_password=db_root_password,
+        db_host=db_host,
+        db_port=db_port
+    )
+
+    print('Restoring PostgreSQL')
+    os.system(psql_command + ' -c "DROP DATABASE IF EXISTS \"{db_name}\""'.format(db_name=db_name))
+    os.system(psql_command + ' -c "DROP USER IF EXISTS {db_name}"'.format(db_name=db_name))
+    os.system(psql_command + ' -c "CREATE DATABASE \"{db_name}\""'.format(db_name=db_name))
+    os.system(psql_command + ' -c "CREATE user {db_name} password \'{db_password}\'"'.format(
+        db_name=db_name,
+        db_password=db_password))
+    os.system(psql_command + ' -c "GRANT ALL PRIVILEGES ON DATABASE \"{db_name}\" TO {db_name}"'.format(
+        db_name=db_name))
+
+    os.system("{psql_command}/{db_name} < {database_file}".format(
+        psql_command=psql_command,
+        database_file=database_file.replace('.gz', ''),
+        db_name=db_name,
+    ))
+
+
+def restore_mariadb(config, site_config, database_file):
+    db_root_password = get_password('MYSQL_ROOT_PASSWORD')
+    if not db_root_password:
+        print('Variable MYSQL_ROOT_PASSWORD not set')
+        exit(1)
+
+    db_root_user = os.environ.get("DB_ROOT_USER", 'root')
+
+    # mysql command prefix
+    mysql_command = 'mysql -u{db_root_user} -h{db_host} -p{db_password} -e '.format(
+        db_root_user=db_root_user,
+        db_host=config.get('db_host'),
+        db_password=db_root_password
+    )
+
+    # drop db if exists for clean restore
+    drop_database = mysql_command + "\"DROP DATABASE IF EXISTS \`{db_name}\`;\"".format(
+        db_name=site_config.get('db_name')
+    )
+    os.system(drop_database)
+
+    # create db
+    create_database = mysql_command + "\"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\"".format(
+        db_name=site_config.get('db_name')
+    )
+    os.system(create_database)
+
+    # create user
+    create_user = mysql_command + "\"CREATE USER IF NOT EXISTS \'{db_name}\'@\'%\' IDENTIFIED BY \'{db_password}\'; FLUSH PRIVILEGES;\"".format(
+        db_name=site_config.get('db_name'),
+        db_password=site_config.get('db_password')
+    )
+    os.system(create_user)
+
+    # grant db privileges to user
+    grant_privileges = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\"".format(
+        db_name=site_config.get('db_name'),
+        db_password=site_config.get('db_password')
+    )
+    os.system(grant_privileges)
+
+    command = "mysql -u{db_root_user} -h{db_host} -p{db_password} '{db_name}' < {database_file}".format(
+        db_root_user=db_root_user,
+        db_host=config.get('db_host'),
+        db_password=db_root_password,
+        db_name=site_config.get('db_name'),
+        database_file=database_file.replace('.gz', ''),
+    )
+
+    print('Restoring MariaDB')
+    os.system(command)
+
+
 def main():
     backup_dir = get_backup_dir()
 
@@ -194,15 +296,11 @@ def main():
         if not os.path.exists(site_config_path):
             site_config_path = os.path.join(backup_dir, site, 'site_config.json')
         if site in get_sites():
+            print('Overwrite site {}'.format(site))
             restore_database(files_base, site_config_path, site)
             restore_private_files(files_base)
             restore_files(files_base)
         else:
-            mariadb_root_password = get_password('MYSQL_ROOT_PASSWORD')
-            if not mariadb_root_password:
-                print('Variable MYSQL_ROOT_PASSWORD not set')
-                exit(1)
-
             site_config = get_conf_params(
                 db_name='_' + hashlib.sha1(site.encode()).hexdigest()[:16],
                 db_password=random_string(16)
@@ -216,9 +314,14 @@ def main():
                 db_password=site_config.get('db_password'),
             )
             make_site_dirs()
+
+            print('Create site {}'.format(site))
             restore_database(files_base, site_config_path, site)
             restore_private_files(files_base)
             restore_files(files_base)
+
+    if frappe.redis_server:
+        frappe.redis_server.connection_pool.disconnect()
 
     exit(0)
 

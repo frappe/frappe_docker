@@ -8,6 +8,7 @@ REDIS_QUEUE_KEY = 'redis_queue'
 REDIS_CACHE_KEY = 'redis_cache'
 REDIS_SOCKETIO_KEY = 'redis_socketio'
 DB_HOST_KEY = 'db_host'
+DB_PORT_KEY = 'db_port'
 DB_PORT = 3306
 
 
@@ -55,14 +56,14 @@ def get_config():
 # Check mariadb
 def check_mariadb(retry=10, delay=3, print_attempt=True):
     config = get_config()
-    check_mariadb = False
-    check_mariadb = check_host(
+    is_db_connected = False
+    is_db_connected = check_host(
         config.get(DB_HOST_KEY, 'mariadb'),
-        DB_PORT,
+        config.get(DB_PORT_KEY, DB_PORT),
         retry,
         delay,
         print_attempt)
-    if not check_mariadb:
+    if not is_db_connected:
         print("Connection to MariaDB timed out")
         exit(1)
 
