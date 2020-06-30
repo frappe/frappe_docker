@@ -104,6 +104,23 @@ This will create a new site and a `mysite.localhost` directory under `frappe-ben
 The option `--no-mariadb-socket` will configure site's database credentials to work with docker.
 You may need to configure your system /etc/hosts if you're on Linux, Mac, or its Windows equivalent.
 
+To setup site with PostgreSQL as database use option `--db-type postgres` and `--db-host postgresql`. (Available only v12 onwards, currently NOT available for ERPNext).
+
+Example:
+
+```shell
+bench new-site mypgsql.localhost --db-type postgres --db-host postgresql
+```
+
+To avoid entering postgresql username and root password, set it in `common_site_config.json`,
+
+```shell
+bench config set-common-config -c root_login postgres
+bench config set-common-config -c root_password '"123"'
+```
+
+Note: If PostgreSQL is not required, the postgresql service / container can be stopped.
+
 ### Set bench developer mode on the new site
 
 To develop a new app, the last step will be setting the site into developer mode. Documentation is available at [this link](https://frappe.io/docs/user/en/guides/app-development/how-enable-developer-mode-in-frappe).

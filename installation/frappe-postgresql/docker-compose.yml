@@ -52,6 +52,7 @@ services:
     restart: on-failure
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
+      - DB_PORT=5432
       - REDIS_CACHE=redis-cache:6379
       - REDIS_QUEUE=redis-queue:6379
       - REDIS_SOCKETIO=redis-socketio:6379
