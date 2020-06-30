@@ -3,16 +3,21 @@ version: "3"
 services:
   traefik:
     image: "traefik:v2.2"
-    command:
-      - "--log.level=DEBUG"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-    labels:
-      # enable traefik
-      - "traefik.enable=true"
     ports:
       - "80:80"
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+    command:
+      - "--log.level=DEBUG"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--providers.docker.swarmmode"
+      - "--accesslog"
+      - "--log"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
@@ -24,20 +29,25 @@ services:
       - FRAPPE_PY_PORT=8000
       - FRAPPE_SOCKETIO=frappe-socketio
       - SOCKETIO_PORT=9000
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.erpnext-nginx.rule=HostRegexp(`{catchall:.*}`)"
-      - "traefik.http.middlewares.erpnext-nginx.headers.customrequestheaders.Host=mysite.localhost"
-      - "traefik.http.routers.erpnext-nginx.middlewares=erpnext-nginx"
-      - "traefik.http.routers.erpnext-nginx.entrypoints=web"
-      - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=80"
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.erpnext-nginx.rule=HostRegexp(`{catchall:.*}`)"
+        - "traefik.http.middlewares.erpnext-nginx.headers.customrequestheaders.Host=mysite.localhost"
+        - "traefik.http.routers.erpnext-nginx.middlewares=erpnext-nginx"
+        - "traefik.http.routers.erpnext-nginx.entrypoints=web"
+        - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=80"
     volumes:
       - sites-vol:/var/www/html/sites:rw
       - assets-vol:/assets:rw
 
   erpnext-python:
     image: frappe/erpnext-worker:edge
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     environment:
       - MARIADB_HOST=mariadb
       - REDIS_CACHE=redis-cache:6379
@@ -51,15 +61,17 @@ services:
 
   frappe-socketio:
     image: frappe/frappe-socketio:edge
-    restart: on-failure
-    depends_on:
-      - redis-socketio
+    deploy:
+      restart_policy:
+        condition: on-failure
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   erpnext-worker-default:
     image: frappe/erpnext-worker:edge
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     command: worker
     depends_on:
       - redis-queue
@@ -69,7 +81,9 @@ services:
 
   erpnext-worker-short:
     image: frappe/erpnext-worker:edge
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     command: worker
     environment:
       - WORKER_TYPE=short
@@ -81,7 +95,9 @@ services:
 
   erpnext-worker-long:
     image: frappe/erpnext-worker:edge
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     command: worker
     environment:
       - WORKER_TYPE=long
@@ -93,7 +109,9 @@ services:
 
   erpnext-schedule:
     image: frappe/erpnext-worker:edge
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     command: schedule
     depends_on:
       - redis-queue
@@ -103,30 +121,42 @@ services:
 
   redis-cache:
     image: redis:latest
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     volumes:
       - redis-cache-vol:/data
 
   redis-queue:
     image: redis:latest
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     volumes:
       - redis-queue-vol:/data
 
   redis-socketio:
     image: redis:latest
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     volumes:
       - redis-socketio-vol:/data
 
   site-configurator:
     image: frappe/erpnext-worker:edge
+    deploy:
+      restart_policy:
+        condition: none
     command: ["bash", "-c", "echo mysite.localhost > /sites/currentsite.txt"]
     volumes:
       - sites-vol:/sites:rw
 
   mariadb-configurator:
     image: mariadb:10.3
+    deploy:
+      restart_policy:
+        condition: none
     command:
       - "bash"
       - "-c"
@@ -147,9 +177,9 @@ services:
 
   mariadb:
     image: mariadb:10.3
-    restart: on-failure
-    depends_on:
-      - mariadb-configurator
+    deploy:
+      restart_policy:
+        condition: on-failure
     environment:
       - MYSQL_ROOT_PASSWORD=admin
     volumes:
@@ -158,10 +188,10 @@ services:
 
   site-creator:
     image: frappe/erpnext-worker:edge
-    restart: "no"
+    deploy:
+      restart_policy:
+        condition: none
     command: new
-    depends_on:
-      - erpnext-python
     environment:
       - SITE_NAME=mysite.localhost
       - DB_ROOT_USER=root

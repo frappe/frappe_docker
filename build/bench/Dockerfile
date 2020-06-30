@@ -85,8 +85,8 @@ RUN bash -c "bench --version"
 # https://nodejs.org/download/release/latest-v10.x/
 # https://nodejs.org/download/release/latest-v12.x/
 # https://nodejs.org/download/release/latest-v13.x/
-ENV NODE_VERSION=12
-ENV NODE_VERSION_FRAPPEV11=10
+ENV NODE_VERSION=12.18.2
+ENV NODE_VERSION_FRAPPEV11=10.21.0
 
 # Install nvm with node
 RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh
@@ -102,9 +102,6 @@ RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}  && npm install -g yarn
 RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
-
-# Install yarn
-RUN npm install -g yarn
 
 # Print version and verify bashrc is properly sourced so that everything works in the Dockerfile
 RUN node --version \
