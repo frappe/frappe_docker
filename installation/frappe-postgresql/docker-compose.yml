@@ -1,0 +1,166 @@
+version: "3"
+
+services:
+  traefik:
+    image: "traefik:v2.2"
+    command:
+      - "--log.level=DEBUG"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    labels:
+      # enable traefik
+      - "traefik.enable=true"
+      # global redirect to https for production only
+      - "${HTTPS_REDIRECT_RULE_LABEL}"
+      - "${HTTPS_REDIRECT_ENTRYPOINT_LABEL}"
+      - "${HTTPS_REDIRECT_MIDDLEWARE_LABEL}"
+      # middleware redirect for production only
+      - "${HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL}"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - cert-vol:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  frappe-nginx:
+    image: frappe/frappe-nginx:${FRAPPE_VERSION}
+    restart: on-failure
+    environment:
+      - FRAPPE_PY=frappe-python
+      - FRAPPE_PY_PORT=8000
+      - FRAPPE_SOCKETIO=frappe-socketio
+      - SOCKETIO_PORT=9000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frappe-nginx.rule=Host(${SITES})"
+      - "${ENTRYPOINT_LABEL}"
+      - "${CERT_RESOLVER_LABEL}"
+      - "traefik.http.services.frappe-nginx.loadbalancer.server.port=80"
+    volumes:
+      - sites-vol:/var/www/html/sites:rw
+      - assets-vol:/assets:rw
+
+  frappe-python:
+    image: frappe/frappe-worker:${FRAPPE_VERSION}
+    restart: on-failure
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - DB_PORT=5432
+      - REDIS_CACHE=redis-cache:6379
+      - REDIS_QUEUE=redis-queue:6379
+      - REDIS_SOCKETIO=redis-socketio:6379
+      - SOCKETIO_PORT=9000
+      - AUTO_MIGRATE=1
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
+
+  frappe-socketio:
+    image: frappe/frappe-socketio:${FRAPPE_VERSION}
+    restart: on-failure
+    depends_on:
+      - redis-socketio
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
+
+  frappe-worker-default:
+    image: frappe/frappe-worker:${FRAPPE_VERSION}
+    restart: on-failure
+    command: worker
+    depends_on:
+      - redis-queue
+      - redis-cache
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
+
+  frappe-worker-short:
+    image: frappe/frappe-worker:${FRAPPE_VERSION}
+    restart: on-failure
+    command: worker
+    environment:
+      - WORKER_TYPE=short
+    depends_on:
+      - redis-queue
+      - redis-cache
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
+
+  frappe-worker-long:
+    image: frappe/frappe-worker:${FRAPPE_VERSION}
+    restart: on-failure
+    command: worker
+    environment:
+      - WORKER_TYPE=long
+    depends_on:
+      - redis-queue
+      - redis-cache
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
+
+  frappe-schedule:
+    image: frappe/frappe-worker:${FRAPPE_VERSION}
+    restart: on-failure
+    command: schedule
+    depends_on:
+      - redis-queue
+      - redis-cache
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
+
+  redis-cache:
+    image: redis:latest
+    restart: on-failure
+    volumes:
+      - redis-cache-vol:/data
+
+  redis-queue:
+    image: redis:latest
+    restart: on-failure
+    volumes:
+      - redis-queue-vol:/data
+
+  redis-socketio:
+    image: redis:latest
+    restart: on-failure
+    volumes:
+      - redis-socketio-vol:/data
+
+  postgresql:
+    image: postgres:11.8
+    restart: on-failure
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql-vol:/var/lib/postgresql/data
+
+  site-creator:
+    image: frappe/frappe-worker:${FRAPPE_VERSION}
+    restart: "no"
+    command: new
+    depends_on:
+      - frappe-python
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - SITE_NAME=${SITE_NAME}
+      - DB_ROOT_USER=${DB_ROOT_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - INSTALL_APPS=${INSTALL_APPS}
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites:rw
+
+volumes:
+  postgresql-vol:
+  redis-cache-vol:
+  redis-queue-vol:
+  redis-socketio-vol:
+  assets-vol:
+  sites-vol:
+  cert-vol:

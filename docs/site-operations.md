@@ -12,9 +12,11 @@ Or specify environment variables instead of passing secrets as command arguments
 
 Note:
 
-- Wait for the MariaDB service to start before trying to create a new site.
+- Wait for the database service to start before trying to create a new site.
     - If new site creation fails, retry after the MariaDB container is up and running.
     - If you're using a managed database instance, make sure that the database is running before setting up a new site.
+
+#### MariaDB Site
 
 ```sh
 # Create ERPNext site
@@ -29,16 +31,44 @@ docker run \
     frappe/erpnext-worker:$VERSION new
 ```
 
+#### PostgreSQL Site
+
+PostgreSQL is only available v12 onwards. It is NOT available for ERPNext.
+It is available as part of `frappe/erpnext-worker`. It inherits from `frappe/frappe-worker`.
+
+```sh
+# Create ERPNext site
+docker run \
+    -e "SITE_NAME=$SITE_NAME" \
+    -e "DB_ROOT_USER=$DB_ROOT_USER" \
+    -e "POSTGRES_HOST=$POSTGRES_HOST" \
+    -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
+    -e "ADMIN_PASSWORD=$ADMIN_PASSWORD" \
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
+    --network <project-name>_default \
+    frappe/erpnext-worker:$VERSION new
+```
+
 Environment Variables needed:
 
 - `SITE_NAME`: name of the new site to create. Site name is domain name that resolves. e.g. `erp.example.com` or `erp.localhost`.
-- `DB_ROOT_USER`: MariaDB Root user.
+- `DB_ROOT_USER`: MariaDB/PostgreSQL Root user.
 - `MYSQL_ROOT_PASSWORD`: In case of the MariaDB docker container use the one set in `MYSQL_ROOT_PASSWORD` in previous steps. In case of a managed database use the appropriate password.
 - `MYSQL_ROOT_PASSWORD_FILE` - When the MariaDB root password is stored using docker secrets.
 - `ADMIN_PASSWORD`: set the administrator password for the new site.
 - `ADMIN_PASSWORD_FILE`: set the administrator password for the new site using docker secrets.
 - `INSTALL_APPS=erpnext`: available only in erpnext-worker and erpnext containers (or other containers with custom apps). Installs ERPNext (and/or the specified apps, comma-delinieated) on this new site.
 - `FORCE=1`: optional variable which force installation of the same site.
+
+Environment Variables for PostgreSQL only:
+
+- `POSTGRES_HOST`: host for PostgreSQL server
+- `POSTGRES_PASSWORD`: Password for `postgres`. The database root user.
+
+Notes:
+
+- To setup existing frappe-bench deployment with default database as PostgreSQL edit the common_site_config.json and set `db_host` to PostgreSQL hostname and `db_port` to PostgreSQL port.
+- To create new frappe-bench deployment with default database as PostgreSQL use `POSTGRES_HOST` and `DB_PORT` environment variables in `erpnext-python` service instead of `MARIADB_HOST`
 
 ## Add sites to proxy
 

@@ -1,0 +1,14 @@
+LETSENCRYPT_EMAIL=email@example.com
+FRAPPE_VERSION=edge
+POSTGRES_HOST=postgresql
+POSTGRES_PASSWORD=admin
+SITE_NAME=mysite.localhost
+SITES=`mysite.localhost`
+DB_ROOT_USER=postgres
+ADMIN_PASSWORD=admin
+ENTRYPOINT_LABEL=traefik.http.routers.erpnext-nginx.entrypoints=web
+CERT_RESOLVER_LABEL=erpnext.local.no-cert-resolver
+HTTPS_REDIRECT_RULE_LABEL=erpnext.local.no-redirect-rule
+HTTPS_REDIRECT_ENTRYPOINT_LABEL=erpnext.local.no-entrypoint
+HTTPS_REDIRECT_MIDDLEWARE_LABEL=erpnext.local.no-middleware
+HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL=erpnext.local-no-redirect-middleware

@@ -3,11 +3,11 @@ import frappe
 import json
 
 from frappe.utils import cint, get_sites
-from check_connection import get_config
+from check_connection import get_config, COMMON_SITE_CONFIG_FILE
 
 
 def save_config(config):
-    with open('common_site_config.json', 'w') as f:
+    with open(COMMON_SITE_CONFIG_FILE, 'w') as f:
         return json.dump(config, f, indent=1, sort_keys=True)
 
 
@@ -48,6 +48,8 @@ def migrate_sites(maintenance_mode=False):
 
 def main():
     migrate_sites()
+    if frappe.redis_server:
+        frappe.redis_server.connection_pool.disconnect()
     exit(0)
 
 
