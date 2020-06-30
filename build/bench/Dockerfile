@@ -6,6 +6,7 @@ RUN install_packages \
     git \
     wkhtmltopdf \
     mariadb-client \
+    postgresql-client \
     gettext-base \
     wget \
     # for PDF
@@ -84,8 +85,8 @@ RUN bash -c "bench --version"
 # https://nodejs.org/download/release/latest-v10.x/
 # https://nodejs.org/download/release/latest-v12.x/
 # https://nodejs.org/download/release/latest-v13.x/
-ENV NODE_VERSION=12.16.3
-ENV NODE_VERSION_FRAPPEV11=10.20.1
+ENV NODE_VERSION=12
+ENV NODE_VERSION_FRAPPEV11=10
 
 # Install nvm with node
 RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh
