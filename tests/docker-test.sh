@@ -59,12 +59,19 @@ docker-compose \
     -f installation/docker-compose-erpnext.yml \
     -f installation/erpnext-publish.yml \
     pull
+docker pull postgres:11.8
 docker-compose \
     --project-name frappebench00 \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
     -f installation/erpnext-publish.yml \
     up -d
+# Start postgres
+docker run --name postgresql -d \
+    -e "POSTGRES_PASSWORD=admin" \
+    -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    --network frappebench00_default \
+    postgres:11.8
 
 loopHealthCheck
 echo -e "\n"
@@ -114,6 +121,47 @@ echo -e "\n"
 
 echo -e "\e[1m\e[4mCheck Migrated Site Index Page\e[0m"
 curl -s http://test.localhost | w3m -T text/html -dump
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCreate new site (pgsql)\e[0m"
+docker run -it \
+    -e "SITE_NAME=pgsql.localhost" \
+    -e "POSTGRES_HOST=postgresql" \
+    -e "DB_ROOT_USER=postgres" \
+    -e "POSTGRES_PASSWORD=admin" \
+    -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    --network frappebench00_default \
+    frappe/erpnext-worker:edge new
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCheck New PGSQL Site\e[0m"
+sleep 3
+RESTORE_STATUS=$(curl -sS http://pgsql.localhost/api/method/version || echo "")
+INCREMENT=0
+while [[ -z "$RESTORE_STATUS" && $INCREMENT -lt 60 ]]; do
+    sleep 1
+    echo -e "\e[1m\e[4mWait for restoration to complete ..."
+    RESTORE_STATUS=$(curl -sS http://pgsql.localhost/api/method/version || echo "")
+    ((INCREMENT=INCREMENT+1))
+    if [[ -z "$RESTORE_STATUS" && $INCREMENT -eq 60 ]]; then
+        CONTAINER_ID=$(docker-compose \
+            --project-name frappebench00 \
+            -f installation/docker-compose-common.yml \
+            -f installation/docker-compose-erpnext.yml \
+            -f installation/erpnext-publish.yml \
+            ps -q erpnext-python)
+        docker logs $CONTAINER_ID
+        exit 1
+    fi
+done
+echo -e "\n"
+
+echo -e "\e[1m\e[4mPing new pgsql site\e[0m"
+echo $RESTORE_STATUS
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCheck New PGSQL Index Page\e[0m"
+curl -s http://pgsql.localhost | w3m -T text/html -dump
 echo -e "\n"
 
 echo -e "\e[1m\e[4mBackup site\e[0m"
@@ -198,7 +246,7 @@ docker run \
     frappe/erpnext-worker:edge restore-backup
 echo -e "\n"
 
-echo -e "\e[1m\e[4mCheck Restored Site\e[0m"
+echo -e "\e[1m\e[4mCheck Restored Site (test)\e[0m"
 sleep 3
 RESTORE_STATUS=$(curl -sS http://test.localhost/api/method/version || echo "")
 INCREMENT=0
@@ -219,12 +267,41 @@ while [[ -z "$RESTORE_STATUS" && $INCREMENT -lt 60 ]]; do
     fi
 done
 
-echo -e "\e[1m\e[4mPing restored site\e[0m"
+echo -e "\e[1m\e[4mPing restored site (test)\e[0m"
 echo $RESTORE_STATUS
 echo -e "\n"
 
-echo -e "\e[1m\e[4mCheck Restored Site Index Page\e[0m"
+echo -e "\e[1m\e[4mCheck Restored Site Index Page (test)\e[0m"
 curl -s http://test.localhost | w3m -T text/html -dump
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCheck Restored Site (pgsql)\e[0m"
+sleep 3
+RESTORE_STATUS=$(curl -sS http://pgsql.localhost/api/method/version || echo "")
+INCREMENT=0
+while [[ -z "$RESTORE_STATUS" && $INCREMENT -lt 60 ]]; do
+    sleep 1
+    echo "Wait for restoration to complete ..."
+    RESTORE_STATUS=$(curl -sS http://pgsql.localhost/api/method/version || echo "")
+    ((INCREMENT=INCREMENT+1))
+    if [[ -z "$RESTORE_STATUS" && $INCREMENT -eq 60 ]]; then
+        CONTAINER_ID=$(docker-compose \
+            --project-name frappebench00 \
+            -f installation/docker-compose-common.yml \
+            -f installation/docker-compose-erpnext.yml \
+            -f installation/erpnext-publish.yml \
+            ps -q erpnext-python)
+        docker logs $CONTAINER_ID
+        exit 1
+    fi
+done
+
+echo -e "\e[1m\e[4mPing restored site (pgsql)\e[0m"
+echo $RESTORE_STATUS
+echo -e "\n"
+
+echo -e "\e[1m\e[4mCheck Restored Site Index Page (pgsql)\e[0m"
+curl -s http://pgsql.localhost | w3m -T text/html -dump
 echo -e "\n"
 
 echo -e "\e[1m\e[4mCreate new site (edge)\e[0m"
@@ -325,3 +402,9 @@ docker run \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
     frappe/erpnext-worker:edge console test.localhost
+
+echo -e "\e[1m\e[4mCheck console command for site pgsql.localhost\e[0m"
+docker run \
+    -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    --network frappebench00_default \
+    frappe/erpnext-worker:edge console pgsql.localhost
