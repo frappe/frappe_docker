@@ -199,7 +199,7 @@ def restore_postgres(config, site_config, database_file):
 
     # site config
     db_host = site_config.get('db_host')
-    db_port = site_config.get('db_port', '5432')
+    db_port = site_config.get('db_port', 5432)
     db_name = site_config.get('db_name')
     db_password = site_config.get('db_password')
 
@@ -235,43 +235,49 @@ def restore_mariadb(config, site_config, database_file):
 
     db_root_user = os.environ.get("DB_ROOT_USER", 'root')
 
+    db_host = site_config.get('db_host', config.get('db_host'))
+    db_port = site_config.get('db_port', config.get('db_port'))
+
     # mysql command prefix
-    mysql_command = 'mysql -u{db_root_user} -h{db_host} -p{db_password} -e '.format(
+    mysql_command = 'mysql -u{db_root_user} -h{db_host} -p{db_password}'.format(
         db_root_user=db_root_user,
-        db_host=config.get('db_host'),
+        db_host=db_host,
+        db_port=db_port,
         db_password=db_root_password
     )
 
     # drop db if exists for clean restore
-    drop_database = mysql_command + "\"DROP DATABASE IF EXISTS \`{db_name}\`;\"".format(
-        db_name=site_config.get('db_name')
+    drop_database = "{mysql_command} -e \"DROP DATABASE IF EXISTS \`{db_name}\`;\"".format(
+        mysql_command=mysql_command,
+        db_name=site_config.get('db_name'),
     )
     os.system(drop_database)
 
     # create db
-    create_database = mysql_command + "\"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\"".format(
-        db_name=site_config.get('db_name')
+    create_database = "{mysql_command} -e \"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\"".format(
+        mysql_command=mysql_command,
+        db_name=site_config.get('db_name'),
     )
     os.system(create_database)
 
     # create user
-    create_user = mysql_command + "\"CREATE USER IF NOT EXISTS \'{db_name}\'@\'%\' IDENTIFIED BY \'{db_password}\'; FLUSH PRIVILEGES;\"".format(
+    create_user = "{mysql_command} -e \"CREATE USER IF NOT EXISTS \'{db_name}\'@\'%\' IDENTIFIED BY \'{db_password}\'; FLUSH PRIVILEGES;\"".format(
+        mysql_command=mysql_command,
         db_name=site_config.get('db_name'),
-        db_password=site_config.get('db_password')
+        db_password=site_config.get('db_password'),
     )
     os.system(create_user)
 
     # grant db privileges to user
-    grant_privileges = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\"".format(
+    grant_privileges = "{mysql_command} -e \"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\"".format(
+        mysql_command=mysql_command,
         db_name=site_config.get('db_name'),
-        db_password=site_config.get('db_password')
+        db_password=site_config.get('db_password'),
     )
     os.system(grant_privileges)
 
-    command = "mysql -u{db_root_user} -h{db_host} -p{db_password} '{db_name}' < {database_file}".format(
-        db_root_user=db_root_user,
-        db_host=config.get('db_host'),
-        db_password=db_root_password,
+    command = "{mysql_command} '{db_name}' < {database_file}".format(
+        mysql_command=mysql_command,
         db_name=site_config.get('db_name'),
         database_file=database_file.replace('.gz', ''),
     )

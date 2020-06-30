@@ -30,10 +30,10 @@ def _get_password_from_secret(env_var):
 
 
 def main():
-    db_type = 'mariadb'
-    db_host = None
-    db_port = None
     config = get_config()
+    db_type = 'mariadb'
+    db_port = config.get('db_port', 3306)
+    db_host = config.get('db_host')
     site_name = os.environ.get("SITE_NAME", 'site1.localhost')
     mariadb_root_username = os.environ.get("DB_ROOT_USER", 'root')
     mariadb_root_password = get_password("MYSQL_ROOT_PASSWORD", 'admin')
@@ -42,8 +42,9 @@ def main():
     if postgres_root_password:
         db_type = 'postgres'
         db_host = os.environ.get("POSTGRES_HOST")
-        db_port = '5432'
+        db_port = 5432
         if not db_host:
+            db_host = config.get('db_host')
             print('Environment variable POSTGRES_HOST not found.')
             print('Using db_host from common_site_config.json')
 
