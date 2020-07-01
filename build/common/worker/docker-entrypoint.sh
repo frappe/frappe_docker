@@ -4,8 +4,10 @@ function configureEnv() {
   if [ ! -f /home/frappe/frappe-bench/sites/common_site_config.json ]; then
 
     if [[ -z "$MARIADB_HOST" ]]; then
-      echo "MARIADB_HOST is not set"
-      exit 1
+      if [[ -z "$POSTGRES_HOST" ]]; then
+        echo "MARIADB_HOST or POSTGRES_HOST is not set"
+        exit 1
+      fi
     fi
 
     if [[ -z "$REDIS_CACHE" ]]; then
@@ -28,7 +30,14 @@ function configureEnv() {
       exit 1
     fi
 
-    envsubst '${MARIADB_HOST}
+    if [[ -z "$DB_PORT" ]]; then
+      export DB_PORT=3306
+    fi
+
+    export DB_HOST="${MARIADB_HOST:-$POSTGRES_HOST}"
+
+    envsubst '${DB_HOST}
+      ${DB_PORT}
       ${REDIS_CACHE}
       ${REDIS_QUEUE}
       ${REDIS_SOCKETIO}

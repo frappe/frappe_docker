@@ -19,7 +19,7 @@ git clone --depth 1 ${APP_REPO} ${BRANCH}
 
 cd /home/frappe/frappe-bench/apps/frappe
 yarn
-yarn production
+yarn production --app ${APP_NAME}
 rm -fr node_modules
 yarn install --production=true
 

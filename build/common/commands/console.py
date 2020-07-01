@@ -24,6 +24,8 @@ def console(site):
 def main():
     site = sys.argv[-1]
     console(site)
+    if frappe.redis_server:
+        frappe.redis_server.connection_pool.disconnect()
 
 
 if __name__ == "__main__":

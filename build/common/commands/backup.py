@@ -28,6 +28,10 @@ def main():
     with_files = cint(os.environ.get("WITH_FILES"))
 
     backup(sites, with_files)
+
+    if frappe.redis_server:
+        frappe.redis_server.connection_pool.disconnect()
+
     exit(0)
 
 

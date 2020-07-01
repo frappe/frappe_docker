@@ -1,11 +1,18 @@
-| Develop | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=master)](https://travis-ci.com/frappe/frappe_docker)  |
+| Develop | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=develop)](https://travis-ci.com/frappe/frappe_docker)  |
 |---------|-----------------------------------------------------------------------------------------------------------------------------|
-| Master  | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=develop)](https://travis-ci.com/frappe/frappe_docker) |
-
+| Master  | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=master)](https://travis-ci.com/frappe/frappe_docker) |
 
 ## Getting Started
 
-## Setting up Pre-requisites
+### Try in Play With Docker
+
+<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/develop/tests/pwd.yml">
+  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
+</a>
+
+Wait for 5 minutes for ERPNext site to be created or check `site-creator` container logs before opening browser on port 80.
+
+### Setting up Pre-requisites
 
 This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
 
