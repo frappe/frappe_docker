@@ -154,7 +154,7 @@ elif [ "$1" = 'migrate' ]; then
 elif [ "$1" = 'doctor' ]; then
 
   su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-    && python /home/frappe/frappe-bench/commands/doctor.py"
+    && python /home/frappe/frappe-bench/commands/doctor.py ${@:2}"
   exit
 
 elif [ "$1" = 'backup' ]; then
