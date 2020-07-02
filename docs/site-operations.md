@@ -196,8 +196,10 @@ For socketio and gunicorn service ping the hostname:port and that will be suffic
 
 ```shell
 docker exec -it <project-name>_erpnext-worker-d \
-    docker-entrypoint.sh doctor -p postgresql-master.pgsql.svc.cluster.local:5432
+docker-entrypoint.sh doctor  -p postgresql:5432 --ping-service mongodb:27017
 ```
+
+Additional services can be pinged as part of health check with option `-p` or `--ping-service`.
 
 This check ensures that given service should be connected along with services in common_site_config.json.
 If connection to service(s) fails, the command fails with exit code 1.
