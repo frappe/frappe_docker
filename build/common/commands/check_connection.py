@@ -53,18 +53,32 @@ def get_config():
     return config
 
 
-# Check mariadb
-def check_mariadb(retry=10, delay=3, print_attempt=True):
+# Check service
+def check_service(
+    retry=10,
+    delay=3,
+    print_attempt=True,
+    service_name=None,
+    service_port=None):
+
     config = get_config()
+    if not service_name:
+        service_name = config.get(DB_HOST_KEY, 'mariadb')
+    if not service_port:
+        service_port = config.get(DB_PORT_KEY, DB_PORT)
+
     is_db_connected = False
     is_db_connected = check_host(
-        config.get(DB_HOST_KEY, 'mariadb'),
-        config.get(DB_PORT_KEY, DB_PORT),
+        service_name,
+        service_port,
         retry,
         delay,
         print_attempt)
     if not is_db_connected:
-        print("Connection to MariaDB timed out")
+        print("Connection to {service_name}:{service_port} timed out".format(
+            service_name=service_name,
+            service_port=service_port,
+        ))
         exit(1)
 
 
@@ -128,7 +142,7 @@ def get_site_config(site_name):
 
 
 def main():
-    check_mariadb()
+    check_service()
     check_redis_queue()
     check_redis_cache()
     check_redis_socketio()
