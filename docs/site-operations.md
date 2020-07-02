@@ -189,3 +189,15 @@ docker run \
 ```
 
 Instead of `alpine` use any image of your choice.
+
+## Health check
+
+For socketio and gunicorn service ping the hostname:port and that will be sufficient. For workers and scheduler, there is a command that needs to be executed.
+
+```shell
+docker exec -it <project-name>_erpnext-worker-d \
+    docker-entrypoint.sh doctor -p postgresql-master.pgsql.svc.cluster.local:5432
+```
+
+This check ensures that given service should be connected along with services in common_site_config.json.
+If connection to service(s) fails, the command fails with exit code 1.

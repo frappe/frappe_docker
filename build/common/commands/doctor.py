@@ -32,9 +32,18 @@ def main():
     print("Redis Queue Connected")
     check_redis_socketio(retry=1, delay=0, print_attempt=False)
     print("Redis SocketIO Connected")
+
     if(args.ping_services):
         for service in args.ping_services:
-            service_name, service_port = service.split(':')
+            service_name = None
+            service_port = None
+
+            try:
+                service_name, service_port = service.split(':')
+            except ValueError:
+                print('Service should be in format host:port, e.g postgres:5432')
+                exit(1)
+
             check_service(
                 retry=1,
                 delay=0,
