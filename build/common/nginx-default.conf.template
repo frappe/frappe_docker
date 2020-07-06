@@ -30,7 +30,7 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Frappe-Site-Name $host;
-        proxy_set_header Origin $http_referer;
+        proxy_set_header Origin $scheme://$http_host;
         proxy_set_header Host $http_host;
 
         proxy_pass http://socketio-server;
