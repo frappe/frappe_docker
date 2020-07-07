@@ -35,7 +35,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.erpnext-nginx.rule=HostRegexp(`{catchall:.*}`)"
-        - "traefik.http.middlewares.erpnext-nginx.headers.customrequestheaders.Host=mysite.localhost"
+        - "traefik.http.middlewares.erpnext-nginx.headers.customrequestheaders.Host=erpnext-nginx"
         - "traefik.http.routers.erpnext-nginx.middlewares=erpnext-nginx"
         - "traefik.http.routers.erpnext-nginx.entrypoints=web"
         - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=80"
@@ -148,7 +148,7 @@ services:
     deploy:
       restart_policy:
         condition: none
-    command: ["bash", "-c", "echo mysite.localhost > /sites/currentsite.txt"]
+    command: ["bash", "-c", "echo erpnext-nginx > /sites/currentsite.txt"]
     volumes:
       - sites-vol:/sites:rw
 
@@ -193,7 +193,7 @@ services:
         condition: none
     command: new
     environment:
-      - SITE_NAME=mysite.localhost
+      - SITE_NAME=erpnext-nginx
       - DB_ROOT_USER=root
       - MYSQL_ROOT_PASSWORD=admin
       - ADMIN_PASSWORD=admin
