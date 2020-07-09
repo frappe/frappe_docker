@@ -5,7 +5,7 @@ import semantic_version
 from frappe.commands.site import _new_site
 from frappe.installer import update_site_config
 from check_connection import get_config, get_site_config, COMMON_SITE_CONFIG_FILE
-from restore_backup import run_command
+from utils import run_command
 
 
 def get_password(env_var, default=None):

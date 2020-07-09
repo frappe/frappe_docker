@@ -1,7 +1,6 @@
 import os
 import datetime
 import json
-import subprocess
 import tarfile
 import hashlib
 import frappe
@@ -9,19 +8,10 @@ import boto3
 
 from new import get_password
 from push_backup import DATE_FORMAT, check_environment_variables
+from utils import run_command
 from frappe.utils import get_sites, random_string
 from frappe.installer import make_conf, get_conf_params, make_site_dirs, update_site_config
 from check_connection import get_site_config, get_config, COMMON_SITE_CONFIG_FILE
-
-
-def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, error = process.communicate()
-    if process.returncode:
-        print("Something went wrong:")
-        print(f"error code: {process.returncode}")
-        print(f"stdout:\n{out}")
-        print(f"\nstderr:\n{error}")
 
 
 def list_directories(path):
