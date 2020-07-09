@@ -209,7 +209,7 @@ def restore_postgres(config, site_config, database_file):
     run_command(psql_command + ["-c ", f"\"CREATE DATABASE \"{db_name}\"\""])
     run_command(psql_command + ["-c", f"\"CREATE user {db_name} password '{db_password}'\""])
     run_command(psql_command + ["-c", f"\"GRANT ALL PRIVILEGES ON DATABASE \"{db_name}\" TO {db_name}\""])
-    run_command([f"{psql_command}/{db_name}", "<", database_file.replace('.gz', '')])
+    run_command(["psql", f"{psql_command[-1]}/{db_name}", "<", database_file.replace('.gz', '')])
 
 
 def restore_mariadb(config, site_config, database_file):
