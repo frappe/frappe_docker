@@ -209,7 +209,8 @@ def restore_postgres(config, site_config, database_file):
     run_command(psql_command + [psql_uri, "-c", f"CREATE DATABASE \"{db_name}\""])
     run_command(psql_command + [psql_uri, "-c", f"CREATE user {db_name} password '{db_password}'"])
     run_command(psql_command + [psql_uri, "-c", f"GRANT ALL PRIVILEGES ON DATABASE \"{db_name}\" TO {db_name}"])
-    run_command(psql_command + [f"{psql_uri}/{db_name}", "<", database_file.replace('.gz', '')])
+    with open(database_file.replace('.gz', ''), 'r') as db_file:
+        run_command(psql_command + [f"{psql_uri}/{db_name}", "<"], stdin=db_file)
 
 
 def restore_mariadb(config, site_config, database_file):
@@ -244,10 +245,9 @@ def restore_mariadb(config, site_config, database_file):
     grant_privileges = mysql_command + ["-e", f"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
     run_command(grant_privileges)
 
-    command = mysql_command + [f"{db_name}", "<", database_file.replace(".gz", "")]
-
     print('Restoring MariaDB')
-    run_command(command)
+    with open(database_file.replace(".gz", ""), "r") as db_file:
+        run_command(mysql_command + [f"{db_name}", "<"], stdin=db_file)
 
 
 def main():
