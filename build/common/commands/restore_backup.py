@@ -29,18 +29,17 @@ def get_backup_dir():
     )
 
 
-def decompress_db(files_base, site):
-    database_file = files_base + '-database.sql.gz'
-    command = ["gunzip", "-c", database_file, ">", database_file.replace(".gz", "")]
-
-    print('Extract Database GZip for site {}'.format(site))
-    run_command(command)
+def decompress_db(database_file, site):
+    command = ["gunzip", "-c", database_file]
+    with open(database_file.replace(".gz", ""), "w") as db_file:
+        print('Extract Database GZip for site {}'.format(site))
+        run_command(command, stdout=db_file)
 
 
 def restore_database(files_base, site_config_path, site):
     # restore database
     database_file = files_base + '-database.sql.gz'
-    decompress_db(files_base, site)
+    decompress_db(database_file, site)
     config = get_config()
 
     # Set db_type if it exists in backup site_config.json
