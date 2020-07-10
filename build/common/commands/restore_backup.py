@@ -247,7 +247,7 @@ def restore_mariadb(config, site_config, database_file):
 
     print('Restoring MariaDB')
     with open(database_file.replace('.gz', ''), 'r') as db_file:
-        run_command(mysql_command + [f"{db_name}", "<"], stdin=db_file)
+        run_command(mysql_command + [f"{db_name}"], stdin=db_file)
 
 
 def main():
