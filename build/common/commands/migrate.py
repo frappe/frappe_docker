@@ -1,14 +1,8 @@
 import os
 import frappe
-import json
 
 from frappe.utils import cint, get_sites
-from check_connection import get_config, COMMON_SITE_CONFIG_FILE
-
-
-def save_config(config):
-    with open(COMMON_SITE_CONFIG_FILE, 'w') as f:
-        return json.dump(config, f, indent=1, sort_keys=True)
+from utils import get_config, save_config
 
 
 def set_maintenance_mode(enable=True):

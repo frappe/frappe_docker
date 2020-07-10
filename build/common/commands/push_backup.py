@@ -5,8 +5,12 @@ import boto3
 import datetime
 from glob import glob
 from frappe.utils import get_sites
-
-DATE_FORMAT = "%Y%m%d_%H%M%S"
+from constants import DATE_FORMAT
+from utils import (
+    get_s3_config,
+    upload_file_to_s3,
+    check_s3_environment_variables,
+)
 
 
 def get_file_ext():
@@ -45,64 +49,11 @@ def get_backup_details(sitename):
     return backup_details
 
 
-def get_s3_config():
-    check_environment_variables()
-    bucket = os.environ.get('BUCKET_NAME')
-
-    conn = boto3.client(
-        's3',
-        region_name=os.environ.get('REGION'),
-        aws_access_key_id=os.environ.get('ACCESS_KEY_ID'),
-        aws_secret_access_key=os.environ.get('SECRET_ACCESS_KEY'),
-        endpoint_url=os.environ.get('ENDPOINT_URL')
-    )
-
-    return conn, bucket
-
-
-def check_environment_variables():
-    if 'BUCKET_NAME' not in os.environ:
-        print('Variable BUCKET_NAME not set')
-        exit(1)
-
-    if 'ACCESS_KEY_ID' not in os.environ:
-        print('Variable ACCESS_KEY_ID not set')
-        exit(1)
-
-    if 'SECRET_ACCESS_KEY' not in os.environ:
-        print('Variable SECRET_ACCESS_KEY not set')
-        exit(1)
-
-    if 'ENDPOINT_URL' not in os.environ:
-        print('Variable ENDPOINT_URL not set')
-        exit(1)
-
-    if 'BUCKET_DIR' not in os.environ:
-        print('Variable BUCKET_DIR not set')
-        exit(1)
-
-    if 'REGION' not in os.environ:
-        print('Variable REGION not set')
-        exit(1)
-
-
-def upload_file_to_s3(filename, folder, conn, bucket):
-
-    destpath = os.path.join(folder, os.path.basename(filename))
-    try:
-        print("Uploading file:", filename)
-        conn.upload_file(filename, bucket, destpath)
-
-    except Exception as e:
-        print("Error uploading: %s" % (e))
-        exit(1)
-
-
 def delete_old_backups(limit, bucket, site_name):
     all_backups = list()
     all_backup_dates = list()
     backup_limit = int(limit)
-    check_environment_variables()
+    check_s3_environment_variables()
     bucket_dir = os.environ.get('BUCKET_DIR')
     oldest_backup_date = None
 

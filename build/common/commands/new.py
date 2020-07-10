@@ -4,30 +4,13 @@ import semantic_version
 
 from frappe.commands.site import _new_site
 from frappe.installer import update_site_config
-from check_connection import get_config, get_site_config, COMMON_SITE_CONFIG_FILE
-from utils import run_command
-
-
-def get_password(env_var, default=None):
-    return os.environ.get(env_var) or _get_password_from_secret(f"{env_var}_FILE") or default
-
-
-def _get_password_from_secret(env_var):
-    """Fetches the secret value from the docker secret file
-    usually located inside /run/secrets/
-    Arguments:
-        env_var {str} -- Name of the environment variable
-        containing the path to the secret file.
-    Returns:
-        [str] -- Secret value
-    """
-    passwd = None
-    secret_file_path = os.environ.get(env_var)
-    if secret_file_path:
-        with open(secret_file_path) as secret_file:
-            passwd = secret_file.read().strip()
-
-    return passwd
+from constants import COMMON_SITE_CONFIG_FILE
+from utils import (
+    run_command,
+    get_config,
+    get_site_config,
+    get_password,
+)
 
 
 def main():
