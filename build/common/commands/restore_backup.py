@@ -1,25 +1,27 @@
 import os
 import datetime
-import json
 import tarfile
 import hashlib
 import frappe
 import boto3
 
-from new import get_password
-from push_backup import DATE_FORMAT, check_environment_variables
-from utils import run_command
 from frappe.utils import get_sites, random_string
-from frappe.installer import make_conf, get_conf_params, make_site_dirs, update_site_config
-from check_connection import get_site_config, get_config, COMMON_SITE_CONFIG_FILE
-
-
-def list_directories(path):
-    directories = []
-    for name in os.listdir(path):
-        if os.path.isdir(os.path.join(path, name)):
-            directories.append(name)
-    return directories
+from frappe.installer import (
+    make_conf,
+    get_conf_params,
+    make_site_dirs,
+    update_site_config
+)
+from constants import COMMON_SITE_CONFIG_FILE, DATE_FORMAT
+from utils import (
+    run_command,
+    list_directories,
+    set_key_in_site_config,
+    get_site_config,
+    get_config,
+    get_password,
+    check_s3_environment_variables,
+)
 
 
 def get_backup_dir():
@@ -74,23 +76,6 @@ def restore_database(files_base, site_config_path, site):
         set_key_in_site_config('encryption_key', site, site_config_path)
 
 
-def set_key_in_site_config(key, site, site_config_path):
-    site_config = get_site_config_from_path(site_config_path)
-    value = site_config.get(key)
-    if value:
-        print('Set {key} in site config for site: {site}'.format(key=key, site=site))
-        update_site_config(key, value,
-                            site_config_path=os.path.join(os.getcwd(), site, "site_config.json"))
-
-
-def get_site_config_from_path(site_config_path):
-    site_config = dict()
-    if os.path.exists(site_config_path):
-        with open(site_config_path, 'r') as sc:
-            site_config = json.load(sc)
-    return site_config
-
-
 def restore_files(files_base):
     public_files = files_base + '-files.tar'
     # extract tar
@@ -107,7 +92,7 @@ def restore_private_files(files_base):
 
 
 def pull_backup_from_s3():
-    check_environment_variables()
+    check_s3_environment_variables()
 
     # https://stackoverflow.com/a/54672690
     s3 = boto3.resource(
