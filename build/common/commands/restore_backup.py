@@ -8,6 +8,7 @@ import boto3
 
 from new import get_password
 from push_backup import DATE_FORMAT, check_environment_variables
+from utils import run_command
 from frappe.utils import get_sites, random_string
 from frappe.installer import make_conf, get_conf_params, make_site_dirs, update_site_config
 from check_connection import get_site_config, get_config, COMMON_SITE_CONFIG_FILE
@@ -28,21 +29,17 @@ def get_backup_dir():
     )
 
 
-def decompress_db(files_base, site):
-    database_file = files_base + '-database.sql.gz'
-    command = 'gunzip -c {database_file} > {database_extract}'.format(
-        database_file=database_file,
-        database_extract=database_file.replace('.gz', '')
-    )
-
-    print('Extract Database GZip for site {}'.format(site))
-    os.system(command)
+def decompress_db(database_file, site):
+    command = ["gunzip", "-c", database_file]
+    with open(database_file.replace(".gz", ""), "w") as db_file:
+        print('Extract Database GZip for site {}'.format(site))
+        run_command(command, stdout=db_file)
 
 
 def restore_database(files_base, site_config_path, site):
     # restore database
     database_file = files_base + '-database.sql.gz'
-    decompress_db(files_base, site)
+    decompress_db(database_file, site)
     config = get_config()
 
     # Set db_type if it exists in backup site_config.json
@@ -203,28 +200,17 @@ def restore_postgres(config, site_config, database_file):
     db_name = site_config.get('db_name')
     db_password = site_config.get('db_password')
 
-    psql_command = "psql postgres://{root_login}:{root_password}@{db_host}:{db_port}".format(
-        root_login=db_root_user,
-        root_password=db_root_password,
-        db_host=db_host,
-        db_port=db_port
-    )
+    psql_command = ["psql"]
+    psql_uri = f"postgres://{db_root_user}:{db_root_password}@{db_host}:{db_port}"
 
     print('Restoring PostgreSQL')
-    os.system(psql_command + ' -c "DROP DATABASE IF EXISTS \"{db_name}\""'.format(db_name=db_name))
-    os.system(psql_command + ' -c "DROP USER IF EXISTS {db_name}"'.format(db_name=db_name))
-    os.system(psql_command + ' -c "CREATE DATABASE \"{db_name}\""'.format(db_name=db_name))
-    os.system(psql_command + ' -c "CREATE user {db_name} password \'{db_password}\'"'.format(
-        db_name=db_name,
-        db_password=db_password))
-    os.system(psql_command + ' -c "GRANT ALL PRIVILEGES ON DATABASE \"{db_name}\" TO {db_name}"'.format(
-        db_name=db_name))
-
-    os.system("{psql_command}/{db_name} < {database_file}".format(
-        psql_command=psql_command,
-        database_file=database_file.replace('.gz', ''),
-        db_name=db_name,
-    ))
+    run_command(psql_command + [psql_uri, "-c", f"DROP DATABASE IF EXISTS \"{db_name}\""])
+    run_command(psql_command + [psql_uri, "-c", f"DROP USER IF EXISTS {db_name}"])
+    run_command(psql_command + [psql_uri, "-c", f"CREATE DATABASE \"{db_name}\""])
+    run_command(psql_command + [psql_uri, "-c", f"CREATE user {db_name} password '{db_password}'"])
+    run_command(psql_command + [psql_uri, "-c", f"GRANT ALL PRIVILEGES ON DATABASE \"{db_name}\" TO {db_name}"])
+    with open(database_file.replace('.gz', ''), 'r') as db_file:
+        run_command(psql_command + [f"{psql_uri}/{db_name}", "<"], stdin=db_file)
 
 
 def restore_mariadb(config, site_config, database_file):
@@ -236,54 +222,32 @@ def restore_mariadb(config, site_config, database_file):
     db_root_user = os.environ.get("DB_ROOT_USER", 'root')
 
     db_host = site_config.get('db_host', config.get('db_host'))
-    db_port = site_config.get('db_port', config.get('db_port'))
+    db_port = site_config.get('db_port', config.get('db_port', 3306))
+    db_name = site_config.get('db_name')
+    db_password = site_config.get('db_password')
 
     # mysql command prefix
-    mysql_command = 'mysql -u{db_root_user} -h{db_host} -p{db_password}'.format(
-        db_root_user=db_root_user,
-        db_host=db_host,
-        db_port=db_port,
-        db_password=db_root_password
-    )
+    mysql_command = ["mysql", f"-u{db_root_user}", f"-h{db_host}", f"-p{db_root_password}", f"-P{db_port}"]
 
     # drop db if exists for clean restore
-    drop_database = "{mysql_command} -e \"DROP DATABASE IF EXISTS \`{db_name}\`;\"".format(
-        mysql_command=mysql_command,
-        db_name=site_config.get('db_name'),
-    )
-    os.system(drop_database)
+    drop_database = mysql_command + ["-e",  f"DROP DATABASE IF EXISTS `{db_name}`;"]
+    run_command(drop_database)
 
     # create db
-    create_database = "{mysql_command} -e \"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\"".format(
-        mysql_command=mysql_command,
-        db_name=site_config.get('db_name'),
-    )
-    os.system(create_database)
+    create_database = mysql_command + ["-e", f"CREATE DATABASE IF NOT EXISTS `{db_name}`;"]
+    run_command(create_database)
 
     # create user
-    create_user = "{mysql_command} -e \"CREATE USER IF NOT EXISTS \'{db_name}\'@\'%\' IDENTIFIED BY \'{db_password}\'; FLUSH PRIVILEGES;\"".format(
-        mysql_command=mysql_command,
-        db_name=site_config.get('db_name'),
-        db_password=site_config.get('db_password'),
-    )
-    os.system(create_user)
+    create_user = mysql_command + ["-e", f"CREATE USER IF NOT EXISTS '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
+    run_command(create_user)
 
     # grant db privileges to user
-    grant_privileges = "{mysql_command} -e \"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\"".format(
-        mysql_command=mysql_command,
-        db_name=site_config.get('db_name'),
-        db_password=site_config.get('db_password'),
-    )
-    os.system(grant_privileges)
-
-    command = "{mysql_command} '{db_name}' < {database_file}".format(
-        mysql_command=mysql_command,
-        db_name=site_config.get('db_name'),
-        database_file=database_file.replace('.gz', ''),
-    )
+    grant_privileges = mysql_command + ["-e", f"GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
+    run_command(grant_privileges)
 
     print('Restoring MariaDB')
-    os.system(command)
+    with open(database_file.replace('.gz', ''), 'r') as db_file:
+        run_command(mysql_command + [f"{db_name}"], stdin=db_file)
 
 
 def main():
