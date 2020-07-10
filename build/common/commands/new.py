@@ -98,15 +98,15 @@ def main():
         mysql_command = ["mysql", f"-h{db_host}", f"-u{mariadb_root_username}", f"-p{mariadb_root_password}", "-e"]
 
         # update User's host to '%' required to connect from any container
-        command = mysql_command + [f"\"UPDATE mysql.user SET Host = '%' where User = '{db_name}'; FLUSH PRIVILEGES;\""]
+        command = mysql_command + [f"UPDATE mysql.user SET Host = '%' where User = '{db_name}'; FLUSH PRIVILEGES;"]
         run_command(command)
 
         # Set db password
-        command = mysql_command + [f"\"ALTER USER '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\""]
+        command = mysql_command + [f"ALTER USER '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
         run_command(command)
 
         # Grant permission to database
-        command = mysql_command + [f"\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\""]
+        command = mysql_command + [f"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;"]
         run_command(command)
 
     if frappe.redis_server:

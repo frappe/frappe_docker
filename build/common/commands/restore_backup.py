@@ -229,22 +229,22 @@ def restore_mariadb(config, site_config, database_file):
     mysql_command = ["mysql", f"-u{db_root_user}", f"-h{db_host}", f"-p{db_root_password}", f"-P{db_port}"]
 
     # drop db if exists for clean restore
-    drop_database = mysql_command + ["-e",  f"\"DROP DATABASE IF EXISTS \`{db_name}\`;\""]
+    drop_database = mysql_command + ["-e",  f"DROP DATABASE IF EXISTS \`{db_name}\`;"]
     run_command(drop_database)
 
     # create db
-    create_database = mysql_command + ["-e", f"\"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;\""]
+    create_database = mysql_command + ["-e", f"CREATE DATABASE IF NOT EXISTS \`{db_name}\`;"]
     run_command(create_database)
 
     # create user
-    create_user = mysql_command + ["-e", f"\"CREATE USER IF NOT EXISTS \'{db_name}\'@\'%\' IDENTIFIED BY \'{db_password}\'; FLUSH PRIVILEGES;\""]
+    create_user = mysql_command + ["-e", f"CREATE USER IF NOT EXISTS \'{db_name}\'@\'%\' IDENTIFIED BY \'{db_password}\'; FLUSH PRIVILEGES;"]
     run_command(create_user)
 
     # grant db privileges to user
-    grant_privileges = mysql_command + ["-e", f"\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\""]
+    grant_privileges = mysql_command + ["-e", f"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
     run_command(grant_privileges)
 
-    command = mysql_command + [f"'{db_name}'", "<", database_file.replace(".gz", "")]
+    command = mysql_command + [f"{db_name}", "<", database_file.replace(".gz", "")]
 
     print('Restoring MariaDB')
     run_command(command)
