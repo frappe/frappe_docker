@@ -200,15 +200,16 @@ def restore_postgres(config, site_config, database_file):
     db_name = site_config.get('db_name')
     db_password = site_config.get('db_password')
 
-    psql_command = ["psql", f"postgres://{db_root_user}:{db_root_password}@{db_host}:{db_port}"]
+    psql_command = ["psql"]
+    psql_uri = f"postgres://{db_root_user}:{db_root_password}@{db_host}:{db_port}"
 
     print('Restoring PostgreSQL')
-    run_command(psql_command + ["-c", f"\"DROP DATABASE IF EXISTS {db_name}\""])
-    run_command(psql_command + ["-c", f"\"DROP USER IF EXISTS {db_name}\""])
-    run_command(psql_command + ["-c ", f"\"CREATE DATABASE {db_name}\""])
-    run_command(psql_command + ["-c", f"\"CREATE user {db_name} password '{db_password}'\""])
-    run_command(psql_command + ["-c", f"\"GRANT ALL PRIVILEGES ON DATABASE \"{db_name}\" TO {db_name}\""])
-    run_command(["psql", f"{psql_command[-1]}/{db_name}", "<", database_file.replace('.gz', '')])
+    run_command(psql_command + [psql_uri, "-c", f"DROP DATABASE IF EXISTS \"{db_name}\""])
+    run_command(psql_command + [psql_uri, "-c", f"DROP USER IF EXISTS {db_name}"])
+    run_command(psql_command + [psql_uri, "-c", f"CREATE DATABASE \"{db_name}\""])
+    run_command(psql_command + [psql_uri, "-c", f"CREATE user {db_name} password '{db_password}'"])
+    run_command(psql_command + [psql_uri, "-c", f"GRANT ALL PRIVILEGES ON DATABASE \"{db_name}\" TO {db_name}"])
+    run_command(psql_command + [f"{psql_uri}/{db_name}", "<", database_file.replace('.gz', '')])
 
 
 def restore_mariadb(config, site_config, database_file):
