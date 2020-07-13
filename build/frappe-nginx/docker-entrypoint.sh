@@ -13,6 +13,8 @@ rsync -a --delete /var/www/html/assets/frappe /assets
 
 chmod -R 755 /assets
 
+touch /var/www/html/sites/.build -r $(ls -td /assets/* | head -n 1)
+
 if [[ -z "$FRAPPE_PY" ]]; then
     export FRAPPE_PY=0.0.0.0
 fi
