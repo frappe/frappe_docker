@@ -1,15 +1,15 @@
 import socket
-import json
 import time
 from six.moves.urllib.parse import urlparse
-
-COMMON_SITE_CONFIG_FILE = 'common_site_config.json'
-REDIS_QUEUE_KEY = 'redis_queue'
-REDIS_CACHE_KEY = 'redis_cache'
-REDIS_SOCKETIO_KEY = 'redis_socketio'
-DB_HOST_KEY = 'db_host'
-DB_PORT_KEY = 'db_port'
-DB_PORT = 3306
+from utils import get_config
+from constants import (
+    REDIS_QUEUE_KEY,
+    REDIS_CACHE_KEY,
+    REDIS_SOCKETIO_KEY,
+    DB_HOST_KEY,
+    DB_PORT_KEY,
+    DB_PORT
+)
 
 
 def is_open(ip, port, timeout=30):
@@ -36,21 +36,6 @@ def check_host(ip, port, retry=10, delay=3, print_attempt=True):
         else:
             time.sleep(delay)
     return ipup
-
-
-# Check connection to servers
-def get_config():
-    config = None
-    try:
-        with open(COMMON_SITE_CONFIG_FILE) as config_file:
-            config = json.load(config_file)
-    except FileNotFoundError as exception:
-        print(exception)
-        exit(1)
-    except Exception:
-        print(COMMON_SITE_CONFIG_FILE+" is not valid")
-        exit(1)
-    return config
 
 
 # Check service
@@ -131,14 +116,6 @@ def check_redis_socketio(retry=10, delay=3, print_attempt=True):
     if not check_redis_socketio:
         print("Connection to redis socketio timed out")
         exit(1)
-
-
-# Get site_config.json
-def get_site_config(site_name):
-    site_config = None
-    with open('{site_name}/site_config.json'.format(site_name=site_name)) as site_config_file:
-        site_config = json.load(site_config_file)
-    return site_config
 
 
 def main():

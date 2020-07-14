@@ -4,29 +4,13 @@ import semantic_version
 
 from frappe.commands.site import _new_site
 from frappe.installer import update_site_config
-from check_connection import get_config, get_site_config, COMMON_SITE_CONFIG_FILE
-
-
-def get_password(env_var, default=None):
-    return os.environ.get(env_var) or _get_password_from_secret(f"{env_var}_FILE") or default
-
-
-def _get_password_from_secret(env_var):
-    """Fetches the secret value from the docker secret file
-    usually located inside /run/secrets/
-    Arguments:
-        env_var {str} -- Name of the environment variable
-        containing the path to the secret file.
-    Returns:
-        [str] -- Secret value
-    """
-    passwd = None
-    secret_file_path = os.environ.get(env_var)
-    if secret_file_path:
-        with open(secret_file_path) as secret_file:
-            passwd = secret_file.read().strip()
-
-    return passwd
+from constants import COMMON_SITE_CONFIG_FILE
+from utils import (
+    run_command,
+    get_config,
+    get_site_config,
+    get_password,
+)
 
 
 def main():
@@ -91,31 +75,26 @@ def main():
 
     if db_type == "mariadb":
         site_config = get_site_config(site_name)
+        db_name = site_config.get('db_name')
+        db_password = site_config.get('db_password')
 
-        mysql_command = 'mysql -h{db_host} -u{mariadb_root_username} -p{mariadb_root_password} -e '.format(
-            db_host=config.get('db_host'),
-            mariadb_root_username=mariadb_root_username,
-            mariadb_root_password=mariadb_root_password
-        )
+        mysql_command = ["mysql", f"-h{db_host}", f"-u{mariadb_root_username}", f"-p{mariadb_root_password}", "-e"]
+
+        # Drop User if exists
+        command = mysql_command + [f"DROP USER IF EXISTS '{db_name}'@'%'; FLUSH PRIVILEGES;"]
+        run_command(command)
 
         # update User's host to '%' required to connect from any container
-        command = mysql_command + "\"UPDATE mysql.user SET Host = '%' where User = '{db_name}'; FLUSH PRIVILEGES;\"".format(
-            db_name=site_config.get('db_name')
-        )
-        os.system(command)
+        command = mysql_command + [f"UPDATE mysql.user SET Host = '%' where User = '{db_name}'; FLUSH PRIVILEGES;"]
+        run_command(command)
 
         # Set db password
-        command = mysql_command + "\"ALTER USER '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;\"".format(
-            db_name=site_config.get('db_name'),
-            db_password=site_config.get('db_password')
-        )
-        os.system(command)
+        command = mysql_command + [f"ALTER USER '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
+        run_command(command)
 
         # Grant permission to database
-        command = mysql_command + "\"GRANT ALL PRIVILEGES ON \`{db_name}\`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;\"".format(
-            db_name=site_config.get('db_name')
-        )
-        os.system(command)
+        command = mysql_command + [f"GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;"]
+        run_command(command)
 
     if frappe.redis_server:
         frappe.redis_server.connection_pool.disconnect()
