@@ -8,3 +8,4 @@ APP_VERSIONS_JSON_FILE = 'app_versions.json'
 APPS_TXT_FILE = 'apps.txt'
 COMMON_SITE_CONFIG_FILE = 'common_site_config.json'
 DATE_FORMAT = "%Y%m%d_%H%M%S"
+RDS_DB = 'rds_db'
