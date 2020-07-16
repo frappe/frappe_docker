@@ -4,7 +4,7 @@ import semantic_version
 
 from frappe.commands.site import _new_site
 from frappe.installer import update_site_config
-from constants import COMMON_SITE_CONFIG_FILE, RDS_DB
+from constants import COMMON_SITE_CONFIG_FILE, RDS_DB, RDS_PRIVILEGES
 from utils import (
     run_command,
     get_config,
@@ -93,13 +93,14 @@ def main():
         run_command(command)
 
         # Grant permission to database
-        command = mysql_command + [f"GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;"]
-        run_command(command)
+        grant_privileges = "ALL PRIVILEGES"
 
         # for Amazon RDS
-        if config.get(RDS_DB) or site_config.get(RDS_DB):
-			command = mysql_command + [f"GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, CREATE TEMPORARY TABLES, CREATE VIEW, EVENT, TRIGGER, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EXECUTE, LOCK TABLES ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;"]
-            run_command(command)
+        if config.get(RDS_DB) or site_config.get(RDS_DB)
+            grant_privileges = RDS_PRIVILEGES
+
+        command = mysql_command + [f"GRANT {grant_privileges} ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;"]
+        run_command(command)
 
     if frappe.redis_server:
         frappe.redis_server.connection_pool.disconnect()
