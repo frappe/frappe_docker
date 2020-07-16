@@ -96,7 +96,7 @@ def main():
         grant_privileges = "ALL PRIVILEGES"
 
         # for Amazon RDS
-        if config.get(RDS_DB) or site_config.get(RDS_DB)
+        if config.get(RDS_DB) or site_config.get(RDS_DB):
             grant_privileges = RDS_PRIVILEGES
 
         command = mysql_command + [f"GRANT {grant_privileges} ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;"]
