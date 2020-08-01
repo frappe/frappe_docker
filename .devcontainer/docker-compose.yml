@@ -9,13 +9,14 @@ services:
       - ../installation/frappe-mariadb.cnf:/etc/mysql/conf.d/frappe.cnf
       - mariadb-vol:/var/lib/mysql
 
-  postgresql:
-    image: postgres:11.8
-    restart: on-failure
-    environment:
-      - POSTGRES_PASSWORD=123
-    volumes:
-      - postgresql-vol:/var/lib/postgresql/data
+  # Enable PostgreSQL only if you use it, see development/README.md for more information.
+  # postgresql:
+  #   image: postgres:11.8
+  #   restart: on-failure
+  #   environment:
+  #     - POSTGRES_PASSWORD=123
+  #   volumes:
+  #     - postgresql-vol:/var/lib/postgresql/data
 
   redis-cache:
     image: redis:alpine
