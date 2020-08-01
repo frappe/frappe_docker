@@ -22,6 +22,12 @@ git clone https://github.com/frappe/frappe_docker.git
 cd frappe_docker
 ```
 
+Copy example devcontainer config from `devcontainer-example` to `.devcontainer`
+
+```shell
+cp -R devcontainer-example .devcontainer
+```
+
 ## Use VSCode Remote Containers extension
 
 For most people getting started with Frappe development, the best solution is to use [VSCode Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
