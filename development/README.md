@@ -24,7 +24,10 @@ cd frappe_docker
 
 ## Use VSCode Remote Containers extension
 
-For most people getting started with Frappe development, the best solution is to use [ VSCode Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+For most people getting started with Frappe development, the best solution is to use [VSCode Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+
+Before opening the folder in container, determine the database that you want to use. The default is MariaDB.
+If you want to use PostgreSQL instead, edit `.devcontainer/docker-compose.yml` and uncomment the section for `postgresql` service, and you may also want to comment `mariadb` as well.
 
 VSCode should automatically inquire you to install the required extensions, that can also be installed manually as follows:
 
