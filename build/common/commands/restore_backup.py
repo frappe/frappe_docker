@@ -12,7 +12,7 @@ from frappe.installer import (
     make_site_dirs,
     update_site_config
 )
-from constants import COMMON_SITE_CONFIG_FILE, DATE_FORMAT
+from constants import COMMON_SITE_CONFIG_FILE, DATE_FORMAT, RDS_DB, RDS_PRIVILEGES
 from utils import (
     run_command,
     list_directories,
@@ -227,8 +227,15 @@ def restore_mariadb(config, site_config, database_file):
     run_command(create_user)
 
     # grant db privileges to user
-    grant_privileges = mysql_command + ["-e", f"GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
-    run_command(grant_privileges)
+
+    grant_privileges = "ALL PRIVILEGES"
+
+    # for Amazon RDS
+    if config.get(RDS_DB) or site_config.get(RDS_DB):
+        grant_privileges = RDS_PRIVILEGES
+
+    grant_privileges_command = mysql_command + ["-e", f"GRANT {grant_privileges} ON `{db_name}`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
+    run_command(grant_privileges_command)
 
     print('Restoring MariaDB')
     with open(database_file.replace('.gz', ''), 'r') as db_file:
