@@ -10,8 +10,6 @@ yarn
 yarn run production
 # Remove this after python container starts using node command
 yarn add nunjucks -D
-# remove this when frappe framework moves this to dependencies from devDependencies
-yarn add node-sass
 
 if [[ "$GIT_BRANCH" =~ ^(version-12|version-11)$ ]]; then
     nodeCleanUp
@@ -23,4 +21,6 @@ else
             /home/frappe/frappe-bench/sites/assets/css/standard_style.css \
             "$(cat /home/frappe/standard_templates_string)"
     nodeCleanUp
+    # remove this when frappe framework moves this to dependencies from devDependencies
+    yarn add node-sass
 fi
