@@ -1,5 +1,14 @@
-ARG NODE_IMAGE_TAG=12-prod
-FROM bitnami/node:${NODE_IMAGE_TAG}
+FROM bitnami/python:3.7-prod
+
+ENV NVM_DIR=/root/.nvm
+ENV NODE_VERSION=12.18.3
+ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+RUN install_packages wget \
+    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh \
+    && chmod +x install.sh \
+    && ./install.sh \
+    && . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} \
+    && nvm use v${NODE_VERSION} && npm install -g yarn
 
 WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p /home/frappe/frappe-bench/sites \

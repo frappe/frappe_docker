@@ -5,7 +5,7 @@ RUN useradd -ms /bin/bash frappe
 ARG GIT_BRANCH=develop
 ENV PYTHONUNBUFFERED 1
 ENV NVM_DIR=/home/frappe/.nvm
-ENV NODE_VERSION=14.7.0
+ENV NODE_VERSION=12.18.3
 ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 # Install dependencies
