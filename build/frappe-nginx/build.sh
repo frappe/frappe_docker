@@ -8,7 +8,8 @@ function nodeCleanUp() {
 cd /home/frappe/frappe-bench/apps/frappe
 yarn
 yarn run production
-yarn add nunjucks node-sass -D
+# remove this when frappe framework moves this to dependencies from devDependencies
+yarn add nunjucks node-sass
 
 if [[ "$GIT_BRANCH" =~ ^(version-12|version-11)$ ]]; then
     nodeCleanUp
