@@ -8,8 +8,10 @@ function nodeCleanUp() {
 cd /home/frappe/frappe-bench/apps/frappe
 yarn
 yarn run production
+# Remove this after python container starts using node command
+yarn add nunjucks -D
 # remove this when frappe framework moves this to dependencies from devDependencies
-yarn add nunjucks node-sass
+yarn add node-sass
 
 if [[ "$GIT_BRANCH" =~ ^(version-12|version-11)$ ]]; then
     nodeCleanUp
