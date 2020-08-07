@@ -71,6 +71,10 @@ fi
 # Allow user process to create files in logs directory
 chown -R frappe:frappe /home/frappe/frappe-bench/logs
 
+# symlink node_modules
+ln -sfn /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
+  /home/frappe/frappe-bench/apps/frappe/node_modules
+
 if [ "$1" = 'start' ]; then
   configureEnv
   checkConnection

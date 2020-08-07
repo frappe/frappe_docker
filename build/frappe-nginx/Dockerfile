@@ -1,5 +1,18 @@
-ARG NODE_IMAGE_TAG=12-prod
-FROM bitnami/node:${NODE_IMAGE_TAG}
+# This image uses nvm and same base image as the worker image.
+# This is done to ensures that node-sass binary remains common.
+# node-sass is required to enable website theme feature used
+# by Website Manager role in Frappe Framework
+FROM bitnami/python:3.7-prod
+
+ENV NVM_DIR=/root/.nvm
+ENV NODE_VERSION=12.18.3
+ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+RUN install_packages wget \
+    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh \
+    && chmod +x install.sh \
+    && ./install.sh \
+    && . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} \
+    && nvm use v${NODE_VERSION} && npm install -g yarn
 
 WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p /home/frappe/frappe-bench/sites \
@@ -11,9 +24,6 @@ ARG GIT_BRANCH=develop
 RUN mkdir -p apps sites/assets/css  \
     && cd apps \
     && git clone --depth 1 https://github.com/frappe/frappe --branch $GIT_BRANCH
-
-COPY build/frappe-nginx/generate_standard_style_css.js \
-    /home/frappe/frappe-bench/apps/frappe/generate_standard_style_css.js
 
 COPY build/frappe-nginx/build.sh /build.sh
 RUN /build.sh
