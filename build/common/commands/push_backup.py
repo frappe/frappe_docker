@@ -17,7 +17,7 @@ def get_file_ext():
     return {
         "database": "-database.sql.gz",
         "private_files": "-private-files.tar",
-        "public_files": "-files.tar",
+        "public_files": "-public-files.tar",
         "site_config": "-site_config_backup.json"
     }
 
