@@ -77,7 +77,7 @@ def restore_database(files_base, site_config_path, site):
 
 
 def restore_files(files_base):
-    public_files = files_base + '-public-files.tar'
+    public_files = files_base + '-files.tar'
     # extract tar
     public_tar = tarfile.open(public_files)
     print('Extracting {}'.format(public_files))
