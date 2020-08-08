@@ -2,6 +2,9 @@ ARG NODE_IMAGE_TAG=12-prod
 ARG GIT_BRANCH=develop
 FROM bitnami/node:${NODE_IMAGE_TAG}
 
+# make it faster (cached layer) for next "/install_app" step
+RUN install_packages git python2
+
 ARG GIT_BRANCH
 COPY build/erpnext-nginx/install_app.sh /install_app
 
