@@ -20,6 +20,8 @@ RUN install_app [custom] https://github.com/[username]/[custom] [branch]
 # Only add the branch if you are using a specific tag or branch.
 ```
 
+**Note:** Replace `https://github.com/[username]/[custom]` above with your custom app's Git repository URL (may include credentials if needed). Your custom app Git repository **must** be named exactly as the custom app's name, and use the same branch name as Frappe/ERPNext branch name that you use.
+
 Create a `Dockerfile` in `./build/[custom]-nginx` with the following content:
 
 ```Dockerfile
@@ -27,7 +29,7 @@ FROM bitnami/node:12-prod
 
 COPY build/[custom]-nginx/install_app.sh /install_app
 
-RUN /install_app [custom] https://github.com/[username]/[custom]
+RUN /install_app [custom] https://github.com/[username]/[custom] [branch]
 
 FROM frappe/erpnext-nginx:edge
 
