@@ -408,3 +408,9 @@ docker run \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
     frappe/erpnext-worker:edge console pgsql.localhost
+
+echo -e "\e[1m\e[4mCheck bench --help\e[0m"
+docker run \
+    -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    --network frappebench00_default \
+    frappe/erpnext-worker:edge bench --help
