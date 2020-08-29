@@ -1,0 +1,19 @@
+#!/home/frappe/frappe-bench/env/bin/python
+
+import subprocess
+import sys
+import os
+
+
+if __name__ == "__main__":
+    bench_dir = os.path.join(os.sep, 'home', 'frappe', 'frappe-bench')
+    sites_dir = os.path.join(bench_dir, 'sites')
+    bench_helper = os.path.join(
+        bench_dir, 'apps', 'frappe',
+        'frappe', 'utils', 'bench_helper.py',
+    )
+    cwd = os.getcwd()
+    os.chdir(sites_dir)
+    subprocess.check_call(
+        [sys.executable, bench_helper, 'frappe'] + sys.argv[1:],
+    )

@@ -57,6 +57,7 @@ USER root
 COPY build/common/commands/* /home/frappe/frappe-bench/commands/
 COPY build/common/common_site_config.json.template /opt/frappe/common_site_config.json.template
 COPY build/common/worker/install_app.sh /usr/local/bin/install_app
+COPY build/common/worker/bench /usr/local/bin/bench
 
 # Setup docker-entrypoint
 COPY build/common/worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
