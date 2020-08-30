@@ -212,6 +212,7 @@ To execute commands using bench helper.
  docker run \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
+    --user frappe \
     frappe/frappe-worker:$VERSION bench --help
 ```
 
@@ -221,7 +222,11 @@ Example command to clear cache
  docker run \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
+    --user frappe \
     frappe/frappe-worker:$VERSION bench --site erp.mysite.com clear-cache
 ```
 
-Use it to install/uninstall custom apps, add system manager user, etc.
+Notes:
+
+- Use it to install/uninstall custom apps, add system manager user, etc.
+- To run the command as non root user add the command option `--user frappe`.
