@@ -23,7 +23,6 @@ services:
 
   erpnext-nginx:
     image: frappe/erpnext-nginx:edge
-    restart: on-failure
     environment:
       - FRAPPE_PY=erpnext-python
       - FRAPPE_PY_PORT=8000
