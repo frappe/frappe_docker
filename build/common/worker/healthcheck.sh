@@ -13,15 +13,15 @@ export REDIS_QUEUE=`cat ./common_site_config.json | awk '/redis_queue/ { gsub(/[
 export REDIS_SOCKETIO=`cat ./common_site_config.json | awk '/redis_socketio/ { gsub(/[",]/,"",$2); print $2}' | tr -d '\n' | sed 's|redis://||g'`
 
 echo "Check $DB_HOST:$DB_PORT"
-wait-for-it.sh $DB_HOST:$DB_PORT -t 1
+wait-for-it $DB_HOST:$DB_PORT -t 1
 echo "Check $REDIS_CACHE"
-wait-for-it.sh $REDIS_CACHE -t 1
+wait-for-it $REDIS_CACHE -t 1
 echo "Check $REDIS_QUEUE"
-wait-for-it.sh $REDIS_QUEUE -t 1
+wait-for-it $REDIS_QUEUE -t 1
 echo "Check $REDIS_SOCKETIO"
-wait-for-it.sh $REDIS_SOCKETIO -t 1
+wait-for-it $REDIS_SOCKETIO -t 1
 
 if [[ "$1" = "-p" ]] || [[ "$1" = "--ping-service" ]]; then
     echo "Check $2"
-    wait-for-it.sh $2 -t 1
+    wait-for-it $2 -t 1
 fi

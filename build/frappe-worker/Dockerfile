@@ -28,6 +28,7 @@ RUN install_packages \
     xfonts-base \
     # For psycopg2
     libpq-dev \
+    wait-for-it \
     && wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
     && dpkg -i wkhtmltox_0.12.5-1.buster_amd64.deb && rm wkhtmltox_0.12.5-1.buster_amd64.deb \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh \
@@ -58,7 +59,6 @@ COPY build/common/commands/* /home/frappe/frappe-bench/commands/
 COPY build/common/common_site_config.json.template /opt/frappe/common_site_config.json.template
 COPY build/common/worker/install_app.sh /usr/local/bin/install_app
 COPY build/common/worker/bench /usr/local/bin/bench
-COPY build/common/worker/wait-for-it.sh /usr/local/bin/wait-for-it.sh
 COPY build/common/worker/healthcheck.sh /usr/local/bin/healthcheck.sh
 
 # Setup docker-entrypoint
