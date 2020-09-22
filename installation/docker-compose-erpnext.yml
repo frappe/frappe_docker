@@ -2,7 +2,7 @@ version: '3'
 
 services:
   erpnext-nginx:
-    image: frappe/erpnext-nginx:${VERSION}
+    image: frappe/erpnext-nginx:${ERPNEXT_VERSION}
     restart: on-failure
     environment:
       - FRAPPE_PY=erpnext-python
@@ -29,7 +29,7 @@ services:
       - assets-vol:/assets:rw
 
   erpnext-python:
-    image: frappe/erpnext-worker:${VERSION}
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     environment:
       - MARIADB_HOST=${MARIADB_HOST}
@@ -43,7 +43,7 @@ services:
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
 
   frappe-socketio:
-    image: frappe/frappe-socketio:${VERSION}
+    image: frappe/frappe-socketio:${FRAPPE_VERSION}
     restart: on-failure
     depends_on:
       - redis-socketio
@@ -53,7 +53,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-default:
-    image: frappe/erpnext-worker:${VERSION}
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     command: worker
     depends_on:
@@ -66,7 +66,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-short:
-    image: frappe/erpnext-worker:${VERSION}
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     command: worker
     environment:
@@ -81,7 +81,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   frappe-worker-long:
-    image: frappe/erpnext-worker:${VERSION}
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     command: worker
     environment:
@@ -96,7 +96,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   frappe-schedule:
-    image: frappe/erpnext-worker:${VERSION}
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     command: schedule
     depends_on:
