@@ -1,4 +1,5 @@
-VERSION=edge
+ERPNEXT_VERSION=edge
+FRAPPE_VERSION=edge
 MARIADB_HOST=mariadb
 MYSQL_ROOT_PASSWORD=admin
 SITES=your.domain.com

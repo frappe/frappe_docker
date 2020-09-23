@@ -46,7 +46,7 @@ services:
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
 
   frappe-socketio:
-    image: frappe/frappe-socketio:${VERSION}
+    image: frappe/frappe-socketio:${FRAPPE_VERSION}
     restart: on-failure
     depends_on:
       - redis-socketio
