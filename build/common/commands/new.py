@@ -80,7 +80,7 @@ def main():
         db_name = site_config.get('db_name')
         db_password = site_config.get('db_password')
 
-        mysql_command = ["mysql", f"-h{db_host}", f"-u{mariadb_root_username}", f"-p{mariadb_root_password}", "-e"]
+        mysql_command = ["mysql", f"-h{db_host}", f"-u{db_root_username}", f"-p{mariadb_root_password}", "-e"]
 
         # Drop User if exists
         command = mysql_command + [f"DROP USER IF EXISTS '{db_name}'@'%'; FLUSH PRIVILEGES;"]
