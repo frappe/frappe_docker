@@ -230,3 +230,44 @@ Notes:
 
 - Use it to install/uninstall custom apps, add system manager user, etc.
 - To run the command as non root user add the command option `--user frappe`.
+
+
+## Delete/Drop Site
+
+#### MariaDB Site
+
+```sh
+# Delete/Drop ERPNext site
+docker run \
+    -e "SITE_NAME=$SITE_NAME" \
+    -e "DB_ROOT_USER=$DB_ROOT_USER" \
+    -e "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
+    --network <project-name>_default \
+    frappe/erpnext-worker:$VERSION drop
+```
+
+#### PostgreSQL Site
+
+```sh
+# Delete/Drop ERPNext site
+docker run \
+    -e "SITE_NAME=$SITE_NAME" \
+    -e "DB_ROOT_USER=$DB_ROOT_USER" \
+    -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
+    --network <project-name>_default \
+    frappe/erpnext-worker:$VERSION drop
+```
+
+Environment Variables needed:
+
+- `SITE_NAME`: name of the site to be deleted. Site name is domain name that resolves. e.g. `erp.example.com` or `erp.localhost`.
+- `DB_ROOT_USER`: MariaDB/PostgreSQL Root user.
+- `MYSQL_ROOT_PASSWORD`: Root User password for MariaDB.
+- `FORCE=1`: optional variable which force deletion of the same site.
+- `NO_BACKUP=1`: option variable to skip the process of taking backup before deleting the site. 
+
+Environment Variables for PostgreSQL only:
+
+- `POSTGRES_PASSWORD`: Password for `postgres`. The database root user.
