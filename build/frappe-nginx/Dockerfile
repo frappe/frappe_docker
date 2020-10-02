@@ -25,8 +25,12 @@ RUN mkdir -p apps sites/assets/css  \
     && cd apps \
     && git clone --depth 1 https://github.com/frappe/frappe --branch $GIT_BRANCH
 
-COPY build/frappe-nginx/build.sh /build.sh
-RUN /build.sh
+RUN cd /home/frappe/frappe-bench/apps/frappe \
+    && yarn \
+    && yarn run production \
+    && rm -fr node_modules \
+    && yarn install --production=true
+
 RUN node --version \
     && npm --version \
     && yarn --version

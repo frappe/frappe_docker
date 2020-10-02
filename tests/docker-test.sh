@@ -347,6 +347,7 @@ echo -e "\e[1m\e[4mMigrate command in edge container\e[0m"
 docker run -it \
     -e "MAINTENANCE_MODE=1" \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    -v frappebench00_assets-vol:/home/frappe/frappe-bench/sites/assets \
     --network frappebench00_default \
     frappe/erpnext-worker:edge migrate
 
