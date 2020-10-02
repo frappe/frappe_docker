@@ -77,7 +77,7 @@ Change `SITES` variable to the list of sites created encapsulated in backtick an
 Reload variables with following command.
 
 ```sh
-docker-compose up --project-name <project-name> -d
+docker-compose --project-name <project-name> up -d
 ```
 
 ## Backup Sites
