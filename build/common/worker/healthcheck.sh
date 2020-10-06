@@ -11,8 +11,19 @@ fi
 
 # Set REDIS host:port
 export REDIS_CACHE=`cat $COMMON_SITE_CONFIG_JSON | awk '/redis_cache/ { gsub(/[",]/,"",$2); print $2}' | tr -d '\n' | sed 's|redis://||g'`
+if [[ "$REDIS_CACHE" == *"/"* ]]; then
+  export REDIS_CACHE=`echo $REDIS_CACHE | cut -f1 -d"/"`
+fi
+
 export REDIS_QUEUE=`cat $COMMON_SITE_CONFIG_JSON | awk '/redis_queue/ { gsub(/[",]/,"",$2); print $2}' | tr -d '\n' | sed 's|redis://||g'`
+if [[ "$REDIS_QUEUE" == *"/"* ]]; then
+  export REDIS_QUEUE=`echo $REDIS_QUEUE | cut -f1 -d"/"`
+fi
+
 export REDIS_SOCKETIO=`cat $COMMON_SITE_CONFIG_JSON | awk '/redis_socketio/ { gsub(/[",]/,"",$2); print $2}' | tr -d '\n' | sed 's|redis://||g'`
+if [[ "$REDIS_SOCKETIO" == *"/"* ]]; then
+  export REDIS_SOCKETIO=`echo $REDIS_SOCKETIO | cut -f1 -d"/"`
+fi
 
 echo "Check $DB_HOST:$DB_PORT"
 wait-for-it $DB_HOST:$DB_PORT -t 1
