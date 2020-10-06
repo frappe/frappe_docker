@@ -347,6 +347,7 @@ echo -e "\e[1m\e[4mMigrate command in edge container\e[0m"
 docker run -it \
     -e "MAINTENANCE_MODE=1" \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    -v frappebench00_assets-vol:/home/frappe/frappe-bench/sites/assets \
     --network frappebench00_default \
     frappe/erpnext-worker:edge migrate
 
@@ -408,6 +409,20 @@ docker run \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
     frappe/erpnext-worker:edge console pgsql.localhost
+
+echo -e "\e[1m\e[4mCheck drop site: test.localhost (mariadb)\e[0m"
+docker run \
+    -e SITE_NAME=test.localhost \
+    -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    --network frappebench00_default \
+    frappe/erpnext-worker:edge drop
+
+echo -e "\e[1m\e[4mCheck drop site: pgsql.localhost (pgsql)\e[0m"
+docker run \
+    -e SITE_NAME=pgsql.localhost \
+    -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
+    --network frappebench00_default \
+    frappe/erpnext-worker:edge drop
 
 echo -e "\e[1m\e[4mCheck bench --help\e[0m"
 docker run \

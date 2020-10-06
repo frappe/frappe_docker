@@ -149,6 +149,18 @@ elif [ "$1" = 'new' ]; then
     python /home/frappe/frappe-bench/commands/new.py
   fi
 
+elif [ "$1" = 'drop' ]; then
+  checkConfigExists
+  checkConnection
+  if [[ -z "$RUN_AS_ROOT" ]]; then
+    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
+      && python /home/frappe/frappe-bench/commands/drop.py"
+    exit
+  else
+    . /home/frappe/frappe-bench/env/bin/activate
+    python /home/frappe/frappe-bench/commands/drop.py
+  fi
+
 elif [ "$1" = 'migrate' ]; then
 
   su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
