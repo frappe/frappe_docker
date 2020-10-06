@@ -116,6 +116,8 @@ def pull_backup_from_s3():
     download_backups = []
 
     for obj in bucket.objects.filter(Prefix=bucket_dir):
+        if obj.get()["ContentType"] == "application/x-directory":
+            continue
         backup_file = obj.key.replace(os.path.join(bucket_dir, ''), '')
         backup_files.append(backup_file)
         site_name, timestamp, backup_type = backup_file.split('/')
