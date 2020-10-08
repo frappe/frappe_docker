@@ -60,5 +60,17 @@
                 "DEV_SERVER": "1"
             }
         },
+        {
+            "name": "Honcho SocketIO Watch Schedule Worker",
+            "type": "python",
+            "request": "launch",
+            "pythonPath": "/usr/bin/python3",
+            "program": "/home/frappe/.local/bin/honcho",
+            "cwd": "${workspaceFolder}/frappe-bench",
+            "console": "internalConsole",
+            "args": [
+                "start", "socketio", "watch", "schedule", "worker_short", "worker_long", "worker_default"
+            ]
+        }
     ]
 }
