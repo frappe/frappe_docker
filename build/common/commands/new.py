@@ -83,25 +83,17 @@ def main():
         mysql_command = ["mysql", f"-h{db_host}", f"-u{db_root_username}", f"-p{mariadb_root_password}", "-e"]
 
         # Drop User if exists
-        command = mysql_command + [f"DROP USER IF EXISTS '{db_name}'@'%'; FLUSH PRIVILEGES;"]
+        command = mysql_command + [f"DROP USER IF EXISTS '{db_name}'; FLUSH PRIVILEGES;"]
         run_command(command)
 
-        # update User's host to '%' required to connect from any container
-        command = mysql_command + [f"UPDATE mysql.user SET Host = '%' where User = '{db_name}'; FLUSH PRIVILEGES;"]
-        run_command(command)
-
-        # Set db password
-        command = mysql_command + [f"ALTER USER '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
-        run_command(command)
-
-        # Grant permission to database
+        # Grant permission to database and set password
         grant_privileges = "ALL PRIVILEGES"
 
         # for Amazon RDS
         if config.get(RDS_DB) or site_config.get(RDS_DB):
             grant_privileges = RDS_PRIVILEGES
 
-        command = mysql_command + [f"GRANT {grant_privileges} ON `{db_name}`.* TO '{db_name}'@'%'; FLUSH PRIVILEGES;"]
+        command = mysql_command + [f"GRANT {grant_privileges} ON `{db_name}`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
         run_command(command)
 
     if frappe.redis_server:
