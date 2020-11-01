@@ -73,7 +73,7 @@ bench set-redis-queue-host redis-queue:6379
 bench set-redis-socketio-host redis-socketio:6379
 ```
 
-### Edit Honcho's Procfile
+### Edit Honcho's Procfile (if you didn't use "--skip-redis-config-generation"" option during bench init)
 
 Honcho is the tool used by Bench to manage all the processes Frappe requires. Usually, these all run in localhost, but in this case, we have external containers for Redis. For this reason, we have to stop Honcho from trying to start Redis processes.
 
