@@ -75,6 +75,8 @@ bench set-redis-socketio-host redis-socketio:6379
 
 ### Edit Honcho's Procfile
 
+Note : With the option '--skip-redis-config-generation' during bench init, this part is no more needed. But at least, take a look to ProcFile to see what going on when bench launch honcho on start
+
 Honcho is the tool used by Bench to manage all the processes Frappe requires. Usually, these all run in localhost, but in this case, we have external containers for Redis. For this reason, we have to stop Honcho from trying to start Redis processes.
 
 Open the Procfile file and remove the three lines containing the configuration from Redis, either by editing manually the file:
@@ -87,8 +89,6 @@ Or running the following command:
 ```shell
 sed -i '/redis/d' ./Procfile
 ```
-
-Note: with the option '--skip-redis-config-generation' during bench init, this part is no more needed. But at least, take a look to ProcFile to see what going on when bench launch honcho on start
 
 ### Create a new site with bench
 
