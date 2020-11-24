@@ -93,7 +93,10 @@ def main():
         if config.get(RDS_DB) or site_config.get(RDS_DB):
             grant_privileges = RDS_PRIVILEGES
 
-        command = mysql_command + [f"GRANT {grant_privileges} ON `{db_name}`.* TO '{db_name}'@'%' IDENTIFIED BY '{db_password}'; FLUSH PRIVILEGES;"]
+        command = mysql_command + [f"\
+            CREATE USER IF NOT EXISTS '{db_name}'@'%' IDENTIFIED BY '{db_password}'; \
+            GRANT {grant_privileges} ON `{db_name}`.* TO '{db_name}'@'%'; \
+            FLUSH PRIVILEGES;"]
         run_command(command)
 
     if frappe.redis_server:
