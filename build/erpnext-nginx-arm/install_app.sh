@@ -10,7 +10,7 @@ mkdir -p /home/frappe/frappe-bench/sites/assets
 cd /home/frappe/frappe-bench
 echo -e "frappe\n${APP_NAME}" > /home/frappe/frappe-bench/sites/apps.txt
 
-install_packages git python2
+# install_packages git python2
 
 mkdir -p apps
 cd apps

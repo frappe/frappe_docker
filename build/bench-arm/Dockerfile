@@ -1,8 +1,8 @@
 # Frappe Bench Dockerfile
-FROM bitnami/minideb:latest
+FROM debian:stable-slim
 LABEL author=frappé
 
-RUN install_packages \
+RUN  apt-get update -y && apt-get install  \
     git \
     wkhtmltopdf \
     mariadb-client \
@@ -49,7 +49,7 @@ RUN install_packages \
     python3-setuptools \
     python3-tk \
     python-virtualenv \
-    less
+    less -y && apt-get clean
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
   && dpkg-reconfigure --frontend=noninteractive locales
@@ -85,7 +85,7 @@ RUN bash -c "bench --version"
 # https://nodejs.org/download/release/latest-v10.x/
 # https://nodejs.org/download/release/latest-v12.x/
 # https://nodejs.org/download/release/latest-v13.x/
-ENV NODE_VERSION=12.18.2
+ENV NODE_VERSION=12.19.1
 ENV NODE_VERSION_FRAPPEV11=10.21.0
 
 # Install nvm with node

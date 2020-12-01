@@ -8,7 +8,7 @@ RUN mkdir -p /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/apps/frap
     && chown -R frappe:frappe /home/frappe
 
 # Download socketio and purge curl package
-COPY build/frappe-socketio/package.json /home/frappe/frappe-bench/apps/frappe
+COPY package.json /home/frappe/frappe-bench/apps/frappe
 ARG GIT_BRANCH=develop
 RUN apt-get update && apt-get install -y curl \
     && cd /home/frappe/frappe-bench/apps/frappe \
@@ -25,7 +25,7 @@ RUN cd /home/frappe/frappe-bench/apps/frappe \
     && npm --version
 
 # Setup docker-entrypoint
-COPY build/frappe-socketio/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 WORKDIR /home/frappe/frappe-bench/sites

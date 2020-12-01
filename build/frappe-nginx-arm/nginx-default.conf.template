@@ -1,0 +1,104 @@
+upstream frappe-server {
+    server ${FRAPPE_PY}:${FRAPPE_PY_PORT} fail_timeout=0;
+}
+
+upstream socketio-server {
+    server ${FRAPPE_SOCKETIO}:${SOCKETIO_PORT} fail_timeout=0;
+}
+
+server {
+    listen 80;
+    server_name $http_host;
+    root /var/www/html;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    location /assets {
+        try_files $uri =404;
+    }
+
+    location ~ ^/protected/(.*) {
+        internal;
+        try_files /sites/$http_host/$1 =404;
+    }
+
+    location /socket.io {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Frappe-Site-Name $host;
+        proxy_set_header Origin $scheme://$http_host;
+        proxy_set_header Host $http_host;
+
+        proxy_pass http://socketio-server;
+    }
+
+    location / {
+        rewrite ^(.+)/$ $1 permanent;
+        rewrite ^(.+)/index\.html$ $1 permanent;
+        rewrite ^(.+)\.html$ $1 permanent;
+
+        location ~ ^/files/.*.(htm|html|svg|xml) {
+                add_header Content-disposition "attachment";
+                try_files /sites/$http_host/public/$uri @webserver;
+        }
+
+        try_files /sites/$http_host/public/$uri @webserver;
+    }
+
+    location @webserver {
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Frappe-Site-Name $host;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Use-X-Accel-Redirect True;
+        proxy_read_timeout 120;
+        proxy_redirect off;
+
+        proxy_pass  http://frappe-server;
+    }
+
+    # error pages
+    error_page 502 /502.html;
+    location /502.html {
+        root /var/www/templates;
+        internal;
+    }
+
+    # optimizations
+    sendfile on;
+    keepalive_timeout 15;
+    client_max_body_size 50m;
+    client_body_buffer_size 16K;
+    client_header_buffer_size 1k;
+
+    # enable gzip compresion
+    # based on https://mattstauffer.co/blog/enabling-gzip-on-nginx-servers-including-laravel-forge
+    gzip on;
+    gzip_http_version 1.1;
+    gzip_comp_level 5;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_vary on;
+    gzip_types
+        application/atom+xml
+        application/javascript
+        application/json
+        application/rss+xml
+        application/vnd.ms-fontobject
+        application/x-font-ttf
+        application/font-woff
+        application/x-web-app-manifest+json
+        application/xhtml+xml
+        application/xml
+        font/opentype
+        image/svg+xml
+        image/x-icon
+        text/css
+        text/plain
+        text/x-component;
+        # text/html is always compressed by HttpGzipModule
+}
