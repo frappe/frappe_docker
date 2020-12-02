@@ -97,6 +97,7 @@ You can create a new site with the following command:
 ```shell
 bench new-site sitename --no-mariadb-socket
 ```
+sitename MUST end with .localhost for trying deployments locally.
 
 for example:
 
