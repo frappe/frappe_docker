@@ -35,7 +35,7 @@ To get started, copy the existing `env-local` or `env-production` file to `.env`
     - Bootstraps a MariaDB container with this value set as the root password. If a managed MariaDB instance is used, there is no need to set the password here.
     - In case of a separately managed database setups, set the value to the database's hostname/IP/domain.
 - `SITE_NAME=erp.example.com`
-    - Creates this site after starting all services and installs ERPNext. Site name is domain name that resolves. e.g. `erp.example.com` or `mysite.localhost`
+    - Creates this site after starting all services and installs ERPNext. Site name must be resolvable by users machines and the ERPnext components.  e.g. `erp.example.com` or `mysite.localhost`.
 - ``SITES=`erp.example.com` ``
     - List of sites that are part of the deployment "bench" Each site is separated by a comma(,) and quoted in backtick (`). By default site created by ``SITE_NAME`` variable is added here.
     - If LetsEncrypt is being setup, make sure that the DNS for all the site's domains correctly point to the current instance.
@@ -81,8 +81,6 @@ Notes:
 - After the site is ready the username is `Administrator` and the password is `$ADMIN_PASSWORD`
 - The local deployment is for testing and REST API development purpose only
 - A complete development environment is available [here](../development)
-- The site names are limited to patterns matching \*.localhost by default
-- Additional site name patterns can be added by editing /etc/hosts of your host machine
 
 ## Docker containers
 
