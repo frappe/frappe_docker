@@ -46,7 +46,7 @@ CMD ["nginx", "-g", "daemon off;"]
 Copy over the `install_app.sh` file from `./build/erpnext-nginx`
 
 ```shell
-cp ./build/erpnext-nginx/install.sh ./build/[custom]-nginx
+cp ./build/erpnext-nginx/install_app.sh ./build/[custom]-nginx
 ```
 
 Open up `./installation/docker-compose-custom.yml` and replace all instances of `[app]` with the name of your app.
