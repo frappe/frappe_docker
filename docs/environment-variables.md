@@ -20,3 +20,7 @@ These variables are set on every container start. Change in these variables will
 - `FRAPPE_SOCKETIO`: SocketIO host to reverse proxy. Default: 0.0.0.0
 - `SOCKETIO_PORT`: SocketIO port to reverse proxy. Default: 9000
 - `HTTP_TIMEOUT`: Nginx http timeout. Default: 120
+
+### frappe-socketio
+
+This container takes configuration from `common_site_config.json` which is already created by erpnext gunicorn container. It doesn't use any environment variables.
