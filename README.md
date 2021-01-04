@@ -42,8 +42,9 @@ It takes care of the following:
     1. [Docker Swarm](docs/docker-swarm.md)
     2. [Kubernetes](https://helm.erpnext.com)
 3. [Site Operations](docs/site-operations.md)
-4. [Custom apps for production](docs/custom-apps-for-production.md)
-5. [Tips for moving deployments](docs/tips-for-moving-deployments.md)
+4. [Environment Variables](docs/environment-variables.md)
+5. [Custom apps for production](docs/custom-apps-for-production.md)
+6. [Tips for moving deployments](docs/tips-for-moving-deployments.md)
 
 ## Development Setup
 
