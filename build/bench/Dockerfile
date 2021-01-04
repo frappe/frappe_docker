@@ -85,8 +85,8 @@ RUN bash -c "bench --version"
 # https://nodejs.org/download/release/latest-v10.x/
 # https://nodejs.org/download/release/latest-v12.x/
 # https://nodejs.org/download/release/latest-v13.x/
-ENV NODE_VERSION=12.18.2
-ENV NODE_VERSION_FRAPPEV11=10.21.0
+ENV NODE_VERSION=12.20.0
+ENV NODE_VERSION_FRAPPEV11=10.23.0
 
 # Install nvm with node
 RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh
