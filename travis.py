@@ -44,7 +44,7 @@ def build(service, tag, image, branch):
         build_args += f' --build-arg NODE_IMAGE_TAG=10-buster-slim'
 
     print(f'Building {service} {image} image')
-    subprocess.run(f'docker build {build_args} -t {service}-{image} -f build/{service}-{image}/Dockerfile .', shell=True)
+    subprocess.run(f'docker buildx build --platform linux/amd64,linux/arm64 --load {build_args} -t {service}-{image} -f build/{service}-{image}/Dockerfile .', shell=True)
     tag_and_push(f'{service}-{image}', tag)
 
 

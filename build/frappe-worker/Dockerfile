@@ -40,6 +40,8 @@ RUN apt-get update -y && apt-get install \
     wait-for-it \
     # For arm64
     gcc -y \
+    && if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
+    && if [ `uname -m` = 'x86_64' ]; then export ARCH=amd64; fi \
     && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \

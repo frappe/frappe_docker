@@ -11,12 +11,25 @@ services:
   - docker
 
 before_install:
+  # Install latest docker (https://www.docker.com/blog/multi-arch-build-what-about-travis)
+  - sudo rm -rf /var/lib/apt/lists/*
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - mkdir -vp ~/.docker/cli-plugins/
+  - curl --silent -L "https://github.com/docker/buildx/releases/download/v0.5.1/buildx-v0.5.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
+  - chmod a+x ~/.docker/cli-plugins/docker-buildx
+  - docker buildx create --use
+
   - if [[ "$BUILD" != "development" ]]; then
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
     sudo apt-get update && sudo apt-get -y install git;
     fi
   - if [[ $BUILD == "development" ]];then
-    sudo apt-get update && sudo apt-get -y install docker-compose;
+    sudo apt-get update && sudo apt-get -y install curl;
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose;
+    sudo chmod +x /usr/local/bin/docker-compose;
     fi
   - chmod u+x ./travis.py
 
