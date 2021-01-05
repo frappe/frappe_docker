@@ -3,7 +3,7 @@ ARG GIT_BRANCH=develop
 FROM node:${NODE_IMAGE_TAG}
 
 ARG GIT_BRANCH
-COPY install_app.sh /install_app
+COPY build/erpnext-nginx/install_app.sh /install_app
 RUN chmod +x /install_app && \
   apt-get update -y && \
   apt-get install build-essential git python2 -y && \
