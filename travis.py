@@ -41,7 +41,7 @@ def git_version(service, version, branch):
 def build(service, tag, image, branch):
     build_args = f'--build-arg GIT_BRANCH={branch}'
     if service == 'nginx' and branch == 'version-11':
-        build_args += f' --build-arg NODE_IMAGE_TAG=10-prod'
+        build_args += f' --build-arg NODE_IMAGE_TAG=10-buster-slim'
 
     print(f'Building {service} {image} image')
     subprocess.run(f'docker build {build_args} -t {service}-{image} -f build/{service}-{image}/Dockerfile .', shell=True)
