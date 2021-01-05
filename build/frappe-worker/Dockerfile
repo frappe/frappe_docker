@@ -1,4 +1,4 @@
-FROM bitnami/python:3.7-prod
+FROM python:3.7-slim-buster
 
 # Add non root user without password
 RUN sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS    -1/' /etc/login.defs \
@@ -13,28 +13,32 @@ ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 # Install dependencies
 WORKDIR /home/frappe/frappe-bench
-RUN install_packages \
+RUN apt-get update -y && apt-get install \
     git \
     mariadb-client \
     postgresql-client \
     gettext-base \
     wget \
     # for PDF
+    fonts-cantarell \
+    libffi-dev \
+    libjpeg-dev \
     libjpeg62-turbo \
-    libx11-6 \
     libxcb1 \
     libxext6 \
+    libx11-6 \
+    libxml2 \
     libxrender1 \
     libssl-dev \
-    fonts-cantarell \
     xfonts-75dpi \
     xfonts-base \
+    zlib1g-dev \
     # For psycopg2
     libpq-dev \
-    wait-for-it \
-    && wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
-    && dpkg -i wkhtmltox_0.12.5-1.buster_amd64.deb && rm wkhtmltox_0.12.5-1.buster_amd64.deb \
-    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh \
+    wait-for-it -y \
+    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_arm64.deb \
+    && dpkg -i wkhtmltox_0.12.6-1.buster_arm64.deb && rm wkhtmltox_0.12.6-1.buster_arm64.deb \
+    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
     && apt-get purge -y wget && apt-get autoremove -y \
     && chown -R frappe:frappe /home/frappe
 
