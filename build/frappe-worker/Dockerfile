@@ -37,7 +37,9 @@ RUN apt-get update -y && apt-get install \
     zlib1g-dev \
     # For psycopg2
     libpq-dev \
-    wait-for-it -y \
+    wait-for-it \
+    # For arm64
+    gcc -y \
     && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
