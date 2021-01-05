@@ -5,7 +5,7 @@
 FROM bitnami/python:3.7-prod
 
 ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=12.18.3
+ENV NODE_VERSION=12.20.0
 ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN install_packages wget \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh \

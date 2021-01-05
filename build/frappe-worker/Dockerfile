@@ -1,11 +1,14 @@
 FROM bitnami/python:3.7-prod
 
-RUN useradd -ms /bin/bash frappe
+# Add non root user without password
+RUN sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS    -1/' /etc/login.defs \
+    && sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS    -1/' /etc/login.defs \
+    && useradd -ms /bin/bash frappe
 
 ARG GIT_BRANCH=develop
 ENV PYTHONUNBUFFERED 1
 ENV NVM_DIR=/home/frappe/.nvm
-ENV NODE_VERSION=12.18.3
+ENV NODE_VERSION=12.20.0
 ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 # Install dependencies
