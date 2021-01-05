@@ -6,6 +6,7 @@ RUN sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS    -1/' /etc/login.defs \
     && useradd -ms /bin/bash frappe
 
 ARG GIT_BRANCH=develop
+ARG ARCH=amd64
 ENV PYTHONUNBUFFERED 1
 ENV NVM_DIR=/home/frappe/.nvm
 ENV NODE_VERSION=12.20.0
@@ -19,6 +20,7 @@ RUN apt-get update -y && apt-get install \
     postgresql-client \
     gettext-base \
     wget \
+    curl \
     # for PDF
     fonts-cantarell \
     libffi-dev \
@@ -36,8 +38,8 @@ RUN apt-get update -y && apt-get install \
     # For psycopg2
     libpq-dev \
     wait-for-it -y \
-    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_arm64.deb \
-    && dpkg -i wkhtmltox_0.12.6-1.buster_arm64.deb && rm wkhtmltox_0.12.6-1.buster_arm64.deb \
+    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
+    && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
     && apt-get purge -y wget && apt-get autoremove -y \
     && chown -R frappe:frappe /home/frappe
