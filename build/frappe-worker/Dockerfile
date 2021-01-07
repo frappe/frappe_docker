@@ -1,10 +1,11 @@
-FROM python:3.7-slim-buster
+FROM bitnami/python:3.7-prod
 
 # Add non root user without password
-RUN useradd -ms /bin/bash frappe
+RUN sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS    -1/' /etc/login.defs \
+    && sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS    -1/' /etc/login.defs \
+    && useradd -ms /bin/bash frappe
 
 ARG GIT_BRANCH=develop
-ARG ARCH=amd64
 ENV PYTHONUNBUFFERED 1
 ENV NVM_DIR=/home/frappe/.nvm
 ENV NODE_VERSION=12.20.0
@@ -12,38 +13,29 @@ ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 # Install dependencies
 WORKDIR /home/frappe/frappe-bench
-RUN apt-get update -y && apt-get install \
+RUN install_packages \
     git \
     mariadb-client \
     postgresql-client \
     gettext-base \
     wget \
     # for PDF
-    fonts-cantarell \
-    libffi-dev \
-    libjpeg-dev \
     libjpeg62-turbo \
+    libx11-6 \
     libxcb1 \
     libxext6 \
-    libx11-6 \
-    libxml2 \
     libxrender1 \
     libssl-dev \
+    fonts-cantarell \
     xfonts-75dpi \
     xfonts-base \
-    zlib1g-dev \
     # For psycopg2
     libpq-dev \
     wait-for-it \
-    # For arm64
-    gcc \
-    g++ -y \
-    # Detect arch, download and install wkhtmltox
-    && if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
-    && if [ `uname -m` = 'x86_64' ]; then export ARCH=amd64; fi \
-    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
-    && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
-    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
+    && wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
+    && dpkg -i wkhtmltox_0.12.5-1.buster_amd64.deb && rm wkhtmltox_0.12.5-1.buster_amd64.deb \
+    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh \
+    && apt-get purge -y wget && apt-get autoremove -y \
     && chown -R frappe:frappe /home/frappe
 
 USER frappe
