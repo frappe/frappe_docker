@@ -29,7 +29,6 @@ RUN mkdir -p apps sites/assets/css  \
 RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn \
     && yarn run production \
-    && rm -fr node_modules \
     && yarn install --production=true
 
 RUN node --version \

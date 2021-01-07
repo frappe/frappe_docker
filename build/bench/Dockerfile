@@ -1,5 +1,5 @@
 # Frappe Bench Dockerfile
-FROM debian:stable-slim
+FROM debian:buster-slim
 LABEL author=frappé
 
 RUN apt-get update -y && apt-get install  \
@@ -56,9 +56,11 @@ RUN apt-get update -y && apt-get install  \
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
   && dpkg-reconfigure --frontend=noninteractive locales
 
-# Install wkhtmltox correctly
-RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb
-RUN dpkg -i wkhtmltox_0.12.5-1.buster_amd64.deb && rm wkhtmltox_0.12.5-1.buster_amd64.deb
+# Detect arch, download and install wkhtmltox
+RUN if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
+    && if [ `uname -m` = 'x86_64' ]; then export ARCH=amd64; fi \
+    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
+    && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb
 
 # Create new user with home directory, improve docker compatibility with UID/GID 1000, add user to sudo group, allow passwordless sudo, switch to that user and change directory to user home directory
 RUN groupadd -g 1000 frappe

@@ -18,7 +18,6 @@ git clone --depth 1 ${APP_REPO} ${BRANCH} ${APP_NAME}
 cd /home/frappe/frappe-bench/apps/frappe
 yarn
 yarn production --app ${APP_NAME}
-rm -fr node_modules
 yarn install --production=true
 yarn add node-sass
 

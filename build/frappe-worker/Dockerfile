@@ -1,9 +1,7 @@
 FROM python:3.7-slim-buster
 
 # Add non root user without password
-RUN sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS    -1/' /etc/login.defs \
-    && sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS    -1/' /etc/login.defs \
-    && useradd -ms /bin/bash frappe
+RUN useradd -ms /bin/bash frappe
 
 ARG GIT_BRANCH=develop
 ARG ARCH=amd64
@@ -20,7 +18,6 @@ RUN apt-get update -y && apt-get install \
     postgresql-client \
     gettext-base \
     wget \
-    curl \
     # for PDF
     fonts-cantarell \
     libffi-dev \
@@ -39,13 +36,14 @@ RUN apt-get update -y && apt-get install \
     libpq-dev \
     wait-for-it \
     # For arm64
-    gcc -y \
+    gcc \
+    g++ -y \
+    # Detect arch, download and install wkhtmltox
     && if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
     && if [ `uname -m` = 'x86_64' ]; then export ARCH=amd64; fi \
     && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
-    && apt-get purge -y wget && apt-get autoremove -y \
     && chown -R frappe:frappe /home/frappe
 
 USER frappe
