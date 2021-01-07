@@ -1,4 +1,4 @@
-FROM node:buster-slim
+FROM node:slim
 
 # Add frappe user
 RUN useradd -ms /bin/bash frappe
