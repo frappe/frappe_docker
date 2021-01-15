@@ -31,12 +31,15 @@ if [[ -z "$SOCKETIO_PORT" ]]; then
     export SOCKETIO_PORT=9000
 fi
 
-envsubst '${API_HOST}
-    ${API_PORT}
-    ${FRAPPE_PY}
+if [[ -z "$HTTP_TIMEOUT" ]]; then
+    export HTTP_TIMEOUT=120
+fi
+
+envsubst '${FRAPPE_PY}
     ${FRAPPE_PY_PORT}
     ${FRAPPE_SOCKETIO}
-    ${SOCKETIO_PORT}' \
+    ${SOCKETIO_PORT}
+    ${HTTP_TIMEOUT}' \
     < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 echo "Waiting for frappe-python to be available on $FRAPPE_PY port $FRAPPE_PY_PORT"

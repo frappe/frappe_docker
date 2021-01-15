@@ -55,7 +55,7 @@ server {
         proxy_set_header X-Frappe-Site-Name $host;
         proxy_set_header Host $http_host;
         proxy_set_header X-Use-X-Accel-Redirect True;
-        proxy_read_timeout 120;
+        proxy_read_timeout ${HTTP_TIMEOUT};
         proxy_redirect off;
 
         proxy_pass  http://frappe-server;
