@@ -1,8 +1,8 @@
 # Frappe Bench Dockerfile
-FROM bitnami/minideb:latest
+FROM debian:buster-slim
 LABEL author=frappé
 
-RUN install_packages \
+RUN apt-get update -y && apt-get install  \
     git \
     wkhtmltopdf \
     mariadb-client \
@@ -49,14 +49,18 @@ RUN install_packages \
     python3-setuptools \
     python3-tk \
     python-virtualenv \
-    less
+    less -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
   && dpkg-reconfigure --frontend=noninteractive locales
 
-# Install wkhtmltox correctly
-RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb
-RUN dpkg -i wkhtmltox_0.12.5-1.buster_amd64.deb && rm wkhtmltox_0.12.5-1.buster_amd64.deb
+# Detect arch, download and install wkhtmltox
+RUN if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
+    && if [ `uname -m` = 'x86_64' ]; then export ARCH=amd64; fi \
+    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
+    && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb
 
 # Create new user with home directory, improve docker compatibility with UID/GID 1000, add user to sudo group, allow passwordless sudo, switch to that user and change directory to user home directory
 RUN groupadd -g 1000 frappe
@@ -89,7 +93,7 @@ ENV NODE_VERSION=12.20.0
 ENV NODE_VERSION_FRAPPEV11=10.23.0
 
 # Install nvm with node
-RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh
+RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh
 RUN chmod +x install.sh
 RUN ./install.sh
 ENV NVM_DIR=/home/frappe/.nvm
