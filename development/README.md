@@ -18,8 +18,22 @@ It is recommended you allocate at least 4GB of RAM to docker:
 Clone and change directory to frappe_docker directory
 
 ```shell
-git clone https://github.com/frappe/frappe_docker.git
+git clone https://github.com/GraficheAquilane2021/frappe_docker.git
 cd frappe_docker
+```
+
+Change mariadb config file permission or not work when docker is mounted
+
+```shell
+cd installation/
+chmod 0444 frappe-mariadb.cnf
+```
+
+Copy docker environment global variable - you must change it
+
+```shell
+cd ..
+cp env-local .env
 ```
 
 Copy example devcontainer config from `devcontainer-example` to `.devcontainer`
@@ -102,17 +116,17 @@ sitename MUST end with .localhost for trying deployments locally.
 for example:
 
 ```shell
-bench new-site mysite.localhost --no-mariadb-socket
+bench new-site erpnext.localhost --no-mariadb-socket
 ```
 
 The same command can be run non-interactively as well:
 
 ```shell
-bench new-site mysite.localhost --mariadb-root-password 123 --admin-password admin --no-mariadb-socket
+bench new-site erpnext.localhost --mariadb-root-password 123 --admin-password admin --no-mariadb-socket
 ```
 
 The command will ask the MariaDB root password. The default root password is `123`.
-This will create a new site and a `mysite.localhost` directory under `frappe-bench/sites`.
+This will create a new site and a `erpnext.localhost` directory under `frappe-bench/sites`.
 The option `--no-mariadb-socket` will configure site's database credentials to work with docker.
 You may need to configure your system /etc/hosts if you're on Linux, Mac, or its Windows equivalent.
 
@@ -138,8 +152,8 @@ Note: If PostgreSQL is not required, the postgresql service / container can be s
 To develop a new app, the last step will be setting the site into developer mode. Documentation is available at [this link](https://frappe.io/docs/user/en/guides/app-development/how-enable-developer-mode-in-frappe).
 
 ```shell
-bench --site mysite.localhost set-config developer_mode 1
-bench --site mysite.localhost clear-cache
+bench --site erpnext.localhost set-config developer_mode 1
+bench --site erpnext.localhost clear-cache
 ```
 
 ### Install an app
@@ -159,8 +173,8 @@ bench --site mysite.localhost install-app myapp
 To install ERPNext (from the version-12 branch):
 
 ```shell
-bench get-app --branch version-12 erpnext https://github.com/frappe/erpnext.git
-bench --site mysite.localhost install-app erpnext
+bench get-app --branch version-12 erpnext https://github.com/GraficheAquilane2021/erpnext.git
+bench --site erpnext.localhost install-app erpnext
 ```
 
 Note: Both frappe and erpnext must be on branch with same name. e.g. version-12
@@ -174,7 +188,7 @@ bench start
 ```
 
 You can now login with user `Administrator` and the password you choose when creating the site.
-Your website will now be accessible at location [mysite.localhost:8000](http://mysite.localhost:8000)
+Your website will now be accessible at location [erpnext.localhost:8000](http://erpnext.localhost:8000)
 Note: To start bench with debugger refer section for debugging.
 
 ### Start Frappe with Visual Studio Code Python Debugging
@@ -211,7 +225,7 @@ To debug workers, skip starting worker with honcho and start it with VSCode debu
 You can launch a simple interactive shell console in the terminal with:
 
 ```shell
-bench --site mysite.localhost console
+bench --site erpnext.localhost console
 ```
 
 More likely, you may want to launch VSCode interactive console based on Jupyter kernel.
@@ -226,11 +240,11 @@ The first step is installing and updating the required software. Usually the fra
 
 Then, run the commmand `Python: Show Python interactive window` from the VSCode command palette.
 
-Replace `mysite.localhost` with your site and run the following code in a Jupyter cell:
+Replace `erpnext.localhost` with your site and run the following code in a Jupyter cell:
 
 ```python
 import frappe
-frappe.init(site='mysite.localhost', sites_path='/workspace/development/frappe-bench/sites')
+frappe.init(site='erpnext.localhost', sites_path='/workspace/development/frappe-bench/sites')
 frappe.connect()
 frappe.local.lang = frappe.db.get_default('lang')
 frappe.db.connect()
