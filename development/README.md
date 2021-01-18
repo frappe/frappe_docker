@@ -72,7 +72,8 @@ Notes:
 Run the following commands in the terminal inside the container. You might need to create a new terminal in VSCode.
 
 ```shell
-bench init --skip-redis-config-generation --frappe-branch version-12 frappe-bench
+bench init --skip-redis-config-generation --frappe-path https://github.com/GraficheAquilane2021/frappe --frappe-branch version-12 frappe-bench
+#bench init --skip-redis-config-generation --frappe-branch version-12 frappe-bench
 cd frappe-bench
 ```
 
