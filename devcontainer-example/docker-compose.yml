@@ -5,6 +5,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=123
       - MYSQL_USER=root
+    ports: 
+      - "3306:3306"
     volumes:
       - ../installation/frappe-mariadb.cnf:/etc/mysql/conf.d/frappe.cnf
       - mariadb-vol:/var/lib/mysql
