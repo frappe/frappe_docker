@@ -56,7 +56,7 @@ RUN bash install.sh \
     && nvm alias default v${NODE_VERSION}
 
 # Create frappe-bench directories
-RUN mkdir -p apps logs commands /home/frappe/backups
+RUN mkdir -p apps logs commands sites /home/frappe/backups
 
 # Setup python environment
 RUN python -m venv env \
