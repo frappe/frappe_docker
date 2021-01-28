@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   mariadb:
-    image: mariadb:10.3
+    image: graficheaquilane/mariadb:10.3
     environment:
       - MYSQL_ROOT_PASSWORD=123
       - MYSQL_USER=root
@@ -21,16 +21,16 @@ services:
   #     - postgresql-vol:/var/lib/postgresql/data
 
   redis-cache:
-    image: redis:alpine
+    image: graficheaquilane/redis:alpine
 
   redis-queue:
-    image: redis:alpine
+    image: graficheaquilane/redis:alpine
 
   redis-socketio:
-    image: redis:alpine
+    image: graficheaquilane/redis:alpine
 
   frappe:
-    image: frappe/bench:latest
+    image: graficheaquilane/bench:v_0.02
     command: sleep infinity
     volumes:
       - ..:/workspace:cached
