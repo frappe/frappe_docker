@@ -1,5 +1,5 @@
 # Frappe Bench Dockerfile
-FROM bitnami/minideb:latest
+FROM graficheaquilane/minideb:latest
 LABEL author=frappé
 
 RUN install_packages \
@@ -55,7 +55,7 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
   && dpkg-reconfigure --frontend=noninteractive locales
 
 # Install wkhtmltox correctly
-RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb
+RUN wget https://github.com/GraficheAquilane2021/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb
 RUN dpkg -i wkhtmltox_0.12.5-1.buster_amd64.deb && rm wkhtmltox_0.12.5-1.buster_amd64.deb
 
 # Create new user with home directory, improve docker compatibility with UID/GID 1000, add user to sudo group, allow passwordless sudo, switch to that user and change directory to user home directory
@@ -67,7 +67,7 @@ WORKDIR /home/frappe
 
 # Clone and install bench in the local user home directory
 # For development, bench source is located in ~/.bench
-RUN git clone https://github.com/frappe/bench.git .bench \
+RUN git clone https://github.com/GraficheAquilane2021/bench.git .bench \
     && pip3 install --user -e .bench
 
 # Export python executables for Dockerfile

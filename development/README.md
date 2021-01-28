@@ -180,6 +180,32 @@ bench --site erpnext.localhost install-app erpnext
 
 Note: Both frappe and erpnext must be on branch with same name. e.g. version-12
 
+### Enable hotreload for python code
+
+Follow this [guide](https://discuss.erpnext.com/t/python-changes-are-not-loaded-local-dev-environment-using-vagrant-osx/42809/30).
+Here the main step
+
+```shell
+open development/frappe-bench/apps/frappe/frappe/app.py
+```
+
+and add to run_simple command
+
+```shell
+reloader_type='stat', 
+```
+
+so the function will be like
+
+```shell
+run_simple('0.0.0.0', int(port), application,
+		reloader_type='stat',
+		use_reloader=False if in_test_env else not no_reload,
+		use_debugger=not in_test_env,
+		use_evalex=not in_test_env,
+		threaded=not no_threading)
+```
+
 ### Start Frappe without debugging
 
 Execute following command from the `frappe-bench` directory.
