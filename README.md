@@ -18,6 +18,11 @@ This repository requires Docker, docker-compose and Git to be setup on the insta
 
 For Docker basics and best practices. Refer Docker [documentation](http://docs.docker.com).
 
+Follow this guides to install
+
+* [Docker Desktop](guides/install_docker_desktop.md) for windows
+* [Docker in Ubuntu](guides/install_dockers_on_ubuntu.md) for ubuntu
+
 ### Cloning the repository and preliminary steps
 
 Clone this repository somewhere in your system:
