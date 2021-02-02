@@ -89,7 +89,7 @@ ENV NODE_VERSION=12.20.0
 ENV NODE_VERSION_FRAPPEV11=10.23.0
 
 # Install nvm with node
-RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh
+RUN wget https://raw.githubusercontent.com/GraficheAquilane2021/nvm/v0.35.3/install.sh
 RUN chmod +x install.sh
 RUN ./install.sh
 ENV NVM_DIR=/home/frappe/.nvm

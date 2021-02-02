@@ -2,7 +2,7 @@ version: "3"
 
 services:
   traefik:
-    image: "traefik:v2.2"
+    image: "graficheaquilane/traefik:v2.2"
     command:
       - "--log.level=DEBUG"
       - "--providers.docker=true"
@@ -30,7 +30,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   erpnext-nginx:
-    image: frappe/erpnext-nginx:${ERPNEXT_VERSION}
+    image: graficheaquilane/erpnext-nginx:${ERPNEXT_VERSION}
     restart: on-failure
     environment:
       - FRAPPE_PY=erpnext-python
@@ -48,7 +48,7 @@ services:
       - assets-vol:/assets:rw
 
   erpnext-python:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    image: graficheaquilane/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     environment:
       - MARIADB_HOST=${MARIADB_HOST}
@@ -62,7 +62,7 @@ services:
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
 
   frappe-socketio:
-    image: frappe/frappe-socketio:${FRAPPE_VERSION}
+    image: graficheaquilane/frappe-socketio:${FRAPPE_VERSION}
     restart: on-failure
     depends_on:
       - redis-socketio
@@ -70,7 +70,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   erpnext-worker-default:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    image: graficheaquilane/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     command: worker
     depends_on:
@@ -80,7 +80,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   erpnext-worker-short:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    image: graficheaquilane/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     command: worker
     environment:
@@ -92,7 +92,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   erpnext-worker-long:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    image: graficheaquilane/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     command: worker
     environment:
@@ -104,7 +104,7 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   erpnext-schedule:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    image: graficheaquilane/erpnext-worker:${ERPNEXT_VERSION}
     restart: on-failure
     command: schedule
     depends_on:
@@ -114,19 +114,19 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
 
   redis-cache:
-    image: redis:latest
+    image: graficheaquilane/redis:latest
     restart: on-failure
     volumes:
       - redis-cache-vol:/data
 
   redis-queue:
-    image: redis:latest
+    image: graficheaquilane/redis:latest
     restart: on-failure
     volumes:
       - redis-queue-vol:/data
 
   redis-socketio:
-    image: redis:latest
+    image: graficheaquilane/redis:latest
     restart: on-failure
     volumes:
       - redis-socketio-vol:/data
@@ -143,7 +143,7 @@ services:
       - mariadb-vol:/var/lib/mysql
 
   site-creator:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    image: graficheaquilane/erpnext-worker:${ERPNEXT_VERSION}
     restart: "no"
     command: new
     depends_on:

@@ -1,10 +1,10 @@
-LETSENCRYPT_EMAIL=email@example.com
+LETSENCRYPT_EMAIL=ced@graficheaquilane.it
 ERPNEXT_VERSION=edge
 FRAPPE_VERSION=edge
 MARIADB_HOST=mariadb
 MYSQL_ROOT_PASSWORD=123
-SITE_NAME=erp.example.com
-SITES=`erp.example.com`
+SITE_NAME=erp.graficheaquilane.it
+SITES=`erp.graficheaquilane.it`
 DB_ROOT_USER=root
 ADMIN_PASSWORD=admin
 INSTALL_APPS=erpnext

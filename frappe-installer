@@ -9,9 +9,9 @@ IFS=$'\n\t'
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$__dir"
 
-env_url="https://raw.githubusercontent.com/frappe/frappe_docker/master/installation/env-example"
-docker_nginx_url="https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion"
-frappe_docker_url="https://github.com/frappe/frappe_docker"
+env_url="https://raw.githubusercontent.com/GraficheAquilane2021/frappe_docker/master/installation/env-example"
+docker_nginx_url="https://github.com/GraficheAquilane2021/docker-compose-letsencrypt-nginx-proxy-companion"
+frappe_docker_url="https://github.com/GraficheAquilane2021/frappe_docker"
 env_file="$__dir/.env"
 
 

@@ -3,4 +3,4 @@ FRAPPE_VERSION=edge
 MARIADB_HOST=mariadb
 MYSQL_ROOT_PASSWORD=admin
 SITES=your.domain.com
-LETSENCRYPT_EMAIL=your.email@your.domain.com
+LETSENCRYPT_EMAIL=ced@graficheaquilane.it

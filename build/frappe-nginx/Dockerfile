@@ -2,13 +2,13 @@
 # This is done to ensures that node-sass binary remains common.
 # node-sass is required to enable website theme feature used
 # by Website Manager role in Frappe Framework
-FROM bitnami/python:3.7-prod
+FROM graficheaquilane/python:3.7-prod
 
 ENV NVM_DIR=/root/.nvm
 ENV NODE_VERSION=12.20.0
 ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN install_packages wget \
-    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh \
+    && wget https://raw.githubusercontent.com/GraficheAquilane2021/nvm/v0.35.3/install.sh \
     && chmod +x install.sh \
     && ./install.sh \
     && . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} \
@@ -23,7 +23,7 @@ RUN install_packages git
 ARG GIT_BRANCH=develop
 RUN mkdir -p apps sites/assets/css  \
     && cd apps \
-    && git clone --depth 1 https://github.com/frappe/frappe --branch $GIT_BRANCH
+    && git clone --depth 1 https://github.com/GraficheAquilane2021/frappe --branch $GIT_BRANCH
 
 RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn \
@@ -35,7 +35,7 @@ RUN node --version \
     && npm --version \
     && yarn --version
 
-RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
+RUN git clone --depth 1 https://github.com/GraficheAquilane2021/bench /tmp/bench \
     && mkdir -p /var/www/error_pages \
     && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
 

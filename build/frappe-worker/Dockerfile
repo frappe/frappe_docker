@@ -1,4 +1,5 @@
-FROM bitnami/python:3.7-prod
+FROM graficheaquilane/python:3.7-prod
+
 
 # Add non root user without password
 RUN sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS    -1/' /etc/login.defs \
@@ -34,7 +35,7 @@ RUN install_packages \
     wait-for-it \
     && wget https://github.com/GraficheAquilane2021/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
     && dpkg -i wkhtmltox_0.12.5-1.buster_amd64.deb && rm wkhtmltox_0.12.5-1.buster_amd64.deb \
-    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh \
+    && wget https://raw.githubusercontent.com/GraficheAquilane2021/nvm/v0.35.3/install.sh \
     && apt-get purge -y wget && apt-get autoremove -y \
     && chown -R frappe:frappe /home/frappe
 

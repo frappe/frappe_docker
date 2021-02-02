@@ -25,7 +25,7 @@ def parse_args():
 
 def git_version(service, version, branch):
     print(f'Pulling {service} v{version}')
-    subprocess.run(f'git clone https://github.com/frappe/{service} --branch {branch}', shell=True)
+    subprocess.run(f'git clone https://github.com/GraficheAquilane2021/{service} --branch {branch}', shell=True)
     cd = os.getcwd()
     os.chdir(os.getcwd() + f'/{service}')
     subprocess.run('git fetch --tags', shell=True)

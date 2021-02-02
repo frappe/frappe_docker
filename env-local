@@ -1,4 +1,4 @@
-LETSENCRYPT_EMAIL=email@example.com
+LETSENCRYPT_EMAIL=ced@graficheaquilane.it
 ERPNEXT_VERSION=edge
 FRAPPE_VERSION=edge
 MARIADB_HOST=mariadb
