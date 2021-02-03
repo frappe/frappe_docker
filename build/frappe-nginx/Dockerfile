@@ -39,7 +39,8 @@ RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
     && mkdir -p /var/www/error_pages \
     && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
 
-RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
+RUN mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/ \
+    && cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
     && cp -R /home/frappe/frappe-bench/apps/frappe/node_modules /home/frappe/frappe-bench/sites/assets/frappe/
 
 FROM nginx:latest
