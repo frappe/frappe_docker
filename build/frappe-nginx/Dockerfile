@@ -2,13 +2,16 @@
 # This is done to ensures that node-sass binary remains common.
 # node-sass is required to enable website theme feature used
 # by Website Manager role in Frappe Framework
-FROM graficheaquilane/python:3.7-prod
+FROM python:3.7-slim-buster
 
 ENV NVM_DIR=/root/.nvm
 ENV NODE_VERSION=12.20.0
 ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
-RUN install_packages wget \
-    && wget https://raw.githubusercontent.com/GraficheAquilane2021/nvm/v0.35.3/install.sh \
+RUN apt-get update -y \
+    && apt-get install wget python2 git build-essential -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
     && chmod +x install.sh \
     && ./install.sh \
     && . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} \
@@ -18,8 +21,6 @@ WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p /home/frappe/frappe-bench/sites \
     && echo "frappe" > /home/frappe/frappe-bench/sites/apps.txt
 
-RUN install_packages git
-
 ARG GIT_BRANCH=develop
 RUN mkdir -p apps sites/assets/css  \
     && cd apps \
@@ -28,7 +29,6 @@ RUN mkdir -p apps sites/assets/css  \
 RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn \
     && yarn run production \
-    && rm -fr node_modules \
     && yarn install --production=true
 
 RUN node --version \
@@ -39,7 +39,8 @@ RUN git clone --depth 1 https://github.com/GraficheAquilane2021/bench /tmp/bench
     && mkdir -p /var/www/error_pages \
     && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
 
-RUN cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
+RUN mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/ \
+    && cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
     && cp -R /home/frappe/frappe-bench/apps/frappe/node_modules /home/frappe/frappe-bench/sites/assets/frappe/
 
 FROM nginx:latest

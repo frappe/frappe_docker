@@ -10,8 +10,6 @@ mkdir -p /home/frappe/frappe-bench/sites/assets
 cd /home/frappe/frappe-bench
 echo -e "frappe\n${APP_NAME}" > /home/frappe/frappe-bench/sites/apps.txt
 
-install_packages git python2
-
 mkdir -p apps
 cd apps
 git clone --depth 1 https://github.com/GraficheAquilane2021/frappe ${BRANCH}
@@ -20,9 +18,7 @@ git clone --depth 1 ${APP_REPO} ${BRANCH} ${APP_NAME}
 cd /home/frappe/frappe-bench/apps/frappe
 yarn
 yarn production --app ${APP_NAME}
-rm -fr node_modules
 yarn install --production=true
-yarn add node-sass
 
 mkdir -p /home/frappe/frappe-bench/sites/assets/${APP_NAME}
 cp -R /home/frappe/frappe-bench/apps/${APP_NAME}/${APP_NAME}/public/* /home/frappe/frappe-bench/sites/assets/${APP_NAME}

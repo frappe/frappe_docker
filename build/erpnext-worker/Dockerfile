@@ -1,5 +1,7 @@
 ARG GIT_BRANCH=develop
-FROM graficheaquilane/frappe-worker:${GIT_BRANCH}
+ARG DOCKER_REGISTRY_PREFIX=graficheaquilane
+FROM ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${GIT_BRANCH}
 
 ARG GIT_BRANCH
-RUN install_app erpnext https://github.com/GraficheAquilane2021/erpnext ${GIT_BRANCH}
+RUN sed -i 's/\r$//' /usr/local/bin/install_app
+RUN bash install_app erpnext https://github.com/GraficheAquilane2021/erpnext ${GIT_BRANCH}
