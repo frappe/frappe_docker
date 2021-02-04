@@ -21,7 +21,7 @@ WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p /home/frappe/frappe-bench/sites \
     && echo "frappe" > /home/frappe/frappe-bench/sites/apps.txt
 
-ARG GIT_BRANCH=develop
+ARG GIT_BRANCH=version-12
 RUN mkdir -p apps sites/assets/css  \
     && cd apps \
     && git clone --depth 1 https://github.com/GraficheAquilane2021/frappe --branch $GIT_BRANCH

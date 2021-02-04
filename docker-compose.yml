@@ -132,7 +132,7 @@ services:
       - redis-socketio-vol:/data
 
   mariadb:
-    image: mariadb:10.3
+    image: graficheaquilane/mariadb:10.3
     restart: on-failure
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}

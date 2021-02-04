@@ -1,5 +1,5 @@
 ARG NODE_IMAGE_TAG=12-buster-slim
-ARG GIT_BRANCH=develop
+ARG GIT_BRANCH=version-12
 ARG DOCKER_REGISTRY_PREFIX=graficheaquilane
 FROM node:${NODE_IMAGE_TAG}
 

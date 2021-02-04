@@ -1,4 +1,4 @@
-ARG GIT_BRANCH=develop
+ARG GIT_BRANCH=version-12
 ARG DOCKER_REGISTRY_PREFIX=graficheaquilane
 FROM ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${GIT_BRANCH}
 
