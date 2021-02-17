@@ -6,6 +6,12 @@ upstream socketio-server {
     server ${FRAPPE_SOCKETIO}:${SOCKETIO_PORT} fail_timeout=0;
 }
 
+# Parse the X-Forwarded-Proto header - if set - defaulting to $scheme.
+map $http_x_forwarded_proto $proxy_x_forwarded_proto {
+    default $scheme;
+    https https;
+}
+
 server {
     listen 80;
     server_name $http_host;
@@ -15,6 +21,12 @@ server {
     add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
     add_header X-Content-Type-Options nosniff;
     add_header X-XSS-Protection "1; mode=block";
+
+    # Define ${UPSTREAM_REAL_IP_ADDRESS} as our trusted upstream address, so we will be using
+    # its ${UPSTREAM_REAL_IP_HEADER} address as our remote address
+    set_real_ip_from ${UPSTREAM_REAL_IP_ADDRESS};
+    real_ip_header ${UPSTREAM_REAL_IP_HEADER};
+    real_ip_recursive ${UPSTREAM_REAL_IP_RECURSIVE};
 
     location /assets {
         try_files $uri =404;
@@ -27,10 +39,12 @@ server {
 
     location /socket.io {
         proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Frappe-Site-Name $host;
-        proxy_set_header Origin $scheme://$http_host;
+        proxy_set_header Origin $proxy_x_forwarded_proto://$http_host;
         proxy_set_header Host $http_host;
 
         proxy_pass http://socketio-server;
@@ -50,8 +64,8 @@ server {
     }
 
     location @webserver {
-        proxy_set_header X-Forwarded-For $remote_addr;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
         proxy_set_header X-Frappe-Site-Name $host;
         proxy_set_header Host $http_host;
         proxy_set_header X-Use-X-Accel-Redirect True;
