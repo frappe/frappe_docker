@@ -142,6 +142,7 @@ services:
   erpnext-nginx:
     image: frappe/erpnext-nginx:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
     environment:
+      - UPSTREAM_REAL_IP_ADDRESS=10.0.0.0/8
       - FRAPPE_PY=erpnext-python
       - FRAPPE_PY_PORT=8000
       - FRAPPE_SOCKETIO=frappe-socketio

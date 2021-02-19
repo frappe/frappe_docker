@@ -35,11 +35,26 @@ if [[ -z "$HTTP_TIMEOUT" ]]; then
     export HTTP_TIMEOUT=120
 fi
 
+if [[ -z "$UPSTREAM_REAL_IP_ADDRESS" ]]; then
+    export UPSTREAM_REAL_IP_ADDRESS=127.0.0.1
+fi
+
+if [[ -z "$UPSTREAM_REAL_IP_RECURSIVE" ]]; then
+    export UPSTREAM_REAL_IP_RECURSIVE=off
+fi
+
+if [[ -z "$UPSTREAM_REAL_IP_HEADER" ]]; then
+    export UPSTREAM_REAL_IP_HEADER="X-Forwarded-For"
+fi
+
 envsubst '${FRAPPE_PY}
     ${FRAPPE_PY_PORT}
     ${FRAPPE_SOCKETIO}
     ${SOCKETIO_PORT}
-    ${HTTP_TIMEOUT}' \
+    ${HTTP_TIMEOUT}
+    ${UPSTREAM_REAL_IP_ADDRESS}
+    ${UPSTREAM_REAL_IP_RECURSIVE}
+    ${UPSTREAM_REAL_IP_HEADER}' \
     < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 echo "Waiting for frappe-python to be available on $FRAPPE_PY port $FRAPPE_PY_PORT"
