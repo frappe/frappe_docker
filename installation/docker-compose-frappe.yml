@@ -40,6 +40,7 @@ services:
       - AUTO_MIGRATE=1
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
 
   frappe-socketio:
@@ -51,6 +52,7 @@ services:
       - redis-socketio
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-worker-default:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
@@ -64,6 +66,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-worker-short:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
@@ -79,6 +82,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-worker-long:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
@@ -94,6 +98,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-schedule:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
@@ -107,7 +112,9 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
 volumes:
   assets-vol:
   sites-vol:
+  logs-vol:

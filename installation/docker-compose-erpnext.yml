@@ -41,6 +41,7 @@ services:
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-socketio:
     image: frappe/frappe-socketio:${FRAPPE_VERSION}
@@ -51,6 +52,7 @@ services:
       - redis-socketio
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-worker-default:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -64,6 +66,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-worker-short:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -79,6 +82,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-worker-long:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -94,6 +98,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   frappe-schedule:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -107,7 +112,9 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
 volumes:
   assets-vol:
   sites-vol:
+  logs-vol:

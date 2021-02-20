@@ -46,8 +46,8 @@ function configureEnv() {
 }
 
 function checkConnection() {
-  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-    && python /home/frappe/frappe-bench/commands/check_connection.py"
+  . /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/check_connection.py
 }
 
 function checkConfigExists() {
@@ -68,9 +68,6 @@ if [[ ! -e /home/frappe/frappe-bench/sites/apps.txt ]]; then
   find /home/frappe/frappe-bench/apps -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -r > /home/frappe/frappe-bench/sites/apps.txt
 fi
 
-# Allow user process to create files in logs directory
-chown -R frappe:frappe /home/frappe/frappe-bench/logs
-
 # symlink node_modules
 ln -sfn /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
   /home/frappe/frappe-bench/apps/frappe/node_modules
@@ -78,8 +75,6 @@ ln -sfn /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
 if [ "$1" = 'start' ]; then
   configureEnv
   checkConnection
-
-  chown frappe:frappe /home/frappe/frappe-bench/sites/common_site_config.json
 
   if [[ -z "$WORKERS" ]]; then
     export WORKERS=2
@@ -90,99 +85,67 @@ if [ "$1" = 'start' ]; then
   fi
 
   if [[ ! -z "$AUTO_MIGRATE" ]]; then
-    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-      && python /home/frappe/frappe-bench/commands/auto_migrate.py"
+    . /home/frappe/frappe-bench/env/bin/activate \
+      && python /home/frappe/frappe-bench/commands/auto_migrate.py
   fi
 
-  if [[ -z "$RUN_AS_ROOT" ]]; then
-    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-      && gunicorn -b 0.0.0.0:$FRAPPE_PORT \
-      --worker-tmp-dir /dev/shm \
-      --threads=4 \
-      --workers $WORKERS \
-      --worker-class=gthread \
-      --log-file=- \
-      -t 120 frappe.app:application --preload"
-  else
-    . /home/frappe/frappe-bench/env/bin/activate
-    gunicorn -b 0.0.0.0:$FRAPPE_PORT \
-      --worker-tmp-dir /dev/shm \
-      --threads=4 \
-      --workers $WORKERS \
-      --worker-class=gthread \
-      --log-file=- \
-      -t 120 frappe.app:application --preload
-  fi
+  . /home/frappe/frappe-bench/env/bin/activate
+  gunicorn -b 0.0.0.0:$FRAPPE_PORT \
+    --worker-tmp-dir /dev/shm \
+    --threads=4 \
+    --workers $WORKERS \
+    --worker-class=gthread \
+    --log-file=- \
+    -t 120 frappe.app:application --preload
 
 elif [ "$1" = 'worker' ]; then
   checkConfigExists
   checkConnection
   # default WORKER_TYPE=default
-  if [[ -z "$RUN_AS_ROOT" ]]; then
-    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-      && python /home/frappe/frappe-bench/commands/worker.py"
-  else
-    . /home/frappe/frappe-bench/env/bin/activate
-    python /home/frappe/frappe-bench/commands/worker.py
-  fi
+  
+  . /home/frappe/frappe-bench/env/bin/activate
+  python /home/frappe/frappe-bench/commands/worker.py
 
 elif [ "$1" = 'schedule' ]; then
   checkConfigExists
   checkConnection
-  if [[ -z "$RUN_AS_ROOT" ]]; then
-    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-      && python /home/frappe/frappe-bench/commands/background.py"
-  else
-    . /home/frappe/frappe-bench/env/bin/activate
-    python /home/frappe/frappe-bench/commands/background.py
-  fi
+  
+  . /home/frappe/frappe-bench/env/bin/activate
+  python /home/frappe/frappe-bench/commands/background.py
 
 elif [ "$1" = 'new' ]; then
   checkConfigExists
   checkConnection
-  if [[ -z "$RUN_AS_ROOT" ]]; then
-    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-      && python /home/frappe/frappe-bench/commands/new.py"
-    exit
-  else
-    . /home/frappe/frappe-bench/env/bin/activate
-    python /home/frappe/frappe-bench/commands/new.py
-  fi
+  
+  . /home/frappe/frappe-bench/env/bin/activate
+  python /home/frappe/frappe-bench/commands/new.py
+  exit
 
 elif [ "$1" = 'drop' ]; then
   checkConfigExists
   checkConnection
-  if [[ -z "$RUN_AS_ROOT" ]]; then
-    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-      && python /home/frappe/frappe-bench/commands/drop.py"
-    exit
-  else
-    . /home/frappe/frappe-bench/env/bin/activate
-    python /home/frappe/frappe-bench/commands/drop.py
-  fi
+  
+  . /home/frappe/frappe-bench/env/bin/activate
+  python /home/frappe/frappe-bench/commands/drop.py
+  exit
 
 elif [ "$1" = 'migrate' ]; then
 
-  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-    && python /home/frappe/frappe-bench/commands/migrate.py"
+  . /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/migrate.py
   exit
 
 elif [ "$1" = 'doctor' ]; then
 
-  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-    && python /home/frappe/frappe-bench/commands/doctor.py ${@:2}"
+  . /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/doctor.py ${@:2}
   exit
 
 elif [ "$1" = 'backup' ]; then
 
-  if [[ -z "$RUN_AS_ROOT" ]]; then
-    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-      && python /home/frappe/frappe-bench/commands/backup.py"
-    exit
-  else
-    . /home/frappe/frappe-bench/env/bin/activate
-    python /home/frappe/frappe-bench/commands/backup.py
-  fi
+  . /home/frappe/frappe-bench/env/bin/activate
+  python /home/frappe/frappe-bench/commands/backup.py
+  exit
 
 elif [ "$1" = 'console' ]; then
 
@@ -192,25 +155,20 @@ elif [ "$1" = 'console' ]; then
     exit 1
   fi
 
-  if [[ -z "$RUN_AS_ROOT" ]]; then
-    su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-      && python /home/frappe/frappe-bench/commands/console.py $2"
-    exit
-  else
-    . /home/frappe/frappe-bench/env/bin/activate
-    python /home/frappe/frappe-bench/commands/console.py "$2"
-  fi
+  . /home/frappe/frappe-bench/env/bin/activate
+  python /home/frappe/frappe-bench/commands/console.py "$2"
+  exit
 
 elif [ "$1" = 'push-backup' ]; then
 
-  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-    && python /home/frappe/frappe-bench/commands/push_backup.py"
+  . /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/push_backup.py
   exit
 
 elif [ "$1" = 'restore-backup' ]; then
 
-  su frappe -c ". /home/frappe/frappe-bench/env/bin/activate \
-    && python /home/frappe/frappe-bench/commands/restore_backup.py"
+  . /home/frappe/frappe-bench/env/bin/activate \
+    && python /home/frappe/frappe-bench/commands/restore_backup.py
   exit
 
 else
