@@ -16,14 +16,14 @@ function checkConfigExists() {
 
 if [ "$1" = 'start' ]; then
   checkConfigExists
-  su frappe -c "node /home/frappe/frappe-bench/apps/frappe/socketio.js"
+  node /home/frappe/frappe-bench/apps/frappe/socketio.js
 
 elif [ "$1" = 'doctor' ]; then
 
-  su frappe -c "node /home/frappe/frappe-bench/apps/frappe/health.js"
+  node /home/frappe/frappe-bench/apps/frappe/health.js
 
 else
 
-  exec su frappe -c "$@"
+  exec -c "$@"
 
 fi

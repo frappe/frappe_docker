@@ -28,6 +28,8 @@ RUN cd /home/frappe/frappe-bench/apps/frappe \
 COPY build/frappe-socketio/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
+USER frappe
+
 WORKDIR /home/frappe/frappe-bench/sites
 
 ENTRYPOINT ["docker-entrypoint.sh"]

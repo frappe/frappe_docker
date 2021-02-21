@@ -47,6 +47,10 @@ RUN apt-get update -y && apt-get install \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
     && chown -R frappe:frappe /home/frappe
 
+# Setup docker-entrypoint
+COPY build/common/worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
+
 USER frappe
 # Install nvm with node
 RUN bash install.sh \
@@ -65,7 +69,6 @@ RUN python -m venv env \
     && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${GIT_BRANCH} \
     && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
 
-USER root
 # Copy scripts and templates
 COPY build/common/commands/* /home/frappe/frappe-bench/commands/
 COPY build/common/common_site_config.json.template /opt/frappe/common_site_config.json.template
@@ -73,17 +76,10 @@ COPY build/common/worker/install_app.sh /usr/local/bin/install_app
 COPY build/common/worker/bench /usr/local/bin/bench
 COPY build/common/worker/healthcheck.sh /usr/local/bin/healthcheck.sh
 
-# Setup docker-entrypoint
-COPY build/common/worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
-
 # Use sites volume as working directory
 WORKDIR /home/frappe/frappe-bench/sites
 
-# Set ownership of sites directory
-RUN chown -R frappe:frappe /home/frappe/frappe-bench/sites
-
-VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/backups" ]
+VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/backups", "/home/frappe/frappe-bench/logs" ]
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start"]
