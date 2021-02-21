@@ -68,6 +68,7 @@ services:
       - redis-socketio
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   erpnext-worker-default:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -78,6 +79,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   erpnext-worker-short:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -90,6 +92,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   erpnext-worker-long:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -112,6 +115,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   redis-cache:
     image: redis:latest
@@ -154,6 +158,7 @@ services:
       - INSTALL_APPS=${INSTALL_APPS}
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
 volumes:
   mariadb-vol:
@@ -163,3 +168,4 @@ volumes:
   assets-vol:
   sites-vol:
   cert-vol:
+  logs-vol:
