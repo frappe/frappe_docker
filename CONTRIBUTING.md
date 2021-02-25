@@ -32,3 +32,7 @@ Please be considerate when pushing commits and opening PR for multiple branches,
 # Documentation
 
 Place relevant markdown file(s) in the `docs` directory and index them in README.md located at the root of repo.
+
+# Wiki
+
+Add alternatives that can be used optionally along with frappe_docker. Add articles to list on home page as well.
