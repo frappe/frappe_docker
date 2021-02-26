@@ -261,8 +261,8 @@ networks:
 
 Use environment variables:
 
-- `FRAPPE_VERSION` variable to be set to desired version of ERPNext. e.g. 12.10.0
-- `ERPNEXT_VERSION` variable to be set to desired version of Frappe Framework. e.g. 12.7.0
+- `ERPNEXT_VERSION` variable to be set to desired version of ERPNext. e.g. 12.10.0
+- `FRAPPE_VERSION` variable to be set to desired version of Frappe Framework. e.g. 12.7.0
 - `MARIADB_HOST=frappe-mariadb_mariadb-master`
 - `SITES` variable is list of sites in back tick and separated by comma
 ```
