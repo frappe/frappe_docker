@@ -2,8 +2,7 @@ import os
 import frappe
 import semantic_version
 
-from frappe.commands.site import _new_site
-from frappe.installer import update_site_config
+from frappe.installer import _new_site, update_site_config
 from constants import COMMON_SITE_CONFIG_FILE, RDS_DB, RDS_PRIVILEGES
 from utils import (
     run_command,
