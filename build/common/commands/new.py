@@ -2,7 +2,6 @@ import os
 import frappe
 import semantic_version
 
-from frappe.commands.site import _new_site
 from frappe.installer import update_site_config
 from constants import COMMON_SITE_CONFIG_FILE, RDS_DB, RDS_PRIVILEGES
 from utils import (
@@ -11,6 +10,16 @@ from utils import (
     get_site_config,
     get_password,
 )
+
+# try to import _new_site from frappe, which could possibly
+# exist in either commands.py or installer.py, and so we need
+# to maintain compatibility across all frappe versions.
+try:
+    # <= version-{11,12}
+    from frappe.commands.site import _new_site
+except ImportError:
+    # >= version-13 and develop
+    from frappe.installer import _new_site
 
 
 def main():

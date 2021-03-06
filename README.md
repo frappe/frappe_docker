@@ -35,6 +35,11 @@ It takes care of the following:
 * Setting up all the system requirements: eg. MariaDB, Node, Redis.
 * Configure networking for remote access and setting up LetsEncrypt.
 
+It doesn't take care of the following:
+
+* Cron Job to backup sites is not created by default.
+* Use `CronJob` on k8s or refer wiki for alternatives.
+
 1. Single Server Installs
     1. [Single bench](docs/single-bench.md). Easiest Install!
     2. [Multi bench](docs/multi-bench.md)
@@ -45,6 +50,7 @@ It takes care of the following:
 4. [Environment Variables](docs/environment-variables.md)
 5. [Custom apps for production](docs/custom-apps-for-production.md)
 6. [Tips for moving deployments](docs/tips-for-moving-deployments.md)
+7. [Wiki for optional recipes](https://github.com/frappe/frappe_docker/wiki)
 
 ## Development Setup
 
