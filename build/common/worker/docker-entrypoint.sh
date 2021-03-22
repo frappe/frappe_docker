@@ -84,17 +84,26 @@ if [ "$1" = 'start' ]; then
     export FRAPPE_PORT=8000
   fi
 
+  if [[ -z "$WORKER_CLASS" ]]; then
+    export WORKER_CLASS=gthread
+  fi
+
+  export LOAD_CONFIG_FILE=""
+  if [ "$WORKER_CLASS" = "gevent" ]; then
+    export LOAD_CONFIG_FILE="-c /home/frappe/frappe-bench/commands/gevent_patch.py"
+  fi
+
   if [[ ! -z "$AUTO_MIGRATE" ]]; then
     . /home/frappe/frappe-bench/env/bin/activate \
       && python /home/frappe/frappe-bench/commands/auto_migrate.py
   fi
 
   . /home/frappe/frappe-bench/env/bin/activate
-  gunicorn -b 0.0.0.0:$FRAPPE_PORT \
+  gunicorn $LOAD_CONFIG_FILE -b 0.0.0.0:$FRAPPE_PORT \
     --worker-tmp-dir /dev/shm \
     --threads=4 \
     --workers $WORKERS \
-    --worker-class=gthread \
+    --worker-class=$WORKER_CLASS \
     --log-file=- \
     -t 120 frappe.app:application --preload
 
@@ -102,21 +111,21 @@ elif [ "$1" = 'worker' ]; then
   checkConfigExists
   checkConnection
   # default WORKER_TYPE=default
-  
+
   . /home/frappe/frappe-bench/env/bin/activate
   python /home/frappe/frappe-bench/commands/worker.py
 
 elif [ "$1" = 'schedule' ]; then
   checkConfigExists
   checkConnection
-  
+
   . /home/frappe/frappe-bench/env/bin/activate
   python /home/frappe/frappe-bench/commands/background.py
 
 elif [ "$1" = 'new' ]; then
   checkConfigExists
   checkConnection
-  
+
   . /home/frappe/frappe-bench/env/bin/activate
   python /home/frappe/frappe-bench/commands/new.py
   exit
@@ -124,7 +133,7 @@ elif [ "$1" = 'new' ]; then
 elif [ "$1" = 'drop' ]; then
   checkConfigExists
   checkConnection
-  
+
   . /home/frappe/frappe-bench/env/bin/activate
   python /home/frappe/frappe-bench/commands/drop.py
   exit
