@@ -10,6 +10,7 @@ Following environment variables are set into sites volume as `common_site_config
 - `REDIS_QUEUE`: Redis queue host, domain name or ip address.
 - `REDIS_SOCKETIO`: Redis queue host, domain name or ip address.
 - `SOCKETIO_PORT: `: Port on which the SocketIO should start.
+- `WORKER_CLASS`: Optionally set gunicorn worker-class. Supports gevent only, defaults to gthread.
 
 ### frappe-nginx and erpnext-nginx
 

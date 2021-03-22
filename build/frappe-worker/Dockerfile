@@ -65,6 +65,8 @@ RUN mkdir -p apps logs commands sites /home/frappe/backups
 # Setup python environment
 RUN python -m venv env \
     && . env/bin/activate \
+    && pip3 install --upgrade pip \
+    && pip3 install gevent \
     && cd apps \
     && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${GIT_BRANCH} \
     && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
