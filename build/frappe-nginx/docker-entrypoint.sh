@@ -45,6 +45,15 @@ if [[ -z "$UPSTREAM_REAL_IP_HEADER" ]]; then
     export UPSTREAM_REAL_IP_HEADER="X-Forwarded-For"
 fi
 
+if [[ -z "$FRAPPE_SITE_NAME_HEADER" ]]; then
+    export FRAPPE_SITE_NAME_HEADER="\$host"
+fi
+
+if [[ -z "$HTTP_HOST" ]]; then
+    export HTTP_HOST="\$http_host"
+fi
+
+
 envsubst '${FRAPPE_PY}
     ${FRAPPE_PY_PORT}
     ${FRAPPE_SOCKETIO}
@@ -52,6 +61,8 @@ envsubst '${FRAPPE_PY}
     ${HTTP_TIMEOUT}
     ${UPSTREAM_REAL_IP_ADDRESS}
     ${UPSTREAM_REAL_IP_RECURSIVE}
+    ${FRAPPE_SITE_NAME_HEADER}
+    ${HTTP_HOST}
     ${UPSTREAM_REAL_IP_HEADER}' \
     < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 

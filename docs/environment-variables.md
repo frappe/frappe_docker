@@ -24,6 +24,8 @@ These variables are set on every container start. Change in these variables will
 - `UPSTREAM_REAL_IP_ADDRESS `: The trusted address (or ip range) of upstream proxy servers. If set, this will tell nginx to trust the X-Forwarded-For header from these proxy servers in determining the real IP address of connecting clients. Default: 127.0.0.1
 - `UPSTREAM_REAL_IP_RECURSIVE`: When set to `on`, this will tell nginx to not just look to the last upstream proxy server in determining the real IP address. Default: off
 - `UPSTREAM_REAL_IP_HEADER`: Set this to the header name sent by your upstream proxy server to indicate the real IP of connecting clients. Default: X-Forwarded-For
+- `FRAPPE_SITE_NAME_HEADER`: NGINX `X-Frappe-Site-Name` header in the HTTP request which matches a site name. Default: `$host`
+- `HTTP_HOST`: NGINX `Host` header in the HTTP request which matches a site name. Default: `$http_host`
 
 ### frappe-socketio
 
