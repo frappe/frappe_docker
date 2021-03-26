@@ -53,18 +53,27 @@ if [[ -z "$HTTP_HOST" ]]; then
     export HTTP_HOST="\$http_host"
 fi
 
+if [[ -z "$SKIP_NGINX_TEMPLATE_GENERATION" ]]; then
+    export SKIP_NGINX_TEMPLATE_GENERATION=0
+fi
 
-envsubst '${FRAPPE_PY}
-    ${FRAPPE_PY_PORT}
-    ${FRAPPE_SOCKETIO}
-    ${SOCKETIO_PORT}
-    ${HTTP_TIMEOUT}
-    ${UPSTREAM_REAL_IP_ADDRESS}
-    ${UPSTREAM_REAL_IP_RECURSIVE}
-    ${FRAPPE_SITE_NAME_HEADER}
-    ${HTTP_HOST}
-    ${UPSTREAM_REAL_IP_HEADER}' \
-    < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+if [[ $SKIP_NGINX_TEMPLATE_GENERATION -eq 1 ]]
+then
+  echo "Skipping default NGINX template generation. Please mount your own NGINX config file inside /etc/nginx/conf.d"
+else
+  echo "Generating default template"
+  envsubst '${FRAPPE_PY}
+        ${FRAPPE_PY_PORT}
+        ${FRAPPE_SOCKETIO}
+        ${SOCKETIO_PORT}
+        ${HTTP_TIMEOUT}
+        ${UPSTREAM_REAL_IP_ADDRESS}
+        ${UPSTREAM_REAL_IP_RECURSIVE}
+        ${FRAPPE_SITE_NAME_HEADER}
+        ${HTTP_HOST}
+        ${UPSTREAM_REAL_IP_HEADER}' \
+        < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+fi
 
 echo "Waiting for frappe-python to be available on $FRAPPE_PY port $FRAPPE_PY_PORT"
 timeout 10 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $FRAPPE_PY $FRAPPE_PY_PORT
