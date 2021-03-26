@@ -26,6 +26,7 @@ These variables are set on every container start. Change in these variables will
 - `UPSTREAM_REAL_IP_HEADER`: Set this to the header name sent by your upstream proxy server to indicate the real IP of connecting clients. Default: X-Forwarded-For
 - `FRAPPE_SITE_NAME_HEADER`: NGINX `X-Frappe-Site-Name` header in the HTTP request which matches a site name. Default: `$host`
 - `HTTP_HOST`: NGINX `Host` header in the HTTP request which matches a site name. Default: `$http_host`
+- `SKIP_NGINX_TEMPLATE_GENERATION`: When set to `1`, this will not generate a default NGINX configuration. The config file must be mounted inside the container (`/etc/nginx/conf.d`) by the user in this case. Default: `0`
 
 ### frappe-socketio
 
