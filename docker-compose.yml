@@ -37,6 +37,7 @@ services:
       - FRAPPE_PY_PORT=8000
       - FRAPPE_SOCKETIO=frappe-socketio
       - SOCKETIO_PORT=9000
+      - SKIP_NGINX_TEMPLATE_GENERATION=${SKIP_NGINX_TEMPLATE_GENERATION}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.erpnext-nginx.rule=Host(${SITES})"

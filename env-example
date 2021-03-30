@@ -4,3 +4,4 @@ MARIADB_HOST=mariadb
 MYSQL_ROOT_PASSWORD=admin
 SITES=your.domain.com
 LETSENCRYPT_EMAIL=your.email@your.domain.com
+SKIP_NGINX_TEMPLATE_GENERATION=0
