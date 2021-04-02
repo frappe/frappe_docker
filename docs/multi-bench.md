@@ -17,7 +17,7 @@ cp env-example .env
 To get started, copy the existing `env-example` file to `.env`. By default, the file will contain the following variables:
 
 - `VERSION=edge`
-    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. version-12, v11.1.15, v11)
+    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. v13.0.0, version-12, v11.1.15, v11)
 - `MYSQL_ROOT_PASSWORD=admin`
     - Bootstraps a MariaDB container with this value set as the root password. If a managed MariaDB instance is used, there is no need to set the password here.
 - `MARIADB_HOST=mariadb`

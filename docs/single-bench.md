@@ -26,9 +26,9 @@ cp env-production .env
 To get started, copy the existing `env-local` or `env-production` file to `.env`. By default, the file will contain the following variables:
 
 - `ERPNEXT_VERSION=edge`
-    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. version-12, v11.1.15, v11).
+    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. v13.0.0, version-12, v11.1.15, v11).
 - `FRAPPE_VERSION=edge`
-    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. version-12, v11.1.15, v11).
+    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. v13.0.0, version-12, v11.1.15, v11).
 - `MARIADB_HOST=mariadb`
     - Sets the hostname to `mariadb`. This is required if the database is managed by the containerized MariaDB instance.
 - `MYSQL_ROOT_PASSWORD=admin`
