@@ -48,8 +48,8 @@ echo -e "\e[1m\e[4mCopy env-example file\e[0m"
 cp env-example .env
 echo -e "\n"
 
-echo -e "\e[1m\e[4mSet version to v12\e[0m"
-sed -i -e "s/edge/v12/g" .env
+echo -e "\e[1m\e[4mSet version to v13\e[0m"
+sed -i -e "s/edge/v13/g" .env
 echo -e "\n"
 
 echo -e "\e[1m\e[4mStart Services\e[0m"
@@ -76,13 +76,13 @@ docker run --name postgresql -d \
 loopHealthCheck
 echo -e "\n"
 
-echo -e "\e[1m\e[4mCreate new site (v12)\e[0m"
+echo -e "\e[1m\e[4mCreate new site (v13)\e[0m"
 docker run -it \
     -e "SITE_NAME=test.localhost" \
     -e "INSTALL_APPS=erpnext" \
     -v frappebench00_sites-vol:/home/frappe/frappe-bench/sites \
     --network frappebench00_default \
-    frappe/erpnext-worker:v12 new
+    frappe/erpnext-worker:v13 new
 echo -e "\n"
 
 echo -e "\e[1m\e[4mPing created site\e[0m"
@@ -94,7 +94,7 @@ curl -s http://test.localhost | w3m -T text/html -dump
 echo -e "\n"
 
 echo -e "\e[1m\e[4mSet version to edge\e[0m"
-sed -i -e "s/v12/edge/g" .env
+sed -i -e "s/v13/edge/g" .env
 echo -e "\n"
 
 echo -e "\e[1m\e[4mRestart containers with edge image\e[0m"
