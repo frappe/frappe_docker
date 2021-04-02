@@ -9,6 +9,7 @@ def parse_args():
 
     parser.add_argument('service', action='store', type=str, help='Name of the service to build: "erpnext" or "frappe"')
     parser.add_argument('-o', '--tag-only', required=False, action='store_true', dest='tag_only', help='Only tag an image and push it.')
+    parser.add_argument('-b', '--is-beta', required=False, default=False, action='store_true', dest='is_beta', help='Specify if tag is beta')
 
     image_type = parser.add_mutually_exclusive_group(required=True)
     image_type.add_argument('-a', '--nginx', action='store_const', dest='image_type', const='nginx', help='Build the nginx + static assets image')
@@ -23,7 +24,7 @@ def parse_args():
     return args
 
 
-def git_version(service, version, branch):
+def git_version(service, version, branch, is_beta=False):
     print(f'Pulling {service} v{version}')
     subprocess.run(f'git clone https://github.com/frappe/{service} --branch {branch}', shell=True)
     cd = os.getcwd()
@@ -34,6 +35,10 @@ def git_version(service, version, branch):
     version = version.split('-')[0]
 
     version_tag = subprocess.check_output(f'git tag --list --sort=-version:refname "v{version}*" | sed -n 1p | sed -e \'s#.*@\(\)#\\1#\'', shell=True).strip().decode('ascii')
+
+    if not is_beta:
+        version_tag = version_tag.split("-")[0]
+
     os.chdir(cd)
     return version_tag
 
@@ -61,7 +66,7 @@ def main():
 
     if args.version:
         branch = 'version-' + args.version
-        tag = git_version(args.service, args.version, branch)
+        tag = git_version(args.service, args.version, branch, args.is_beta)
 
     if args.tag_only:
         tag_and_push(f'{args.service}-{args.image_type}', tag)

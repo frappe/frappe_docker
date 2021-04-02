@@ -128,7 +128,7 @@ Environment Variables
 
 Note:
 
-- Above example will backup files in bucket called `backup` at location `frappe-bench-v12/site.name.com/DATE_TIME/DATE_TIME-site_name_com-{filetype}.{extension}`,
+- Above example will backup files in bucket called `backup` at location `frappe-bench-v13/site.name.com/DATE_TIME/DATE_TIME-site_name_com-{filetype}.{extension}`,
 - example DATE_TIME: 20200325_042020.
 - example filetype: database, files or private-files
 - example extension: sql.gz or tar
@@ -266,7 +266,7 @@ Environment Variables needed:
 - `DB_ROOT_USER`: MariaDB/PostgreSQL Root user.
 - `MYSQL_ROOT_PASSWORD`: Root User password for MariaDB.
 - `FORCE=1`: optional variable which force deletion of the same site.
-- `NO_BACKUP=1`: option variable to skip the process of taking backup before deleting the site. 
+- `NO_BACKUP=1`: option variable to skip the process of taking backup before deleting the site.
 
 Environment Variables for PostgreSQL only:
 

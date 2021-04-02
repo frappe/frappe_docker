@@ -103,7 +103,7 @@ networks:
 
 ### Deploy Frappe/ERPNext
 
-Stacks > Add Stacks > `frappe-bench-v12`
+Stacks > Add Stacks > `frappe-bench-v13`
 
 ```yaml
 version: "3.7"
@@ -272,10 +272,10 @@ SITES=`site1.example.com`,`site2.example.com`
 ### Create new site job
 
 1. Containers > Add Container > `add-site1-example-com`
-2. Select Image frappe/erpnext-worker:v12
+2. Select Image frappe/erpnext-worker:v13
 3. Set command as `new`
 4. Select network `frappe-network`
-5. Select Volume `frappe-bench-v12_sites_vol` and mount in container `/home/frappe/frappe-bench/sites`
+5. Select Volume `frappe-bench-v13_sites_vol` and mount in container `/home/frappe/frappe-bench/sites`
 6. Env variables:
     - MYSQL_ROOT_PASSWORD=longsecretpassword
     - SITE_NAME=site1.example.com
@@ -284,10 +284,10 @@ SITES=`site1.example.com`,`site2.example.com`
 ### Migrate Sites job
 
 1. Containers > Add Container > `migrate-sites`
-2. Select Image frappe/erpnext-worker:v12
+2. Select Image frappe/erpnext-worker:v13
 3. Set command as `migrate`
 4. Select network `frappe-network`
-5. Select Volume `frappe-bench-v12_sites_vol` and mount in container `/home/frappe/frappe-bench/sites`
+5. Select Volume `frappe-bench-v13_sites_vol` and mount in container `/home/frappe/frappe-bench/sites`
 6. Env variables:
     - MAINTENANCE_MODE=1
 7. Start container
