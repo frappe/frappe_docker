@@ -10,7 +10,7 @@
   <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
 </a>
 
-Wait for 5 minutes for ERPNext site to be created or check `site-creator` container logs before opening browser on port 80.
+Wait for 5 minutes for ERPNext site to be created or check `site-creator` container logs before opening browser on port 80. (username: `Administrator`, password: `admin`)
 
 ### Setting up Pre-requisites
 
