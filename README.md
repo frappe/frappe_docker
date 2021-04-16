@@ -6,12 +6,13 @@
 
 - [Try in Play With Docker](#try-in-play-with-docker)
 - [Installation](#installation)
-   - [Docker Installation](#docker-installation)
-      - [Setting up Pre-requisites](#setting-up-pre-requisites)
-      - [Development Setup](#development-setup)
-      - [Production Setup](#production-setup)
-   - [Easy Install Script](#easy-install-script)
-   - [Manual Installation](#manual-installation)
+    - [Docker Installation](#docker-installation)
+        - [Pre-requisites](#pre-requisites)
+        - [Clone Repository](#clone-repository)
+        - [Development Setup](#development-setup)
+        - [Production Setup](#production-setup)
+    - [Easy Install Script](#easy-install-script)
+    - [Manual Installation](#manual-installation)
 - [Contribution](#contributing)
 
 ## Try in Play With Docker
@@ -20,39 +21,45 @@
   <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
 </a>
 
-Wait for 5 minutes for ERPNext site to be created or check `site-creator` container logs before opening browser on port 80. (username: `Administrator`, password: `admin`)
+Wait for 5 minutes for ERPNext site to be created or check `site-creator` container logs before opening browser on port
+
+80. (username: `Administrator`, password: `admin`)
 
 ## Installation
 
-A typical bench setup provides two types of environments &mdash; Development and Production.
-
-The setup for each of these installations can be achieved in multiple ways:
+Frappe/ERPNext can be installed in two types of environments &mdash; Development and Production. The setup for each of
+these environments can be achieved in multiple ways:
 
 - [Docker Installation](#docker-installation)
 - [Easy Install Script](#easy-install-script)
 - [Manual Installation](#manual-installation)
 
-We recommend using either the Docker Installation or the Easy Install Script to setup a Production Environment. For Development, you may choose either of the three methods to setup an instance.
+We recommend using either the Docker Installation, or the Easy Install Script to set up a Production Environment. For
+Development, you may choose any of the three methods.
 
-Otherwise, if you are looking to evaluate ERPNext, you can also download the [Virtual Machine Image](https://erpnext.com/download) or register for [a free trial on erpnext.com](https://erpnext.com/pricing).
-
+Otherwise, if you are looking to evaluate ERPNext, you can also download
+the [Virtual Machine Image](https://erpnext.com/download) or register
+for [a free trial on erpnext.com](https://erpnext.com/pricing).
 
 ### Docker Installation
 
-A Frappe/ERPNext instance can be setup and replicated easily using [Docker](https://docker.com). The officially supported Docker installation can be used to setup either of both Development and Production environments.
+A Frappe/ERPNext instance can be setup and replicated easily using [Docker](https://docker.com). The officially
+supported Docker installation can be used to set up Development or Production environments.
 
-To setup either of the environments, you will need to clone the official docker repository:
+#### Pre-requisites
+
+This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
+
+For Docker basics and best practices. Refer Docker [documentation](http://docs.docker.com).
+
+#### Clone Repository
+
+To set up either of the environments, you will need to clone the official docker repository:
 
 ```sh
 $ git clone https://github.com/frappe/frappe_docker.git
 $ cd frappe_docker
 ```
-
-#### Setting up Pre-requisites
-
-This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
-
-For Docker basics and best practices. Refer Docker [documentation](http://docs.docker.com).
 
 #### Production Setup
 
@@ -82,10 +89,14 @@ It doesn't take care of the following:
 Copy the `env-example` file to `.env`
 
 ```sh
-$ cp env-example .env
+$ cp env-production .env
 ```
 
-Optionally, you may also setup an [NGINX Proxy for SSL Certificates](https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion) with auto-renewal for your Production instance. We recommend this for instances being accessed over the internet. For this to work, the DNS needs to be configured correctly so that [LetsEncrypt](https://letsencrypt.org) can verify the domain. To setup the proxy, run the following commands:
+Optionally, you may also setup
+an [NGINX Proxy for SSL Certificates](https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion)
+with auto-renewal for your Production instance. We recommend this for instances being accessed over the internet. For
+this to work, the DNS needs to be configured correctly so that [LetsEncrypt](https://letsencrypt.org) can verify the
+domain. To setup the proxy, run the following commands:
 
 ```sh
 $ git clone https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion.git
@@ -105,7 +116,8 @@ $ docker-compose \
     --project-directory installation up -d
 ```
 
-Make sure to replace `<project-name>` with whatever you wish to call it. This should get the instance running through docker. Now, to create a new site on the instance you may run:
+Make sure to replace `<project-name>` with whatever you wish to call it. This should get the instance running through
+docker. Now, to create a new site on the instance you may run:
 
 ```sh
 docker exec -it \
@@ -119,11 +131,14 @@ docker exec -it \
 
 Once this is done, you may access the instance at `$SITE_NAME`.
 
-**Note:** The Production setup does not contain, require, or use bench. For a list of substitute commands, check out the [Frappe/ERPNext Docker Site Operations](https://github.com/frappe/frappe_docker/#site-operations).
+**Note:** The Production setup does not contain, require, or use bench. For a list of substitute commands, check out
+the [Frappe/ERPNext Docker Site Operations](https://github.com/frappe/frappe_docker/#site-operations).
 
 #### Development Setup
 
-To setup a development environment for Docker, follow the [Frappe/ERPNext Docker for Development Guide](https://github.com/frappe/frappe_docker/blob/develop/development/README.md).
+To set up a development environment for Docker, follow
+the [Frappe/ERPNext Docker for Development Guide](https://github.com/frappe/frappe_docker/blob/develop/development/README.md)
+.
 
 It takes care of complete setup to develop with Frappe/ERPNext and Bench, Including the following features:
 
@@ -135,9 +150,11 @@ It takes care of complete setup to develop with Frappe/ERPNext and Bench, Includ
 
 ### Easy Install Script
 
-The Easy Install script should get you going with a Frappe/ERPNext setup with minimal manual intervention and effort. Since there are a lot of configurations being automatically setup, we recommend executing this script on a fresh server.
+The Easy Install script should get you going with a Frappe/ERPNext setup with minimal manual intervention and effort.
+Since there are a lot of configurations being automatically setup, we recommend executing this script on a fresh server.
 
-**Note:** This script works only on GNU/Linux based server distributions, and has been designed and tested to work on Ubuntu 16.04+, CentOS 7+, and Debian-based systems.
+**Note:** This script works only on GNU/Linux based server distributions, and has been designed and tested to work on
+Ubuntu 16.04+, CentOS 7+, and Debian-based systems.
 
 #### Prerequisites
 
@@ -165,26 +182,34 @@ $ wget https://raw.githubusercontent.com/frappe/bench/develop/install.py
 $ python3 install.py --production
 ```
 
-The script should then prompt you for the MySQL root password and an Administrator password for the Frappe/ERPNext instance, which will then be saved under `$HOME/passwords.txt` of the user used to setup the instance. This script will then install the required stack, setup bench and a default ERPNext instance.
+The script should then prompt you for the MySQL root password and an Administrator password for the Frappe/ERPNext
+instance, which will then be saved under `$HOME/passwords.txt` of the user used to setup the instance. This script will
+then install the required stack, setup bench and a default ERPNext instance.
 
-When the setup is complete, you will be able to access the system at `http://<your-server-ip>`, wherein you can use the administrator password to login.
+When the setup is complete, you will be able to access the system at `http://<your-server-ip>`, wherein you can use the
+administrator password to login.
 
 #### Troubleshooting
 
 In case the setup fails, the log file is saved under `/tmp/logs/install_bench.log`. You may then:
 
 - Create an Issue in this repository with the log file attached.
-- Search for an existing issue or post the log file on the [Frappe/ERPNext Discuss Forum](https://discuss.erpnext.com/c/bench) with the tag `installation_problem` under "Install/Update" category.
+- Search for an existing issue or post the log file on
+  the [Frappe/ERPNext Discuss Forum](https://discuss.erpnext.com/c/bench) with the tag `installation_problem` under "
+  Install/Update" category.
 
-For more information and advanced setup instructions, check out the [Easy Install Documentation](https://github.com/frappe/bench/blob/develop/docs/easy_install.md).
-
+For more information and advanced setup instructions, check out
+the [Easy Install Documentation](https://github.com/frappe/bench/blob/develop/docs/easy_install.md).
 
 ### Manual Installation
 
-Some might want to manually setup a bench instance locally for development. To quickly get started on installing bench the hard way, you can follow the guide on [Installing Bench and the Frappe Framework](https://frappe.io/docs/user/en/installation).
+Some might want to manually setup a bench instance locally for development. To quickly get started on installing bench
+the hard way, you can follow the guide
+on [Installing Bench and the Frappe Framework](https://frappe.io/docs/user/en/installation).
 
-You'll have to set up the system dependencies required for setting up a Frappe Environment. Checkout [docs/installation](https://github.com/frappe/bench/blob/develop/docs/installation.md) for more information on this. If you've already set up, install bench via pip:
-
+You'll have to set up the system dependencies required for setting up a Frappe Environment.
+Checkout [docs/installation](https://github.com/frappe/bench/blob/develop/docs/installation.md) for more information on
+this. If you've already set up, install bench via pip:
 
 ```sh
 $ pip install frappe-bench
