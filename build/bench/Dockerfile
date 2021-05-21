@@ -1,5 +1,9 @@
 # Frappe Bench Dockerfile
 FROM debian:buster-slim
+
+ARG GIT_REPO=https://github.com/frappe/bench.git
+ARG GIT_BRANCH=develop
+
 LABEL author=frappé
 
 RUN apt-get update -y && apt-get install  \
@@ -71,7 +75,7 @@ WORKDIR /home/frappe
 
 # Clone and install bench in the local user home directory
 # For development, bench source is located in ~/.bench
-RUN git clone https://github.com/frappe/bench.git .bench \
+RUN git clone ${GIT_REPO} -b ${GIT_BRANCH} .bench \
     && pip3 install --user -e .bench
 
 # Export python executables for Dockerfile
@@ -87,13 +91,12 @@ RUN bash -c "bench --version"
 # !!! UPDATE NODEJS PERIODICALLY WITH LATEST VERSIONS !!!
 # https://nodejs.org/en/about/releases/
 # https://nodejs.org/download/release/latest-v10.x/
-# https://nodejs.org/download/release/latest-v12.x/
-# https://nodejs.org/download/release/latest-v13.x/
-ENV NODE_VERSION=12.20.0
-ENV NODE_VERSION_FRAPPEV11=10.23.0
+# https://nodejs.org/download/release/latest-v14.x/
+ENV NODE_VERSION=14.17.0
+ENV NODE_VERSION_FRAPPEV11=10.24.1
 
 # Install nvm with node
-RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh
+RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh
 RUN chmod +x install.sh
 RUN ./install.sh
 ENV NVM_DIR=/home/frappe/.nvm

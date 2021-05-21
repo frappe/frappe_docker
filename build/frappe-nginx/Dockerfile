@@ -4,14 +4,17 @@
 # by Website Manager role in Frappe Framework
 FROM python:3.7-slim-buster
 
+ARG GIT_REPO=https://github.com/frappe/frappe
+ARG GIT_BRANCH=develop
+
 ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=12.20.0
+ENV NODE_VERSION=14.17.0
 ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN apt-get update -y \
     && apt-get install wget python2 git build-essential -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
+    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh \
     && chmod +x install.sh \
     && ./install.sh \
     && . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} \
@@ -21,10 +24,9 @@ WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p /home/frappe/frappe-bench/sites \
     && echo "frappe" > /home/frappe/frappe-bench/sites/apps.txt
 
-ARG GIT_BRANCH=develop
 RUN mkdir -p apps sites/assets/css  \
     && cd apps \
-    && git clone --depth 1 https://github.com/frappe/frappe --branch $GIT_BRANCH
+    && git clone --depth 1 ${GIT_REPO} --branch $GIT_BRANCH
 
 RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn \

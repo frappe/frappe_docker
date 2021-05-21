@@ -12,7 +12,6 @@
             "args": [
                 "frappe", "serve", "--port", "8000", "--noreload", "--nothreading"
             ],
-            "pythonPath": "${workspaceFolder}/frappe-bench/env/bin/python",
             "cwd": "${workspaceFolder}/frappe-bench/sites",
             "env": {
                 "DEV_SERVER": "1"
@@ -26,7 +25,6 @@
             "args": [
                 "frappe", "worker", "--queue", "default"
             ],
-            "pythonPath": "${workspaceFolder}/frappe-bench/env/bin/python",
             "cwd": "${workspaceFolder}/frappe-bench/sites",
             "env": {
                 "DEV_SERVER": "1"
@@ -40,7 +38,6 @@
             "args": [
                 "frappe", "worker", "--queue", "short"
             ],
-            "pythonPath": "${workspaceFolder}/frappe-bench/env/bin/python",
             "cwd": "${workspaceFolder}/frappe-bench/sites",
             "env": {
                 "DEV_SERVER": "1"
@@ -54,7 +51,6 @@
             "args": [
                 "frappe", "worker", "--queue", "long"
             ],
-            "pythonPath": "${workspaceFolder}/frappe-bench/env/bin/python",
             "cwd": "${workspaceFolder}/frappe-bench/sites",
             "env": {
                 "DEV_SERVER": "1"
@@ -64,7 +60,6 @@
             "name": "Honcho SocketIO Watch Schedule Worker",
             "type": "python",
             "request": "launch",
-            "pythonPath": "/usr/bin/python3",
             "program": "/home/frappe/.local/bin/honcho",
             "cwd": "${workspaceFolder}/frappe-bench",
             "console": "internalConsole",

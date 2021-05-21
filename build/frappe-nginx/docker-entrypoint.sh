@@ -6,9 +6,8 @@
 
 set -e
 
-rsync -a --delete /var/www/html/assets/js /assets
-rsync -a --delete /var/www/html/assets/css /assets
-rsync -a --delete /var/www/html/assets/frappe /assets
+rsync -a --delete /var/www/html/assets/* /assets
+
 . /rsync
 
 touch /var/www/html/sites/.build -r $(ls -td /assets/* | head -n 1)
