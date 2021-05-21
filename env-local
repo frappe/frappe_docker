@@ -15,3 +15,4 @@ HTTPS_REDIRECT_ENTRYPOINT_LABEL=erpnext.local.no-entrypoint
 HTTPS_REDIRECT_MIDDLEWARE_LABEL=erpnext.local.no-middleware
 HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL=erpnext.local-no-redirect-middleware
 SKIP_NGINX_TEMPLATE_GENERATION=0
+WORKER_CLASS=gthread

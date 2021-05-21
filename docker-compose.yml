@@ -59,6 +59,7 @@ services:
       - REDIS_SOCKETIO=redis-socketio:6379
       - SOCKETIO_PORT=9000
       - AUTO_MIGRATE=1
+      - WORKER_CLASS=${WORKER_CLASS}
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
