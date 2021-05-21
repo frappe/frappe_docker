@@ -1,6 +1,8 @@
-ARG GIT_BRANCH=develop
+ARG IMAGE_TAG=develop
 ARG DOCKER_REGISTRY_PREFIX=frappe
-FROM ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${GIT_BRANCH}
+FROM ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${IMAGE_TAG}
 
-ARG GIT_BRANCH
-RUN install_app erpnext https://github.com/frappe/erpnext ${GIT_BRANCH}
+ARG GIT_REPO=https://github.com/frappe/erpnext
+ARG GIT_BRANCH=develop
+
+RUN install_app erpnext ${GIT_REPO} ${GIT_BRANCH}

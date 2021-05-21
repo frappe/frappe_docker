@@ -1,3 +1,10 @@
+FROM alpine/git
+
+ARG GIT_REPO=https://github.com/frappe/frappe.git
+ARG GIT_BRANCH=develop
+
+RUN git clone ${GIT_REPO} /opt/frappe -b ${GIT_BRANCH} --depth 1
+
 FROM node:buster-slim
 
 # Add frappe user
@@ -9,15 +16,8 @@ RUN mkdir -p /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/apps/frap
 
 # Download socketio and purge curl package
 COPY build/frappe-socketio/package.json /home/frappe/frappe-bench/apps/frappe
-ARG GIT_BRANCH=develop
-RUN apt-get update && apt-get install -y curl \
-    && cd /home/frappe/frappe-bench/apps/frappe \
-    && curl "https://raw.githubusercontent.com/frappe/frappe/$GIT_BRANCH/socketio.js" \
-        --output /home/frappe/frappe-bench/apps/frappe/socketio.js \
-    && curl "https://raw.githubusercontent.com/frappe/frappe/$GIT_BRANCH/node_utils.js" \
-        --output /home/frappe/frappe-bench/apps/frappe/node_utils.js \
-    && apt-get purge -y curl && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=0 /opt/frappe/socketio.js /home/frappe/frappe-bench/apps/frappe/socketio.js
+COPY --from=0 /opt/frappe/node_utils.js /home/frappe/frappe-bench/apps/frappe/node_utils.js
 
 RUN cd /home/frappe/frappe-bench/apps/frappe \
     && npm install --only=production \

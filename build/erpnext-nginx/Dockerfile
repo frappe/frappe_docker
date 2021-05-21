@@ -1,9 +1,12 @@
-ARG NODE_IMAGE_TAG=12-buster-slim
-ARG GIT_BRANCH=develop
+ARG NODE_IMAGE_TAG=14-buster-slim
 ARG DOCKER_REGISTRY_PREFIX=frappe
+ARG IMAGE_TAG=develop
+
 FROM node:${NODE_IMAGE_TAG}
 
-ARG GIT_BRANCH
+ARG GIT_REPO=https://github.com/frappe/erpnext
+ARG GIT_BRANCH=develop
+
 COPY build/erpnext-nginx/install_app.sh /install_app
 RUN chmod +x /install_app && \
   apt-get update -y && \
@@ -11,9 +14,9 @@ RUN chmod +x /install_app && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-RUN /install_app erpnext https://github.com/frappe/erpnext ${GIT_BRANCH}
+RUN /install_app erpnext ${GIT_REPO} ${GIT_BRANCH}
 
-FROM ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${GIT_BRANCH}
+FROM ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${IMAGE_TAG}
 
 COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
 COPY --from=0 /rsync /rsync

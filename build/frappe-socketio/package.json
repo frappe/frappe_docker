@@ -1,6 +1,6 @@
 {
   "name": "frappe-socketio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Frappe SocketIO Server",
   "main": "socketio.js",
   "scripts": {
@@ -10,8 +10,8 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
-    "redis": "^2.8.0",
-    "socket.io": "^2.3.0",
+    "redis": "^3.1.1",
+    "socket.io": "^2.4.0",
     "superagent": "^5.1.0"
   }
 }
