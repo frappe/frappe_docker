@@ -279,6 +279,7 @@ SITES=`site1.example.com`,`site2.example.com`
 6. Env variables:
     - MYSQL_ROOT_PASSWORD=longsecretpassword
     - SITE_NAME=site1.example.com
+    - INSTALL_APPS=erpnext
 7. Start container
 
 ### Migrate Sites job
