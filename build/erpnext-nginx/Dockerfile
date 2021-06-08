@@ -6,6 +6,7 @@ FROM node:${NODE_IMAGE_TAG}
 
 ARG GIT_REPO=https://github.com/frappe/erpnext
 ARG GIT_BRANCH=develop
+ARG FRAPPE_BRANCH=${GIT_BRANCH}
 
 COPY build/erpnext-nginx/install_app.sh /install_app
 RUN chmod +x /install_app && \
@@ -14,7 +15,7 @@ RUN chmod +x /install_app && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-RUN /install_app erpnext ${GIT_REPO} ${GIT_BRANCH}
+RUN /install_app erpnext ${GIT_REPO} ${GIT_BRANCH} ${FRAPPE_BRANCH}
 
 FROM ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${IMAGE_TAG}
 
