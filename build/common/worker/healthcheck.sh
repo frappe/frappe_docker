@@ -1,31 +1,31 @@
 #!/bin/bash
 set -ea
 
-function getRedisUrl() {
-  cat ${1} | grep $2 | awk -v word=$2 '$word { gsub(/[",]/,"",$2); print $2}' | tr -d '\n' | sed 's|redis://||g'
+function getUrl() {
+  cat ${1} | grep $2 | awk -v word=$2 '$word { gsub(/[",]/,"",$2); print $2}' | tr -d '\n'
 }
 
 COMMON_SITE_CONFIG_JSON='/home/frappe/frappe-bench/sites/common_site_config.json'
 
 # Set DB Host and port
-DB_HOST=$(cat $COMMON_SITE_CONFIG_JSON | awk '/db_host/ { gsub(/[",]/,"",$2); print $2}' | tr -d '\n')
-DB_PORT=$(cat $COMMON_SITE_CONFIG_JSON | awk '/db_port/ { gsub(/[",]/,"",$2); print $2}' | tr -d '\n')
+DB_HOST=$(getUrl "$COMMON_SITE_CONFIG_JSON" "db_host")
+DB_PORT=$(getUrl "$COMMON_SITE_CONFIG_JSON" "db_port")
 if [[ -z "$DB_PORT" ]]; then
   DB_PORT=3306
 fi
 
 # Set REDIS host:port
-REDIS_CACHE=$(getRedisUrl "$COMMON_SITE_CONFIG_JSON" "redis_cache")
+REDIS_CACHE=$(getUrl "$COMMON_SITE_CONFIG_JSON" "redis_cache" | sed 's|redis://||g')
 if [[ "$REDIS_CACHE" == *"/"* ]]; then
   REDIS_CACHE=$(echo $REDIS_CACHE | cut -f1 -d"/")
 fi
 
-REDIS_QUEUE=$(getRedisUrl "$COMMON_SITE_CONFIG_JSON" "redis_queue")
+REDIS_QUEUE=$(getUrl "$COMMON_SITE_CONFIG_JSON" "redis_queue" | sed 's|redis://||g')
 if [[ "$REDIS_QUEUE" == *"/"* ]]; then
   REDIS_QUEUE=$(echo $REDIS_QUEUE | cut -f1 -d"/")
 fi
 
-REDIS_SOCKETIO=$(getRedisUrl "$COMMON_SITE_CONFIG_JSON" "redis_socketio")
+REDIS_SOCKETIO=$(getUrl "$COMMON_SITE_CONFIG_JSON" "redis_socketio" | sed 's|redis://||g')
 if [[ "$REDIS_SOCKETIO" == *"/"* ]]; then
   REDIS_SOCKETIO=$(echo $REDIS_SOCKETIO | cut -f1 -d"/")
 fi
