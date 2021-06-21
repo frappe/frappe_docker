@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o errexit -o allexport -o nolog
+set -ea
 
 COMMON_SITE_CONFIG_JSON='/home/frappe/frappe-bench/sites/common_site_config.json'
 
