@@ -39,7 +39,7 @@ wait-for-it "$REDIS_QUEUE" -t 1
 echo "Check $REDIS_SOCKETIO"
 wait-for-it "$REDIS_SOCKETIO" -t 1
 
-if [[ "$1" = "-p" ]] || [[ "$1" = "--ping-service" ]]; then
+if [[ "$1" = "-p" || "$1" = "--ping-service" ]]; then
   echo "Check $2"
   wait-for-it "$2" -t 1
 fi
