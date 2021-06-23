@@ -32,7 +32,7 @@ function configureEnv() {
       DB_PORT=3306
     fi
 
-    DB_HOST="${MARIADB_HOST:-$POSTGRES_HOST}"
+    export DB_HOST="${MARIADB_HOST:-$POSTGRES_HOST}"
 
     envsubst '${DB_HOST}
       ${DB_PORT}
