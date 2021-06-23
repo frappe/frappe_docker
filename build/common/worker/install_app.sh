@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 APP_NAME=${1}
 APP_REPO=${2}
@@ -6,7 +6,7 @@ APP_BRANCH=${3}
 
 cd /home/frappe/frappe-bench/
 
-env/bin/activate
+. env/bin/activate
 
 cd ./apps
 

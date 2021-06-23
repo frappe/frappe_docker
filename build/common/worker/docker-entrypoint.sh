@@ -44,7 +44,7 @@ function configureEnv() {
 }
 
 function checkConnection() {
-  /home/frappe/frappe-bench/env/bin/activate
+  . /home/frappe/frappe-bench/env/bin/activate
   python /home/frappe/frappe-bench/commands/check_connection.py
 }
 
@@ -88,11 +88,11 @@ case "$1" in
       LOAD_CONFIG_FILE="-c /home/frappe/frappe-bench/commands/gevent_patch.py"
 
     if [[ -n "${AUTO_MIGRATE}" ]]; then
-      /home/frappe/frappe-bench/env/bin/activate
+      . /home/frappe/frappe-bench/env/bin/activate
       python /home/frappe/frappe-bench/commands/auto_migrate.py
     fi
 
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     gunicorn ${LOAD_CONFIG_FILE} -b 0.0.0.0:${FRAPPE_PORT} \
       --worker-tmp-dir /dev/shm \
       --threads=4 \
@@ -107,7 +107,7 @@ case "$1" in
     checkConnection
     # default WORKER_TYPE=default
 
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/worker.py
     ;;
 
@@ -115,7 +115,7 @@ case "$1" in
     checkConfigExists
     checkConnection
 
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/background.py
 
     ;;
@@ -124,7 +124,7 @@ case "$1" in
     checkConfigExists
     checkConnection
 
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/new.py
     exit
     ;;
@@ -133,26 +133,26 @@ case "$1" in
     checkConfigExists
     checkConnection
 
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/drop.py
     exit
     ;;
 
   migrate)
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/migrate.py
     exit
     ;;
 
   doctor)
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/doctor.py "${@:2}"
     exit
     ;;
 
   backup)
 
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/backup.py
     exit
     ;;
@@ -164,19 +164,19 @@ case "$1" in
       exit 1
     fi
 
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/console.py "$2"
     exit
     ;;
 
   push-backup)
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/push_backup.py
     exit
     ;;
 
   restore-backup)
-    /home/frappe/frappe-bench/env/bin/activate
+    . /home/frappe/frappe-bench/env/bin/activate
     python /home/frappe/frappe-bench/commands/restore_backup.py
     exit
     ;;
