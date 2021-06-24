@@ -36,3 +36,33 @@ Place relevant markdown file(s) in the `docs` directory and index them in README
 # Wiki
 
 Add alternatives that can be used optionally along with frappe_docker. Add articles to list on home page as well.
+
+# Prerequisites to pass CI
+
+### Check shell script format
+
+Use the following script
+
+```shell
+./tests/check-format.sh
+```
+
+### Build images locally
+
+Use the following commands
+
+```shell
+docker build -t frappe/frappe-socketio:edge -f build/frappe-socketio/Dockerfile .
+docker build -t frappe/frappe-worker:develop -f build/frappe-worker/Dockerfile .
+docker build -t frappe/erpnext-worker:edge -f build/erpnext-worker/Dockerfile .
+docker build -t frappe/frappe-nginx:develop -f build/frappe-nginx/Dockerfile .
+docker build -t frappe/erpnext-nginx:edge -f build/erpnext-nginx/Dockerfile .
+```
+
+### Test running docker containers
+
+Use the following script
+
+```shell
+./tests/docker-test.sh
+```

@@ -156,8 +156,9 @@ jobs:
         - sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         - sudo chmod +x /usr/local/bin/docker-compose
         - sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-        - sudo apt-get update && sudo apt-get -y install w3m
+        - sudo apt-get update && sudo apt-get -y install w3m shellcheck
       script:
+        - ./tests/check-format.sh
         - docker build -t frappe/frappe-socketio:edge -f build/frappe-socketio/Dockerfile .
         - docker build -t frappe/frappe-worker:develop -f build/frappe-worker/Dockerfile .
         - docker build -t frappe/erpnext-worker:edge -f build/erpnext-worker/Dockerfile .

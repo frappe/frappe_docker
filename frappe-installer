@@ -3,8 +3,7 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-[ -z "$DEBUG" ] & [ "${DEBUG}" == 1 ] && set -o xtrace
-
+[[ -z "${DEBUG}" && "${DEBUG}" == 1 ]] && set -o xtrace
 
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$__dir"
@@ -14,227 +13,236 @@ docker_nginx_url="https://github.com/evertramos/docker-compose-letsencrypt-nginx
 frappe_docker_url="https://github.com/frappe/frappe_docker"
 env_file="$__dir/.env"
 
-
-check_root() {
-    if [[ $EUID -ne 0 ]]; then
-        echo "This script must be run as root. Login as root or use sudo." 1>&2
-        exit 1
-    fi
+function check_root() {
+  if [[ $EUID != 0 ]]; then
+    echo "This script must be run as root. Login as root or use sudo." >&2
+    exit 1
+  fi
 }
 
-check_git() {
-    if [ ! -x "$(command -v git)" ]; then
-        echo "Git is not installed. Please install git before continuing."
-        exit 1
-    fi
+function check_git() {
+  if [[ ! -x "$(command -v git)" ]]; then
+    echo "Git is not installed. Please install git before continuing." >&2
+    exit 1
+  fi
 }
 
-check_docker() {
-    if [ ! -x "$(command -v docker)" ]; then
-        read -rp "No docker installation found. Press Enter to install docker or ctrl+c to exit."
-        curl -fsSL https://get.docker.com | sh
-    fi
-    if [ ! -x "$(command -v docker)" ]; then
-        echo "Docker installation failed. Exiting."
-        exit 1
-    fi
+function check_docker() {
+  if [[ ! -x "$(command -v docker)" ]]; then
+    read -rp "No docker installation found. Press Enter to install docker or ctrl+c to exit." >&2
+    curl -fsSL https://get.docker.com | sh
+  fi
+  if [[ ! -x "$(command -v docker)" ]]; then
+    echo "Docker installation failed. Exiting." >&2
+    exit 1
+  fi
 }
 
-check_env() {
-    if [ ! -f "$env_file" ]; then
-        echo "No environment file found. This file is required for setting up Frappe/ERPNext Docker."
-        echo "Would you like to fetch the default environment file?"
-        echo "(NOTE: You will be prompted to set it up later)"
-        read -rp "Press Enter to fetch the configuration file, or create a .env file and re-run the script."
-        curl -fsSL "$env_url" -o "$env_file"
-    fi
+function check_env() {
+  if [[ ! -f "$env_file" ]]; then
+    cat <<CHOOSE >&2
+    No environment file found. This file is required for setting up Frappe/ERPNext Docker.
+    Would you like to fetch the default environment file?
+    (NOTE: You will be prompted to set it up later)
+CHOOSE
+    read -rp "Press Enter to fetch the configuration file, or create a .env file and re-run the script."
+    curl -fsSL "$env_url" -o "$env_file"
+  fi
 }
 
-clone_repository() {
-    echo "Cloning Repository: $1"
-    git clone "$2"
+function clone_repository() {
+  echo "Cloning Repository: $1"
+  git clone "$2"
 }
 
-get_config() {
-    if [ -n "$2" ]; then
-        config_file="$2"
-    else
-        config_file="$env_file"
-    fi
-    line=$(grep -E "^$=" "$config_file")
-    line_result=$(echo "$line" | awk -F"=" '{print $2}')
+function get_config() {
+  if [[ -n "$2" ]]; then
+    config_file="$2"
+  else
+    config_file="$env_file"
+  fi
+  line=$(grep -E "^$=" "$config_file")
+  line_result=$(echo "$line" | awk -F"=" '{print $2}')
 }
 
-get_install_version() {
-    echo "Choose a version you would like to setup [current: $1]:"
-    echo "1. develop (edge)"
-    echo "2. version-12"
-    echo "3. version-11"
-    echo "Please enter your choice [1-3]: "
-    select choice in "1" "2" "3"; do
-        case $choice in
-            1 ) version="edge" ;;
-            2 ) version="version-12" ;;
-            3 ) version="version-11" ;;
-        esac
-    done
+function get_install_version() {
+  cat <<CHOOSE >&2
+  Choose a version you would like to setup [current: $1]:
+  1. develop (edge)
+  2. version-12
+  3. version-11
+  Please enter your choice [1-3]:
+CHOOSE
+  select choice in "1" "2" "3"; do
+    case ${choice} in
+      1) version="edge" ;;
+      2) version="version-12" ;;
+      3) version="version-11" ;;
+    esac
+  done
 }
 
-prompt_config() {
-    # inspired by discourse_docker
-    get_config "VERSION"
-    local install_version=$line_result
-    get_config "MYSQL_ROOT_PASSWORD"
-    local mysql_password=$line_result
-    get_config "SITES"
-    local sites=$line_result
-    get_config "LETSENCRYPT_EMAIL"
-    local letsencrypt_email=$line_result
+function prompt_config() {
+  # inspired by discourse_docker
+  get_config "VERSION"
+  local install_version=$line_result
+  get_config "MYSQL_ROOT_PASSWORD"
+  local mysql_password=$line_result
+  get_config "SITES"
+  local sites=$line_result
+  get_config "LETSENCRYPT_EMAIL"
+  local letsencrypt_email=$line_result
 
-    echo "Would you like to setup networking for docker? [y/n]"
-    echo "This is required if you wish to access the instance from other machines."
+  echo "Would you like to setup networking for docker? [y/n]"
+  echo "This is required if you wish to access the instance from other machines."
+  select choice in "y" "n"; do
+    case $choice in
+      y) setup_networking=1 ;;
+      n)
+        setup_networking=0
+        setup_letsencrypt=0
+        ;;
+    esac
+  done
+  if [[ -n "$letsencrypt_email" && "$setup_networking" -ne "0" ]]; then
+    echo "Would you like to setup LetsEncrypt? [y/n]"
     select choice in "y" "n"; do
-        case $choice in
-            y ) setup_networking=1 ;;
-            n ) setup_networking=0
-                setup_letsencrypt=0 ;;
-        esac
+      case $choice in
+        y)
+          setup_letsencrypt=1
+          echo "Please ensure that all the required domains point to this IP address."
+          read -rp "Enter an Email Address to setup LetsEncrypt with: " letsencrypt_email
+          ;;
+        n)
+          setup_letsencrypt=0
+          echo "Skipping LetsEncrypt Setup."
+          ;;
+      esac
     done
-    if [ -n "$letsencrypt_email" ] & [ "$setup_networking" -ne "0" ]; then
-        echo "Would you like to setup LetsEncrypt? [y/n]"
-        select choice in "y" "n"; do
-            case $choice in
-                y ) setup_letsencrypt=1
-                    echo "Please ensure that all the required domains point to this IP address."
-                    read -rp "Enter an Email Address to setup LetsEncrypt with: " letsencrypt_email ;;
-                n ) setup_letsencrypt=0
-                    echo "Skipping LetsEncrypt Setup." ;;
-            esac
-        done
+  fi
+
+  local new_value=""
+  local config_state="n"
+
+  echo
+
+  get_install_version "$install_version"
+  install_version="$version"
+
+  while [[ "$config_state" == "n" ]]; do
+    if [[ -n "$mysql_password" ]]; then
+      read -srp "Enter MySQL Password [$mysql_password]: " new_value
+      if [[ -n "$new_value" ]]; then
+        mysql_password="$new_value"
+      fi
     fi
 
-    local new_value=""
-    local config_state="n"
+    if [[ -n "$sites" ]]; then
+      read -rp "Enter sitename to setup [$sites]: " new_value
+      if [[ -n "$new_value" ]]; then
+        sites="$new_value"
+      fi
+    fi
+
+    if [[ "$setup_letsencrypt" != "0" ]]; then
+      read -rp "Enter email address for LetsEncrypt [$letsencrypt_email]: " new_value
+      if [[ -n "$new_value" ]]; then
+        letsencrypt_email=$new_value
+      fi
+    fi
+
+    echo "Current Configuration:"
+    echo "Version: $([[ "$install_version" == "edge" ]] && echo "develop" || echo "$install_version")"
+    echo "MySQL Root Password: $mysql_password"
+    echo "Sites: $sites"
+
+    if [[ "$setup_letsencrypt" != "0" ]]; then
+      echo "LetsEncrypt Email Address: $letsencrypt_email"
+    fi
 
     echo
+    echo "Does this configuration look okay?"
+    read -rp "Press Enter to continue, 'n' to try again, or ctrl+c to exit: " config_state
+  done
 
-    get_install_version "$install_version"
-    install_version="$version"
+  echo "Saving the current configuration file to $env_file"
 
-    while [ "$config_state" = "n" ]; do
-        if [ -n "$mysql_password" ]; then
-            read -srp "Enter MySQL Password [$mysql_password]: " new_value
-            if [ -n "$new_value" ]; then
-                mysql_password="$new_value"
-            fi
-        fi
-
-        if [ -n "$sites" ]; then
-            read -rp "Enter sitename to setup [$sites]: " new_value
-            if [ -n "$new_value" ]; then
-                sites="$new_value"
-            fi
-        fi
-
-        if [ "$setup_letsencrypt" -ne "0" ]; then
-            read -rp "Enter email address for LetsEncrypt [$letsencrypt_email]: " new_value
-            if [ -n "$new_value" ]; then
-                letsencrypt_email=$new_value
-            fi
-        fi
-
-        echo "Current Configuration:"
-        echo "Version: $([ "$install_version" = "edge" ] && echo "develop" || echo "$install_version")"
-        echo "MySQL Root Password: $mysql_password"
-        echo "Sites: $sites"
-
-        if [ "$setup_letsencrypt" -ne "0" ]; then
-            echo "LetsEncrypt Email Address: $letsencrypt_email"
-        fi
-
-        echo
-        echo "Does this configuration look okay?"
-        read -rp "Press Enter to continue, 'n' to try again, or ctrl+c to exit: " config_state
-    done
-
-    echo "Saving the current configuration file to $env_file"
-
-    cat << EOF > "$env_file"
+  cat <<EOF >"$env_file"
 VERSION=$install_version
 MYSQL_ROOT_PASSWORD=$mysql_password
 SITES=$sites
 $([ "$setup_letsencrypt" -ne "0" ] && echo "LETSENCRYPT_EMAIL=$letsencrypt_email")
 EOF
-    setup_configuration=$(<"$env_file")
+  setup_configuration=$(<"$env_file")
 }
 
 setup_user() {
-    echo "The rest of the setup requires a user account."
-    echo "You may use an existing account, or set up a new one right away."
-    read -rp "Enter username: " username
-    if grep -E "^$username" /etc/passwd > /dev/null; then
-        echo "User $username already exists."
+  echo "The rest of the setup requires a user account."
+  echo "You may use an existing account, or set up a new one right away."
+  read -rp "Enter username: " username
+  if grep -E "^$username" /etc/passwd >/dev/null; then
+    echo "User $username already exists."
+  else
+    read -rsp "Enter password: " password
+    password="$(perl -e 'print crypt($ARGV[0], "password")' "$password")"
+    if useradd -m -p "$password" "$username" -s "$(command -v bash)"; then
+      echo "User $username has been added to the system."
     else
-        read -rsp "Enter password: " password
-        password="$(perl -e 'print crypt($ARGV[0], "password")' "$password")"
-        if useradd -m -p "$password" "$username" -s "$(command -v bash)"; then
-            echo "User $username has been added to the system."
-        else
-            echo "Failed to add user to the system."
-            echo "Please add a user manually and re-run the script."
-            exit 1
-        fi
+      echo "Failed to add user to the system."
+      echo "Please add a user manually and re-run the script."
+      exit 1
     fi
+  fi
 
-    if ! getent group docker > /dev/null 2>&1 ; then
-        echo "Creating group: docker"
-        groupadd docker
-    fi
-    echo "Adding user $username to group: docker"
-    usermod -aG docker "$username"
-    newgrp docker
+  if ! getent group docker >/dev/null 2>&1; then
+    echo "Creating group: docker"
+    groupadd docker
+  fi
+  echo "Adding user $username to group: docker"
+  usermod -aG docker "$username"
+  newgrp docker
 }
 
 install() {
-    if [ "$setup_letsencrypt" -ne "0" ] & [ "$setup_networking" -ne "0" ]; then
-        echo "Setting up NGINX Proxy for LetsEncrypt"
-        clone_repository "Docker Compose LetsEncrypt NGINX Proxy Companion" "$docker_nginx_url"
-        cd "$(basename "$docker_nginx_url")"
-        if [ -f .env.sample ]; then
-            cp .env.sample env
-        fi
-        ./start.sh > /dev/null 2>&1
-        cd "$(eval echo ~"$username")"
+  if [[ "$setup_letsencrypt" != "0" && "$setup_networking" != "0" ]]; then
+    echo "Setting up NGINX Proxy for LetsEncrypt"
+    clone_repository "Docker Compose LetsEncrypt NGINX Proxy Companion" "$docker_nginx_url"
+    cd "$(basename "$docker_nginx_url")"
+    if [[ -f .env.sample ]]; then
+      cp .env.sample env
     fi
+    ./start.sh >/dev/null 2>&1
+    cd "$(eval echo ~"$username")"
+  fi
 
-    echo "Setting up Frappe/ERPNext"
-    clone_repository "Frappe/ERPNext Docker" "$frappe_docker_url"
-    cd "$(basename "$frappe_docker_url")"
-    echo "$setup_configuration" > .env
-    echo "Enter a name for the project."
-    read -rp "This project name will be used to setup the docker instance: [erpnext_docker]" project_name
-    if [ -z "$project_name" ]; then
-        echo "Setting the project name to erpnext_docker"
-        project_name="erpnext_docker"
-    fi
+  echo "Setting up Frappe/ERPNext"
+  clone_repository "Frappe/ERPNext Docker" "$frappe_docker_url"
+  cd "$(basename "$frappe_docker_url")"
+  echo "$setup_configuration" >.env
+  echo "Enter a name for the project."
+  read -rp "This project name will be used to setup the docker instance: [erpnext_docker]" project_name
+  if [[ -z "$project_name" ]]; then
+    echo "Setting the project name to erpnext_docker"
+    project_name="erpnext_docker"
+  fi
 
-    docker-compose \
-        --project-name "$project_name" \
-        --project-directory . up -d \
-        -f installation/docker-compose-frappe.yml \
-        -f installation/docker-compose-erpnext.yml \
-        -f installation/docker-compose-common.yml \
-        "$( (( setup_networking == 1 )) && printf %s '-f installation/docker-compose-networks.yml' )"
+  docker-compose \
+    --project-name "$project_name" \
+    --project-directory . up -d \
+    -f installation/docker-compose-frappe.yml \
+    -f installation/docker-compose-erpnext.yml \
+    -f installation/docker-compose-common.yml \
+    "$( ((setup_networking == 1)) && printf %s '-f installation/docker-compose-networks.yml')"
 
-    get_config "SITES" "$(pwd)/.env"
-    local sites=$line_result
+  get_config "SITES" "$(pwd)/.env"
+  local sites=$line_result
 
-    docker exec \
-        -e "SITE_NAME=$sites" \
-        -e "INSTALL_ERPNEXT=1" \
-        -it "$project_name"_erpnext-python_1 docker-entrypoint.sh new
+  docker exec \
+    -e "SITE_NAME=$sites" \
+    -e "INSTALL_ERPNEXT=1" \
+    -it "$project_name"_erpnext-python_1 docker-entrypoint.sh new
 
-    echo "Installation Complete!"
+  echo "Installation Complete!"
 }
 
 check_root
