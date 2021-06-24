@@ -29,7 +29,7 @@ function configureEnv() {
     fi
 
     if [[ -z "${DB_PORT}" ]]; then
-      DB_PORT=3306
+      export DB_PORT=3306
     fi
 
     export DB_HOST="${MARIADB_HOST:-$POSTGRES_HOST}"
