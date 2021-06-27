@@ -21,6 +21,7 @@ RUN apt-get update -y && apt-get install \
     gettext-base \
     wget \
     wait-for-it \
+    python3-pip \
     # for PDF
     libjpeg62-turbo \
     libx11-6 \

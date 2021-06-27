@@ -11,7 +11,7 @@ ENV NVM_DIR=/root/.nvm
 ENV NODE_VERSION=14.17.0
 ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN apt-get update -y \
-    && apt-get install wget python2 git build-essential -y \
+    && apt-get install wget python2 git build-essential python3-pip -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh \

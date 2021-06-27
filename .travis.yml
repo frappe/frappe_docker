@@ -5,12 +5,25 @@ dist: bionic
 language: python
 
 python:
-  - '3.6'
+  - "3.6"
 
 services:
   - docker
 
 before_install:
+  # Install latest docker (https://www.docker.com/blog/multi-arch-build-what-about-travis)
+  - sudo rm -rf /var/lib/apt/lists/*
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - mkdir -vp ~/.docker/cli-plugins/
+  - curl --silent -L "https://github.com/docker/buildx/releases/download/v0.5.1/buildx-v0.5.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
+  - chmod a+x ~/.docker/cli-plugins/docker-buildx
+  - docker buildx create --use
+  - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+  - docker buildx inspect --bootstrap
+
   - if [[ "$BUILD" != "development" ]]; then
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
     sudo apt-get update && sudo apt-get -y install git;
@@ -28,128 +41,352 @@ jobs:
     - stage: "Build Frappe bench development environment (latest)"
       if: branch = develop AND type != pull_request
       script:
-        - docker build -t frappe/bench:latest -f build/bench/Dockerfile .
-        - docker push frappe/bench:latest
-    - stage: "Frappe (edge)"
+        - |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/bench:latest \
+            -f build/bench/Dockerfile .
+    - stage: "Build Frappe (all versions)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --worker --tag latest
-        - ./travis.py frappe --worker --tag edge --tag-only
-        - ./travis.py frappe --worker --tag develop --tag-only
-    - stage: "Frappe (edge)"
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:edge \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:develop \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:latest \
+            -f build/frappe-worker/Dockerfile .
+    - stage: "Build Frappe (all versions)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --nginx --tag latest
-        - ./travis.py frappe --nginx --tag edge --tag-only
-        - ./travis.py frappe --nginx --tag develop --tag-only
-    - stage: "Frappe (edge)"
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:edge \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:develop \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:latest \
+            -f build/frappe-nginx/Dockerfile .
+    - stage: "Build Frappe (all versions)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py frappe --socketio --tag latest
-        - ./travis.py frappe --socketio --tag edge --tag-only
-        - ./travis.py frappe --socketio --tag develop --tag-only
-    - stage: "ERPNext (edge)"
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:edge \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:develop \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:latest \
+            -f build/frappe-socketio/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-13 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v13*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-13 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:v13 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:${VERSION} \
+            -f build/frappe-worker/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-13 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v13*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --build-arg GIT_BRANCH=version-13 \
+            --platform linux/amd64,linux/arm64 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:v13 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:${VERSION} \
+            -f build/frappe-nginx/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-13 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v13*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-13 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:v13 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:${VERSION} \
+            -f build/frappe-socketio/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-12 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-12 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:v12 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:${VERSION} \
+            -f build/frappe-worker/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-12 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-12 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:v12 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:${VERSION} \
+            -f build/frappe-nginx/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-12 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-12 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:v12 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:${VERSION} \
+            -f build/frappe-socketio/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-11 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-11 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:v11 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-worker:${VERSION} \
+            -f build/frappe-worker/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-11 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-11 \
+            --build-arg NODE_IMAGE_TAG=10-buster-slim \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:v11 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-nginx:${VERSION} \
+            -f build/frappe-nginx/Dockerfile .
+    - stage: "Build Frappe (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/frappe --branch version-11 && \
+            cd frappe && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-11 \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:v11 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/frappe-socketio:${VERSION} \
+            -f build/frappe-socketio/Dockerfile .
+    - stage: "Build ERPNext (all versions)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py erpnext --worker --tag latest
-        - ./travis.py erpnext --worker --tag edge --tag-only
-        - ./travis.py erpnext --worker --tag develop --tag-only
-    - stage: "ERPNext (edge)"
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX:=frappe} \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:edge \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:develop \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:latest \
+            -f build/erpnext-worker/Dockerfile .
+    - stage: "Build ERPNext (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/erpnext --branch version-13 && \
+            cd erpnext && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v13*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-13 \
+            --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX:=frappe} \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:v13 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:${VERSION} \
+            -f build/erpnext-worker/Dockerfile .
+    - stage: "Build ERPNext (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/erpnext --branch version-12 && \
+            cd erpnext && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-12 \
+            --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX:=frappe} \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:v12 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:${VERSION} \
+            -f build/erpnext-worker/Dockerfile .
+    - stage: "Build ERPNext (all versions)"
+      if: branch = master AND type != pull_request
+      script:
+        - |
+          git clone https://github.com/frappe/erpnext --branch version-11 && \
+            cd erpnext && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-11 \
+            --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX:=frappe} \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:v11 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-worker:${VERSION} \
+            -f build/erpnext-worker/Dockerfile .
+    - stage: "Build ERPNext (all versions)"
       if: branch = develop AND type != pull_request
       script:
-        - ./travis.py erpnext --nginx --tag latest
-        - ./travis.py erpnext --nginx --tag edge --tag-only
-        - ./travis.py erpnext --nginx --tag develop --tag-only
-    - stage: "Frappe (v13)"
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX:=frappe} \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:edge \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:develop \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:latest \
+            -f build/erpnext-nginx/Dockerfile .
+    - stage: "Build ERPNext (all versions)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.py frappe --worker --git-version 13
-        - ./travis.py frappe --worker --tag v13 --tag-only
-        - ./travis.py frappe --worker --tag version-13 --tag-only
-    - stage: "Frappe (v13)"
+        - |
+          git clone https://github.com/frappe/erpnext --branch version-13 && \
+            cd erpnext && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v13*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-13 \
+            --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX:=frappe} \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:v13 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:${VERSION} \
+            -f build/erpnext-nginx/Dockerfile .
+    - stage: "Build ERPNext (all versions)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.py frappe --nginx --git-version 13
-        - ./travis.py frappe --nginx --tag v13 --tag-only
-        - ./travis.py frappe --nginx --tag version-13 --tag-only
-    - stage: "Frappe (v13)"
+        - |
+          git clone https://github.com/frappe/erpnext --branch version-12 && \
+            cd erpnext && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v12*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-12 \
+            --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX:=frappe} \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:v12 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:${VERSION} \
+            -f build/erpnext-nginx/Dockerfile .
+    - stage: "Build ERPNext (all versions)"
       if: branch = master AND type != pull_request
       script:
-        - ./travis.py frappe --socketio --git-version 13
-        - ./travis.py frappe --socketio --tag v13 --tag-only
-        - ./travis.py frappe --socketio --tag version-13 --tag-only
-    - stage: "ERPNext (v13)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py erpnext --worker --git-version 13
-        - ./travis.py erpnext --worker --tag v13 --tag-only
-        - ./travis.py erpnext --worker --tag version-13 --tag-only
-    - stage: "ERPNext (v13)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py erpnext --nginx --git-version 13
-        - ./travis.py erpnext --nginx --tag v13 --tag-only
-        - ./travis.py erpnext --nginx --tag version-13 --tag-only
-    - stage: "Frappe (v12)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py frappe --worker --git-version 12
-        - ./travis.py frappe --worker --tag v12 --tag-only
-        - ./travis.py frappe --worker --tag version-12 --tag-only
-    - stage: "Frappe (v12)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py frappe --nginx --git-version 12
-        - ./travis.py frappe --nginx --tag v12 --tag-only
-        - ./travis.py frappe --nginx --tag version-12 --tag-only
-    - stage: "Frappe (v12)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py frappe --socketio --git-version 12
-        - ./travis.py frappe --socketio --tag v12 --tag-only
-        - ./travis.py frappe --socketio --tag version-12 --tag-only
-    - stage: "ERPNext (v12)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py erpnext --worker --git-version 12
-        - ./travis.py erpnext --worker --tag v12 --tag-only
-        - ./travis.py erpnext --worker --tag version-12 --tag-only
-    - stage: "ERPNext (v12)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py erpnext --nginx --git-version 12
-        - ./travis.py erpnext --nginx --tag v12 --tag-only
-        - ./travis.py erpnext --nginx --tag version-12 --tag-only
-    - stage: "Frappe (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py frappe --worker --git-version 11
-        - ./travis.py frappe --worker --tag v11 --tag-only
-        - ./travis.py frappe  --worker --tag version-11 --tag-only
-    - stage: "Frappe (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py frappe --nginx --git-version 11
-        - ./travis.py frappe --nginx --tag v11 --tag-only
-        - ./travis.py frappe --nginx --tag version-11 --tag-only
-    - stage: "Frappe (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py frappe --socketio --git-version 11
-        - ./travis.py frappe --socketio --tag v11 --tag-only
-        - ./travis.py frappe --socketio --tag version-11 --tag-only
-    - stage: "ERPNext (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py erpnext --worker --git-version 11
-        - ./travis.py erpnext --worker --tag v11 --tag-only
-        - ./travis.py erpnext --worker --tag version-11 --tag-only
-    - stage: "ERPNext (v11)"
-      if: branch = master AND type != pull_request
-      script:
-        - ./travis.py erpnext --nginx --git-version 11
-        - ./travis.py erpnext --nginx --tag v11 --tag-only
-        - ./travis.py erpnext --nginx --tag version-11 --tag-only
+        - |
+          git clone https://github.com/frappe/erpnext --branch version-11 && \
+            cd erpnext && \
+            git fetch --tags && \
+            export VERSION=$(git tag --list --sort=-version:refname "v11*" | sed -n 1p | sed -e 's#.*@\(\)#\1#') && \
+            cd ..
+        - |
+          docker buildx build \
+            --no-cache \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg GIT_BRANCH=version-11 \
+            --build-arg NODE_IMAGE_TAG=10-buster-slim \
+            --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX:=frappe} \
+            --push \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:v11 \
+            -t ${DOCKER_REGISTRY_PREFIX:=frappe}/erpnext-nginx:${VERSION} \
+            -f build/erpnext-nginx/Dockerfile .
     - stage: "Build and test edge images"
       if: type = pull_request
       before_install:
