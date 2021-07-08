@@ -1,14 +1,14 @@
-FROM python:3.7-slim-buster
+FROM python:2.7-stretch
 
 # Add non root user without password
 RUN useradd -ms /bin/bash frappe
 
 ARG GIT_REPO=https://github.com/frappe/frappe
-ARG GIT_BRANCH=develop
+ARG GIT_BRANCH=v10.x.x
 ARG ARCH=amd64
 ENV PYTHONUNBUFFERED 1
 ENV NVM_DIR=/home/frappe/.nvm
-ENV NODE_VERSION=14.17.0
+ENV NODE_VERSION=8.17.0
 ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 # Install dependencies
@@ -17,7 +17,6 @@ RUN apt-get update -y && apt-get install \
     # for frappe framework
     git \
     mariadb-client \
-    postgresql-client \
     gettext-base \
     wget \
     wait-for-it \
@@ -43,8 +42,8 @@ RUN apt-get update -y && apt-get install \
     # Detect arch, download and install wkhtmltox
     && if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
     && if [ `uname -m` = 'x86_64' ]; then export ARCH=amd64; fi \
-    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
-    && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
+    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.stretch_${ARCH}.deb \
+    && dpkg -i wkhtmltox_0.12.6-1.stretch_${ARCH}.deb && rm wkhtmltox_0.12.6-1.stretch_${ARCH}.deb \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh \
     && chown -R frappe:frappe /home/frappe
 
@@ -64,13 +63,13 @@ RUN bash install.sh \
 RUN mkdir -p apps logs commands sites /home/frappe/backups
 
 # Setup python environment
-RUN python -m venv env \
+RUN virtualenv env \
     && . env/bin/activate \
-    && pip3 install --upgrade pip \
-    && pip3 install gevent \
+    && pip install --upgrade pip \
+    && pip install gevent \
     && cd apps \
     && git clone --depth 1 -o upstream ${GIT_REPO} --branch ${GIT_BRANCH} \
-    && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
+    && pip install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
 
 # Copy scripts and templates
 COPY build/common/commands/* /home/frappe/frappe-bench/commands/

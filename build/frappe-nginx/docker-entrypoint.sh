@@ -6,8 +6,6 @@
 
 rsync -a --delete /var/www/html/assets/* /assets
 
-/rsync
-
 touch /var/www/html/sites/.build -r "$(ls -td /assets/* | head -n 1)"
 
 [[ -z "${FRAPPE_PY}" ]] && FRAPPE_PY='0.0.0.0'

@@ -19,9 +19,9 @@ def run_command(command, stdout=None, stdin=None, stderr=None):
     out, error = process.communicate()
     if process.returncode:
         print("Something went wrong:")
-        print(f"return code: {process.returncode}")
-        print(f"stdout:\n{out}")
-        print(f"\nstderr:\n{error}")
+        print("return code: {returncode}".format(returncode=process.returncode))
+        print("stdout:\n{out}".format(out=out))
+        print("\nstderr:\n{error}".format(error=error))
         exit(process.returncode)
 
 
@@ -105,7 +105,7 @@ def save_config(config):
 
 
 def get_password(env_var, default=None):
-    return os.environ.get(env_var) or get_password_from_secret(f"{env_var}_FILE") or default
+    return os.environ.get(env_var) or get_password_from_secret("{env_var}_FILE".format(env_var=env_var)) or default
 
 
 def get_password_from_secret(env_var):
