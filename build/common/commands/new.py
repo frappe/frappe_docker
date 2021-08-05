@@ -64,6 +64,7 @@ def main():
             install_apps=install_apps,
             source_sql=None,
             force=force,
+            no_mariadb_socket=True,
             db_type=db_type,
             reinstall=False,
             db_host=db_host,
@@ -80,6 +81,7 @@ def main():
             install_apps=install_apps,
             source_sql=None,
             force=force,
+            no_mariadb_socket=True,
             reinstall=False,
         )
 
