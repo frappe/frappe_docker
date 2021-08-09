@@ -75,7 +75,7 @@ WORKDIR /home/frappe
 
 # Clone and install bench in the local user home directory
 # For development, bench source is located in ~/.bench
-RUN git clone ${GIT_REPO} -b ${GIT_BRANCH} .bench \
+RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
     && pip3 install --user -e .bench
 
 # Export python executables for Dockerfile
