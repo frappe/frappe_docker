@@ -52,6 +52,7 @@ COPY build/common/nginx-default.conf.template /etc/nginx/conf.d/default.conf.tem
 COPY build/frappe-nginx/docker-entrypoint.sh /
 
 RUN apt-get update && apt-get install -y rsync && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
     && echo "#!/bin/bash" > /rsync \
     && chmod +x /rsync
 
