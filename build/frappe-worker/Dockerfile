@@ -46,7 +46,8 @@ RUN apt-get update -y && apt-get install \
     && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
     && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh \
-    && chown -R frappe:frappe /home/frappe
+    && chown -R frappe:frappe /home/frappe \
+    && rm -rf /var/lib/apt/lists/*
 
 # Setup docker-entrypoint
 COPY build/common/worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
