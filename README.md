@@ -12,6 +12,8 @@
 
 Wait for 5 minutes for ERPNext site to be created or check `site-creator` container logs before opening browser on port 80. (username: `Administrator`, password: `admin`)
 
+### Video tutorial 
+Here the video tutorial for quick and easy intallation: Thanks to Mr Deepak Kumar for uploading this help ful video: https://www.youtube.com/watch?v=HGLAmV_mzhA&t
 ### Setting up Pre-requisites
 
 This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
