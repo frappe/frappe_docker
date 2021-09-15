@@ -30,6 +30,8 @@ services:
   frappe:
     image: frappe/bench:latest
     command: sleep infinity
+    environment:
+      - SHELL=/bin/bash
     volumes:
       - ..:/workspace:cached
     working_dir: /workspace/development
