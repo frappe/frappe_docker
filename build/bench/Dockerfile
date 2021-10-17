@@ -18,6 +18,7 @@ RUN apt-get update -y && apt-get install  \
     fonts-cantarell \
     xfonts-75dpi \
     xfonts-base \
+    cups \
     # to work inside the container
     locales \
     build-essential \
