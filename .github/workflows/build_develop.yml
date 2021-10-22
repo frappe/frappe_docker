@@ -26,20 +26,20 @@ jobs:
           docker push frappe/bench:latest
       - name: "Build Frappe Edge"
         run: |
-          ./travis.py frappe --worker --tag latest
-          ./travis.py frappe --worker --tag edge --tag-only
-          ./travis.py frappe --worker --tag develop --tag-only
-          ./travis.py frappe --nginx --tag latest
-          ./travis.py frappe --nginx --tag edge --tag-only
-          ./travis.py frappe --nginx --tag develop --tag-only
-          ./travis.py frappe --socketio --tag latest
-          ./travis.py frappe --socketio --tag edge --tag-only
-          ./travis.py frappe --socketio --tag develop --tag-only
+          ./builder.py frappe --worker --tag latest
+          ./builder.py frappe --worker --tag edge --tag-only
+          ./builder.py frappe --worker --tag develop --tag-only
+          ./builder.py frappe --nginx --tag latest
+          ./builder.py frappe --nginx --tag edge --tag-only
+          ./builder.py frappe --nginx --tag develop --tag-only
+          ./builder.py frappe --socketio --tag latest
+          ./builder.py frappe --socketio --tag edge --tag-only
+          ./builder.py frappe --socketio --tag develop --tag-only
       - name: "Build ERPNext Edge"
         run: |
-          ./travis.py erpnext --worker --tag latest
-          ./travis.py erpnext --worker --tag edge --tag-only
-          ./travis.py erpnext --worker --tag develop --tag-only
-          ./travis.py erpnext --nginx --tag latest
-          ./travis.py erpnext --nginx --tag edge --tag-only
-          ./travis.py erpnext --nginx --tag develop --tag-only
+          ./builder.py erpnext --worker --tag latest
+          ./builder.py erpnext --worker --tag edge --tag-only
+          ./builder.py erpnext --worker --tag develop --tag-only
+          ./builder.py erpnext --nginx --tag latest
+          ./builder.py erpnext --nginx --tag edge --tag-only
+          ./builder.py erpnext --nginx --tag develop --tag-only
