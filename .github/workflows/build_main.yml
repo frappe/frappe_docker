@@ -1,0 +1,66 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Install build dependencies
+        run: |
+          apt update && apt install curl python3 python3-pip git -y
+          curl -fsSL https://get.docker.com | sh
+      - name: Build Frappe v13
+        run: |
+          ./builder.py frappe --worker --tag v13 --tag-only
+          ./builder.py frappe --worker --tag version-13 --tag-only
+          ./builder.py frappe --nginx --git-version 13
+          ./builder.py frappe --nginx --tag v13 --tag-only
+          ./builder.py frappe --nginx --tag version-13 --tag-only
+          ./builder.py frappe --socketio --git-version 13
+          ./builder.py frappe --socketio --tag v13 --tag-only
+          ./builder.py frappe --socketio --tag version-13 --tag-only
+      - name: Build ERPNext v13
+        run: |
+          ./builder.py erpnext --worker --git-version 13
+          ./builder.py erpnext --worker --tag v13 --tag-only
+          ./builder.py erpnext --worker --tag version-13 --tag-only
+          ./builder.py erpnext --nginx --git-version 13
+          ./builder.py erpnext --nginx --tag v13 --tag-only
+          ./builder.py erpnext --nginx --tag version-13 --tag-only
+      - name: Build Frappe v12
+        run: |
+          ./builder.py frappe --worker --tag v12 --tag-only
+          ./builder.py frappe --worker --tag version-12 --tag-only
+          ./builder.py frappe --nginx --git-version 12
+          ./builder.py frappe --nginx --tag v12 --tag-only
+          ./builder.py frappe --nginx --tag version-12 --tag-only
+          ./builder.py frappe --socketio --git-version 12
+          ./builder.py frappe --socketio --tag v12 --tag-only
+          ./builder.py frappe --socketio --tag version-12 --tag-only
+      - name: Build ERPNext v12
+        run: |
+          ./builder.py erpnext --worker --git-version 12
+          ./builder.py erpnext --worker --tag v12 --tag-only
+          ./builder.py erpnext --worker --tag version-12 --tag-only
+          ./builder.py erpnext --nginx --git-version 12
+          ./builder.py erpnext --nginx --tag v12 --tag-only
+          ./builder.py erpnext --nginx --tag version-12 --tag-only
+      - name: Helm Chart Release
+        run: |
+          export GIT_SSH_COMMAND="ssh -i ${TRAVIS_BUILD_DIR}/deploy_key"
+          openssl aes-256-cbc -K $encrypted_189e52c2c347_key -iv $encrypted_189e52c2c347_iv -in deploy_key.enc -out deploy_key -d
+          chmod 400 deploy_key;
+          ssh-keyscan github.com >> $HOME/.ssh/known_hosts 2>/dev/null;
+          pip install --upgrade pip
+          git clone git@github.com:frappe/helm.git && cd helm
+          pip install -r release_wizard/requirements.txt
+          ./release_wizard/wizard 13 patch --remote origin --ci

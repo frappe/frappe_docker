@@ -1,0 +1,25 @@
+on:
+  schedule:
+    # Nightly test 12:00 am
+    - cron: "0 0 * * *"
+
+jobs:
+  test_develop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Install build dependencies
+        run: |
+          apt update && apt install curl python3 git w3m shellcheck -y
+          curl -fsSL https://get.docker.com | sh
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+      - name: Pull and test edge images
+        run: |
+          ./tests/docker-test.sh

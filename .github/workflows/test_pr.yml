@@ -1,0 +1,31 @@
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Install build dependencies
+        run: |
+          apt update && apt install curl python3 git w3m shellcheck -y
+          curl -fsSL https://get.docker.com | sh
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+      - name: Build and test edge images
+        run: |
+          ./tests/check-format.sh
+          docker build -t frappe/frappe-socketio:edge -f build/frappe-socketio/Dockerfile .
+          docker build -t frappe/frappe-worker:develop -f build/frappe-worker/Dockerfile .
+          docker build -t frappe/erpnext-worker:edge -f build/erpnext-worker/Dockerfile .
+          docker build -t frappe/frappe-nginx:develop -f build/frappe-nginx/Dockerfile .
+          docker build -t frappe/erpnext-nginx:edge -f build/erpnext-nginx/Dockerfile .
+          ./tests/docker-test.sh
