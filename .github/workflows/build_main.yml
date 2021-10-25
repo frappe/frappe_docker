@@ -20,6 +20,7 @@ jobs:
           curl -fsSL https://get.docker.com | sh
       - name: Build Frappe v13
         run: |
+          ./builder.py frappe --worker --git-version 13
           ./builder.py frappe --worker --tag v13 --tag-only
           ./builder.py frappe --worker --tag version-13 --tag-only
           ./builder.py frappe --nginx --git-version 13
@@ -38,6 +39,7 @@ jobs:
           ./builder.py erpnext --nginx --tag version-13 --tag-only
       - name: Build Frappe v12
         run: |
+          ./builder.py frappe --worker --git-version 12
           ./builder.py frappe --worker --tag v12 --tag-only
           ./builder.py frappe --worker --tag version-12 --tag-only
           ./builder.py frappe --nginx --git-version 12
