@@ -16,7 +16,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Install build dependencies
         run: |
-          apt update && apt install curl python3 python3-pip git -y
+          sudo apt update && sudo apt install curl python3 python3-pip git -y
           curl -fsSL https://get.docker.com | sh
       - name: Build Frappe v13
         run: |
