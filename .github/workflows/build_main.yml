@@ -1,5 +1,5 @@
 on:
-  repository_dispatch:
+  workflow_dispatch:
   push:
     branches:
       - main
