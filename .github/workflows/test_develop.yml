@@ -1,7 +1,7 @@
 on:
   schedule:
-    # Nightly test 12:00 am
-    - cron: "0 0 * * *"
+    # Daily test at 12:00 pm
+    - cron: "0 12 * * *"
 
 jobs:
   test_develop:

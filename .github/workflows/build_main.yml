@@ -58,8 +58,8 @@ jobs:
           ./builder.py erpnext --nginx --tag version-12 --tag-only
       - name: Helm Chart Release
         run: |
-          export GIT_SSH_COMMAND="ssh -i ${TRAVIS_BUILD_DIR}/deploy_key"
-          openssl aes-256-cbc -K $encrypted_189e52c2c347_key -iv $encrypted_189e52c2c347_iv -in deploy_key.enc -out deploy_key -d
+          export GIT_SSH_COMMAND="ssh -i ${PWD}/deploy_key"
+          openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -in gh_actions_deploy_key.enc -out deploy_key -d
           chmod 400 deploy_key;
           ssh-keyscan github.com >> $HOME/.ssh/known_hosts 2>/dev/null;
           pip install --upgrade pip
