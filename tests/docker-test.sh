@@ -49,9 +49,11 @@ function loopHealthCheck() {
 
 echo -e "${ULINE}Copy env-example file${ENDULINE}"
 cp env-example .env
+export $(cat .env)
 
 echo -e "${NEWLINE}${ULINE}Set version to v13${ENDULINE}"
 sed -i -e "s/edge/v13/g" .env
+export $(cat .env)
 
 echo -e "${NEWLINE}${ULINE}Start Services${ENDULINE}"
 docker-compose \
@@ -92,6 +94,7 @@ curl -s http://test.localhost | w3m -T text/html -dump
 
 echo -e "${NEWLINE}${ULINE}Set version to edge${ENDULINE}"
 sed -i -e "s/v13/edge/g" .env
+export $(cat .env)
 
 echo -e "${NEWLINE}${ULINE}Restart containers with edge image${ENDULINE}"
 docker-compose \

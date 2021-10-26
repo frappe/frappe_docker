@@ -1,0 +1,193 @@
+name: Build
+
+on:
+  push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - github/workflows/docker.yml
+  #     - build/**
+  #     - installation/**
+  #     - tests/**
+  #     - .dockerignore
+  #     - docker-bake.hcl
+  #     - docker-compose.yml
+  #     - env*
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - github/workflows/docker.yml
+      - build/**
+      - installation/**
+      - tests/**
+      - .dockerignore
+      - docker-bake.hcl
+      - docker-compose.yml
+      - env*
+
+  # Nightly builds at 12:00 am
+  schedule:
+    - cron: 0 0 * * *
+
+  repository_dispatch: # Triggered from frappe/frappe and frappe/erpnext on releases
+
+  workflow_dispatch: # Manually triggered
+    inputs:
+      version:
+        description: Frappe and ERPNext version. Set to "12", "13" for latest stable versions or "develop" for nightly builds.
+        required: true
+
+jobs:
+  resolve-matrix:
+    name: Resolve matrix configuration
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.get-matrix.outputs.matrix }}
+      build-target: ${{ steps.get-build-target.outputs.build-target }}
+      
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get matrix
+        id: get-matrix
+        run: |
+          if [ $GITHUB_EVENT_NAME == "repository_dispatch" ] || [ $GITHUB_EVENT_NAME == "push" ]; then
+              MATRIX='[{"version": "12"}, {"version": "13"}]'
+          elif [ $GITHUB_EVENT_NAME == "schedule" ] || [ $GITHUB_EVENT_NAME == "pull_request" ]; then
+              MATRIX='[{"version": "develop"}]'
+          elif [ $GITHUB_EVENT_NAME == "workflow_dispatch" ]; then
+              MATRIX='[{"version": "${{ github.event.inputs.version }}"}]'
+          fi
+
+          echo ::set-output name=matrix::{\"include\":$MATRIX}
+          echo $MATRIX
+
+      - name: Get build target
+        id: get-build-target
+        run: |
+          IS_DEVELOP=$(echo $MATRIX | jq 'any(.include[].version == "develop"; .)')
+          if [ $IS_DEVELOP == "true" ]; then
+              BUILD_TARGET_SUFFIX="develop"
+          else
+              BUILD_TARGET_SUFFIX="stable"
+          fi
+          echo $BUILD_TARGET_SUFFIX
+          echo ::set-output name=build-target::$BUILD_TARGET_SUFFIX
+        env:
+          MATRIX: ${{ steps.get-matrix.outputs.matrix }}
+
+  build_bench:
+    name: Bench image
+    needs: resolve-matrix
+    runs-on: ubuntu-latest
+    if: needs.resolve-matrix.outputs.build-target == 'develop'
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+      # - uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: frappe-bench
+          # push: ${{ github.event_name != 'pull_request' }}
+
+  build_main:
+    name: Frappe and ERPNext images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.resolve-matrix.outputs.matrix) }}
+    needs: resolve-matrix
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+      # - uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Get latest Frappe tag
+        if: needs.resolve-matrix.outputs.build-target == 'stable'
+        run: |
+          GIT_TAG=$(./.github/scripts/get-latest-tag.sh)
+          echo $GIT_TAG
+          echo "GIT_TAG=$GIT_TAG" >> $GITHUB_ENV
+          echo "GIT_BRANCH=version-$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        env:
+          REPO: frappe/frappe
+          VERSION: ${{ matrix.version }}
+
+      - name: Build Frappe images
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: ${{ format('{0}-{1}', 'frappe', needs.resolve-matrix.outputs.build-target )}}
+          load: true
+
+      - name: Get latest ERPNext tag
+        if: needs.resolve-matrix.outputs.build-target == 'stable'
+        run: |
+          GIT_TAG=$(./.github/scripts/get-latest-tag.sh)
+          echo $GIT_TAG
+          echo "GIT_TAG=$GIT_TAG" >> $GITHUB_ENV
+          echo "GIT_BRANCH=version-$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        env:
+          REPO: frappe/erpnext
+          VERSION: ${{ matrix.version }}
+
+      - name: Build ERPNext images
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: ${{ format('{0}-{1}', 'erpnext', needs.resolve-matrix.outputs.build-target )}}
+          load: true
+
+      - name: Install test dependencies
+        run: sudo apt-get install -y w3m
+
+      - name: Test
+        run: |
+          ./tests/check-format.sh
+          ./tests/docker-test.sh
+          # This is done to not to rebuild images in the next step
+          git reset --hard @{u}
+
+      - name: Push Frappe images
+        if: github.event_name != 'pull_request'
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: ${{ format('{0}-{1}', 'frappe', needs.resolve-matrix.outputs.build-target )}}
+          # push: true
+
+      - name: Push ERPNext images
+        if: github.event_name != 'pull_request'
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: ${{ format('{0}-{1}', 'erpnext', needs.resolve-matrix.outputs.build-target )}}
+          # push: true
+
+      - name: Release Helm Chart
+        if: needs.resolve-matrix.outputs.build-target == 'stable'
+        run: |
+          export GIT_SSH_COMMAND="ssh -i ${PWD}/deploy_key"
+          echo "$HELM_DEPLOY_KEY" | openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -out deploy_key -d
+          chmod 400 deploy_key;
+          ssh-keyscan github.com >> $HOME/.ssh/known_hosts 2>/dev/null;
+          pip install --upgrade pip
+          git clone git@github.com:frappe/helm.git && cd helm
+          pip install -r release_wizard/requirements.txt
+          ./release_wizard/wizard 13 patch --remote origin --ci
+        env:
+          HELM_DEPLOY_KEY: ${{ secrets.HELM_DEPLOY_KEY }}
