@@ -1,6 +1,6 @@
-| Develop | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=develop)](https://travis-ci.com/frappe/frappe_docker)  |
+| Stable  | ![stable](https://github.com/frappe/frappe_docker/actions/workflows/build_main.yml/badge.svg) |
 |---------|-----------------------------------------------------------------------------------------------------------------------------|
-| Master  | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=master)](https://travis-ci.com/frappe/frappe_docker) |
+| Nightly | ![build_develop](https://github.com/revant/frappe_docker/actions/workflows/build_develop.yml/badge.svg) |
 
 ## Getting Started
 
