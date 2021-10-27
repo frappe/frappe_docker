@@ -2,17 +2,17 @@ name: Build
 
 on:
   push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - github/workflows/docker.yml
-  #     - build/**
-  #     - installation/**
-  #     - tests/**
-  #     - .dockerignore
-  #     - docker-bake.hcl
-  #     - docker-compose.yml
-  #     - env*
+    branches:
+      - main
+    paths:
+      - github/workflows/docker.yml
+      - build/**
+      - installation/**
+      - tests/**
+      - .dockerignore
+      - docker-bake.hcl
+      - docker-compose.yml
+      - env*
 
   pull_request:
     branches:
@@ -87,17 +87,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: docker/setup-buildx-action@v1
-      # - uses: docker/login-action@v1
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
           targets: frappe-bench
-          # push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name != 'pull_request' }}
 
   build_main:
     name: Frappe and ERPNext images
@@ -109,10 +109,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: docker/setup-buildx-action@v1
-      # - uses: docker/login-action@v1
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Get latest Frappe tag
         if: needs.resolve-matrix.outputs.build-target == 'stable'
@@ -168,7 +168,7 @@ jobs:
         with:
           files: docker-bake.hcl
           targets: ${{ format('{0}-{1}', 'frappe', needs.resolve-matrix.outputs.build-target )}}
-          # push: true
+          push: true
 
       - name: Push ERPNext images
         if: github.event_name != 'pull_request'
@@ -176,7 +176,7 @@ jobs:
         with:
           files: docker-bake.hcl
           targets: ${{ format('{0}-{1}', 'erpnext', needs.resolve-matrix.outputs.build-target )}}
-          # push: true
+          push: true
 
       - name: Release Helm Chart
         if: needs.resolve-matrix.outputs.build-target == 'stable'
