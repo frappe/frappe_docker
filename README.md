@@ -1,6 +1,6 @@
 | Stable  | [![stable](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml/badge.svg?event=repository_dispatch)](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml)  |
 |---------|-----------------------------------------------------------------------------------------------------------------------------|
-| Nightly | [![develop](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml/badge.svg?event=schedule)](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml) |
+| Nightly | [![nightly](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml/badge.svg?event=schedule)](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml) |
 
 ## Getting Started
 
