@@ -182,7 +182,7 @@ jobs:
         if: needs.resolve-matrix.outputs.build-target == 'stable'
         run: |
           export GIT_SSH_COMMAND="ssh -i ${PWD}/deploy_key"
-          echo "$HELM_DEPLOY_KEY" | openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -out deploy_key -d
+          echo -n $HELM_DEPLOY_KEY | base64 -d > deploy_key
           chmod 400 deploy_key;
           ssh-keyscan github.com >> $HOME/.ssh/known_hosts 2>/dev/null;
           pip install --upgrade pip
