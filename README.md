@@ -1,6 +1,6 @@
-| Develop | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=develop)](https://travis-ci.com/frappe/frappe_docker)  |
+| Stable  | [![stable](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml/badge.svg?event=repository_dispatch)](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml)  |
 |---------|-----------------------------------------------------------------------------------------------------------------------------|
-| Master  | [![Build Status](https://travis-ci.com/frappe/frappe_docker.svg?branch=master)](https://travis-ci.com/frappe/frappe_docker) |
+| Nightly | [![nightly](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml/badge.svg?event=schedule)](https://github.com/frappe/frappe_docker/actions/workflows/docker.yml) |
 
 ## Getting Started
 
