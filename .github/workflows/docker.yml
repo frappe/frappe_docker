@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - github/workflows/docker.yml
+      - .github/workflows/docker.yml
       - build/**
       - installation/**
       - tests/**
@@ -18,7 +18,7 @@ on:
     branches:
       - main
     paths:
-      - github/workflows/docker.yml
+      - .github/workflows/docker.yml
       - build/**
       - installation/**
       - tests/**
@@ -46,7 +46,7 @@ jobs:
     outputs:
       matrix: ${{ steps.get-matrix.outputs.matrix }}
       build-target: ${{ steps.get-build-target.outputs.build-target }}
-      
+
     steps:
       - uses: actions/checkout@v2
 
