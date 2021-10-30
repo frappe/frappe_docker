@@ -63,6 +63,7 @@ jobs:
           load: true
 
       - name: Test
+        if: ${{ matrix.version != 12 }}
         run: ./.github/scripts/install-deps-and-test.sh
 
       - name: Setup Frappe variables
