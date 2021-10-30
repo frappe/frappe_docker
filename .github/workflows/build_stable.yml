@@ -94,11 +94,14 @@ jobs:
           targets: erpnext-stable
           push: true
 
-      - name: Release Helm Chart
+      - name: Setup Helm deploy key
         if: github.repository == 'frappe/frappe_docker'
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
+
+      - name: Release Helm Chart
+        if: github.repository == 'frappe/frappe_docker'
         run: |
           pip install --upgrade pip
           git clone git@github.com:frappe/helm.git && cd helm
