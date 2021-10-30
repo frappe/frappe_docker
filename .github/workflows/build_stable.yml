@@ -21,6 +21,7 @@ on:
 
 jobs:
   build:
+    name: Frappe and ERPNext images
     runs-on: ubuntu-latest
     strategy:
       matrix:
