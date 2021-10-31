@@ -1,0 +1,111 @@
+name: Build Stable
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/**
+      - build/**
+      - installation/**
+      - tests/**
+      - .dockerignore
+      - docker-bake.hcl
+      - docker-compose.yml
+      - env*
+
+  # Triggered from frappe/frappe and frappe/erpnext on releases
+  repository_dispatch:
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Frappe and ERPNext images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [12, 13]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1
+        if: github.repository == 'frappe/frappe_docker'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Setup Frappe variables
+        run: ./.github/scripts/get-latest-tag.sh
+        env:
+          REPO: frappe/frappe
+          VERSION: ${{ matrix.version }}
+
+      - name: Build Frappe images
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: frappe-stable
+          load: true
+
+      - name: Setup ERPNext variables
+        run: ./.github/scripts/get-latest-tag.sh
+        env:
+          REPO: frappe/erpnext
+          VERSION: ${{ matrix.version }}
+
+      - name: Build ERPNext images
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: erpnext-stable
+          load: true
+
+      - name: Test
+        if: ${{ matrix.version != 12 }}
+        run: ./.github/scripts/install-deps-and-test.sh
+
+      - name: Setup Frappe variables
+        if: github.repository == 'frappe/frappe_docker'
+        run: ./.github/scripts/get-latest-tag.sh
+        env:
+          REPO: frappe/frappe
+          VERSION: ${{ matrix.version }}
+
+      - name: Push Frappe images
+        if: github.repository == 'frappe/frappe_docker'
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: frappe-stable
+          push: true
+
+      - name: Setup ERPNext variables
+        if: github.repository == 'frappe/frappe_docker'
+        run: ./.github/scripts/get-latest-tag.sh
+        env:
+          REPO: frappe/erpnext
+          VERSION: ${{ matrix.version }}
+
+      - name: Push ERPNext images
+        if: github.repository == 'frappe/frappe_docker'
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: erpnext-stable
+          push: true
+
+      - name: Setup Helm deploy key
+        if: github.repository == 'frappe/frappe_docker'
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
+
+      - name: Release Helm Chart
+        if: github.repository == 'frappe/frappe_docker'
+        run: |
+          pip install --upgrade pip
+          git clone git@github.com:frappe/helm.git && cd helm
+          pip install -r release_wizard/requirements.txt
+          ./release_wizard/wizard 13 patch --remote origin --ci
