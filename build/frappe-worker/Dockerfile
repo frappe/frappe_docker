@@ -40,6 +40,16 @@ RUN apt-get update -y && apt-get install \
     # For arm64 python wheel builds
     gcc \
     g++ -y \
+    # Install additional requirements for develop branch
+    && if [ "${GIT_BRANCH}" = 'develop' ]; then \
+        apt-get install -y \
+        libcairo2 \
+        python3-cffi \
+        python3-brotli \
+        libpango-1.0-0 \
+        libpangoft2-1.0-0 \
+        libpangocairo-1.0-0; \
+    fi \
     # Detect arch, download and install wkhtmltox
     && if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
     && if [ `uname -m` = 'x86_64' ]; then export ARCH=amd64; fi \
