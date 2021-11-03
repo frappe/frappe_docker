@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.9-slim-bullseye
 
 # Add non root user without password
 RUN useradd -ms /bin/bash frappe
