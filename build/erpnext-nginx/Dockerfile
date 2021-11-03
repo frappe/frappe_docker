@@ -1,4 +1,4 @@
-ARG NODE_IMAGE_TAG=14-buster-slim
+ARG NODE_IMAGE_TAG=14-bullseye-slim
 ARG DOCKER_REGISTRY_PREFIX=frappe
 ARG IMAGE_TAG=develop
 

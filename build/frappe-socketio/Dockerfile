@@ -5,7 +5,7 @@ ARG GIT_BRANCH=develop
 
 RUN git clone ${GIT_REPO} /opt/frappe -b ${GIT_BRANCH} --depth 1
 
-FROM node:buster-slim
+FROM node:bullseye-slim
 
 # Add frappe user
 RUN useradd -ms /bin/bash frappe
