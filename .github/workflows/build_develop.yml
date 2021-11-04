@@ -60,6 +60,7 @@ jobs:
           files: docker-bake.hcl
           targets: frappe-develop
           load: true
+          push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
 
       - name: Build ERPNext images
         uses: docker/bake-action@v1.6.0
@@ -67,22 +68,7 @@ jobs:
           files: docker-bake.hcl
           targets: erpnext-develop
           load: true
+          push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
 
       - name: Test
         run: ./.github/scripts/install-deps-and-test.sh
-
-      - name: Push Frappe images
-        if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
-        uses: docker/bake-action@v1.6.0
-        with:
-          files: docker-bake.hcl
-          targets: frappe-develop
-          push: true
-
-      - name: Push ERPNext images
-        if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
-        uses: docker/bake-action@v1.6.0
-        with:
-          files: docker-bake.hcl
-          targets: erpnext-develop
-          push: true
