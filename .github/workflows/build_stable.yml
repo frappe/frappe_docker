@@ -47,7 +47,6 @@ jobs:
         with:
           files: docker-bake.hcl
           targets: frappe-stable
-          load: true
           push: true
 
       - name: Setup ERPNext variables
@@ -61,7 +60,6 @@ jobs:
         with:
           files: docker-bake.hcl
           targets: erpnext-stable
-          load: true
           push: true
 
       - name: Test
