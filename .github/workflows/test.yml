@@ -1,0 +1,17 @@
+name: Test
+
+on:
+  schedule:
+    # Every day at 01:00 am
+    # Develop images are built at 12:00 pm, we want to use them
+    - cron: 0 1 * * *
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Test
+        run: ./tests/integration-test.sh
