@@ -60,7 +60,7 @@ RUN apt-get update -y && apt-get install \
     && rm -rf /var/lib/apt/lists/*
 
 # Setup docker-entrypoint
-COPY build/common/worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY build/frappe-worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 USER frappe
@@ -84,11 +84,11 @@ RUN python -m venv env \
     && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
 
 # Copy scripts and templates
-COPY build/common/commands/* /home/frappe/frappe-bench/commands/
-COPY build/common/common_site_config.json.template /opt/frappe/common_site_config.json.template
-COPY build/common/worker/install_app.sh /usr/local/bin/install_app
-COPY build/common/worker/bench /usr/local/bin/bench
-COPY build/common/worker/healthcheck.sh /usr/local/bin/healthcheck.sh
+COPY build/frappe-worker/commands/* /home/frappe/frappe-bench/commands/
+COPY build/frappe-worker/common_site_config.json.template /opt/frappe/common_site_config.json.template
+COPY build/frappe-worker/install_app.sh /usr/local/bin/install_app
+COPY build/frappe-worker/bench /usr/local/bin/bench
+COPY build/frappe-worker/healthcheck.sh /usr/local/bin/healthcheck.sh
 
 # Use sites volume as working directory
 WORKDIR /home/frappe/frappe-bench/sites

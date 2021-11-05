@@ -48,7 +48,7 @@ RUN mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/ \
 FROM nginx:latest
 COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
 COPY --from=0 /var/www/error_pages /var/www/
-COPY build/common/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
+COPY build/frappe-nginx/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY build/frappe-nginx/docker-entrypoint.sh /
 
 RUN apt-get update && apt-get install -y rsync && apt-get clean \
