@@ -42,11 +42,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Get latest versions
-        run: |
-          ./.github/scripts/get-latest-tags.sh
-          echo "VERSION=$VERSION" >>$GITHUB_ENV
-          echo "GIT_TAG=$FRAPPE_VERSION" >>$GITHUB_ENV
-          echo "GIT_BRANCH=version-$VERSION" >>$GITHUB_ENV
+        run: ./.github/scripts/get-latest-tags.sh
         env:
           VERSION: ${{ matrix.version }}
 
@@ -67,6 +63,8 @@ jobs:
           files: docker-bake.hcl
           targets: frappe-stable
           push: true
+        env:
+          GIT_TAG: ${{ env.FRAPPE_VERSION }}
 
   build_erpnext:
     name: ERPNext
@@ -91,11 +89,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Get latest versions
-        run: |
-          ./.github/scripts/get-latest-tags.sh
-          echo "VERSION=$VERSION" >>$GITHUB_ENV
-          echo "GIT_TAG=$ERPNEXT" >>$GITHUB_ENV
-          echo "GIT_BRANCH=version-$VERSION" >>$GITHUB_ENV
+        run: ./.github/scripts/get-latest-tags.sh
         env:
           VERSION: ${{ matrix.version }}
 
@@ -116,6 +110,8 @@ jobs:
           files: docker-bake.hcl
           targets: erpnext-stable
           push: true
+        env:
+          GIT_TAG: ${{ env.ERPNEXT_VERSION }}
 
   release_helm:
     name: Release Helm
