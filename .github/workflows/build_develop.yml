@@ -78,7 +78,6 @@ jobs:
           files: docker-bake.hcl
           targets: frappe-develop-test
           load: true
-          push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
 
       - name: Test
         run: ./tests/test-frappe.sh
