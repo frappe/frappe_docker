@@ -20,51 +20,51 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_frappe:
-    name: Frappe
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        version: [12, 13]
+  # build_frappe:
+  #   name: Frappe
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       version: [12, 13]
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Setup Buildx
-        uses: docker/setup-buildx-action@v1
+  #     - name: Setup Buildx
+  #       uses: docker/setup-buildx-action@v1
 
-      - name: Login
-        uses: docker/login-action@v1
-        if: github.repository == 'frappe/frappe_docker'
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     - name: Login
+  #       uses: docker/login-action@v1
+  #       if: github.repository == 'frappe/frappe_docker'
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Get latest versions
-        run: ./.github/scripts/get-latest-tags.sh
-        env:
-          VERSION: ${{ matrix.version }}
+  #     - name: Get latest versions
+  #       run: ./.github/scripts/get-latest-tags.sh
+  #       env:
+  #         VERSION: ${{ matrix.version }}
 
-      - name: Build
-        uses: docker/bake-action@v1.6.0
-        with:
-          files: docker-bake.hcl
-          targets: frappe-stable-test
-          load: true
+  #     - name: Build
+  #       uses: docker/bake-action@v1.6.0
+  #       with:
+  #         files: docker-bake.hcl
+  #         targets: frappe-stable-test
+  #         load: true
 
-      - name: Test
-        run: ./tests/test-frappe.sh
+  #     - name: Test
+  #       run: ./tests/test-frappe.sh
 
-      - name: Push
-        # if: github.repository == 'frappe/frappe_docker'
-        uses: docker/bake-action@v1.6.0
-        with:
-          files: docker-bake.hcl
-          targets: frappe-stable
-          push: false
-        env:
-          GIT_TAG: ${{ env.FRAPPE_VERSION }}
+  #     - name: Push
+  #       # if: github.repository == 'frappe/frappe_docker'
+  #       uses: docker/bake-action@v1.6.0
+  #       with:
+  #         files: docker-bake.hcl
+  #         targets: frappe-stable
+  #         push: false
+  #       env:
+  #         GIT_TAG: ${{ env.FRAPPE_VERSION }}
 
   build_erpnext:
     name: ERPNext
@@ -72,7 +72,7 @@ jobs:
     # needs: build_frappe
     strategy:
       matrix:
-        version: [12, 13]
+        version: [13]
 
     steps:
       - name: Checkout
