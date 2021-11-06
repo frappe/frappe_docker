@@ -16,3 +16,7 @@ ERPNEXT_VERSION=$(get_tag frappe/erpnext "$VERSION")
 echo "FRAPPE_VERSION=$FRAPPE_VERSION" >>$GITHUB_ENV
 # shellcheck disable=SC2086
 echo "ERPNEXT_VERSION=$ERPNEXT_VERSION" >>$GITHUB_ENV
+# shellcheck disable=SC2086
+echo "GIT_BRANCH=version-$VERSION" >>$GITHUB_ENV
+# shellcheck disable=SC2086
+echo "VERSION=$VERSION" >>$GITHUB_ENV

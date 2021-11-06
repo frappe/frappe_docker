@@ -47,7 +47,6 @@ variable "VERSION" {}
 
 target "stable-args" {
     args = {
-        GIT_TAG = "${GIT_TAG}"
         GIT_BRANCH = "${GIT_BRANCH}"
         IMAGE_TAG = "${GIT_BRANCH}"
     }
