@@ -1,5 +1,5 @@
 # Frappe Bench Dockerfile
-FROM debian:buster-slim
+FROM debian:buster-slim as build
 
 ARG GIT_REPO=https://github.com/frappe/bench.git
 ARG GIT_BRANCH=develop
@@ -58,7 +58,7 @@ RUN apt-get update -y && apt-get install  \
     rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
-  && dpkg-reconfigure --frontend=noninteractive locales
+    && dpkg-reconfigure --frontend=noninteractive locales
 
 # Detect arch, download and install wkhtmltox
 RUN if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
@@ -83,11 +83,6 @@ ENV PATH=/home/frappe/.local/bin:$PATH
 # Export python executables for interactive shell
 RUN echo "export PATH=/home/frappe/.local/bin:\$PATH" >> /home/frappe/.bashrc
 
-# Print version and verify bashrc is properly sourced so that everything works in the Dockerfile
-RUN bench --version
-# Print version and verify bashrc is properly sourced so that everything works in the interactive shell
-RUN bash -c "bench --version"
-
 # !!! UPDATE NODEJS PERIODICALLY WITH LATEST VERSIONS !!!
 # https://nodejs.org/en/about/releases/
 # https://nodejs.org/download/release/latest-v10.x/
@@ -110,6 +105,10 @@ RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}  && npm install -g yarn
 RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
+EXPOSE 8000-8005 9000-9005 6787
+
+FROM build as test
+
 # Print version and verify bashrc is properly sourced so that everything works in the Dockerfile
 RUN node --version \
     && npm --version \
@@ -119,4 +118,5 @@ RUN bash -c "node --version" \
     && bash -c "npm --version" \
     && bash -c "yarn --version"
 
-EXPOSE 8000-8005 9000-9005 6787
+RUN bench --help
+RUN bash -c "bench --help"

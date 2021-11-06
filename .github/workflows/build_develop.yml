@@ -14,61 +14,115 @@ on:
       - docker-compose.yml
       - env*
 
-  # Nightly builds at 12:00 am
   schedule:
+    # Every day at 12:00 pm
     - cron: 0 0 * * *
 
   workflow_dispatch:
 
+env:
+  IS_AUTHORIZED_RUN: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+
 jobs:
   build_bench:
-    name: Bench image
+    name: Bench
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: docker/setup-buildx-action@v1
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - uses: docker/login-action@v1
-        if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login
+        uses: docker/login-action@v1
+        if: env.IS_AUTHORIZED_RUN == 'true'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and test
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
-          targets: frappe-bench
-          push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+          targets: bench-test
 
-  build_main:
-    name: Frappe and ERPNext images
+      - name: Push
+        uses: docker/bake-action@v1.6.0
+        if: env.IS_AUTHORIZED_RUN == 'true'
+        with:
+          files: docker-bake.hcl
+          targets: bench-build
+          push: true
+
+  build_frappe:
+    name: Frappe
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: docker/setup-buildx-action@v1
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - uses: docker/login-action@v1
-        if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login
+        uses: docker/login-action@v1
+        if: env.IS_AUTHORIZED_RUN == 'true'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Frappe images
+      - name: Build
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
-          targets: frappe-develop
-          load: true
-          push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-
-      - name: Build ERPNext images
-        uses: docker/bake-action@v1.6.0
-        with:
-          files: docker-bake.hcl
-          targets: erpnext-develop
+          targets: frappe-develop-test
           load: true
           push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
 
       - name: Test
-        run: ./.github/scripts/install-deps-and-test.sh
+        run: ./tests/test-frappe.sh
+
+      - name: Push
+        if: env.IS_AUTHORIZED_RUN == 'true'
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: frappe-develop
+          push: true
+
+  build_erpnext:
+    name: ERPNext
+    runs-on: ubuntu-latest
+    needs: build_frappe
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login
+        uses: docker/login-action@v1
+        if: env.IS_AUTHORIZED_RUN == 'true'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: erpnext-develop-test
+          load: true
+
+      - name: Test
+        run: FRAPPE_VERSION=develop ./tests/test-erpnext.sh
+
+      - name: Push
+        if: env.IS_AUTHORIZED_RUN == 'true'
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: erpnext-develop
+          push: true
