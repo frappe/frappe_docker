@@ -2,17 +2,17 @@ name: Build Stable
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - .github/**
-      - build/**
-      - installation/**
-      - tests/**
-      - .dockerignore
-      - docker-bake.hcl
-      - docker-compose.yml
-      - env*
+    # branches:
+    #   - main
+    # paths:
+    #   - .github/**
+    #   - build/**
+    #   - installation/**
+    #   - tests/**
+    #   - .dockerignore
+    #   - docker-bake.hcl
+    #   - docker-compose.yml
+    #   - env*
 
   # Triggered from frappe/frappe and frappe/erpnext on releases
   repository_dispatch:
@@ -61,17 +61,18 @@ jobs:
         run: ./tests/test-frappe.sh
 
       - name: Push
-        if: github.repository == 'frappe/frappe_docker'
+        # if: github.repository == 'frappe/frappe_docker'
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
           targets: frappe-stable
-          push: true
+          # push: true
+          push: false
 
   build_erpnext:
     name: ERPNext
     runs-on: ubuntu-latest
-    needs: build_frappe
+    # needs: build_frappe
     strategy:
       matrix:
         version: [12, 13]
@@ -110,12 +111,13 @@ jobs:
         run: ./tests/test-erpnext.sh
 
       - name: Push
-        if: github.repository == 'frappe/frappe_docker'
+        # if: github.repository == 'frappe/frappe_docker'
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
           targets: erpnext-stable
-          push: true
+          # push: true
+          push: false
 
   release_helm:
     name: Release Helm
