@@ -1,7 +1,6 @@
 name: Build Develop
 
 on:
-  push:
   pull_request:
     branches:
       - main
@@ -50,12 +49,11 @@ jobs:
 
       - name: Push
         uses: docker/bake-action@v1.6.0
-        # if: env.IS_AUTHORIZED_RUN == 'true'
+        if: env.IS_AUTHORIZED_RUN == 'true'
         with:
           files: docker-bake.hcl
           targets: bench-build
-          # push: true
-          push: false
+          push: true
 
   build_frappe:
     name: Frappe
@@ -86,13 +84,12 @@ jobs:
         run: ./tests/test-frappe.sh
 
       - name: Push
-        # if: env.IS_AUTHORIZED_RUN == 'true'
+        if: env.IS_AUTHORIZED_RUN == 'true'
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
           targets: frappe-develop
-          # push: true
-          push: false
+          push: true
 
   build_erpnext:
     name: ERPNext
@@ -123,10 +120,9 @@ jobs:
         run: FRAPPE_VERSION=develop ./tests/test-erpnext.sh
 
       - name: Push
-        # if: env.IS_AUTHORIZED_RUN == 'true'
+        if: env.IS_AUTHORIZED_RUN == 'true'
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
           targets: erpnext-develop
-          # push: true
-          push: false
+          push: true

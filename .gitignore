@@ -16,4 +16,3 @@ deploy_key.pub
 
 # VS Code devcontainer
 .devcontainer
-venv
