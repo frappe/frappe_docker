@@ -104,7 +104,7 @@ jobs:
         run: ./tests/test-erpnext.sh
 
       - name: Push
-        # if: github.repository == 'frappe/frappe_docker'
+        if: github.repository == 'frappe/frappe_docker'
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
