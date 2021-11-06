@@ -49,6 +49,7 @@ target "stable-args" {
     args = {
         GIT_BRANCH = "${GIT_BRANCH}"
         IMAGE_TAG = "${GIT_BRANCH}"
+        PYTHON_VERSION = "${VERSION}" == "12" ? "3.7" : "3.9"
     }
 }
 

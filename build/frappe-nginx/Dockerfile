@@ -2,7 +2,8 @@
 # This is done to ensures that node-sass binary remains common.
 # node-sass is required to enable website theme feature used
 # by Website Manager role in Frappe Framework
-FROM python:3.9-slim-bullseye
+ARG PYTHON_VERSION=3.9
+FROM python:${PYTHON_VERSION}-slim-bullseye
 
 ARG GIT_REPO=https://github.com/frappe/frappe
 ARG GIT_BRANCH=develop

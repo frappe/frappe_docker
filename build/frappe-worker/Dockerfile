@@ -1,4 +1,5 @@
-FROM python:3.9-slim-bullseye
+ARG PYTHON_VERSION=3.9
+FROM python:${PYTHON_VERSION}-slim-bullseye
 
 # Add non root user without password
 RUN useradd -ms /bin/bash frappe
