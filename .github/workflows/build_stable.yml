@@ -113,20 +113,20 @@ jobs:
         env:
           GIT_TAG: ${{ env.ERPNEXT_VERSION }}
 
-  release_helm:
-    name: Release Helm
-    runs-on: ubuntu-latest
-    if: github.repository == 'frappe/frappe_docker'
-    needs: [build_frappe, build_erpnext]
+  # release_helm:
+  #   name: Release Helm
+  #   runs-on: ubuntu-latest
+  #   if: github.repository == 'frappe/frappe_docker'
+  #   needs: [build_frappe, build_erpnext]
 
-    steps:
-      - name: Setup deploy key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
+  #   steps:
+  #     - name: Setup deploy key
+  #       uses: webfactory/ssh-agent@v0.5.3
+  #       with:
+  #         ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
 
-      - name: Release
-        run: |
-          git clone git@github.com:frappe/helm.git && cd helm
-          pip install -r release_wizard/requirements.txt
-          ./release_wizard/wizard 13 patch --remote origin --ci
+  #     - name: Release
+  #       run: |
+  #         git clone git@github.com:frappe/helm.git && cd helm
+  #         pip install -r release_wizard/requirements.txt
+  #         ./release_wizard/wizard 13 patch --remote origin --ci
