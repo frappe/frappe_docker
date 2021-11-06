@@ -1,6 +1,7 @@
 name: Build Develop
 
 on:
+  push:
   pull_request:
     branches:
       - main

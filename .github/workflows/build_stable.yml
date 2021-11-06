@@ -2,17 +2,17 @@ name: Build Stable
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - .github/**
-      - build/**
-      - installation/**
-      - tests/**
-      - .dockerignore
-      - docker-bake.hcl
-      - docker-compose.yml
-      - env*
+    # branches:
+    #   - main
+    # paths:
+    #   - .github/**
+    #   - build/**
+    #   - installation/**
+    #   - tests/**
+    #   - .dockerignore
+    #   - docker-bake.hcl
+    #   - docker-compose.yml
+    #   - env*
 
   # Triggered from frappe/frappe and frappe/erpnext on releases
   repository_dispatch:
