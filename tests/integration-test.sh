@@ -71,6 +71,7 @@ check_health() {
 echo ::group::Setup .env
 cp env-example .env
 sed -i -e "s/edge/v13/g" .env
+cat .env
 # shellcheck disable=SC2046
 export $(cat .env)
 
@@ -103,6 +104,7 @@ ping_site
 
 print_group "Update .env (v13 -> edge)"
 sed -i -e "s/v13/edge/g" .env
+cat .env
 # shellcheck disable=SC2046
 export $(cat .env)
 
