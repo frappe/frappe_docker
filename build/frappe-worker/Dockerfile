@@ -89,7 +89,7 @@ RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | 
     && rm -rf ${NVM_DIR}/.cache
 
 # Install Frappe
-RUN git clone --depth 1 -o upstream ${GIT_REPO} -b ${GIT_BRANCH} https://github.com/frappe/frappe apps/frappe \
+RUN git clone --depth 1 -o upstream -b ${GIT_BRANCH} ${GIT_REPO} apps/frappe \
     && env/bin/pip install --no-cache-dir -e apps/frappe
 
 # Copy scripts and templates
