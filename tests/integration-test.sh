@@ -22,16 +22,16 @@ check_migration_complete() {
     print_group Check migration
 
     container_id=$(docker_compose_with_args ps -q frappe-python)
-    thelogs=$(docker logs "${container_id}" 2>&1 | grep "Starting gunicorn")
+    cmd="docker logs ${container_id} 2>&1 | grep 'Starting gunicorn' || echo ''"
+    worker_log=$(eval "$cmd")
     INCREMENT=0
 
-    while [[ ${thelogs} != *"Starting gunicorn"* && ${INCREMENT} -lt 120 ]]; do
+    while [[ ${worker_log} != *"Starting gunicorn"* && ${INCREMENT} -lt 120 ]]; do
         sleep 3
         ((INCREMENT = INCREMENT + 1))
         echo "Wait for migration to complete..."
-        thelogs=$(docker logs "${container_id}" 2>&1 | grep "Starting gunicorn")
-
-        if [[ ${thelogs} != *"Starting gunicorn"* && ${INCREMENT} -eq 120 ]]; then
+        worker_log=$(eval "$cmd")
+        if [[ ${worker_log} != *"Starting gunicorn"* && ${INCREMENT} -eq 120 ]]; then
             echo Migration timeout
             docker logs "${container_id}"
             exit 1
