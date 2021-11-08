@@ -73,7 +73,6 @@ ln -sfn /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
 case "$1" in
 
   start)
-    exit # TODO: Remove
     configureEnv
     checkConnection
 
