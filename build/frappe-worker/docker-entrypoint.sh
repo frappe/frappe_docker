@@ -91,7 +91,7 @@ start)
     /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/auto_migrate.py
   fi
 
-  /home/frappe/frappe-bench/env/bin/gunicorn "${LOAD_CONFIG_FILE}" -b 0.0.0.0:${FRAPPE_PORT} \
+  /home/frappe/frappe-bench/env/bin/gunicorn ${LOAD_CONFIG_FILE} -b 0.0.0.0:${FRAPPE_PORT} \
     --worker-tmp-dir /dev/shm \
     --threads=4 \
     --workers ${WORKERS} \
