@@ -101,19 +101,18 @@ start)
   ;;
 
 worker)
-  checkConfigExists
-  checkConnection
-  # default WORKER_TYPE=default
+    checkConfigExists
+    checkConnection
 
-  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/worker.py
-  ;;
+    : "${WORKER_TYPE:=default}"
+    bench worker --queue $WORKER_TYPE
+    ;;
 
 schedule)
   checkConfigExists
   checkConnection
 
-  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/background.py
-
+  bench schedule
   ;;
 
 new)
@@ -128,9 +127,25 @@ drop)
   checkConfigExists
   checkConnection
 
-  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/drop.py
-  exit
-  ;;
+  : "${SITE_NAME:=site1.localhost}"
+  : "${DB_ROOT_USER:=root}"
+  : "${DB_ROOT_PASSWORD:=$POSTGRES_PASSWORD}"
+  : "${DB_ROOT_PASSWORD:=$MYSQL_ROOT_PASSWORD}"
+  : "${DB_ROOT_PASSWORD:=admin}"
+  if [[ -n $NO_BACKUP ]]; then
+    NO_BACKUP=--no-backup
+  fi
+  if [[ -n $FORCE ]]; then
+    FORCE=--force
+  fi
+
+  bench drop-site \
+      $SITE_NAME \
+      --root-login $DB_ROOT_USER \
+      --root-password  $DB_ROOT_PASSWORD \
+      --archived-sites-path /home/frappe/frappe-bench/sites/archive_sites \
+      $NO_BACKUP $FORCE
+    ;;
 
 migrate)
   /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/migrate.py
@@ -142,11 +157,15 @@ doctor)
   exit
   ;;
 
-backup)
+  backup)
+    if [[ -n $WITH_FILES ]]; then
+      WITH_FILES=--with-files
+    fi
 
-  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/backup.py
-  exit
-  ;;
+    for site in ${$SITES//:/ }; do
+        bench --site $site backup $WITH_FILES
+    done
+    ;;
 
 console)
   if [[ -z "$2" ]]; then
@@ -155,20 +174,19 @@ console)
     exit 1
   fi
 
-  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/console.py "$2"
-  exit
-  ;;
+    bench --site "$2" console
+    ;;
 
-push-backup)
-  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/push_backup.py
-  exit
-  ;;
+  push-backup)
+    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/push_backup.py
+    exit
+    ;;
 
-restore-backup)
-  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/restore_backup.py
-  exit
-  ;;
-*)
-  exec "$@"
-  ;;
+  restore-backup)
+    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/restore_backup.py
+    exit
+    ;;
+  *)
+    exec "$@"
+    ;;
 esac
