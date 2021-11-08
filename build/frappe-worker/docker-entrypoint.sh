@@ -101,12 +101,12 @@ start)
   ;;
 
 worker)
-    checkConfigExists
-    checkConnection
+  checkConfigExists
+  checkConnection
 
-    : "${WORKER_TYPE:=default}"
-    bench worker --queue $WORKER_TYPE
-    ;;
+  : "${WORKER_TYPE:=default}"
+  bench worker --queue $WORKER_TYPE
+  ;;
 
 schedule)
   checkConfigExists
@@ -140,12 +140,12 @@ drop)
   fi
 
   bench drop-site \
-      $SITE_NAME \
-      --root-login $DB_ROOT_USER \
-      --root-password  $DB_ROOT_PASSWORD \
-      --archived-sites-path /home/frappe/frappe-bench/sites/archive_sites \
-      $NO_BACKUP $FORCE
-    ;;
+    $SITE_NAME \
+    --root-login $DB_ROOT_USER \
+    --root-password $DB_ROOT_PASSWORD \
+    --archived-sites-path /home/frappe/frappe-bench/sites/archive_sites \
+    $NO_BACKUP $FORCE
+  ;;
 
 migrate)
   /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/migrate.py
@@ -157,15 +157,15 @@ doctor)
   exit
   ;;
 
-  backup)
-    if [[ -n $WITH_FILES ]]; then
-      WITH_FILES=--with-files
-    fi
+backup)
+  if [[ -n $WITH_FILES ]]; then
+    WITH_FILES=--with-files
+  fi
 
-    for site in ${$SITES//:/ }; do
-        bench --site $site backup $WITH_FILES
-    done
-    ;;
+  for site in ${SITES//:/ }; do
+    bench --site $site backup $WITH_FILES
+  done
+  ;;
 
 console)
   if [[ -z "$2" ]]; then
@@ -174,19 +174,19 @@ console)
     exit 1
   fi
 
-    bench --site "$2" console
-    ;;
+  bench --site "$2" console
+  ;;
 
-  push-backup)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/push_backup.py
-    exit
-    ;;
+push-backup)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/push_backup.py
+  exit
+  ;;
 
-  restore-backup)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/restore_backup.py
-    exit
-    ;;
-  *)
-    exec "$@"
-    ;;
+restore-backup)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/restore_backup.py
+  exit
+  ;;
+*)
+  exec "$@"
+  ;;
 esac
