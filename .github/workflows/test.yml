@@ -1,11 +1,19 @@
 name: Test
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
   schedule:
     # Every day at 01:00 am
     # Develop images are built at 12:00 pm, we want to use them
     - cron: 0 1 * * *
-  workflow_dispatch:
 
 jobs:
   test:
@@ -13,6 +21,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Get latest versions
+        # if: not schedule
+        run: ./.github/scripts/get-latest-tags.sh
+        env:
+          VERSION: 13
+
+      - name: Build develop images
+        # if: not schedule
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: frappe-develop,frappe-stable
+          load: true
+        env:
+          GIT_TAG: 13
 
       - name: Test
         run: ./tests/integration-test.sh
