@@ -14,3 +14,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ludeeus/action-shellcheck@master
+        env:
+          SHELLCHECK_OPTS: -x
