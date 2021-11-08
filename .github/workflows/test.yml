@@ -5,6 +5,7 @@ on:
     # Every day at 01:00 am
     # Develop images are built at 12:00 pm, we want to use them
     - cron: 0 1 * * *
+  workflow_dispatch:
 
 jobs:
   test:
