@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -x
 
 # shellcheck source=functions.sh
 source tests/functions.sh
