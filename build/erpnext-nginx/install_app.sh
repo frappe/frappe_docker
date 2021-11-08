@@ -37,7 +37,8 @@ yarn install --production=true
 
 # shellcheck disable=SC2086
 mkdir -p /home/frappe/frappe-bench/sites/assets/${APP_NAME}
-cp -R "/home/frappe/frappe-bench/apps/${APP_NAME}/${APP_NAME}/public/*" "/home/frappe/frappe-bench/sites/assets/${APP_NAME}"
+# shellcheck disable=SC2086
+cp -R /home/frappe/frappe-bench/apps/${APP_NAME}/${APP_NAME}/public/* /home/frappe/frappe-bench/sites/assets/${APP_NAME}
 
 # Add frappe and all the apps available under in frappe-bench here
 echo "rsync -a --delete /var/www/html/assets/frappe /assets" >/rsync
