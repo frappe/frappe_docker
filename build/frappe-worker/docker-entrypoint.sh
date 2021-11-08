@@ -91,6 +91,7 @@ start)
     /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/auto_migrate.py
   fi
 
+  # shellcheck disable=SC2086
   /home/frappe/frappe-bench/env/bin/gunicorn ${LOAD_CONFIG_FILE} -b 0.0.0.0:${FRAPPE_PORT} \
     --worker-tmp-dir /dev/shm \
     --threads=4 \
@@ -163,7 +164,7 @@ backup)
   fi
 
   for site in ${SITES//:/ }; do
-    bench --site $site backup $WITH_FILES
+    bench --site "$site" backup $WITH_FILES
   done
   ;;
 
