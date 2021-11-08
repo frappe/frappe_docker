@@ -9,6 +9,7 @@ ARG GIT_BRANCH=develop
 
 ARG ARCH=amd64
 ENV PYTHONUNBUFFERED 1
+
 ENV NODE_VERSION=14.18.1
 ENV NVM_DIR /home/frappe/.nvm
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
