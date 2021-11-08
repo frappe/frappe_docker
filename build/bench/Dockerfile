@@ -44,7 +44,7 @@ RUN apt-get update \
     libffi-dev \
     liblcms2-dev \
     libldap2-dev \
-    libmariadbclient-dev \
+    libmariadb-dev \
     libsasl2-dev \
     libtiff5-dev \
     libwebp-dev \
