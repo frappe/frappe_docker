@@ -34,6 +34,7 @@ function configureEnv() {
 
     export DB_HOST="${MARIADB_HOST:-$POSTGRES_HOST}"
 
+    # shellcheck disable=SC2016
     envsubst '${DB_HOST}
       ${DB_PORT}
       ${REDIS_CACHE}
@@ -72,102 +73,102 @@ ln -sfn /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
 
 case "$1" in
 
-  start)
-    configureEnv
-    checkConnection
+start)
+  configureEnv
+  checkConnection
 
-    [[ -z "${WORKERS}" ]] && WORKERS='2'
+  [[ -z "${WORKERS}" ]] && WORKERS='2'
 
-    [[ -z "${FRAPPE_PORT}" ]] && FRAPPE_PORT='8000'
+  [[ -z "${FRAPPE_PORT}" ]] && FRAPPE_PORT='8000'
 
-    [[ -z "${WORKER_CLASS}" ]] && WORKER_CLASS='gthread'
+  [[ -z "${WORKER_CLASS}" ]] && WORKER_CLASS='gthread'
 
-    LOAD_CONFIG_FILE=""
-    [[ "${WORKER_CLASS}" == "gevent" ]] &&
-      LOAD_CONFIG_FILE="-c /home/frappe/frappe-bench/commands/gevent_patch.py"
+  LOAD_CONFIG_FILE=""
+  [[ "${WORKER_CLASS}" == "gevent" ]] &&
+    LOAD_CONFIG_FILE="-c /home/frappe/frappe-bench/commands/gevent_patch.py"
 
-    if [[ -n "${AUTO_MIGRATE}" ]]; then
-      /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/auto_migrate.py
-    fi
+  if [[ -n "${AUTO_MIGRATE}" ]]; then
+    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/auto_migrate.py
+  fi
 
-    /home/frappe/frappe-bench/env/bin/gunicorn ${LOAD_CONFIG_FILE} -b 0.0.0.0:${FRAPPE_PORT} \
-      --worker-tmp-dir /dev/shm \
-      --threads=4 \
-      --workers ${WORKERS} \
-      --worker-class=${WORKER_CLASS} \
-      --log-file=- \
-      -t 120 frappe.app:application --preload
-    ;;
+  /home/frappe/frappe-bench/env/bin/gunicorn "${LOAD_CONFIG_FILE}" -b 0.0.0.0:${FRAPPE_PORT} \
+    --worker-tmp-dir /dev/shm \
+    --threads=4 \
+    --workers ${WORKERS} \
+    --worker-class=${WORKER_CLASS} \
+    --log-file=- \
+    -t 120 frappe.app:application --preload
+  ;;
 
-  worker)
-    checkConfigExists
-    checkConnection
-    # default WORKER_TYPE=default
+worker)
+  checkConfigExists
+  checkConnection
+  # default WORKER_TYPE=default
 
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/worker.py
-    ;;
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/worker.py
+  ;;
 
-  schedule)
-    checkConfigExists
-    checkConnection
+schedule)
+  checkConfigExists
+  checkConnection
 
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/background.py
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/background.py
 
-    ;;
+  ;;
 
-  new)
-    checkConfigExists
-    checkConnection
+new)
+  checkConfigExists
+  checkConnection
 
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/new.py
-    exit
-    ;;
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/new.py
+  exit
+  ;;
 
-  drop)
-    checkConfigExists
-    checkConnection
+drop)
+  checkConfigExists
+  checkConnection
 
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/drop.py
-    exit
-    ;;
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/drop.py
+  exit
+  ;;
 
-  migrate)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/migrate.py
-    exit
-    ;;
+migrate)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/migrate.py
+  exit
+  ;;
 
-  doctor)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/doctor.py "${@:2}"
-    exit
-    ;;
+doctor)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/doctor.py "${@:2}"
+  exit
+  ;;
 
-  backup)
+backup)
 
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/backup.py
-    exit
-    ;;
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/backup.py
+  exit
+  ;;
 
-  console)
-    if [[ -z "$2" ]]; then
-      echo "Need to specify a sitename with the command:" >&2
-      echo "console <sitename>" >&2
-      exit 1
-    fi
+console)
+  if [[ -z "$2" ]]; then
+    echo "Need to specify a sitename with the command:" >&2
+    echo "console <sitename>" >&2
+    exit 1
+  fi
 
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/console.py "$2"
-    exit
-    ;;
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/console.py "$2"
+  exit
+  ;;
 
-  push-backup)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/push_backup.py
-    exit
-    ;;
+push-backup)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/push_backup.py
+  exit
+  ;;
 
-  restore-backup)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/restore_backup.py
-    exit
-    ;;
-  *)
-    exec "$@"
-    ;;
+restore-backup)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/restore_backup.py
+  exit
+  ;;
+*)
+  exec "$@"
+  ;;
 esac
