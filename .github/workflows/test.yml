@@ -28,7 +28,7 @@ jobs:
         env:
           VERSION: 13
 
-      - name: Build develop images
+      - name: Build
         # if: not schedule
         uses: docker/bake-action@v1.6.0
         with:
