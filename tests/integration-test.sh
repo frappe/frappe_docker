@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 source tests/functions.sh
 
 project_name=frappe_bench_00
@@ -11,25 +9,25 @@ docker_compose_with_args() {
     docker-compose \
         -p $project_name \
         -f installation/docker-compose-common.yml \
-        -f installation/docker-compose-frappe.yml \
-        -f installation/frappe-publish.yml \
+        -f installation/docker-compose-erpnext.yml \
+        -f installation/erpnext-publish.yml \
         $@
 }
 
 check_migration_complete() {
     print_group Check migration
 
-    container_id=$(docker_compose_with_args ps -q frappe-python)
-    cmd="docker logs ${container_id} 2>&1 | grep 'Starting gunicorn' || echo ''"
-    worker_log=$(eval "$cmd")
+    container_id=$(docker_compose_with_args ps -q erpnext-python)
+    thelogs=$(docker logs "${container_id}" 2>&1 | grep "Starting gunicorn")
     INCREMENT=0
 
-    while [[ ${worker_log} != *"Starting gunicorn"* && ${INCREMENT} -lt 120 ]]; do
+    while [[ ${thelogs} != *"Starting gunicorn"* && ${INCREMENT} -lt 120 ]]; do
         sleep 3
         ((INCREMENT = INCREMENT + 1))
         echo "Wait for migration to complete..."
-        worker_log=$(eval "$cmd")
-        if [[ ${worker_log} != *"Starting gunicorn"* && ${INCREMENT} -eq 120 ]]; then
+        thelogs=$(docker logs "${container_id}" 2>&1 | grep "Starting gunicorn")
+
+        if [[ ${thelogs} != *"Starting gunicorn"* && ${INCREMENT} -eq 120 ]]; then
             echo Migration timeout
             docker logs "${container_id}"
             exit 1
@@ -46,7 +44,7 @@ check_health() {
     docker run --name frappe_doctor \
         -v "${project_name}_sites-vol:/home/frappe/frappe-bench/sites" \
         --network "${project_name}_default" \
-        frappe/frappe-worker:edge doctor || true
+        frappe/erpnext-worker:edge doctor || true
 
     cmd='docker logs frappe_doctor | grep "Health check successful" || echo ""'
     doctor_log=$(eval "$cmd")
@@ -70,7 +68,6 @@ check_health() {
 echo ::group::Setup .env
 cp env-example .env
 sed -i -e "s/edge/v13/g" .env
-cat .env
 # shellcheck disable=SC2046
 export $(cat .env)
 
@@ -95,15 +92,15 @@ SITE_NAME=test.localhost
 docker run \
     --rm \
     -e SITE_NAME=$SITE_NAME \
+    -e INSTALL_APPS=erpnext \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:v13 new
+    frappe/erpnext-worker:v13 new
 
 ping_site
 
 print_group "Update .env (v13 -> edge)"
 sed -i -e "s/v13/edge/g" .env
-cat .env
 # shellcheck disable=SC2046
 export $(cat .env)
 
@@ -125,7 +122,7 @@ docker run \
     -e POSTGRES_PASSWORD=admin \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge new
+    frappe/erpnext-worker:edge new
 
 check_migration_complete
 SITE_NAME=$PG_SITE_NAME ping_site
@@ -136,7 +133,7 @@ docker run \
     -e WITH_FILES=1 \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge backup
+    frappe/erpnext-worker:edge backup
 
 MINIO_ACCESS_KEY="AKIAIOSFODNN7EXAMPLE"
 MINIO_SECRET_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
@@ -163,12 +160,12 @@ docker run \
     --no-ssl \
     --host=minio:9000 \
     --host-bucket=minio:9000 \
-    mb s3://frappe
+    mb s3://erpnext
 
 print_group Push backup
 docker run \
     --rm \
-    -e BUCKET_NAME=frappe \
+    -e BUCKET_NAME=erpnext \
     -e REGION=us-east-1 \
     -e BUCKET_DIR=local \
     -e ACCESS_KEY_ID=$MINIO_ACCESS_KEY \
@@ -176,7 +173,7 @@ docker run \
     -e ENDPOINT_URL=http://minio:9000 \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge push-backup
+    frappe/erpnext-worker:edge push-backup
 
 print_group Prune and restart services
 docker_compose_with_args stop
@@ -189,7 +186,7 @@ print_group Restore backup from S3
 docker run \
     --rm \
     -e MYSQL_ROOT_PASSWORD=admin \
-    -e BUCKET_NAME=frappe \
+    -e BUCKET_NAME=erpnext \
     -e BUCKET_DIR=local \
     -e ACCESS_KEY_ID=$MINIO_ACCESS_KEY \
     -e SECRET_ACCESS_KEY=$MINIO_SECRET_KEY \
@@ -197,7 +194,7 @@ docker run \
     -e REGION=us-east-1 \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge restore-backup
+    frappe/erpnext-worker:edge restore-backup
 
 check_health
 ping_site
@@ -208,10 +205,10 @@ print_group "Create new site (edge)"
 docker run \
     --rm \
     -e SITE_NAME=$EDGE_SITE_NAME \
-    -e INSTALL_APPS=frappe \
+    -e INSTALL_APPS=erpnext \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge new
+    frappe/erpnext-worker:edge new
 
 check_health
 SITE_NAME=$EDGE_SITE_NAME ping_site
@@ -223,7 +220,7 @@ docker run \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     -v ${project_name}_assets-vol:/home/frappe/frappe-bench/sites/assets \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge migrate
+    frappe/erpnext-worker:edge migrate
 
 check_migration_complete
 
@@ -231,7 +228,7 @@ print_group "Restore backup S3 (overwrite)"
 docker run \
     --rm \
     -e MYSQL_ROOT_PASSWORD=admin \
-    -e BUCKET_NAME=frappe \
+    -e BUCKET_NAME=erpnext \
     -e BUCKET_DIR=local \
     -e ACCESS_KEY_ID=$MINIO_ACCESS_KEY \
     -e SECRET_ACCESS_KEY=$MINIO_SECRET_KEY \
@@ -239,7 +236,7 @@ docker run \
     -e REGION=us-east-1 \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge restore-backup
+    frappe/erpnext-worker:edge restore-backup
 
 check_migration_complete
 ping_site
@@ -249,14 +246,14 @@ docker run \
     --rm \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge console $SITE_NAME
+    frappe/erpnext-worker:edge console $SITE_NAME
 
 print_group "Check console for $PG_SITE_NAME"
 docker run \
     --rm \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge console $PG_SITE_NAME
+    frappe/erpnext-worker:edge console $PG_SITE_NAME
 
 print_group "Check drop site for $SITE_NAME (MariaDB)"
 docker run \
@@ -264,7 +261,7 @@ docker run \
     -e SITE_NAME=$SITE_NAME \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge drop
+    frappe/erpnext-worker:edge drop
 
 print_group "Check drop site for $PG_SITE_NAME (Postgres)"
 docker run \
@@ -272,7 +269,7 @@ docker run \
     -e SITE_NAME=$PG_SITE_NAME \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
-    frappe/frappe-worker:edge drop
+    frappe/erpnext-worker:edge drop
 
 print_group Check bench --help
 docker run \
@@ -280,4 +277,4 @@ docker run \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
     --user frappe \
-    frappe/frappe-worker:edge bench --help
+    frappe/erpnext-worker:edge bench --help
