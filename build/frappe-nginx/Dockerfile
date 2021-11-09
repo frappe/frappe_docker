@@ -14,10 +14,11 @@ ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-    wget \
-    python2 \
+    ca-certificates \
     git \
     build-essential \
+    wget \
+    python2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install nvm with node and yarn
