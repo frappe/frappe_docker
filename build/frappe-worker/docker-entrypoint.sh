@@ -133,19 +133,22 @@ drop)
   : "${DB_ROOT_PASSWORD:=$POSTGRES_PASSWORD}"
   : "${DB_ROOT_PASSWORD:=$MYSQL_ROOT_PASSWORD}"
   : "${DB_ROOT_PASSWORD:=admin}"
-  if [[ -n $NO_BACKUP ]]; then
-    NO_BACKUP=--no-backup
+
+  FLAGS=
+  if [[ ${NO_BACKUP} == 1 ]]; then
+    FLAGS="${FLAGS} --no-backup"
   fi
-  if [[ -n $FORCE ]]; then
-    FORCE=--force
+  if [[ ${FORCE} == 1 ]]; then
+    FLAGS="${FLAGS} --force"
   fi
 
+  # shellcheck disable=SC2086
   bench drop-site \
-    $SITE_NAME \
-    --root-login $DB_ROOT_USER \
-    --root-password $DB_ROOT_PASSWORD \
+    ${SITE_NAME} \
+    --root-login ${DB_ROOT_USER} \
+    --root-password ${DB_ROOT_PASSWORD} \
     --archived-sites-path /home/frappe/frappe-bench/sites/archive_sites \
-    $NO_BACKUP $FORCE
+    ${FLAGS}
   ;;
 
 migrate)
