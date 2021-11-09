@@ -1,6 +1,18 @@
 name: Build Stable
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/**
+      - build/**
+      - installation/**
+      - tests/**
+      - .dockerignore
+      - docker-bake.hcl
+      - docker-compose.yml
+      - env*
   push:
     branches:
       - main
@@ -19,6 +31,9 @@ on:
 
   workflow_dispatch:
 
+env:
+  IS_AUTHORIZED_RUN: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+
 jobs:
   build_frappe:
     name: Frappe
@@ -36,7 +51,7 @@ jobs:
 
       - name: Login
         uses: docker/login-action@v1
-        if: github.repository == 'frappe/frappe_docker'
+        if: env.IS_AUTHORIZED_RUN == 'true'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -57,7 +72,7 @@ jobs:
         run: ./tests/test-frappe.sh
 
       - name: Push
-        if: github.repository == 'frappe/frappe_docker'
+        if: env.IS_AUTHORIZED_RUN == 'true'
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
@@ -83,7 +98,7 @@ jobs:
 
       - name: Login
         uses: docker/login-action@v1
-        if: github.repository == 'frappe/frappe_docker'
+        if: env.IS_AUTHORIZED_RUN == 'true'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -104,7 +119,7 @@ jobs:
         run: ./tests/test-erpnext.sh
 
       - name: Push
-        if: github.repository == 'frappe/frappe_docker'
+        if: env.IS_AUTHORIZED_RUN == 'true'
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
@@ -116,7 +131,7 @@ jobs:
   release_helm:
     name: Release Helm
     runs-on: ubuntu-latest
-    if: github.repository == 'frappe/frappe_docker'
+    if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
     needs: [build_frappe, build_erpnext]
 
     steps:
