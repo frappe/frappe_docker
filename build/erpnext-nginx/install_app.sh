@@ -11,10 +11,11 @@ FRAPPE_BRANCH=${4}
 
 mkdir -p /home/frappe/frappe-bench
 cd /home/frappe/frappe-bench
-mkdir -p apps sites/assets/${APP_NAME}
+mkdir -p apps "sites/assets/${APP_NAME}"
 echo -ne "frappe\n${APP_NAME}" >sites/apps.txt
 
-git clone --depth 1 -b ${FRAPPE_BRANCH} https://github.com/frappe/frappe apps/frappe
+git clone --depth 1 -b "${FRAPPE_BRANCH}" https://github.com/frappe/frappe apps/frappe
+# shellcheck disable=SC2086
 git clone --depth 1 ${BRANCH} ${APP_REPO} apps/${APP_NAME}
 
 echo "Install frappe NodeJS dependencies . . ."
@@ -22,12 +23,13 @@ cd apps/frappe
 yarn --pure-lockfile
 
 echo "Install ${APP_NAME} NodeJS dependencies . . ."
-yarn --pure-lockfile --cwd ../${APP_NAME}
+yarn --pure-lockfile --cwd "../${APP_NAME}"
 
 echo "Build ${APP_NAME} assets . . ."
-yarn production --app ${APP_NAME}
+yarn production --app "${APP_NAME}"
 
 cd /home/frappe/frappe-bench
+# shellcheck disable=SC2086
 cp -R apps/${APP_NAME}/${APP_NAME}/public/* sites/assets/${APP_NAME}
 
 # Add frappe and all the apps available under in frappe-bench here
