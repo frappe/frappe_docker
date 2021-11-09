@@ -8,7 +8,8 @@ rsync -a --delete /var/www/html/assets/* /assets
 
 /rsync
 
-touch /var/www/html/sites/.build -r "$(find /assets -maxdepth 1 -name "*.*" | head -n 1)"
+# shellcheck disable=SC2012
+touch /var/www/html/sites/.build -r "$(ls -td /assets/* | head -n 1)"
 
 [[ -z "${FRAPPE_PY}" ]] && FRAPPE_PY='0.0.0.0'
 
