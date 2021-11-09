@@ -14,7 +14,6 @@ ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-    ca-certificates \
     git \
     build-essential \
     wget \

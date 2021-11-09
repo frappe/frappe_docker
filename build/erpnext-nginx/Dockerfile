@@ -14,6 +14,7 @@ RUN apt-get update \
     python2 \
     git \
     build-essential \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 COPY build/erpnext-nginx/install_app.sh /install_app
