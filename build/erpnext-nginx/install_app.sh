@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 APP_NAME=${1}
 APP_REPO=${2}
 APP_BRANCH=${3}
@@ -7,6 +9,7 @@ FRAPPE_BRANCH=${4}
 
 [ "${APP_BRANCH}" ] && BRANCH="-b ${APP_BRANCH}"
 
+mkdir -p /home/frappe/frappe-bench
 cd /home/frappe/frappe-bench
 mkdir -p apps sites/assets/${APP_NAME}
 echo -ne "frappe\n${APP_NAME}" >sites/apps.txt
