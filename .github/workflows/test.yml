@@ -34,7 +34,6 @@ on:
     # Develop images are built at 12:00 pm, we want to use them
     # Also, we don't build new images on this event
     - cron: 0 1 * * *
-  workflow_dispatch:
 
 jobs:
   test:
