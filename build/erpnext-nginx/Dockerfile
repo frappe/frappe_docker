@@ -11,7 +11,6 @@ ARG FRAPPE_BRANCH=${GIT_BRANCH}
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-    wget \
     python2 \
     git \
     build-essential \
