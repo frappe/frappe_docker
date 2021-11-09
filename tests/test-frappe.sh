@@ -2,7 +2,6 @@
 
 set -e
 
-# shellcheck source=functions.sh
 source tests/functions.sh
 
 project_name="test_frappe"

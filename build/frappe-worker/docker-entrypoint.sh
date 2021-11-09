@@ -34,6 +34,7 @@ function configureEnv() {
 
     export DB_HOST="${MARIADB_HOST:-$POSTGRES_HOST}"
 
+    # shellcheck disable=SC2016
     envsubst '${DB_HOST}
       ${DB_PORT}
       ${REDIS_CACHE}
@@ -72,120 +73,121 @@ ln -sfn /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
 
 case "$1" in
 
-  start)
-    configureEnv
-    checkConnection
+start)
+  configureEnv
+  checkConnection
 
-    [[ -z "${WORKERS}" ]] && WORKERS='2'
+  [[ -z "${WORKERS}" ]] && WORKERS='2'
 
-    [[ -z "${FRAPPE_PORT}" ]] && FRAPPE_PORT='8000'
+  [[ -z "${FRAPPE_PORT}" ]] && FRAPPE_PORT='8000'
 
-    [[ -z "${WORKER_CLASS}" ]] && WORKER_CLASS='gthread'
+  [[ -z "${WORKER_CLASS}" ]] && WORKER_CLASS='gthread'
 
-    LOAD_CONFIG_FILE=""
-    [[ "${WORKER_CLASS}" == "gevent" ]] &&
-      LOAD_CONFIG_FILE="-c /home/frappe/frappe-bench/commands/gevent_patch.py"
+  LOAD_CONFIG_FILE=""
+  [[ "${WORKER_CLASS}" == "gevent" ]] &&
+    LOAD_CONFIG_FILE="-c /home/frappe/frappe-bench/commands/gevent_patch.py"
 
-    if [[ -n "${AUTO_MIGRATE}" ]]; then
-      /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/auto_migrate.py
-    fi
+  if [[ -n "${AUTO_MIGRATE}" ]]; then
+    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/auto_migrate.py
+  fi
 
-    /home/frappe/frappe-bench/env/bin/gunicorn ${LOAD_CONFIG_FILE} -b 0.0.0.0:${FRAPPE_PORT} \
-      --worker-tmp-dir /dev/shm \
-      --threads=4 \
-      --workers ${WORKERS} \
-      --worker-class=${WORKER_CLASS} \
-      --log-file=- \
-      -t 120 frappe.app:application --preload
-    ;;
+  # shellcheck disable=SC2086
+  /home/frappe/frappe-bench/env/bin/gunicorn ${LOAD_CONFIG_FILE} -b 0.0.0.0:${FRAPPE_PORT} \
+    --worker-tmp-dir /dev/shm \
+    --threads=4 \
+    --workers ${WORKERS} \
+    --worker-class=${WORKER_CLASS} \
+    --log-file=- \
+    -t 120 frappe.app:application --preload
+  ;;
 
-  worker)
-    checkConfigExists
-    checkConnection
+worker)
+  checkConfigExists
+  checkConnection
 
-    : "${WORKER_TYPE:=default}"
-    bench worker --queue $WORKER_TYPE
-    ;;
+  : "${WORKER_TYPE:=default}"
+  bench worker --queue $WORKER_TYPE
+  ;;
 
-  schedule)
-    checkConfigExists
-    checkConnection
+schedule)
+  checkConfigExists
+  checkConnection
 
-    bench schedule
-    ;;
+  bench schedule
+  ;;
 
-  new)
-    checkConfigExists
-    checkConnection
+new)
+  checkConfigExists
+  checkConnection
 
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/new.py
-    exit
-    ;;
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/new.py
+  exit
+  ;;
 
-  drop)
-    checkConfigExists
-    checkConnection
+drop)
+  checkConfigExists
+  checkConnection
 
-    : "${SITE_NAME:=site1.localhost}"
-    : "${DB_ROOT_USER:=root}"
-    : "${DB_ROOT_PASSWORD:=$POSTGRES_PASSWORD}"
-    : "${DB_ROOT_PASSWORD:=$MYSQL_ROOT_PASSWORD}"
-    : "${DB_ROOT_PASSWORD:=admin}"
-    if [[ -n $NO_BACKUP ]]; then
-      NO_BACKUP=--no-backup
-    fi
-    if [[ -n $FORCE ]]; then
-      FORCE=--force
-    fi
+  : "${SITE_NAME:=site1.localhost}"
+  : "${DB_ROOT_USER:=root}"
+  : "${DB_ROOT_PASSWORD:=$POSTGRES_PASSWORD}"
+  : "${DB_ROOT_PASSWORD:=$MYSQL_ROOT_PASSWORD}"
+  : "${DB_ROOT_PASSWORD:=admin}"
+  if [[ -n $NO_BACKUP ]]; then
+    NO_BACKUP=--no-backup
+  fi
+  if [[ -n $FORCE ]]; then
+    FORCE=--force
+  fi
 
-    bench drop-site \
-      $SITE_NAME \
-      --root-login $DB_ROOT_USER \
-      --root-password  $DB_ROOT_PASSWORD \
-      --archived-sites-path /home/frappe/frappe-bench/sites/archive_sites \
-      $NO_BACKUP $FORCE
-    ;;
+  bench drop-site \
+    $SITE_NAME \
+    --root-login $DB_ROOT_USER \
+    --root-password $DB_ROOT_PASSWORD \
+    --archived-sites-path /home/frappe/frappe-bench/sites/archive_sites \
+    $NO_BACKUP $FORCE
+  ;;
 
-  migrate)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/migrate.py
-    exit
-    ;;
+migrate)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/migrate.py
+  exit
+  ;;
 
-  doctor)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/doctor.py "${@:2}"
-    exit
-    ;;
+doctor)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/doctor.py "${@:2}"
+  exit
+  ;;
 
-  backup)
-    if [[ -n $WITH_FILES ]]; then
-      WITH_FILES=--with-files
-    fi
+backup)
+  if [[ -n $WITH_FILES ]]; then
+    WITH_FILES=--with-files
+  fi
 
-    for site in ${$SITES//:/ }; do
-        bench --site $site backup $WITH_FILES
-    done
-    ;;
+  for site in ${SITES//:/ }; do
+    bench --site "$site" backup $WITH_FILES
+  done
+  ;;
 
-  console)
-    if [[ -z "$2" ]]; then
-      echo "Need to specify a sitename with the command:" >&2
-      echo "console <sitename>" >&2
-      exit 1
-    fi
+console)
+  if [[ -z "$2" ]]; then
+    echo "Need to specify a sitename with the command:" >&2
+    echo "console <sitename>" >&2
+    exit 1
+  fi
 
-    bench --site "$2" console
-    ;;
+  bench --site "$2" console
+  ;;
 
-  push-backup)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/push_backup.py
-    exit
-    ;;
+push-backup)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/push_backup.py
+  exit
+  ;;
 
-  restore-backup)
-    /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/restore_backup.py
-    exit
-    ;;
-  *)
-    exec "$@"
-    ;;
+restore-backup)
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/restore_backup.py
+  exit
+  ;;
+*)
+  exec "$@"
+  ;;
 esac
