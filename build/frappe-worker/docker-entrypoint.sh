@@ -142,6 +142,7 @@ drop)
     FLAGS="${FLAGS} --force"
   fi
 
+  # shellcheck disable=SC2086
   bench drop-site \
     ${SITE_NAME} \
     --root-login ${DB_ROOT_USER} \
