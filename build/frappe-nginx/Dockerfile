@@ -3,58 +3,60 @@
 # node-sass is required to enable website theme feature used
 # by Website Manager role in Frappe Framework
 ARG PYTHON_VERSION=3.9
-FROM python:${PYTHON_VERSION}-slim-bullseye
+FROM python:${PYTHON_VERSION}-slim-bullseye as builder
 
 ARG GIT_REPO=https://github.com/frappe/frappe
 ARG GIT_BRANCH=develop
 
+ENV NODE_VERSION=14.18.1
 ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=14.17.0
-ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
-RUN apt-get update -y \
-    && apt-get install wget python2 git build-essential -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh \
-    && chmod +x install.sh \
-    && ./install.sh \
-    && . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} \
-    && nvm use v${NODE_VERSION} && npm install -g yarn
+ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+    git \
+    build-essential \
+    wget \
+    python2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install nvm with node and yarn
+RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
+    && . ${NVM_DIR}/nvm.sh \
+    && nvm install ${NODE_VERSION} \
+    && npm install -g yarn \
+    && rm -rf ${NVM_DIR}/.cache
 
 WORKDIR /home/frappe/frappe-bench
-RUN mkdir -p /home/frappe/frappe-bench/sites \
-    && echo "frappe" > /home/frappe/frappe-bench/sites/apps.txt
 
-RUN mkdir -p apps sites/assets/css  \
-    && cd apps \
-    && git clone --depth 1 ${GIT_REPO} --branch $GIT_BRANCH
+RUN mkdir -p apps sites/assets/css sites/assets/frappe /var/www/error_pages
+RUN echo "frappe" > sites/apps.txt
 
-RUN cd /home/frappe/frappe-bench/apps/frappe \
+RUN git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} apps/frappe
+RUN cd apps/frappe \
     && yarn \
     && yarn run production \
     && yarn install --production=true
 
-RUN node --version \
-    && npm --version \
-    && yarn --version
-
 RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
-    && mkdir -p /var/www/error_pages \
     && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
 
-RUN mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/ \
-    && cp -R /home/frappe/frappe-bench/apps/frappe/frappe/public/* /home/frappe/frappe-bench/sites/assets/frappe \
-    && cp -R /home/frappe/frappe-bench/apps/frappe/node_modules /home/frappe/frappe-bench/sites/assets/frappe/
+RUN cp -R apps/frappe/frappe/public/* sites/assets/frappe \
+    && cp -R apps/frappe/node_modules sites/assets/frappe/
 
 FROM nginx:latest
-COPY --from=0 /home/frappe/frappe-bench/sites /var/www/html/
-COPY --from=0 /var/www/error_pages /var/www/
+
+COPY --from=builder /home/frappe/frappe-bench/sites /var/www/html/
+COPY --from=builder /var/www/error_pages /var/www/
 COPY build/frappe-nginx/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY build/frappe-nginx/docker-entrypoint.sh /
 
-RUN apt-get update && apt-get install -y rsync && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && echo "#!/bin/bash" > /rsync \
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+    rsync \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN echo "#!/bin/bash" > /rsync \
     && chmod +x /rsync
 
 VOLUME [ "/assets" ]

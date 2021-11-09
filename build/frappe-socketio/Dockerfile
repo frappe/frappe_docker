@@ -1,35 +1,34 @@
-FROM alpine/git
+FROM alpine/git as builder
 
 ARG GIT_REPO=https://github.com/frappe/frappe.git
 ARG GIT_BRANCH=develop
 
-RUN git clone ${GIT_REPO} /opt/frappe -b ${GIT_BRANCH} --depth 1
+RUN git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} /opt/frappe 
 
 FROM node:bullseye-slim
 
 # Add frappe user
 RUN useradd -ms /bin/bash frappe
+WORKDIR /home/frappe/frappe-bench
 
 # Create bench directories and set ownership
-RUN mkdir -p /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/apps/frappe \
+RUN mkdir -p sites apps/frappe \
     && chown -R frappe:frappe /home/frappe
 
-# Download socketio and purge curl package
-COPY build/frappe-socketio/package.json /home/frappe/frappe-bench/apps/frappe
-COPY --from=0 /opt/frappe/socketio.js /home/frappe/frappe-bench/apps/frappe/socketio.js
-COPY --from=0 /opt/frappe/node_utils.js /home/frappe/frappe-bench/apps/frappe/node_utils.js
+# Download socketio
+COPY build/frappe-socketio/package.json apps/frappe
+COPY --from=builder /opt/frappe/socketio.js apps/frappe/socketio.js
+COPY --from=builder /opt/frappe/node_utils.js apps/frappe/node_utils.js
 
-RUN cd /home/frappe/frappe-bench/apps/frappe \
-    && npm install --only=production \
-    && node --version \
-    && npm --version
+RUN cd apps/frappe \
+    && npm install --only=prod
 
 # Setup docker-entrypoint
 COPY build/frappe-socketio/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
+# backwards compat
+RUN ln -s /usr/local/bin/docker-entrypoint.sh /
 
 USER frappe
-
 WORKDIR /home/frappe/frappe-bench/sites
 
 ENTRYPOINT ["docker-entrypoint.sh"]

@@ -6,23 +6,26 @@ RUN useradd -ms /bin/bash frappe
 
 ARG GIT_REPO=https://github.com/frappe/frappe
 ARG GIT_BRANCH=develop
+
 ARG ARCH=amd64
 ENV PYTHONUNBUFFERED 1
-ENV NVM_DIR=/home/frappe/.nvm
-ENV NODE_VERSION=14.17.0
-ENV PATH="/home/frappe/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
-# Install dependencies
-WORKDIR /home/frappe/frappe-bench
-RUN apt-get update -y && apt-get install \
-    # for frappe framework
+ENV NODE_VERSION=14.18.1
+ENV NVM_DIR /home/frappe/.nvm
+ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
+ENV WKHTMLTOPDF_VERSION 0.12.6-1
+
+# Install apt dependencies
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+    # For frappe framework
     git \
     mariadb-client \
     postgresql-client \
     gettext-base \
     wget \
     wait-for-it \
-    # for PDF
+    # For PDF
     libjpeg62-turbo \
     libx11-6 \
     libxcb1 \
@@ -39,50 +42,56 @@ RUN apt-get update -y && apt-get install \
     # For psycopg2
     libpq-dev \
     # For arm64 python wheel builds
+    && if [ "$(uname -m)" = "aarch64" ]; then \
+    apt-get install --no-install-recommends -y \
     gcc \
-    g++ -y \
+    g++; \
+    fi \
     # Install additional requirements for develop branch
     && if [ "${GIT_BRANCH}" = 'develop' ]; then \
-        apt-get install -y \
-        libcairo2 \
-        python3-cffi \
-        python3-brotli \
-        libpango-1.0-0 \
-        libpangoft2-1.0-0 \
-        libpangocairo-1.0-0; \
+    apt-get install --no-install-recommends -y \
+    libcairo2 \
+    python3-cffi \
+    python3-brotli \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    libpangocairo-1.0-0; \
     fi \
-    # Detect arch, download and install wkhtmltox
-    && if [ `uname -m` = 'aarch64' ]; then export ARCH=arm64; fi \
-    && if [ `uname -m` = 'x86_64' ]; then export ARCH=amd64; fi \
-    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
-    && dpkg -i wkhtmltox_0.12.6-1.buster_${ARCH}.deb && rm wkhtmltox_0.12.6-1.buster_${ARCH}.deb \
-    && wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh \
-    && chown -R frappe:frappe /home/frappe \
     && rm -rf /var/lib/apt/lists/*
+
+# Detect arch, download and install wkhtmltopdf
+RUN if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
+    && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
+    && downloaded_file=wkhtmltox_$WKHTMLTOPDF_VERSION.buster_${ARCH}.deb \
+    && wget -q https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
+    && dpkg -i $downloaded_file \
+    && rm $downloaded_file
+
+RUN chown -R frappe:frappe /home/frappe
 
 # Setup docker-entrypoint
 COPY build/frappe-worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 USER frappe
-# Install nvm with node
-RUN bash install.sh \
-    && . "$NVM_DIR/nvm.sh" \
-    && nvm install ${NODE_VERSION} \
-    && nvm use v${NODE_VERSION} \
-    && nvm alias default v${NODE_VERSION}
+WORKDIR /home/frappe/frappe-bench
 
 # Create frappe-bench directories
 RUN mkdir -p apps logs commands sites /home/frappe/backups
 
 # Setup python environment
-RUN python -m venv env \
-    && . env/bin/activate \
-    && pip3 install --upgrade pip \
-    && pip3 install gevent \
-    && cd apps \
-    && git clone --depth 1 -o upstream ${GIT_REPO} --branch ${GIT_BRANCH} \
-    && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
+RUN python -m venv env
+RUN env/bin/pip install --no-cache-dir wheel gevent
+
+# Install nvm with node
+RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
+    && . ${NVM_DIR}/nvm.sh \
+    && nvm install ${NODE_VERSION} \
+    && rm -rf ${NVM_DIR}/.cache
+
+# Install Frappe
+RUN git clone --depth 1 -o upstream -b ${GIT_BRANCH} ${GIT_REPO} apps/frappe \
+    && env/bin/pip install --no-cache-dir -e apps/frappe
 
 # Copy scripts and templates
 COPY build/frappe-worker/commands/* /home/frappe/frappe-bench/commands/
