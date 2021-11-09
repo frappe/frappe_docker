@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# shellcheck source=functions.sh
 source tests/functions.sh
 
 project_name=frappe_bench_00

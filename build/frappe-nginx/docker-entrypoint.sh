@@ -8,7 +8,7 @@ rsync -a --delete /var/www/html/assets/* /assets
 
 /rsync
 
-touch /var/www/html/sites/.build -r "$(ls -td /assets/* | head -n 1)"
+touch /var/www/html/sites/.build -r "$(find /assets -maxdepth 1 -name "*.*" | head -n 1)"
 
 [[ -z "${FRAPPE_PY}" ]] && FRAPPE_PY='0.0.0.0'
 
@@ -36,6 +36,7 @@ if [[ ${SKIP_NGINX_TEMPLATE_GENERATION} == 1 ]]; then
   echo "Skipping default NGINX template generation. Please mount your own NGINX config file inside /etc/nginx/conf.d"
 else
   echo "Generating default template"
+  # shellcheck disable=SC2016
   envsubst '${FRAPPE_PY}
         ${FRAPPE_PY_PORT}
         ${FRAPPE_SOCKETIO}
@@ -50,9 +51,11 @@ else
 fi
 
 echo "Waiting for frappe-python to be available on ${FRAPPE_PY} port ${FRAPPE_PY_PORT}"
+# shellcheck disable=SC2016
 timeout 10 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' ${FRAPPE_PY} ${FRAPPE_PY_PORT}
 echo "Frappe-python available on ${FRAPPE_PY} port ${FRAPPE_PY_PORT}"
 echo "Waiting for frappe-socketio to be available on ${FRAPPE_SOCKETIO} port ${SOCKETIO_PORT}"
+# shellcheck disable=SC2016
 timeout 10 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' ${FRAPPE_SOCKETIO} ${SOCKETIO_PORT}
 echo "Frappe-socketio available on ${FRAPPE_SOCKETIO} port ${SOCKETIO_PORT}"
 

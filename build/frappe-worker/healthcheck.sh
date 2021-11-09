@@ -17,17 +17,17 @@ fi
 # Set REDIS host:port
 REDIS_CACHE=$(getUrl "${COMMON_SITE_CONFIG_JSON}" "redis_cache" | sed 's|redis://||g')
 if [[ "${REDIS_CACHE}" == *"/"* ]]; then
-  REDIS_CACHE=$(echo ${REDIS_CACHE} | cut -f1 -d"/")
+  REDIS_CACHE=$(echo "${REDIS_CACHE}" | cut -f1 -d"/")
 fi
 
 REDIS_QUEUE=$(getUrl "${COMMON_SITE_CONFIG_JSON}" "redis_queue" | sed 's|redis://||g')
 if [[ "${REDIS_QUEUE}" == *"/"* ]]; then
-  REDIS_QUEUE=$(echo ${REDIS_QUEUE} | cut -f1 -d"/")
+  REDIS_QUEUE=$(echo "${REDIS_QUEUE}" | cut -f1 -d"/")
 fi
 
 REDIS_SOCKETIO=$(getUrl "${COMMON_SITE_CONFIG_JSON}" "redis_socketio" | sed 's|redis://||g')
 if [[ "${REDIS_SOCKETIO}" == *"/"* ]]; then
-  REDIS_SOCKETIO=$(echo ${REDIS_SOCKETIO} | cut -f1 -d"/")
+  REDIS_SOCKETIO=$(echo "${REDIS_SOCKETIO}" | cut -f1 -d"/")
 fi
 
 echo "Check ${DB_HOST}:${DB_PORT}"
