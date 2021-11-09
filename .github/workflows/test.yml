@@ -1,9 +1,38 @@
-name: Test
+name: Integration Test
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/**
+      - build/**
+      - installation/**
+      - tests/**
+      - .dockerignore
+      - docker-bake.hcl
+      - docker-compose.yml
+      - env*
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/**
+      - build/**
+      - installation/**
+      - tests/**
+      - .dockerignore
+      - docker-bake.hcl
+      - docker-compose.yml
+      - env*
+
+  workflow_dispatch:
+
   schedule:
     # Every day at 01:00 am
     # Develop images are built at 12:00 pm, we want to use them
+    # Also, we don't build new images on this event
     - cron: 0 1 * * *
 
 jobs:
@@ -12,6 +41,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Get latest versions
+        if: github.event_name != 'schedule'
+        run: ./.github/scripts/get-latest-tags.sh
+        env:
+          VERSION: 13
+
+      - name: Build
+        if: github.event_name != 'schedule'
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: frappe-develop,frappe-stable
+          load: true
+        env:
+          GIT_TAG: ${{ env.FRAPPE_VERSION }}
 
       - name: Test
         run: ./tests/integration-test.sh

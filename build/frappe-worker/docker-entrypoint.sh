@@ -159,13 +159,8 @@ doctor)
   ;;
 
 backup)
-  if [[ -n $WITH_FILES ]]; then
-    WITH_FILES=--with-files
-  fi
-
-  for site in ${SITES//:/ }; do
-    bench --site "$site" backup $WITH_FILES
-  done
+  /home/frappe/frappe-bench/env/bin/python /home/frappe/frappe-bench/commands/backup.py
+  exit
   ;;
 
 console)
