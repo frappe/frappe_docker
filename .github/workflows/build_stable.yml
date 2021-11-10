@@ -68,9 +68,6 @@ jobs:
           targets: frappe-stable-test
           load: true
 
-      - name: Test
-        run: ./tests/test-frappe.sh
-
       - name: Push
         if: env.IS_AUTHORIZED_RUN == 'true'
         uses: docker/bake-action@v1.6.0
@@ -115,9 +112,6 @@ jobs:
           targets: erpnext-stable-test
           load: true
 
-      - name: Test
-        run: ./tests/test-erpnext.sh
-
       - name: Push
         if: env.IS_AUTHORIZED_RUN == 'true'
         uses: docker/bake-action@v1.6.0
@@ -139,6 +133,11 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
+
+      - name: Setup Git Credentials
+        uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        with:
+          global: true
 
       - name: Release
         run: |
