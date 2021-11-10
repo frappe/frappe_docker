@@ -135,7 +135,7 @@ jobs:
           ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
 
       - name: Setup Git Credentials
-      - uses: fregante/setup-git-user@v1
+        uses: fregante/setup-git-user@v1
 
       - name: Release
         run: |
