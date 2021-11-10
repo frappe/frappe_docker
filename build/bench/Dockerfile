@@ -1,4 +1,4 @@
-FROM python:3.9-slim-bullseye as build
+FROM python:3.10.0-slim-bullseye as build
 
 LABEL author=frappé
 
