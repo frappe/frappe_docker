@@ -135,9 +135,7 @@ jobs:
           ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
 
       - name: Setup Git Credentials
-        uses: oleksiyrudenko/gha-git-credentials@v2-latest
-        with:
-          global: true
+      - uses: fregante/setup-git-user@v1
 
       - name: Release
         run: |
