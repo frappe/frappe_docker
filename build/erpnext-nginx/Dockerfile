@@ -10,7 +10,7 @@ ARG GIT_BRANCH=develop
 ARG FRAPPE_BRANCH=${GIT_BRANCH}
 
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    && apt-get install --no-install-recommends -y \
     python2 \
     git \
     build-essential \
