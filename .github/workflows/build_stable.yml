@@ -135,7 +135,9 @@ jobs:
           ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
 
       - name: Setup Git Credentials
-        uses: fregante/setup-git-user@v1
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
       - name: Release
         run: |
