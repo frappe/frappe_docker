@@ -17,7 +17,6 @@ RUN apt-get update \
     git \
     build-essential \
     wget \
-    python2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install nvm with node and yarn
@@ -63,6 +62,7 @@ RUN apt-get update \
 RUN echo "#!/bin/bash" > /rsync \
     && chmod +x /rsync
 
+RUN mkdir /assets
 VOLUME [ "/assets" ]
 
 RUN chown -R nginx:nginx /assets /etc/nginx/conf.d/
