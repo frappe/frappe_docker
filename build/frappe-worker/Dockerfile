@@ -73,8 +73,11 @@ RUN chown -R frappe:frappe /home/frappe
 COPY build/frappe-worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
-USER frappe
 WORKDIR /home/frappe/frappe-bench
+
+RUN chown -R frappe:frappe /home/frappe/frappe-bench
+
+USER frappe
 
 # Create frappe-bench directories
 RUN mkdir -p apps logs commands sites /home/frappe/backups
