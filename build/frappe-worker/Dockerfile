@@ -67,14 +67,13 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
     && dpkg -i $downloaded_file \
     && rm $downloaded_file
 
-RUN chown -R frappe:frappe /home/frappe
-
 # Setup docker-entrypoint
 COPY build/frappe-worker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
-USER frappe
 WORKDIR /home/frappe/frappe-bench
+RUN chown -R frappe:frappe /home/frappe
+USER frappe
 
 # Create frappe-bench directories
 RUN mkdir -p apps logs commands sites /home/frappe/backups
