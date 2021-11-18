@@ -17,6 +17,8 @@ RUN apt-get update \
     git \
     build-essential \
     wget \
+    # python2 for version-12 builds
+    python2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install nvm with node and yarn
