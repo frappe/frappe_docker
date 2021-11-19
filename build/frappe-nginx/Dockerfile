@@ -47,14 +47,14 @@ RUN cp -R apps/frappe/frappe/public/* sites/assets/frappe \
 
 FROM nginxinc/nginx-unprivileged:latest
 
-COPY --from=builder /home/frappe/frappe-bench/sites /var/www/html/
-COPY --from=builder /var/www/error_pages /var/www/
-COPY build/frappe-nginx/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY build/frappe-nginx/docker-entrypoint.sh /
-
 USER root
 
 RUN usermod -u 1000 nginx && groupmod -g 1000 nginx
+
+COPY --from=builder --chown=1000:1000 /home/frappe/frappe-bench/sites /var/www/html/
+COPY --from=builder --chown=1000:1000 /var/www/error_pages /var/www/
+COPY build/frappe-nginx/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
+COPY build/frappe-nginx/docker-entrypoint.sh /
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
