@@ -17,6 +17,7 @@ RUN apt-get update \
     git \
     build-essential \
     wget \
+    # python2 for version-12 builds
     python2 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -44,12 +45,16 @@ RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
 RUN cp -R apps/frappe/frappe/public/* sites/assets/frappe \
     && cp -R apps/frappe/node_modules sites/assets/frappe/
 
-FROM nginx:latest
+FROM nginxinc/nginx-unprivileged:latest
 
 COPY --from=builder /home/frappe/frappe-bench/sites /var/www/html/
 COPY --from=builder /var/www/error_pages /var/www/
 COPY build/frappe-nginx/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY build/frappe-nginx/docker-entrypoint.sh /
+
+USER root
+
+RUN usermod -u 1000 nginx && groupmod -g 1000 nginx
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -59,7 +64,12 @@ RUN apt-get update \
 RUN echo "#!/bin/bash" > /rsync \
     && chmod +x /rsync
 
+RUN mkdir /assets
 VOLUME [ "/assets" ]
+
+RUN chown -R nginx:nginx /assets /etc/nginx/conf.d/
+
+USER nginx
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
