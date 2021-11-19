@@ -67,7 +67,7 @@ RUN echo "#!/bin/bash" > /rsync \
 RUN mkdir /assets
 VOLUME [ "/assets" ]
 
-RUN chown -R nginx:nginx /assets /etc/nginx/conf.d/
+RUN chown -R nginx:nginx /assets /etc/nginx/conf.d/ /var/www/html/
 
 USER nginx
 
