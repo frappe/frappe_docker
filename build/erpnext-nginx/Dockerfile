@@ -24,7 +24,7 @@ RUN chmod +x /install_app \
 
 FROM ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${IMAGE_TAG}
 
-COPY --from=builder /home/frappe/frappe-bench/sites/ /var/www/html/
+COPY --from=builder --chown=1000:1000 /home/frappe/frappe-bench/sites/ /var/www/html/
 COPY --from=builder /rsync /rsync
 
 RUN echo "erpnext" >> /var/www/html/apps.txt
