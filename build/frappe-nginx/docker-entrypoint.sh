@@ -31,6 +31,8 @@ touch /var/www/html/sites/.build -r "$(ls -td /assets/* | head -n 1)"
 
 [[ -z "${HTTP_HOST}" ]] && HTTP_HOST="\$http_host"
 
+[[ -z "${WEB_PORT}" ]] && WEB_PORT="8080"
+
 [[ -z "${SKIP_NGINX_TEMPLATE_GENERATION}" ]] && SKIP_NGINX_TEMPLATE_GENERATION='0'
 
 if [[ ${SKIP_NGINX_TEMPLATE_GENERATION} == 1 ]]; then
@@ -47,7 +49,8 @@ else
         ${UPSTREAM_REAL_IP_RECURSIVE}
         ${FRAPPE_SITE_NAME_HEADER}
         ${HTTP_HOST}
-        ${UPSTREAM_REAL_IP_HEADER}' \
+        ${UPSTREAM_REAL_IP_HEADER}
+        ${WEB_PORT}' \
     </etc/nginx/conf.d/default.conf.template >/etc/nginx/conf.d/default.conf
 fi
 

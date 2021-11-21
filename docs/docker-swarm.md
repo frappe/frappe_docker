@@ -167,7 +167,7 @@ services:
         - "traefik.http.routers.erpnext-nginx-https.entrypoints=https"
         - "traefik.http.routers.erpnext-nginx-https.tls=true"
         - "traefik.http.routers.erpnext-nginx-https.tls.certresolver=le"
-        - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=80"
+        - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=8080"
 
   erpnext-python:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
