@@ -24,7 +24,6 @@ FRAPPE_VERSION=$FRAPPE_VERSION ERPNEXT_VERSION="test" \
     -f installation/erpnext-publish.yml \
     up -d
 
-docker restart test_erpnext_fix-vol-permissions_1 test_erpnext_erpnext-nginx_1
 print_group Create site
 docker run \
     --rm \
@@ -33,6 +32,11 @@ docker run \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
     frappe/erpnext-worker:test new
+
+docker restart ${project_name}_erpnext-nginx_1
+docker restart ${project_name}_fix-vol-permissions_1
+
+check_health
 
 ping_site
 rm .env
