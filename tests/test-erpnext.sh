@@ -24,6 +24,7 @@ FRAPPE_VERSION=$FRAPPE_VERSION ERPNEXT_VERSION="test" \
     -f installation/erpnext-publish.yml \
     up -d
 
+docker restart test_erpnext_fix-vol-permissions_1 test_erpnext_erpnext-nginx_1
 print_group Create site
 docker run \
     --rm \
