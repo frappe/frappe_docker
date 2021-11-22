@@ -38,5 +38,8 @@ docker restart ${project_name}_fix-vol-permissions_1
 
 check_health $project_name
 
+# TODO: remove when pr ci run successful
+docker logs ${project_name}_erpnext-nginx_1
+
 ping_site
 rm .env

@@ -163,6 +163,15 @@ services:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
       - logs-vol:/home/frappe/frappe-bench/logs:rw
 
+  fix-vol-permissions:
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    user: root
+    command: chown -R 1000:1000 /sites /assets /logs
+    volumes:
+      - sites-vol:/sites
+      - assets-vol:/assets
+      - logs-vol:/logs
+
 volumes:
   mariadb-vol:
   redis-cache-vol:
