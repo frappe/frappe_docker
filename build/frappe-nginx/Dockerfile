@@ -72,4 +72,5 @@ RUN chown -R nginx:nginx /assets /etc/nginx/conf.d/ /var/www/html/
 USER nginx
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
+USER root
 CMD ["nginx", "-g", "daemon off;"]
