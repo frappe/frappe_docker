@@ -20,7 +20,6 @@ services:
       - frappe-worker-default
       - frappe-worker-long
       - frappe-worker-short
-      - fix-vol-permissions
     links:
       - [app]-python
       - frappe-socketio
@@ -117,15 +116,6 @@ services:
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
       - logs-vol:/home/frappe/frappe-bench/logs:rw
-
-  fix-vol-permissions:
-    image: [app]-worker
-    user: root
-    command: chown -R 1000:1000 /sites /assets /logs
-    volumes:
-      - sites-vol:/sites
-      - assets-vol:/assets
-      - logs-vol:/logs
 
 volumes:
   assets-vol:

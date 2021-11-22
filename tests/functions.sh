@@ -53,8 +53,8 @@ check_health() {
     print_group Loop health check
 
     docker run --name frappe_doctor \
-        -v "$1_sites-vol:/home/frappe/frappe-bench/sites" \
-        --network "$1_default" \
+        -v "${project_name}_sites-vol:/home/frappe/frappe-bench/sites" \
+        --network "${project_name}_default" \
         frappe/frappe-worker:edge doctor || true
 
     cmd='docker logs frappe_doctor | grep "Health check successful" || echo ""'

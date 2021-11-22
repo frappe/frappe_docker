@@ -24,6 +24,14 @@ FRAPPE_VERSION=$FRAPPE_VERSION ERPNEXT_VERSION="test" \
     -f installation/erpnext-publish.yml \
     up -d
 
+docker run \
+    --rm \
+    --user root \
+    -v ${project_name}_sites-vol:/sites \
+    -v ${project_name}_assets-vol:/assets \
+    -v ${project_name}_logs-vol:/logs \
+    frappe/erpnext-worker:test chown -R 1000:1000 /logs /sites /assets
+
 print_group Create site
 docker run \
     --rm \
@@ -32,14 +40,6 @@ docker run \
     -v ${project_name}_sites-vol:/home/frappe/frappe-bench/sites \
     --network ${project_name}_default \
     frappe/erpnext-worker:test new
-
-docker restart ${project_name}_erpnext-nginx_1
-docker restart ${project_name}_fix-vol-permissions_1
-
-check_health $project_name
-
-# TODO: remove when pr ci run successful
-docker logs ${project_name}_erpnext-nginx_1
 
 ping_site
 rm .env

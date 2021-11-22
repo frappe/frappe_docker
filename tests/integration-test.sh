@@ -38,7 +38,7 @@ docker run \
     --network ${project_name}_default \
     postgres:11.8
 
-check_health $project_name
+check_health
 
 print_group "Create new site "
 SITE_NAME=test.localhost
@@ -133,7 +133,7 @@ docker_compose_with_args stop
 docker container prune -f && docker volume prune -f
 docker_compose_with_args up -d
 
-check_health $project_name
+check_health
 
 print_group Restore backup from S3
 docker run \
@@ -149,7 +149,7 @@ docker run \
     --network ${project_name}_default \
     frappe/frappe-worker:edge restore-backup
 
-check_health $project_name
+check_health
 ping_site
 SITE_NAME=$PG_SITE_NAME ping_site
 
@@ -163,7 +163,7 @@ docker run \
     --network ${project_name}_default \
     frappe/frappe-worker:edge new
 
-check_health $project_name
+check_health
 SITE_NAME=$EDGE_SITE_NAME ping_site
 
 print_group Migrate edge site
