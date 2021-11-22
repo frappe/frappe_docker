@@ -36,7 +36,7 @@ docker run \
 docker restart ${project_name}_erpnext-nginx_1
 docker restart ${project_name}_fix-vol-permissions_1
 
-check_health
+check_health $project_name
 
 ping_site
 rm .env

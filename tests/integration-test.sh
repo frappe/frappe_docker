@@ -6,6 +6,16 @@ source tests/functions.sh
 
 project_name=frappe_bench_00
 
+docker_compose_with_args() {
+    # shellcheck disable=SC2068
+    docker-compose \
+        -p $project_name \
+        -f installation/docker-compose-common.yml \
+        -f installation/docker-compose-frappe.yml \
+        -f installation/frappe-publish.yml \
+        $@
+}
+
 # Initial group
 echo ::group::Setup .env
 cp env-example .env
@@ -28,7 +38,7 @@ docker run \
     --network ${project_name}_default \
     postgres:11.8
 
-check_health
+check_health $project_name
 
 print_group "Create new site "
 SITE_NAME=test.localhost
@@ -123,7 +133,7 @@ docker_compose_with_args stop
 docker container prune -f && docker volume prune -f
 docker_compose_with_args up -d
 
-check_health
+check_health $project_name
 
 print_group Restore backup from S3
 docker run \
@@ -139,7 +149,7 @@ docker run \
     --network ${project_name}_default \
     frappe/frappe-worker:edge restore-backup
 
-check_health
+check_health $project_name
 ping_site
 SITE_NAME=$PG_SITE_NAME ping_site
 
@@ -153,7 +163,7 @@ docker run \
     --network ${project_name}_default \
     frappe/frappe-worker:edge new
 
-check_health
+check_health $project_name
 SITE_NAME=$EDGE_SITE_NAME ping_site
 
 print_group Migrate edge site

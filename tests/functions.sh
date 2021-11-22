@@ -25,16 +25,6 @@ ping_site() {
     fi
 }
 
-docker_compose_with_args() {
-    # shellcheck disable=SC2068
-    docker-compose \
-        -p $project_name \
-        -f installation/docker-compose-common.yml \
-        -f installation/docker-compose-frappe.yml \
-        -f installation/frappe-publish.yml \
-        $@
-}
-
 check_migration_complete() {
     print_group Check migration
 
@@ -63,8 +53,8 @@ check_health() {
     print_group Loop health check
 
     docker run --name frappe_doctor \
-        -v "${project_name}_sites-vol:/home/frappe/frappe-bench/sites" \
-        --network "${project_name}_default" \
+        -v "$1_sites-vol:/home/frappe/frappe-bench/sites" \
+        --network "$1_default" \
         frappe/frappe-worker:edge doctor || true
 
     cmd='docker logs frappe_doctor | grep "Health check successful" || echo ""'
