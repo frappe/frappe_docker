@@ -44,7 +44,7 @@ services:
       - "traefik.http.routers.erpnext-nginx.rule=Host(${SITES})"
       - "${ENTRYPOINT_LABEL}"
       - "${CERT_RESOLVER_LABEL}"
-      - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=80"
+      - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=8080"
     volumes:
       - sites-vol:/var/www/html/sites:rw
       - assets-vol:/assets:rw

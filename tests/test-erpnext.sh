@@ -24,6 +24,14 @@ FRAPPE_VERSION=$FRAPPE_VERSION ERPNEXT_VERSION="test" \
     -f installation/erpnext-publish.yml \
     up -d
 
+docker run \
+    --rm \
+    --user root \
+    -v ${project_name}_sites-vol:/sites \
+    -v ${project_name}_assets-vol:/assets \
+    -v ${project_name}_logs-vol:/logs \
+    frappe/erpnext-worker:test chown -R 1000:1000 /logs /sites /assets
+
 print_group Create site
 docker run \
     --rm \

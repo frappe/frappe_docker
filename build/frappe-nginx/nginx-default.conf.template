@@ -13,7 +13,7 @@ map $http_x_forwarded_proto $proxy_x_forwarded_proto {
 }
 
 server {
-    listen 80;
+    listen ${WEB_PORT};
     server_name $http_host;
     root /var/www/html;
 
