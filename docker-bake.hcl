@@ -86,7 +86,7 @@ function "set_localhost_test_tags" {
     result = ["localhost:5000/${repo}:test"]
 }
 
-function "set_default_test_tags" {
+function "set_test_tags" {
     params = [repo]
     result = ["${repo}:test"]
 }
