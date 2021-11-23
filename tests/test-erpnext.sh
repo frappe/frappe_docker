@@ -9,21 +9,20 @@ SITE_NAME="test_erpnext.localhost"
 
 echo ::group::Setup env
 cp env-example .env
-sed -i -e "s/FRAPPE_VERSION=edge/FRAPPE_VERSION=$FRAPPE_VERSION/g" .env
-sed -i -e "s/ERPNEXT_VERSION=edge/ERPNEXT_VERSION=test/g" .env
+sed -i -e "s/edge/test/g" .env
 # shellcheck disable=SC2046
 export $(cat .env)
 cat .env
 
 print_group Start services
-FRAPPE_VERSION=$FRAPPE_VERSION ERPNEXT_VERSION="test" \
-    docker-compose \
+docker-compose \
     -p $project_name \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-erpnext.yml \
     -f installation/erpnext-publish.yml \
     up -d
 
+print_group Fix permissions
 docker run \
     --rm \
     --user root \

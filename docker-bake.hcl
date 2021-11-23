@@ -1,4 +1,8 @@
-# Images
+# Docker Buildx Bake build definition file
+# Reference: https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md
+
+
+# Bench images
 
 target "bench-build" {
     tags = ["frappe/bench:latest"]
@@ -10,6 +14,9 @@ target "bench-test" {
     inherits = ["bench-build"]
     target = "test"
 }
+
+# Main images
+# Base for all other targets
 
 target "frappe-nginx" {
     dockerfile = "build/frappe-nginx/Dockerfile"
@@ -41,26 +48,42 @@ target "develop-args" {
     }
 }
 
-variable "GIT_TAG" {}
-variable "GIT_BRANCH" {}
-variable "VERSION" {}
-
-target "stable-args" {
-    args = {
-        GIT_BRANCH = "${GIT_BRANCH}"
-        IMAGE_TAG = "${GIT_BRANCH}"
-        PYTHON_VERSION = "${VERSION}" == "12" ? "3.7" : "3.9"
-    }
-}
-
 function "set_develop_tags" {
     params = [repo]
     result = ["${repo}:latest", "${repo}:edge", "${repo}:develop"]
 }
 
+# NOTE: Variable are used only for stable builds
+variable "GIT_TAG" {}  # git tag, e.g. v13.15.0
+variable "GIT_BRANCH" {}  # git branch, e.g. version-13
+variable "VERSION" {}  # Frappe and ERPNext version, e.g. 13
+
+target "stable-args" {
+    args = {
+        GIT_BRANCH = "${GIT_BRANCH}"
+        IMAGE_TAG = "${GIT_BRANCH}"
+        # ERPNext build fails on v12
+        # TODO: Remove PYTHON_VERSION argument when v12 will stop being supported
+        PYTHON_VERSION = "${VERSION}" == "12" ? "3.7" : "3.9"
+    }
+}
+
 function "set_stable_tags" {
+    # e.g. base_image:v13.15.0, base_image:v13, base_image:version-13
     params = [repo]
     result = ["${repo}:${GIT_TAG}", "${repo}:v${VERSION}", "${repo}:${GIT_BRANCH}"]
+}
+
+target "test-erpnext-args" {
+    args = {
+        IMAGE_TAG = "test"
+        DOCKER_REGISTRY_PREFIX = "localhost:5000/frappe"
+    }
+}
+
+function "set_local_test_tags" {
+    params = [repo]
+    result = ["localhost:5000/${repo}:test"]
 }
 
 function "set_test_tags" {
@@ -69,7 +92,7 @@ function "set_test_tags" {
 }
 
 
-# Develop
+# Develop images
 
 target "frappe-nginx-develop" {
     inherits = ["frappe-nginx", "develop-args"]
@@ -104,7 +127,22 @@ group "erpnext-develop" {
     targets = ["erpnext-nginx-develop", "erpnext-worker-develop"]
 }
 
-# Develop test
+# Test develop images
+
+target "frappe-nginx-develop-test-local" {
+    inherits = ["frappe-nginx-develop"]
+    tags = set_local_test_tags("frappe/frappe-nginx")
+}
+
+target "frappe-worker-develop-test-local" {
+    inherits = ["frappe-worker-develop"]
+    tags = set_local_test_tags("frappe/frappe-worker")
+}
+
+target "frappe-socketio-develop-test-local" {
+    inherits = ["frappe-socketio-develop"]
+    tags = set_local_test_tags("frappe/frappe-socketio")
+}
 
 target "frappe-nginx-develop-test" {
     inherits = ["frappe-nginx-develop"]
@@ -122,13 +160,17 @@ target "frappe-socketio-develop-test" {
 }
 
 target "erpnext-nginx-develop-test" {
-    inherits = ["erpnext-nginx-develop"]
+    inherits = ["erpnext-nginx-develop", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-nginx")
 }
 
 target "erpnext-worker-develop-test" {
-    inherits = ["erpnext-worker-develop"]
+    inherits = ["erpnext-worker-develop", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-worker")
+}
+
+group "frappe-develop-test-local" {
+    targets = ["frappe-nginx-develop-test-local", "frappe-worker-develop-test-local", "frappe-socketio-develop-test-local"]
 }
 
 group "frappe-develop-test" {
@@ -140,7 +182,7 @@ group "erpnext-develop-test" {
 }
 
 
-# Stable
+# Stable images
 
 target "frappe-nginx-stable" {
     inherits = ["frappe-nginx", "stable-args"]
@@ -175,7 +217,23 @@ group "erpnext-stable" {
     targets = ["erpnext-nginx-stable", "erpnext-worker-stable"]
 }
 
-# Stable test
+# Test stable images
+
+target "frappe-nginx-stable-test-local" {
+    inherits = ["frappe-nginx-stable"]
+    tags = set_local_test_tags("frappe/frappe-nginx")
+}
+
+target "frappe-worker-stable-test-local" {
+    inherits = ["frappe-worker-stable"]
+    tags = set_local_test_tags("frappe/frappe-worker")
+}
+
+target "frappe-socketio-stable-test-local" {
+    inherits = ["frappe-socketio-stable"]
+    tags = set_local_test_tags("frappe/frappe-socketio")
+}
+
 target "frappe-nginx-stable-test" {
     inherits = ["frappe-nginx-stable"]
     tags = set_test_tags("frappe/frappe-nginx")
@@ -192,13 +250,17 @@ target "frappe-socketio-stable-test" {
 }
 
 target "erpnext-nginx-stable-test" {
-    inherits = ["erpnext-nginx-stable"]
+    inherits = ["erpnext-nginx-stable", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-nginx")
 }
 
 target "erpnext-worker-stable-test" {
-    inherits = ["erpnext-worker-stable"]
+    inherits = ["erpnext-worker-stable", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-worker")
+}
+
+group "frappe-stable-test-local" {
+    targets = ["frappe-nginx-stable-test-local", "frappe-worker-stable-test-local", "frappe-socketio-stable-test-local"]
 }
 
 group "frappe-stable-test" {
