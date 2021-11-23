@@ -36,7 +36,7 @@ env:
 
 jobs:
   build:
-    name: Frappe and ERPNext
+    name: Frappe & ERPNext
     runs-on: ubuntu-latest
     strategy:
       matrix:

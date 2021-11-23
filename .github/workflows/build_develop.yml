@@ -56,7 +56,7 @@ jobs:
           push: true
 
   build_main:
-    name: Frappe and ERPNext
+    name: Frappe & ERPNext
     runs-on: ubuntu-latest
     services:
       registry:
