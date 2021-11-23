@@ -53,6 +53,12 @@ target "stable-args" {
     }
 }
 
+target "test-erpnext-args" {
+    args = {
+        IMAGE_TAG = "test"
+    }
+}
+
 function "set_develop_tags" {
     params = [repo]
     result = ["${repo}:latest", "${repo}:edge", "${repo}:develop"]
@@ -122,12 +128,12 @@ target "frappe-socketio-develop-test" {
 }
 
 target "erpnext-nginx-develop-test" {
-    inherits = ["erpnext-nginx-develop"]
+    inherits = ["erpnext-nginx-develop", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-nginx")
 }
 
 target "erpnext-worker-develop-test" {
-    inherits = ["erpnext-worker-develop"]
+    inherits = ["erpnext-worker-develop", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-worker")
 }
 
