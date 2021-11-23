@@ -250,12 +250,12 @@ target "frappe-socketio-stable-test" {
 }
 
 target "erpnext-nginx-stable-test" {
-    inherits = ["erpnext-nginx-stable"]
+    inherits = ["erpnext-nginx-stable", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-nginx")
 }
 
 target "erpnext-worker-stable-test" {
-    inherits = ["erpnext-worker-stable"]
+    inherits = ["erpnext-worker-stable", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-worker")
 }
 
