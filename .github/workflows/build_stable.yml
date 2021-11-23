@@ -30,7 +30,7 @@ on:
   repository_dispatch:
 
   workflow_dispatch:
-# TODO: ERPNext image not from right place
+
 env:
   IS_AUTHORIZED_RUN: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
 
