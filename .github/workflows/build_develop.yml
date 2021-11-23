@@ -55,8 +55,8 @@ jobs:
           targets: bench-build
           push: true
 
-  build_frappe:
-    name: Frappe
+  build_main:
+    name: Frappe and ERPNext
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -78,9 +78,12 @@ jobs:
           files: docker-bake.hcl
           targets: frappe-develop-test
           load: true
+      
+      - run: docker image ls -a
+      # - name: Test Frappe
+      #   run: ./tests/test-frappe.sh
 
-      - name: Test Frappe
-        run: ./tests/test-frappe.sh
+      
 
       - name: Build ERPNext
         uses: docker/bake-action@v1.6.0
