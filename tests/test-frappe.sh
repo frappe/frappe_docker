@@ -36,5 +36,8 @@ docker run \
     frappe/frappe-worker:test new
 
 ping_site
+
+print_group Stop and remove containers
 docker_compose_with_args down
+
 rm .env

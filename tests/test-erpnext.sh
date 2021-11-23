@@ -22,6 +22,7 @@ docker-compose \
     -f installation/erpnext-publish.yml \
     up -d
 
+print_group Fix permissions
 docker run \
     --rm \
     --user root \
