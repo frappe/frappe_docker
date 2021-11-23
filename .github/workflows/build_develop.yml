@@ -77,16 +77,14 @@ jobs:
         with:
           files: docker-bake.hcl
           targets: frappe-develop-test
-          # load: true
-      
-      
+          # load: true      
 
       - name: Build ERPNext
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
           targets: erpnext-develop-test
-          load: true
+          # load: true
 
       - name: Test Frappe
         run: ./tests/test-frappe.sh
