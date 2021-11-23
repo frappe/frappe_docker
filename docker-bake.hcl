@@ -82,7 +82,7 @@ target "test-erpnext-args" {
 
 function "set_test_tags" {
     params = [repo]
-    result = ["${repo}:test"]
+    result = ["localhost:5000/${repo}:test"]
 }
 
 
