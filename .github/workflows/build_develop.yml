@@ -79,12 +79,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Frappe and push to local registry
+      - name: Build Frappe
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
-          targets: frappe-develop-test-localhost
+          targets: frappe-develop-test
+          load: true
+
+      - name: Push Frappe to local registry
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: frappe-develop-test-local
           push: true
+
+      - name: Test Frappe
+        run: ./tests/test-frappe.sh
 
       - name: Build ERPNext
         uses: docker/bake-action@v1.6.0
@@ -92,16 +102,6 @@ jobs:
           files: docker-bake.hcl
           targets: erpnext-develop-test
           load: true
-
-      - name: Load Frappe
-        uses: docker/bake-action@v1.6.0
-        with:
-          files: docker-bake.hcl
-          targets: frappe-develop-test
-          load: true
-
-      - name: Test Frappe
-        run: ./tests/test-frappe.sh
 
       - name: Test ERPNext
         run: FRAPPE_VERSION=develop ./tests/test-erpnext.sh
