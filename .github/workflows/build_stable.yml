@@ -118,7 +118,7 @@ jobs:
     name: Release Helm
     runs-on: ubuntu-latest
     if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
-    needs: [build_frappe, build_erpnext]
+    needs: build
 
     steps:
       - name: Setup deploy key
