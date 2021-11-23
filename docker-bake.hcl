@@ -77,6 +77,7 @@ function "set_stable_tags" {
 target "test-erpnext-args" {
     args = {
         IMAGE_TAG = "test"
+        DOCKER_REGISTRY_PREFIX = "localhost:5000/frappe"
     }
 }
 
