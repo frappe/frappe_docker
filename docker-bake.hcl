@@ -81,9 +81,14 @@ target "test-erpnext-args" {
     }
 }
 
-function "set_test_tags" {
+function "set_localhost_test_tags" {
     params = [repo]
     result = ["localhost:5000/${repo}:test"]
+}
+
+function "set_default_test_tags" {
+    params = [repo]
+    result = ["${repo}:test"]
 }
 
 
@@ -124,6 +129,21 @@ group "erpnext-develop" {
 
 # Test develop images
 
+target "frappe-nginx-develop-test-localhost" {
+    inherits = ["frappe-nginx-develop"]
+    tags = set_localhost_test_tags("frappe/frappe-nginx")
+}
+
+target "frappe-worker-develop-test-localhost" {
+    inherits = ["frappe-worker-develop"]
+    tags = set_localhost_test_tags("frappe/frappe-worker")
+}
+
+target "frappe-socketio-develop-test-localhost" {
+    inherits = ["frappe-socketio-develop"]
+    tags = set_localhost_test_tags("frappe/frappe-socketio")
+}
+
 target "frappe-nginx-develop-test" {
     inherits = ["frappe-nginx-develop"]
     tags = set_test_tags("frappe/frappe-nginx")
@@ -147,6 +167,10 @@ target "erpnext-nginx-develop-test" {
 target "erpnext-worker-develop-test" {
     inherits = ["erpnext-worker-develop", "test-erpnext-args"]
     tags = set_test_tags("frappe/erpnext-worker")
+}
+
+group "frappe-develop-test-localhost" {
+    targets = ["frappe-nginx-develop-test-localhost", "frappe-worker-develop-test-localhost", "frappe-socketio-develop-test-localhost"]
 }
 
 group "frappe-develop-test" {
