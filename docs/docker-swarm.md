@@ -156,18 +156,18 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-      labels:
-        - "traefik.docker.network=traefik-public"
-        - "traefik.enable=true"
-        - "traefik.constraint-label=traefik-public"
-        - "traefik.http.routers.erpnext-nginx.rule=Host(${SITES?Variable SITES not set})"
-        - "traefik.http.routers.erpnext-nginx.entrypoints=http"
-        - "traefik.http.routers.erpnext-nginx.middlewares=https-redirect"
-        - "traefik.http.routers.erpnext-nginx-https.rule=Host(${SITES?Variable SITES not set})"
-        - "traefik.http.routers.erpnext-nginx-https.entrypoints=https"
-        - "traefik.http.routers.erpnext-nginx-https.tls=true"
-        - "traefik.http.routers.erpnext-nginx-https.tls.certresolver=le"
-        - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=8080"
+    labels:
+      - "traefik.docker.network=traefik-public"
+      - "traefik.enable=true"
+      - "traefik.constraint-label=traefik-public"
+      - "traefik.http.routers.erpnext-nginx.rule=Host(${SITES?Variable SITES not set})"
+      - "traefik.http.routers.erpnext-nginx.entrypoints=http"
+      - "traefik.http.routers.erpnext-nginx.middlewares=https-redirect"
+      - "traefik.http.routers.erpnext-nginx-https.rule=Host(${SITES?Variable SITES not set})"
+      - "traefik.http.routers.erpnext-nginx-https.entrypoints=https"
+      - "traefik.http.routers.erpnext-nginx-https.tls=true"
+      - "traefik.http.routers.erpnext-nginx-https.tls.certresolver=le"
+      - "traefik.http.services.erpnext-nginx.loadbalancer.server.port=8080"
 
   erpnext-python:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION?Variable ERPNEXT_VERSION not set}
