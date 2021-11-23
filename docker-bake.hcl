@@ -1,4 +1,8 @@
-# Images
+# Docker Buildx Bake build definition file
+# Reference: https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md
+
+
+# Bench images
 
 target "bench-build" {
     tags = ["frappe/bench:latest"]
@@ -10,6 +14,9 @@ target "bench-test" {
     inherits = ["bench-build"]
     target = "test"
 }
+
+# Main images
+# Base for all other targets
 
 target "frappe-nginx" {
     dockerfile = "build/frappe-nginx/Dockerfile"
@@ -41,16 +48,30 @@ target "develop-args" {
     }
 }
 
-variable "GIT_TAG" {}
-variable "GIT_BRANCH" {}
-variable "VERSION" {}
+function "set_develop_tags" {
+    params = [repo]
+    result = ["${repo}:latest", "${repo}:edge", "${repo}:develop"]
+}
+
+# NOTE: Variable are used only for stable builds
+variable "GIT_TAG" {}  # git tag, e.g. v13.15.0
+variable "GIT_BRANCH" {}  # git branch, e.g. version-13
+variable "VERSION" {}  # Frappe and ERPNext version, e.g. 13
 
 target "stable-args" {
     args = {
         GIT_BRANCH = "${GIT_BRANCH}"
         IMAGE_TAG = "${GIT_BRANCH}"
+        # ERPNext build fails on v12
+        # TODO: Remove PYTHON_VERSION argument when v12 will stop being supported
         PYTHON_VERSION = "${VERSION}" == "12" ? "3.7" : "3.9"
     }
+}
+
+function "set_stable_tags" {
+    # e.g. base_image:v13.15.0, base_image:v13, base_image:version-13
+    params = [repo]
+    result = ["${repo}:${GIT_TAG}", "${repo}:v${VERSION}", "${repo}:${GIT_BRANCH}"]
 }
 
 target "test-erpnext-args" {
@@ -59,23 +80,13 @@ target "test-erpnext-args" {
     }
 }
 
-function "set_develop_tags" {
-    params = [repo]
-    result = ["${repo}:latest", "${repo}:edge", "${repo}:develop"]
-}
-
-function "set_stable_tags" {
-    params = [repo]
-    result = ["${repo}:${GIT_TAG}", "${repo}:v${VERSION}", "${repo}:${GIT_BRANCH}"]
-}
-
 function "set_test_tags" {
     params = [repo]
     result = ["${repo}:test"]
 }
 
 
-# Develop
+# Develop images
 
 target "frappe-nginx-develop" {
     inherits = ["frappe-nginx", "develop-args"]
@@ -110,7 +121,7 @@ group "erpnext-develop" {
     targets = ["erpnext-nginx-develop", "erpnext-worker-develop"]
 }
 
-# Develop test
+# Test develop images
 
 target "frappe-nginx-develop-test" {
     inherits = ["frappe-nginx-develop"]
@@ -146,7 +157,7 @@ group "erpnext-develop-test" {
 }
 
 
-# Stable
+# Stable images
 
 target "frappe-nginx-stable" {
     inherits = ["frappe-nginx", "stable-args"]
@@ -181,7 +192,8 @@ group "erpnext-stable" {
     targets = ["erpnext-nginx-stable", "erpnext-worker-stable"]
 }
 
-# Stable test
+# Test stable images
+
 target "frappe-nginx-stable-test" {
     inherits = ["frappe-nginx-stable"]
     tags = set_test_tags("frappe/frappe-nginx")
