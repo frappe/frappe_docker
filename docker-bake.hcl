@@ -219,6 +219,21 @@ group "erpnext-stable" {
 
 # Test stable images
 
+target "frappe-nginx-stable-test-local" {
+    inherits = ["frappe-nginx-stable"]
+    tags = set_local_test_tags("frappe/frappe-nginx")
+}
+
+target "frappe-worker-stable-test-local" {
+    inherits = ["frappe-worker-stable"]
+    tags = set_local_test_tags("frappe/frappe-worker")
+}
+
+target "frappe-socketio-stable-test-local" {
+    inherits = ["frappe-socketio-stable"]
+    tags = set_local_test_tags("frappe/frappe-socketio")
+}
+
 target "frappe-nginx-stable-test" {
     inherits = ["frappe-nginx-stable"]
     tags = set_test_tags("frappe/frappe-nginx")
@@ -242,6 +257,10 @@ target "erpnext-nginx-stable-test" {
 target "erpnext-worker-stable-test" {
     inherits = ["erpnext-worker-stable"]
     tags = set_test_tags("frappe/erpnext-worker")
+}
+
+group "frappe-stable-test-local" {
+    targets = ["frappe-nginx-stable-test-local", "frappe-worker-stable-test-local", "frappe-socketio-stable-test-local"]
 }
 
 group "frappe-stable-test" {
