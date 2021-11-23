@@ -15,8 +15,7 @@ export $(cat .env)
 cat .env
 
 print_group Start services
-FRAPPE_VERSION="test" \
-    docker-compose \
+docker-compose \
     -p $project_name \
     -f installation/docker-compose-common.yml \
     -f installation/docker-compose-frappe.yml \
@@ -32,4 +31,5 @@ docker run \
     frappe/frappe-worker:test new
 
 ping_site
+docker-compose down
 rm .env
