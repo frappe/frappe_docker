@@ -79,6 +79,7 @@ jobs:
           targets: frappe-develop-test
           # load: true      
 
+      - run: docker image ls -a
       - name: Build ERPNext
         uses: docker/bake-action@v1.6.0
         with:
