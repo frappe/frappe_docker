@@ -104,7 +104,7 @@ jobs:
           load: true
 
       - name: Test ERPNext
-        run: FRAPPE_VERSION=develop ./tests/test-erpnext.sh
+        run: ./tests/test-erpnext.sh
 
       - name: Push
         if: env.IS_AUTHORIZED_RUN == 'true'
