@@ -5,27 +5,27 @@ on:
     branches:
       - main
     paths:
-      - .github/**
+      - .github/workflows/test.yml
+      - .github/scripts/get-latest-tags.sh
       - build/**
       - installation/**
       - tests/**
       - .dockerignore
       - docker-bake.hcl
-      - docker-compose.yml
-      - env*
+      - env-example
 
   pull_request:
     branches:
       - main
     paths:
-      - .github/**
+      - .github/workflows/test.yml
+      - .github/scripts/get-latest-tags.sh
       - build/**
       - installation/**
       - tests/**
       - .dockerignore
       - docker-bake.hcl
-      - docker-compose.yml
-      - env*
+      - env-example
 
   workflow_dispatch:
 

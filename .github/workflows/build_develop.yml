@@ -5,14 +5,13 @@ on:
     branches:
       - main
     paths:
-      - .github/**
+      - .github/workflows/build_develop.yml
       - build/**
       - installation/**
       - tests/**
       - .dockerignore
       - docker-bake.hcl
-      - docker-compose.yml
-      - env*
+      - env-example
 
   schedule:
     # Every day at 12:00 pm
