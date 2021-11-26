@@ -5,26 +5,27 @@ on:
     branches:
       - main
     paths:
-      - .github/**
+      - .github/workflows/build_stable.yml
+      - .github/scripts/get-latest-tags.sh
       - build/**
       - installation/**
       - tests/**
       - .dockerignore
       - docker-bake.hcl
-      - docker-compose.yml
-      - env*
+      - env-example
+
   push:
     branches:
       - main
     paths:
-      - .github/**
+      - .github/workflows/build_stable.yml
+      - .github/scripts/get-latest-tags.sh
       - build/**
       - installation/**
       - tests/**
       - .dockerignore
       - docker-bake.hcl
-      - docker-compose.yml
-      - env*
+      - env-example
 
   # Triggered from frappe/frappe and frappe/erpnext on releases
   repository_dispatch:
