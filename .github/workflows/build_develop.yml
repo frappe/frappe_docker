@@ -119,5 +119,5 @@ jobs:
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
-          targets: frappe-develop
+          targets: erpnext-develop
           # push: true
