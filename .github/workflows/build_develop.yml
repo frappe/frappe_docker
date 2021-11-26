@@ -107,9 +107,17 @@ jobs:
         run: ./tests/test-erpnext.sh
 
       - name: Push
-        if: env.IS_AUTHORIZED_RUN == 'true'
+        # if: env.IS_AUTHORIZED_RUN == 'true'
         uses: docker/bake-action@v1.6.0
         with:
           files: docker-bake.hcl
-          targets: frappe-develop,erpnext-develop
-          push: true
+          targets: frappe-develop
+          # push: true
+
+      - name: Push
+        # if: env.IS_AUTHORIZED_RUN == 'true'
+        uses: docker/bake-action@v1.6.0
+        with:
+          files: docker-bake.hcl
+          targets: frappe-develop
+          # push: true
