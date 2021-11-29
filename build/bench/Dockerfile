@@ -54,6 +54,8 @@ RUN apt-get update \
     ssh-client \
     # VSCode container requirements
     net-tools \
+    # For version 12
+    python2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
@@ -85,6 +87,8 @@ ENV PATH /home/frappe/.local/bin:$PATH
 # Export python executables for interactive shell
 RUN echo "export PATH=/home/frappe/.local/bin:\$PATH" >> /home/frappe/.bashrc
 
+ENV HOME=/home/frappe
+
 # Install nvm with node
 RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
     && . ${NVM_DIR}/nvm.sh \
@@ -96,7 +100,16 @@ RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | 
     && nvm use v${NODE_VERSION} \
     && npm install -g yarn \
     && nvm alias default v${NODE_VERSION} \
-    && rm -rf ${NVM_DIR}/.cache
+    && rm -rf ${NVM_DIR}/.cache \
+    && echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc \
+    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc \
+    && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> ~/.bashrc
+
+RUN git clone --depth=1 https://github.com/pyenv/pyenv.git .pyenv
+ENV PYENV_ROOT="${HOME}/.pyenv"
+ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
+ENV PYTHON_VERSION=3.7.12
+RUN pyenv install ${PYTHON_VERSION}
 
 EXPOSE 8000-8005 9000-9005 6787
 
