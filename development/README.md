@@ -62,6 +62,8 @@ bench init --skip-redis-config-generation --frappe-branch version-13 frappe-benc
 cd frappe-bench
 ```
 
+Note: For version 12 use python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench`
+
 ### Setup hosts
 
 We need to tell bench to use the right containers instead of localhost. Run the following commands inside the container:
