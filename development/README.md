@@ -62,7 +62,7 @@ bench init --skip-redis-config-generation --frappe-branch version-13 frappe-benc
 cd frappe-bench
 ```
 
-Note: For version 12 use python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python ~/.pyenv/versions/3.7.12/bin/python frappe-bench`
+Note: For version 12 use python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench`
 
 ### Setup hosts
 
