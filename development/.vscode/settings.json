@@ -1,4 +1,0 @@
-{
-    "python.pythonPath": "frappe-bench/env/bin/python",
-    "debug.node.autoAttach": "disabled"
-}
