@@ -28,6 +28,12 @@ Copy example devcontainer config from `devcontainer-example` to `.devcontainer`
 cp -R devcontainer-example .devcontainer
 ```
 
+Copy example vscode config for devcontainer from `development/vscode-example` to `development/.vscode`. This will setup basic configuration for debugging.
+
+```shell
+cp -R development/vscode-example development/.vscode
+```
+
 ## Use VSCode Remote Containers extension
 
 For most people getting started with Frappe development, the best solution is to use [VSCode Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
@@ -207,6 +213,8 @@ This command starts all processes with the exception of Redis (which is already 
 You can now login with user `Administrator` and the password you choose when creating the site, if you followed this guide's unattended install that password is going to be `admin`.
 
 To debug workers, skip starting worker with honcho and start it with VSCode debugger.
+
+For advance vscode configuration in the devcontainer, change the config files in `development/.vscode`.
 
 ## Developing using the interactive console
 
