@@ -1,33 +1,51 @@
 # Contribution Guidelines
 
-## Branches
+Before publishing a PR, please test builds locally:
 
-* *master*:  images on the master branch are built monthly and with github action triggered by ERPNext release.
-* *develop*: images on this branch are built daily and when PR is merged into develop.
+- with docker-compose for production,
+- with and without nginx proxy,
+- with VSCode for testing environments (only for frappe/bench image).
 
-# Pull Requests
+On each PR that contains changes relevant to Docker builds, images are being built and tested in our CI (GitHub Actions).
+> :evergreen_tree: Please be considerate when pushing commits and opening PR for multiple branches, as the process of building images uses energy and contributes to global warming.
+> 
 
-Please **send all pull request exclusively to the *develop*** branch.
-When the PR are merged, the merge will trigger the image build automatically.
+## Lint
 
-Please test all PR as extensively as you can, considering that the software can be run in different modes:
+```shell
+shellcheck example.sh
+```
 
-* with docker-compose for production
-* with or without Nginx proxy
-* with VScode for testing environments
+## Build
 
-Every once in a while (or with monthly release) develop will be merged into master.
+```shell
+# *...* — targets from docker-bake.hcl,
+# e.g. bench-build, frappe-socketio-develop or erpnext-nginx-stable.
+# Stable builds require GIT_BRANCH (e.g. v13.15.0), IMAGE_TAG (version-13), VERSION (13)
+# environment variables set.
+docker buildx bake -f docker-bake.hcl *...*
+```
 
-There is Github Action is configured on ERPNext repository. Whenever there is a ERPNext release it will trigger a build on master branch of frappe_docker repo to generate images for released version.
+## Test
 
-When a PR is sent, the images are built and all commands are tested.
+### Ping site
+Lightweight test that just checks if site will be available after creation.
 
-If update or fixes to documentation are pushed use `[skip travis]` anywhere in commit message to skip travis.
+Frappe:
+```shell
+./tests/test-frappe.sh
+```
 
-## Reducing the number of branching and builds :evergreen_tree: :evergreen_tree: :evergreen_tree:
+ERPNext:
+```shell
+./tests/test-erpnext.sh
+```
 
-Please be considerate when pushing commits and opening PR for multiple branches, as the process of building images (triggered on push and PR branch push) uses energy and contributes to global warming.
-
+### Integration test
+Tests frappe-bench-like commands, for example, `backup` and `restore`.
+```shell
+./tests/integration-test.sh
+```
 
 # Documentation
 
@@ -37,32 +55,6 @@ Place relevant markdown file(s) in the `docs` directory and index them in README
 
 Add alternatives that can be used optionally along with frappe_docker. Add articles to list on home page as well.
 
-# Prerequisites to pass CI
+# Frappe and ERPNext updates
 
-### Check shell script format
-
-Use the following script
-
-```shell
-./tests/check-format.sh
-```
-
-### Build images locally
-
-Use the following commands
-
-```shell
-docker build -t frappe/frappe-socketio:edge -f build/frappe-socketio/Dockerfile .
-docker build -t frappe/frappe-worker:develop -f build/frappe-worker/Dockerfile .
-docker build -t frappe/erpnext-worker:edge -f build/erpnext-worker/Dockerfile .
-docker build -t frappe/frappe-nginx:develop -f build/frappe-nginx/Dockerfile .
-docker build -t frappe/erpnext-nginx:edge -f build/erpnext-nginx/Dockerfile .
-```
-
-### Test running docker containers
-
-Use the following script
-
-```shell
-./tests/docker-test.sh
-```
+Each Frappe/ERPNext release triggers new stable images builds as well as bump to helm chart.
