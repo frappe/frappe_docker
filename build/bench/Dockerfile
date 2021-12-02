@@ -92,6 +92,9 @@ RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
 # Clone and install bench in the local user home directory
 # For development, bench source is located in ~/.bench
 ENV PATH /home/frappe/.local/bin:$PATH
+# Skip editable-bench warning
+# https://github.com/frappe/bench/commit/20560c97c4246b2480d7358c722bc9ad13606138
+ENV BENCH_DEVELOPER 1
 RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
     && pip install --user -e .bench \
     && echo "export PATH=/home/frappe/.local/bin:\$PATH" >> /home/frappe/.bashrc
