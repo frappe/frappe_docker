@@ -29,7 +29,7 @@ docker buildx bake -f docker-bake.hcl *...*
 ## Test
 
 ### Ping site
-Lightweight test that just checks if site will available after creation.
+Lightweight test that just checks if site will be available after creation.
 
 Frappe:
 ```shell
