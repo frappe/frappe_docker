@@ -57,4 +57,4 @@ Add alternatives that can be used optionally along with frappe_docker. Add artic
 
 # Frappe and ERPNext updates
 
-Each Frappe/ERPNext release triggers new stable images builds.
+Each Frappe/ERPNext release triggers new stable images builds as well as bump to helm chart.
