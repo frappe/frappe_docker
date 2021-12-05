@@ -35,3 +35,5 @@ jobs:
 
       - name: Lint
         run: pre-commit run --color=always --all-files
+        env:
+          GO111MODULE: on
