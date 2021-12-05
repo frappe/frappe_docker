@@ -11,7 +11,6 @@ services:
       labels:
         - "traefik.enable=true"
     command:
-      - "--log.level=DEBUG"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
