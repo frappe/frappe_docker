@@ -48,3 +48,4 @@ repos:
     rev: v0.8.0.1
     hooks:
       - id: shellcheck
+        args: [-x]
