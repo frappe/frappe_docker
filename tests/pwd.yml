@@ -151,36 +151,21 @@ services:
     volumes:
       - sites-vol:/sites:rw
 
-  mariadb-configurator:
-    image: mariadb:10.3
-    deploy:
-      restart_policy:
-        condition: none
-    command:
-      - "bash"
-      - "-c"
-      - >
-        echo -e "[mysqld]\n
-        skip-host-cache\n
-        skip-name-resolve\n
-        character-set-client-handshake = FALSE\n
-        character-set-server = utf8mb4\n
-        collation-server = utf8mb4_unicode_ci\n
-        [mysql]\n
-        default-character-set = utf8mb4\n
-        [mysqld_safe]\n
-        skip_log_error\n
-        syslog\n" > /data/frappe.cnf
-    volumes:
-      - mariadb-conf-vol:/data:rw
-
   mariadb:
-    image: mariadb:10.3
+    image: mariadb:10.6
     deploy:
       restart_policy:
         condition: on-failure
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
       - MYSQL_ROOT_PASSWORD=admin
+      # Sometimes db initialization takes longer than 10 seconds and site-creator goes away.
+      # Frappe doesn't use CONVERT_TZ() function that requires time zone info, so we can just skip it.
+      - MYSQL_INITDB_SKIP_TZINFO=1
     volumes:
       - mariadb-conf-vol:/etc/mysql/conf.d
       - mariadb-vol:/var/lib/mysql
