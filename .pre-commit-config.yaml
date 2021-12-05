@@ -39,10 +39,15 @@ repos:
       - id: codespell
         exclude: ".*Dockerfile.*"
 
-  - repo: https://github.com/scop/pre-commit-shfmt
-    rev: v3.4.1-1
+  - repo: local
     hooks:
       - id: shfmt
+        name: shfmt
+        language: golang
+        additional_dependencies: [mvdan.cc/sh/v3/cmd/shfmt]
+        entry: shfmt
+        args: [-w]
+        types: [shell]
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.8.0.1
