@@ -42,7 +42,7 @@ repos:
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.4.1-1
     hooks:
-      - id: shfmt # native (requires Go to build)
+      - id: shfmt
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.8.0.1
