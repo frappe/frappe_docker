@@ -1,12 +1,19 @@
 version: "3.7"
 services:
   mariadb:
-    image: mariadb:10.3
+    image: mariadb:10.6
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
       - MYSQL_ROOT_PASSWORD=123
       - MYSQL_USER=root
+      # Sometimes db initialization takes longer than 10 seconds and site-creator goes away.
+      # Frappe doesn't use CONVERT_TZ() function that requires time zone info, so we can just skip it.
+      - MYSQL_INITDB_SKIP_TZINFO=1
     volumes:
-      - ../installation/frappe-mariadb.cnf:/etc/mysql/conf.d/frappe.cnf
       - mariadb-vol:/var/lib/mysql
 
   # Enable PostgreSQL only if you use it, see development/README.md for more information.
