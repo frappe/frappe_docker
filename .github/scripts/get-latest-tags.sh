@@ -4,9 +4,9 @@ set -e
 set -x
 
 get_tag() {
-    tags=$(git ls-remote --refs --tags --sort='v:refname' "https://github.com/$1" "v$2.*")
-    tag=$(echo "$tags" | tail -n1 | sed 's/.*\///')
-    echo "$tag"
+  tags=$(git ls-remote --refs --tags --sort='v:refname' "https://github.com/$1" "v$2.*")
+  tag=$(echo "$tags" | tail -n1 | sed 's/.*\///')
+  echo "$tag"
 }
 
 FRAPPE_VERSION=$(get_tag frappe/frappe "$VERSION")
