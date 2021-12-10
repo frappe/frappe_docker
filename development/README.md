@@ -236,7 +236,7 @@ The first step is installing and updating the required software. Usually the fra
 /workspace/development/frappe-bench/env/bin/python -m pip install --upgrade jupyter ipykernel ipython
 ```
 
-Then, run the commmand `Python: Show Python interactive window` from the VSCode command palette.
+Then, run the command `Python: Show Python interactive window` from the VSCode command palette.
 
 Replace `mysite.localhost` with your site and run the following code in a Jupyter cell:
 

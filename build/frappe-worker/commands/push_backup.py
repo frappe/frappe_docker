@@ -119,7 +119,7 @@ def delete_old_backups(limit, bucket, site_name):
                 for obj in bucket.objects.filter(Prefix=oldest_backup):
                     # delete all keys that are inside the oldest_backup
                     if bucket_dir in obj.key:
-                        print("Deleteing " + obj.key)
+                        print("Deleting " + obj.key)
                         s3.Object(bucket.name, obj.key).delete()
 
 
