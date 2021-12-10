@@ -11,10 +11,10 @@ from check_connection import (
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-p',
-        '--ping-service',
-        dest='ping_services',
-        action='append',
+        "-p",
+        "--ping-service",
+        dest="ping_services",
+        action="append",
         type=str,
         help='list of services to ping, e.g. doctor -p "postgres:5432" --ping-service "mariadb:3306"',
     )
@@ -33,15 +33,15 @@ def main():
     check_redis_socketio(retry=1, delay=0, print_attempt=False)
     print("Redis SocketIO Connected")
 
-    if(args.ping_services):
+    if args.ping_services:
         for service in args.ping_services:
             service_name = None
             service_port = None
 
             try:
-                service_name, service_port = service.split(':')
+                service_name, service_port = service.split(":")
             except ValueError:
-                print('Service should be in format host:port, e.g postgres:5432')
+                print("Service should be in format host:port, e.g postgres:5432")
                 exit(1)
 
             check_service(
