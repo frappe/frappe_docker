@@ -3,7 +3,7 @@ FROM alpine/git as builder
 ARG GIT_REPO=https://github.com/frappe/frappe.git
 ARG GIT_BRANCH=develop
 
-RUN git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} /opt/frappe 
+RUN git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} /opt/frappe
 
 FROM node:bullseye-slim
 

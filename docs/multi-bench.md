@@ -17,17 +17,17 @@ cp env-example .env
 To get started, copy the existing `env-example` file to `.env`. By default, the file will contain the following variables:
 
 - `VERSION=edge`
-    - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. v13.0.0, version-12, v11.1.15, v11)
+  - In this case, `edge` corresponds to `develop`. To setup any other version, you may use the branch name or version specific tags. (eg. v13.0.0, version-12, v11.1.15, v11)
 - `MYSQL_ROOT_PASSWORD=admin`
-    - Bootstraps a MariaDB container with this value set as the root password. If a managed MariaDB instance is used, there is no need to set the password here.
+  - Bootstraps a MariaDB container with this value set as the root password. If a managed MariaDB instance is used, there is no need to set the password here.
 - `MARIADB_HOST=mariadb`
-    - Sets the hostname to `mariadb`. This is required if the database is managed by the containerized MariaDB instance.
-    - In case of a separately managed database setups, set the value to the database's hostname/IP/domain.
+  - Sets the hostname to `mariadb`. This is required if the database is managed by the containerized MariaDB instance.
+  - In case of a separately managed database setups, set the value to the database's hostname/IP/domain.
 - `SITES=site1.domain.com,site2.domain.com`
-    - List of sites that are part of the deployment "bench" Each site is separated by a comma(,).
-    - If LetsEncrypt is being setup, make sure that the DNS for all the site's domains correctly point to the current instance.
+  - List of sites that are part of the deployment "bench" Each site is separated by a comma(,).
+  - If LetsEncrypt is being setup, make sure that the DNS for all the site's domains correctly point to the current instance.
 - `LETSENCRYPT_EMAIL=your.email@your.domain.com`
-    - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
+  - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
 
 Notes:
 
@@ -123,46 +123,49 @@ Notes:
 ## Docker containers
 
 This repository contains the following docker-compose files, each one containing the described images:
-* docker-compose-common.yml
-    * redis-cache
-        * volume: redis-cache-vol
-    * redis-queue
-        * volume: redis-queue-vol
-    * redis-socketio
-        * volume: redis-socketio-vol
-    * mariadb: main database
-        * volume: mariadb-vol
-* docker-compose-erpnext.yml
-    * erpnext-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
-        * volume: assets-vol
-    * erpnext-python: main application code
-    * frappe-socketio: enables realtime communication to the user interface through websockets
-    * frappe-worker-default: background runner
-    * frappe-worker-short: background runner for short-running jobs
-    * frappe-worker-long: background runner for long-running jobs
-    * frappe-schedule
 
-* docker-compose-frappe.yml
-    * frappe-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
-        * volume: assets-vol, sites-vol
-    * erpnext-python: main application code
-        * volume: sites-vol
-    * frappe-socketio: enables realtime communication to the user interface through websockets
-        * volume: sites-vol
-    * frappe-worker-default: background runner
-        * volume: sites-vol
-    * frappe-worker-short: background runner for short-running jobs
-        * volume: sites-vol
-    * frappe-worker-long: background runner for long-running jobs
-        * volume: sites-vol
-    * frappe-schedule
-        * volume: sites-vol
+- docker-compose-common.yml
+  - redis-cache
+    - volume: redis-cache-vol
+  - redis-queue
+    - volume: redis-queue-vol
+  - redis-socketio
+    - volume: redis-socketio-vol
+  - mariadb: main database
+    - volume: mariadb-vol
+- docker-compose-erpnext.yml
 
-* docker-compose-networks.yml: this yaml define the network to communicate with *Letsencrypt Nginx Proxy Companion*.
+  - erpnext-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
+    - volume: assets-vol
+  - erpnext-python: main application code
+  - frappe-socketio: enables realtime communication to the user interface through websockets
+  - frappe-worker-default: background runner
+  - frappe-worker-short: background runner for short-running jobs
+  - frappe-worker-long: background runner for long-running jobs
+  - frappe-schedule
 
-* erpnext-publish.yml: this yml extends erpnext-nginx service to publish port 80, can only be used with docker-compose-erpnext.yml
+- docker-compose-frappe.yml
 
-* frappe-publish.yml: this yml extends frappe-nginx service to publish port 80, can only be used with docker-compose-frappe.yml
+  - frappe-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
+    - volume: assets-vol, sites-vol
+  - erpnext-python: main application code
+    - volume: sites-vol
+  - frappe-socketio: enables realtime communication to the user interface through websockets
+    - volume: sites-vol
+  - frappe-worker-default: background runner
+    - volume: sites-vol
+  - frappe-worker-short: background runner for short-running jobs
+    - volume: sites-vol
+  - frappe-worker-long: background runner for long-running jobs
+    - volume: sites-vol
+  - frappe-schedule
+    - volume: sites-vol
+
+- docker-compose-networks.yml: this yaml define the network to communicate with _Letsencrypt Nginx Proxy Companion_.
+
+- erpnext-publish.yml: this yml extends erpnext-nginx service to publish port 80, can only be used with docker-compose-erpnext.yml
+
+- frappe-publish.yml: this yml extends frappe-nginx service to publish port 80, can only be used with docker-compose-frappe.yml
 
 ## Updating and Migrating Sites
 

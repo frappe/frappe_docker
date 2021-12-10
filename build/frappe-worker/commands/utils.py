@@ -1,15 +1,12 @@
 import json
 import os
 import subprocess
+
 import boto3
 import git
-
+from constants import APP_VERSIONS_JSON_FILE, APPS_TXT_FILE, COMMON_SITE_CONFIG_FILE
 from frappe.installer import update_site_config
-from constants import (
-    APP_VERSIONS_JSON_FILE,
-    APPS_TXT_FILE,
-    COMMON_SITE_CONFIG_FILE
-)
+
 
 def run_command(command, stdout=None, stdin=None, stderr=None):
     stdout = stdout or subprocess.PIPE
@@ -26,7 +23,7 @@ def run_command(command, stdout=None, stdin=None, stderr=None):
 
 
 def save_version_file(versions):
-    with open(APP_VERSIONS_JSON_FILE, 'w') as f:
+    with open(APP_VERSIONS_JSON_FILE, "w") as f:
         return json.dump(versions, f, indent=1, sort_keys=True)
 
 
@@ -58,10 +55,10 @@ def get_container_versions(apps):
             pass
 
         try:
-            path = os.path.join('..', 'apps', app)
+            path = os.path.join("..", "apps", app)
             repo = git.Repo(path)
             commit_hash = repo.head.object.hexsha
-            versions.update({app+'_git_hash': commit_hash})
+            versions.update({app + "_git_hash": commit_hash})
         except Exception:
             pass
 
@@ -94,18 +91,22 @@ def get_config():
 
 def get_site_config(site_name):
     site_config = None
-    with open('{site_name}/site_config.json'.format(site_name=site_name)) as site_config_file:
+    with open(f"{site_name}/site_config.json") as site_config_file:
         site_config = json.load(site_config_file)
     return site_config
 
 
 def save_config(config):
-    with open(COMMON_SITE_CONFIG_FILE, 'w') as f:
+    with open(COMMON_SITE_CONFIG_FILE, "w") as f:
         return json.dump(config, f, indent=1, sort_keys=True)
 
 
 def get_password(env_var, default=None):
-    return os.environ.get(env_var) or get_password_from_secret(f"{env_var}_FILE") or default
+    return (
+        os.environ.get(env_var)
+        or get_password_from_secret(f"{env_var}_FILE")
+        or default
+    )
 
 
 def get_password_from_secret(env_var):
@@ -128,14 +129,14 @@ def get_password_from_secret(env_var):
 
 def get_s3_config():
     check_s3_environment_variables()
-    bucket = os.environ.get('BUCKET_NAME')
+    bucket = os.environ.get("BUCKET_NAME")
 
     conn = boto3.client(
-        's3',
-        region_name=os.environ.get('REGION'),
-        aws_access_key_id=os.environ.get('ACCESS_KEY_ID'),
-        aws_secret_access_key=os.environ.get('SECRET_ACCESS_KEY'),
-        endpoint_url=os.environ.get('ENDPOINT_URL')
+        "s3",
+        region_name=os.environ.get("REGION"),
+        aws_access_key_id=os.environ.get("ACCESS_KEY_ID"),
+        aws_secret_access_key=os.environ.get("SECRET_ACCESS_KEY"),
+        endpoint_url=os.environ.get("ENDPOINT_URL"),
     )
 
     return conn, bucket
@@ -164,7 +165,7 @@ def list_directories(path):
 def get_site_config_from_path(site_config_path):
     site_config = dict()
     if os.path.exists(site_config_path):
-        with open(site_config_path, 'r') as sc:
+        with open(site_config_path) as sc:
             site_config = json.load(sc)
     return site_config
 
@@ -173,32 +174,35 @@ def set_key_in_site_config(key, site, site_config_path):
     site_config = get_site_config_from_path(site_config_path)
     value = site_config.get(key)
     if value:
-        print('Set {key} in site config for site: {site}'.format(key=key, site=site))
-        update_site_config(key, value,
-                            site_config_path=os.path.join(os.getcwd(), site, "site_config.json"))
+        print(f"Set {key} in site config for site: {site}")
+        update_site_config(
+            key,
+            value,
+            site_config_path=os.path.join(os.getcwd(), site, "site_config.json"),
+        )
 
 
 def check_s3_environment_variables():
-    if 'BUCKET_NAME' not in os.environ:
-        print('Variable BUCKET_NAME not set')
+    if "BUCKET_NAME" not in os.environ:
+        print("Variable BUCKET_NAME not set")
         exit(1)
 
-    if 'ACCESS_KEY_ID' not in os.environ:
-        print('Variable ACCESS_KEY_ID not set')
+    if "ACCESS_KEY_ID" not in os.environ:
+        print("Variable ACCESS_KEY_ID not set")
         exit(1)
 
-    if 'SECRET_ACCESS_KEY' not in os.environ:
-        print('Variable SECRET_ACCESS_KEY not set')
+    if "SECRET_ACCESS_KEY" not in os.environ:
+        print("Variable SECRET_ACCESS_KEY not set")
         exit(1)
 
-    if 'ENDPOINT_URL' not in os.environ:
-        print('Variable ENDPOINT_URL not set')
+    if "ENDPOINT_URL" not in os.environ:
+        print("Variable ENDPOINT_URL not set")
         exit(1)
 
-    if 'BUCKET_DIR' not in os.environ:
-        print('Variable BUCKET_DIR not set')
+    if "BUCKET_DIR" not in os.environ:
+        print("Variable BUCKET_DIR not set")
         exit(1)
 
-    if 'REGION' not in os.environ:
-        print('Variable REGION not set')
+    if "REGION" not in os.environ:
+        print("Variable REGION not set")
         exit(1)

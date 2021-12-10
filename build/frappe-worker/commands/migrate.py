@@ -1,6 +1,6 @@
 import os
-import frappe
 
+import frappe
 from frappe.utils import cint, get_sites
 from utils import get_config, save_config
 
@@ -27,11 +27,12 @@ def migrate_sites(maintenance_mode=False):
         set_maintenance_mode(True)
 
     for site in sites:
-        print('Migrating', site)
+        print("Migrating", site)
         frappe.init(site=site)
         frappe.connect()
         try:
             from frappe.migrate import migrate
+
             migrate()
         finally:
             frappe.destroy()

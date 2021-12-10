@@ -1,7 +1,8 @@
 import os
+
 import frappe
-from frappe.utils.backups import scheduled_backup
 from frappe.utils import cint, get_sites, now
+from frappe.utils.backups import scheduled_backup
 
 
 def backup(sites, with_files=False):
@@ -13,12 +14,17 @@ def backup(sites, with_files=False):
             backup_path_db=None,
             backup_path_files=None,
             backup_path_private_files=None,
-            force=True
+            force=True,
         )
         print("database backup taken -", odb.backup_path_db, "- on", now())
         if with_files:
             print("files backup taken -", odb.backup_path_files, "- on", now())
-            print("private files backup taken -", odb.backup_path_private_files, "- on", now())
+            print(
+                "private files backup taken -",
+                odb.backup_path_private_files,
+                "- on",
+                now(),
+            )
         frappe.destroy()
 
 

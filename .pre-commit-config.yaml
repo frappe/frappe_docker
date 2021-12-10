@@ -37,7 +37,7 @@ repos:
     rev: v2.1.0
     hooks:
       - id: codespell
-        exclude: ".*Dockerfile.*"
+        exclude: "build/bench/Dockerfile"
 
   - repo: local
     hooks:
