@@ -13,8 +13,8 @@ Or specify environment variables instead of passing secrets as command arguments
 Note:
 
 - Wait for the database service to start before trying to create a new site.
-    - If new site creation fails, retry after the MariaDB container is up and running.
-    - If you're using a managed database instance, make sure that the database is running before setting up a new site.
+  - If new site creation fails, retry after the MariaDB container is up and running.
+  - If you're using a managed database instance, make sure that the database is running before setting up a new site.
 
 #### MariaDB Site
 
@@ -72,7 +72,7 @@ Notes:
 
 ## Add sites to proxy
 
-Change `SITES` variable to the list of sites created encapsulated in backtick and separated by comma with no space. e.g. ``SITES=`site1.example.com`,`site2.example.com` ``.
+Change `SITES` variable to the list of sites created encapsulated in backtick and separated by comma with no space. e.g. `` SITES=`site1.example.com`,`site2.example.com`  ``.
 
 Reload variables with following command.
 
@@ -165,19 +165,19 @@ Note:
 - Volume must be mounted at location `/home/frappe/backups` for restoring sites
 - If no backup files are found in volume, it will use s3 credentials to pull backups
 - Backup structure for mounted volume or downloaded from s3:
-    - /home/frappe/backups
-        - site1.domain.com
-            - 20200420_162000
-                - 20200420_162000-site1_domain_com-*
-        - site2.domain.com
-            - 20200420_162000
-                - 20200420_162000-site2_domain_com-*
+  - /home/frappe/backups
+    - site1.domain.com
+      - 20200420_162000
+        - 20200420_162000-site1_domain_com-\*
+    - site2.domain.com
+      - 20200420_162000
+        - 20200420_162000-site2_domain_com-\*
 
 ## Edit configs
 
 Editing config manually might be required in some cases,
 one such case is to use Amazon RDS (or any other DBaaS).
-For full instructions, refer to the [wiki](https://github.com/frappe/frappe/wiki/Using-Frappe-with-Amazon-RDS-(or-any-other-DBaaS)). Common question can be found in Issues and on forum.
+For full instructions, refer to the [wiki](<https://github.com/frappe/frappe/wiki/Using-Frappe-with-Amazon-RDS-(or-any-other-DBaaS)>). Common question can be found in Issues and on forum.
 
 `common_site_config.json` or `site_config.json` from `sites-vol` volume has to be edited using following command:
 
@@ -230,7 +230,6 @@ Notes:
 
 - Use it to install/uninstall custom apps, add system manager user, etc.
 - To run the command as non root user add the command option `--user frappe`.
-
 
 ## Delete/Drop Site
 

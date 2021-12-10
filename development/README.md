@@ -44,14 +44,14 @@ If you want to use PostgreSQL instead, edit `.devcontainer/docker-compose.yml` a
 VSCode should automatically inquire you to install the required extensions, that can also be installed manually as follows:
 
 - Install Remote - Containers for VSCode
-    - through command line `code --install-extension ms-vscode-remote.remote-containers`
-    - clicking on the Install button in the Vistual Studio Marketplace: [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-    - View: Extensions command in VSCode (Windows: Ctrl+Shift+X; macOS: Cmd+Shift+X) then search for extension `ms-vscode-remote.remote-containers`
+  - through command line `code --install-extension ms-vscode-remote.remote-containers`
+  - clicking on the Install button in the Vistual Studio Marketplace: [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+  - View: Extensions command in VSCode (Windows: Ctrl+Shift+X; macOS: Cmd+Shift+X) then search for extension `ms-vscode-remote.remote-containers`
 
 After the extensions are installed, you can:
 
 - Open frappe_docker folder in VS Code.
-    - `code .`
+  - `code .`
 - Launch the command, from Command Palette (Ctrl + Shift + P) `Execute Remote Containers : Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
 
 Notes:
@@ -94,6 +94,7 @@ code Procfile
 ```
 
 Or running the following command:
+
 ```shell
 sed -i '/redis/d' ./Procfile
 ```
@@ -105,6 +106,7 @@ You can create a new site with the following command:
 ```shell
 bench new-site sitename --no-mariadb-socket
 ```
+
 sitename MUST end with .localhost for trying deployments locally.
 
 for example:
@@ -259,7 +261,6 @@ Example shows the queries to be executed for site `localhost`
 
 Open sites/localhost/site_config.json:
 
-
 ```shell
 code sites/localhost/site_config.json
 ```
@@ -286,6 +287,7 @@ EXIT;
 In case you don't use VSCode, you may start the containers manually with the following command:
 
 ### Running the containers
+
 ```shell
 docker-compose -f .devcontainer/docker-compose.yml up -d
 ```

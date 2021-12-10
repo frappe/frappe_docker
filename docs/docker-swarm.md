@@ -42,7 +42,7 @@ version: "3.7"
 
 services:
   mariadb-master:
-    image: 'bitnami/mariadb:10.3'
+    image: "bitnami/mariadb:10.3"
     deploy:
       restart_policy:
         condition: on-failure
@@ -54,7 +54,7 @@ services:
     secrets:
       - frappe-mariadb-root-password
     volumes:
-      - 'mariadb_master_data:/bitnami/mariadb'
+      - "mariadb_master_data:/bitnami/mariadb"
     environment:
       - MARIADB_REPLICATION_MODE=master
       - MARIADB_REPLICATION_USER=repl_user
@@ -62,7 +62,7 @@ services:
       - MARIADB_ROOT_PASSWORD_FILE=/run/secrets/frappe-mariadb-root-password
 
   mariadb-slave:
-    image: 'bitnami/mariadb:10.3'
+    image: "bitnami/mariadb:10.3"
     deploy:
       restart_policy:
         condition: on-failure
@@ -74,7 +74,7 @@ services:
     secrets:
       - frappe-mariadb-root-password
     volumes:
-      - 'mariadb_slave_data:/bitnami/mariadb'
+      - "mariadb_slave_data:/bitnami/mariadb"
     environment:
       - MARIADB_REPLICATION_MODE=slave
       - MARIADB_REPLICATION_USER=repl_user
@@ -265,6 +265,7 @@ Use environment variables:
 - `FRAPPE_VERSION` variable to be set to desired version of Frappe Framework. e.g. 12.7.0
 - `MARIADB_HOST=frappe-mariadb_mariadb-master`
 - `SITES` variable is list of sites in back tick and separated by comma
+
 ```
 SITES=`site1.example.com`,`site2.example.com`
 ```
@@ -277,9 +278,9 @@ SITES=`site1.example.com`,`site2.example.com`
 4. Select network `frappe-network`
 5. Select Volume `frappe-bench-v13_sites-vol` and mount in container `/home/frappe/frappe-bench/sites`
 6. Env variables:
-    - MYSQL_ROOT_PASSWORD=longsecretpassword
-    - SITE_NAME=site1.example.com
-    - INSTALL_APPS=erpnext
+   - MYSQL_ROOT_PASSWORD=longsecretpassword
+   - SITE_NAME=site1.example.com
+   - INSTALL_APPS=erpnext
 7. Start container
 
 ### Migrate Sites job
@@ -290,5 +291,5 @@ SITES=`site1.example.com`,`site2.example.com`
 4. Select network `frappe-network`
 5. Select Volume `frappe-bench-v13_sites-vol` and mount in container `/home/frappe/frappe-bench/sites`
 6. Env variables:
-    - MAINTENANCE_MODE=1
+   - MAINTENANCE_MODE=1
 7. Start container
