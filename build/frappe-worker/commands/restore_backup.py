@@ -34,7 +34,7 @@ def get_backup_dir():
 def decompress_db(database_file, site):
     command = ["gunzip", "-c", database_file]
     with open(database_file.replace(".gz", ""), "w") as db_file:
-        print('Extract Database GZip for site {}'.format(site))
+        print(f'Extract Database GZip for site {site}')
         run_command(command, stdout=db_file)
 
 
@@ -80,14 +80,14 @@ def restore_files(files_base):
     public_files = files_base + '-files.tar'
     # extract tar
     public_tar = tarfile.open(public_files)
-    print('Extracting {}'.format(public_files))
+    print(f'Extracting {public_files}')
     public_tar.extractall()
 
 
 def restore_private_files(files_base):
     private_files = files_base + '-private-files.tar'
     private_tar = tarfile.open(private_files)
-    print('Extracting {}'.format(private_files))
+    print(f'Extracting {private_files}')
     private_tar.extractall()
 
 
@@ -143,7 +143,7 @@ def pull_backup_from_s3():
             if backup in backup_file:
                 if not os.path.exists(os.path.dirname(backup_file)):
                     os.makedirs(os.path.dirname(backup_file))
-                print('Downloading {}'.format(backup_file))
+                print(f'Downloading {backup_file}')
                 bucket.download_file(bucket_dir + '/' + backup_file, backup_file)
 
     os.chdir(os.path.join(os.path.expanduser('~'), 'frappe-bench', 'sites'))
@@ -196,7 +196,7 @@ def restore_postgres(config, site_config, database_file):
     run_command(psql_command + [psql_uri, "-c", f"CREATE DATABASE \"{db_name}\""])
     run_command(psql_command + [psql_uri, "-c", f"CREATE user {db_name} password '{db_password}'"])
     run_command(psql_command + [psql_uri, "-c", f"GRANT ALL PRIVILEGES ON DATABASE \"{db_name}\" TO {db_name}"])
-    with open(database_file.replace('.gz', ''), 'r') as db_file:
+    with open(database_file.replace('.gz', '')) as db_file:
         run_command(psql_command + [f"{psql_uri}/{db_name}", "<"], stdin=db_file)
 
 
@@ -240,7 +240,7 @@ def restore_mariadb(config, site_config, database_file):
     run_command(grant_privileges_command)
 
     print('Restoring MariaDB')
-    with open(database_file.replace('.gz', ''), 'r') as db_file:
+    with open(database_file.replace('.gz', '')) as db_file:
         run_command(mysql_command + [f"{db_name}"], stdin=db_file)
 
 
@@ -260,7 +260,7 @@ def main():
         if not os.path.exists(site_config_path):
             site_config_path = os.path.join(backup_dir, site, 'site_config.json')
         if site in get_sites():
-            print('Overwrite site {}'.format(site))
+            print(f'Overwrite site {site}')
             restore_database(files_base, site_config_path, site)
             restore_private_files(files_base)
             restore_files(files_base)
@@ -279,7 +279,7 @@ def main():
             )
             make_site_dirs()
 
-            print('Create site {}'.format(site))
+            print(f'Create site {site}')
             restore_database(files_base, site_config_path, site)
             restore_private_files(files_base)
             restore_files(files_base)

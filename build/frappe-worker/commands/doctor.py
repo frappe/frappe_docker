@@ -51,7 +51,7 @@ def main():
                 service_name=service_name,
                 service_port=service_port,
             )
-            print("{0}:{1} Connected".format(service_name, service_port))
+            print(f"{service_name}:{service_port} Connected")
 
     print("Health check successful")
     exit(0)

@@ -94,7 +94,7 @@ def get_config():
 
 def get_site_config(site_name):
     site_config = None
-    with open('{site_name}/site_config.json'.format(site_name=site_name)) as site_config_file:
+    with open(f'{site_name}/site_config.json') as site_config_file:
         site_config = json.load(site_config_file)
     return site_config
 
@@ -164,7 +164,7 @@ def list_directories(path):
 def get_site_config_from_path(site_config_path):
     site_config = dict()
     if os.path.exists(site_config_path):
-        with open(site_config_path, 'r') as sc:
+        with open(site_config_path) as sc:
             site_config = json.load(sc)
     return site_config
 
@@ -173,7 +173,7 @@ def set_key_in_site_config(key, site, site_config_path):
     site_config = get_site_config_from_path(site_config_path)
     value = site_config.get(key)
     if value:
-        print('Set {key} in site config for site: {site}'.format(key=key, site=site))
+        print(f'Set {key} in site config for site: {site}')
         update_site_config(key, value,
                             site_config_path=os.path.join(os.getcwd(), site, "site_config.json"))
 

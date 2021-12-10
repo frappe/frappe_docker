@@ -29,7 +29,7 @@ def check_host(ip, port, retry=10, delay=3, print_attempt=True):
     ipup = False
     for i in range(retry):
         if print_attempt:
-            print("Attempt {i} to connect to {ip}:{port}".format(ip=ip, port=port, i=i+1))
+            print(f"Attempt {i+1} to connect to {ip}:{port}")
         if is_open(ip, port):
             ipup = True
             break
