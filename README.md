@@ -1,4 +1,4 @@
-[![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml) 
+[![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
 [![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
 
 ## Getting Started
@@ -30,21 +30,21 @@ cd frappe_docker
 
 It takes care of the following:
 
-* Setting up the desired version of Frappe/ERPNext.
-* Setting up all the system requirements: eg. MariaDB, Node, Redis.
-* Configure networking for remote access and setting up LetsEncrypt.
+- Setting up the desired version of Frappe/ERPNext.
+- Setting up all the system requirements: eg. MariaDB, Node, Redis.
+- Configure networking for remote access and setting up LetsEncrypt.
 
 It doesn't take care of the following:
 
-* Cron Job to backup sites is not created by default.
-* Use `CronJob` on k8s or refer wiki for alternatives.
+- Cron Job to backup sites is not created by default.
+- Use `CronJob` on k8s or refer wiki for alternatives.
 
 1. Single Server Installs
-    1. [Single bench](docs/single-bench.md). Easiest Install!
-    2. [Multi bench](docs/multi-bench.md)
+   1. [Single bench](docs/single-bench.md). Easiest Install!
+   2. [Multi bench](docs/multi-bench.md)
 2. Multi Server Installs
-    1. [Docker Swarm](docs/docker-swarm.md)
-    2. [Kubernetes](https://helm.erpnext.com)
+   1. [Docker Swarm](docs/docker-swarm.md)
+   2. [Kubernetes](https://helm.erpnext.com)
 3. [Site Operations](docs/site-operations.md)
 4. [Environment Variables](docs/environment-variables.md)
 5. [Custom apps for production](docs/custom-apps-for-production.md)

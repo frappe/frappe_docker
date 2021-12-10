@@ -1,14 +1,14 @@
 import os
-import semantic_version
-import git
 
+import git
+import semantic_version
 from migrate import migrate_sites
 from utils import (
-    save_version_file,
     get_apps,
+    get_config,
     get_container_versions,
     get_version_file,
-    get_config
+    save_version_file,
 )
 
 
@@ -30,12 +30,12 @@ def main():
         version_file_hash = None
         container_hash = None
 
-        repo = git.Repo(os.path.join('..', 'apps', app))
+        repo = git.Repo(os.path.join("..", "apps", app))
         branch = repo.active_branch.name
 
-        if branch == 'develop':
-            version_file_hash = version_file.get(app+'_git_hash')
-            container_hash = container_versions.get(app+'_git_hash')
+        if branch == "develop":
+            version_file_hash = version_file.get(app + "_git_hash")
+            container_hash = container_versions.get(app + "_git_hash")
             if container_hash and version_file_hash:
                 if container_hash != version_file_hash:
                     is_ready = True
@@ -54,7 +54,7 @@ def main():
 
     config = get_config()
 
-    if is_ready and config.get('maintenance_mode') != 1:
+    if is_ready and config.get("maintenance_mode") != 1:
         migrate_sites(maintenance_mode=True)
         version_file = container_versions
         save_version_file(version_file)

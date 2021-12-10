@@ -7,9 +7,8 @@ Before publishing a PR, please test builds locally:
 - with VSCode for testing environments (only for frappe/bench image).
 
 On each PR that contains changes relevant to Docker builds, images are being built and tested in our CI (GitHub Actions).
-> :evergreen_tree: Please be considerate when pushing commits and opening PR for multiple branches, as the process of building images uses energy and contributes to global warming.
-> 
 
+> :evergreen_tree: Please be considerate when pushing commits and opening PR for multiple branches, as the process of building images uses energy and contributes to global warming.
 
 ## Lint
 
@@ -38,7 +37,6 @@ To run all the files in repository, run:
 pre-commit run --all-files
 ```
 
-
 ## Build
 
 ```shell
@@ -52,20 +50,25 @@ docker buildx bake -f docker-bake.hcl *...*
 ## Test
 
 ### Ping site
+
 Lightweight test that just checks if site will be available after creation.
 
 Frappe:
+
 ```shell
 ./tests/test-frappe.sh
 ```
 
 ERPNext:
+
 ```shell
 ./tests/test-erpnext.sh
 ```
 
 ### Integration test
+
 Tests frappe-bench-like commands, for example, `backup` and `restore`.
+
 ```shell
 ./tests/integration-test.sh
 ```
