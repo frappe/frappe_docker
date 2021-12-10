@@ -20,24 +20,16 @@ repos:
     rev: 5.10.1
     hooks:
       - id: isort
-        args: [
-            -o, # KNOWN_THIRD_PARTY
-            frappe,
-            --profile,
-            black,
-          ]
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.5.1
     hooks:
       - id: prettier
-        exclude: installation/docker-compose-custom.yml
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.1.0
     hooks:
       - id: codespell
-        exclude: "build/bench/Dockerfile"
 
   - repo: local
     hooks:
