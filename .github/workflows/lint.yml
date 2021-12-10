@@ -4,19 +4,38 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "*.sh"
   pull_request:
     branches:
       - main
-    paths:
-      - "*.sh"
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: ludeeus/action-shellcheck@1.1.0
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      # For shfmt pre-commit hook
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "^1.14"
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pre-commit
+            ~/.cache/pip
+          key: lint-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install pre-commit
+        run: pip install -U pre-commit
+
+      - name: Lint
+        run: pre-commit run --color=always --all-files
         env:
-          SHELLCHECK_OPTS: -x
+          GO111MODULE: on

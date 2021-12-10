@@ -1,0 +1,56 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.29.1
+    hooks:
+      - id: pyupgrade
+        args: [--py37-plus]
+
+  - repo: https://github.com/psf/black
+    rev: 21.11b1
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        args: [
+            -o, # KNOWN_THIRD_PARTY
+            frappe,
+            --profile,
+            black,
+          ]
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.5.1
+    hooks:
+      - id: prettier
+        exclude: installation/docker-compose-custom.yml
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.1.0
+    hooks:
+      - id: codespell
+        exclude: ".*Dockerfile.*"
+
+  - repo: local
+    hooks:
+      - id: shfmt
+        name: shfmt
+        language: golang
+        additional_dependencies: [mvdan.cc/sh/v3/cmd/shfmt]
+        entry: shfmt
+        args: [-w]
+        types: [shell]
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.8.0.1
+    hooks:
+      - id: shellcheck
+        args: [-x]

@@ -10,11 +10,34 @@ On each PR that contains changes relevant to Docker builds, images are being bui
 > :evergreen_tree: Please be considerate when pushing commits and opening PR for multiple branches, as the process of building images uses energy and contributes to global warming.
 > 
 
+
 ## Lint
 
+We use `pre-commit` framework to lint the codebase before committing.
+First, you need to install pre-commit with pip:
+
 ```shell
-shellcheck example.sh
+pip install pre-commit
 ```
+
+Also you can use brew if you're on Mac:
+
+```shell
+brew install pre-commit
+```
+
+To setup _pre-commit_ hook, run:
+
+```shell
+pre-commit install
+```
+
+To run all the files in repository, run:
+
+```shell
+pre-commit run --all-files
+```
+
 
 ## Build
 
