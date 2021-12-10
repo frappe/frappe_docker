@@ -1,16 +1,12 @@
+import datetime
 import os
 import time
-import boto3
-
-import datetime
 from glob import glob
-from frappe.utils import get_sites
+
+import boto3
 from constants import DATE_FORMAT
-from utils import (
-    get_s3_config,
-    upload_file_to_s3,
-    check_s3_environment_variables,
-)
+from frappe.utils import get_sites
+from utils import check_s3_environment_variables, get_s3_config, upload_file_to_s3
 
 
 def get_file_ext():

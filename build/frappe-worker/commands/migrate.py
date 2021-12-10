@@ -1,6 +1,6 @@
 import os
-import frappe
 
+import frappe
 from frappe.utils import cint, get_sites
 from utils import get_config, save_config
 

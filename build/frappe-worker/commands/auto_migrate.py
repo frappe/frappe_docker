@@ -1,14 +1,14 @@
 import os
-import semantic_version
-import git
 
+import git
+import semantic_version
 from migrate import migrate_sites
 from utils import (
-    save_version_file,
     get_apps,
+    get_config,
     get_container_versions,
     get_version_file,
-    get_config,
+    save_version_file,
 )
 
 

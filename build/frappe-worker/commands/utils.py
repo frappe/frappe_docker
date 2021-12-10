@@ -1,11 +1,11 @@
 import json
 import os
 import subprocess
+
 import boto3
 import git
-
-from frappe.installer import update_site_config
 from constants import APP_VERSIONS_JSON_FILE, APPS_TXT_FILE, COMMON_SITE_CONFIG_FILE
+from frappe.installer import update_site_config
 
 
 def run_command(command, stdout=None, stdin=None, stderr=None):

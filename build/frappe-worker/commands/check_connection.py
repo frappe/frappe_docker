@@ -1,15 +1,16 @@
 import socket
 import time
+
+from constants import (
+    DB_HOST_KEY,
+    DB_PORT,
+    DB_PORT_KEY,
+    REDIS_CACHE_KEY,
+    REDIS_QUEUE_KEY,
+    REDIS_SOCKETIO_KEY,
+)
 from six.moves.urllib.parse import urlparse
 from utils import get_config
-from constants import (
-    REDIS_QUEUE_KEY,
-    REDIS_CACHE_KEY,
-    REDIS_SOCKETIO_KEY,
-    DB_HOST_KEY,
-    DB_PORT_KEY,
-    DB_PORT,
-)
 
 
 def is_open(ip, port, timeout=30):

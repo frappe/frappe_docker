@@ -1,10 +1,10 @@
 import argparse
 
 from check_connection import (
-    check_service,
     check_redis_cache,
     check_redis_queue,
     check_redis_socketio,
+    check_service,
 )
 
 

@@ -1,26 +1,26 @@
-import os
 import datetime
-import tarfile
 import hashlib
-import frappe
-import boto3
+import os
+import tarfile
 
-from frappe.utils import get_sites, random_string
+import boto3
+import frappe
+from constants import COMMON_SITE_CONFIG_FILE, DATE_FORMAT, RDS_DB, RDS_PRIVILEGES
 from frappe.installer import (
-    make_conf,
     get_conf_params,
+    make_conf,
     make_site_dirs,
     update_site_config,
 )
-from constants import COMMON_SITE_CONFIG_FILE, DATE_FORMAT, RDS_DB, RDS_PRIVILEGES
+from frappe.utils import get_sites, random_string
 from utils import (
-    run_command,
-    list_directories,
-    set_key_in_site_config,
-    get_site_config,
+    check_s3_environment_variables,
     get_config,
     get_password,
-    check_s3_environment_variables,
+    get_site_config,
+    list_directories,
+    run_command,
+    set_key_in_site_config,
 )
 
 

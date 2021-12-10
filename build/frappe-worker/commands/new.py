@@ -1,15 +1,10 @@
 import os
+
 import frappe
 import semantic_version
-
-from frappe.installer import update_site_config
 from constants import COMMON_SITE_CONFIG_FILE, RDS_DB, RDS_PRIVILEGES
-from utils import (
-    run_command,
-    get_config,
-    get_site_config,
-    get_password,
-)
+from frappe.installer import update_site_config
+from utils import get_config, get_password, get_site_config, run_command
 
 # try to import _new_site from frappe, which could possibly
 # exist in either commands.py or installer.py, and so we need
