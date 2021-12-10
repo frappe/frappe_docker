@@ -292,4 +292,3 @@ SITES=`site1.example.com`,`site2.example.com`
 6. Env variables:
     - MAINTENANCE_MODE=1
 7. Start container
-
