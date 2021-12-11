@@ -13,6 +13,9 @@ RUN apt-get update \
     postgresql-client \
     gettext-base \
     wget \
+    # for ERPNext v12
+    # TODO: Remove after v12 is deprecated
+    python2 \
     # for PDF
     libssl-dev \
     fonts-cantarell \
