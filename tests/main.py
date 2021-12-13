@@ -104,6 +104,11 @@ ERPNEXT_VERSION={os.getenv("ERPNEXT_VERSION")}
             )
 
 
+@log("Print compose configuration")
+def print_compose_configuration():
+    docker_compose("config")
+
+
 @log("Create containers")
 def create_containers():
     docker_compose("up", "-d")
@@ -315,7 +320,9 @@ def main() -> int:
         patch_print()
 
         setup_env()
+        print_compose_configuration()
         create_containers()
+
         ping_links_in_backends()
         create_site()
         check_index()
