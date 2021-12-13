@@ -27,7 +27,7 @@ RUN yarn --prod
 FROM frappe_node_modules as frappe_assets
 
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
-    yarn remove svg-sprite \
+    yarn remove svg-sprite || true \
     && yarn add sass; \
     fi \
     && yarn
