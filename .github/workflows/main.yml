@@ -91,3 +91,25 @@ jobs:
         uses: docker/bake-action@v1.6.0
         with:
           push: true
+
+  release_helm:
+    runs-on: ubuntu-latest
+    if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
+    needs: build
+
+    steps:
+      - name: Setup deploy key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
+
+      - name: Setup Git Credentials
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Release
+        run: |
+          git clone git@github.com:frappe/helm.git && cd helm
+          pip install -r release_wizard/requirements.txt
+          ./release_wizard/wizard 13 patch --remote origin --ci
