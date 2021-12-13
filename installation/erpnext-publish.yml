@@ -1,6 +1,0 @@
-version: "3"
-
-services:
-  erpnext-nginx:
-    ports:
-      - "80:8080"

@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  backend:
+    image: frappe/backend:${FRAPPE_VERSION}
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14.1
+    healthcheck:
+      test: pg_isready
+      interval: 1s
+      retries: 15
+    command: []
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db:/var/lib/postgresql
