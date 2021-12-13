@@ -2,22 +2,22 @@ version: "3.9"
 
 services:
   backend:
-    image: localhost:5000/frappe/erpnext-backend:latest
+    image: localhost:5000/frappe/erpnext-worker:latest
 
   frontend:
     image: localhost:5000/frappe/erpnext-frontend:latest
 
   websocket:
-    image: localhost:5000/frappe/socketio:latest
+    image: localhost:5000/frappe/frappe-socketio:latest
 
   queue-short:
-    image: localhost:5000/frappe/erpnext-backend:latest
+    image: localhost:5000/frappe/erpnext-worker:latest
 
   queue-default:
-    image: localhost:5000/frappe/erpnext-backend:latest
+    image: localhost:5000/frappe/erpnext-worker:latest
 
   queue-long:
-    image: localhost:5000/frappe/erpnext-backend:latest
+    image: localhost:5000/frappe/erpnext-worker:latest
 
   scheduler:
-    image: localhost:5000/frappe/erpnext-backend:latest
+    image: localhost:5000/frappe/erpnext-worker:latest

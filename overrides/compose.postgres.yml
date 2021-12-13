@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   backend:
-    image: frappe/backend:${FRAPPE_VERSION}
+    image: frappe/frappe-worker:${FRAPPE_VERSION}
     environment:
       DB_HOST: db
       DB_PORT: 5432
