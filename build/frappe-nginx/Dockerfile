@@ -1,75 +1,83 @@
-# This image uses nvm and same base image as the worker image.
-# This is done to ensures that node-sass binary remains common.
-# node-sass is required to enable website theme feature used
-# by Website Manager role in Frappe Framework
-ARG PYTHON_VERSION=3.9
-FROM python:${PYTHON_VERSION}-slim-bullseye as builder
-
-ARG GIT_REPO=https://github.com/frappe/frappe
-ARG GIT_BRANCH=develop
-
-ENV NODE_VERSION=14.18.1
-ENV NVM_DIR=/root/.nvm
-ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
+# TODO: Add errorpages
+FROM node:14-bullseye-slim as base
 
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
+    && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     git \
     build-essential \
-    wget \
-    # python2 for version-12 builds
-    python2 \
+    python \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install nvm with node and yarn
-RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
-    && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${NODE_VERSION} \
-    && npm install -g yarn \
-    && rm -rf ${NVM_DIR}/.cache
+WORKDIR /root/frappe-bench
+RUN mkdir -p apps sites/assets/frappe
 
-WORKDIR /home/frappe/frappe-bench
+ARG FRAPPE_VERSION
+RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
+    && echo "frappe" >sites/apps.txt
 
-RUN mkdir -p apps sites/assets/css sites/assets/frappe /var/www/error_pages
-RUN echo "frappe" > sites/apps.txt
+WORKDIR /root/frappe-bench/apps/frappe
 
-RUN git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} apps/frappe
-RUN cd apps/frappe \
-    && yarn \
-    && yarn run production \
-    && yarn install --production=true
 
-RUN git clone --depth 1 https://github.com/frappe/bench /tmp/bench \
-    && cp -r /tmp/bench/bench/config/templates /var/www/error_pages
+FROM base as frappe_node_modules
 
-RUN cp -R apps/frappe/frappe/public/* sites/assets/frappe \
-    && cp -R apps/frappe/node_modules sites/assets/frappe/
+RUN yarn --prod
 
-FROM nginxinc/nginx-unprivileged:latest
 
-USER root
+FROM frappe_node_modules as frappe_assets
 
-RUN usermod -u 1000 nginx && groupmod -g 1000 nginx
+RUN if [ "$(uname -m)" = "aarch64" ]; then \
+    yarn remove svg-sprite \
+    && yarn add sass; \
+    fi \
+    && yarn
 
-COPY --from=builder --chown=1000:1000 /home/frappe/frappe-bench/sites /var/www/html/
-COPY --from=builder --chown=1000:1000 /var/www/error_pages /var/www/
-COPY build/frappe-nginx/nginx-default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY build/frappe-nginx/docker-entrypoint.sh /
+RUN yarn run production \
+    && cp -R frappe/public/* ../../sites/assets/frappe \
+    && rm ../../sites/apps.txt
 
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-    rsync \
-    && rm -rf /var/lib/apt/lists/*
+# Get rid of development node modules
+COPY --from=frappe_node_modules /root/frappe-bench/apps/frappe/node_modules /root/frappe-bench/sites/assets/frappe/
 
-RUN echo "#!/bin/bash" > /rsync \
-    && chmod +x /rsync
 
-RUN mkdir /assets
-VOLUME [ "/assets" ]
+FROM nginx:1.21-alpine as frappe
 
-RUN chown -R nginx:nginx /assets /etc/nginx/conf.d/ /var/www/html/
+COPY --from=frappe_assets /root/frappe-bench/sites /usr/share/nginx/html
+COPY nginx-template.conf /
 
-USER nginx
+CMD [ "/bin/sh" , "-c" , "envsubst '${BACKEND} ${SOCKETIO} ${FRAPPE_SITE_NAME_HEADER}' </nginx-template.conf >/etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'" ]
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+
+# Next stages are relevant to ERPNext.
+# Builds are much more efficient if we reuse Frappe assets and Node modules.
+
+FROM base as erpnext_node_modules
+
+ARG ERPNEXT_VERSION
+RUN cd ../.. \
+    && git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext apps/erpnext \
+    && echo "frappe\nerpnext" >sites/apps.txt
+
+RUN yarn --cwd ../erpnext --prod
+
+
+FROM erpnext_node_modules as erpnext_assets
+
+# Reuse development node_modules from frappe_assets
+COPY --from=frappe_assets /root/frappe-bench/apps/frappe/node_modules /root/frappe-bench/apps/frappe/node_modules
+COPY --from=frappe_assets /root/frappe-bench/apps/frappe/package.json /root/frappe-bench/apps/frappe/yarn.lock /root/frappe-bench/apps/frappe/
+
+RUN mkdir -p ../../sites/assets/erpnext
+RUN yarn --cwd ../erpnext
+
+RUN yarn run production --app erpnext \
+    && cp -R ../erpnext/erpnext/public/* ../../sites/assets/erpnext \
+    && rm ../../sites/apps.txt
+
+# Get rid of development node modules
+COPY --from=erpnext_node_modules /root/frappe-bench/apps/erpnext/node_modules /root/frappe-bench/apps/erpnext/node_modules
+
+
+FROM frappe as erpnext
+
+COPY --from=erpnext_assets /root/frappe-bench/sites /usr/share/nginx/html
