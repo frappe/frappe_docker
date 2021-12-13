@@ -37,14 +37,47 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
     strategy:
       matrix:
         version: [12, 13]
 
     steps:
-      - uses: vrslev/frappe_docker/.github/workflows/docker-build.yml@beautify
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          version: ${{ matrix.version }}
+          python-version: 3.9
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: network=host
+
+      - name: Install Docker Compose v2
+        uses: ndeloof/install-compose-action@4a33bc31f327b8231c4f343f6fba704fedc0fa23
+
+      - name: Get latest versions
+        run: ./.github/scripts/get-latest-tags.sh
+        env:
+          VERSION: ${{ matrix.version }}
+
+      - name: Build
+        uses: docker/bake-action@v1.6.0
+        with:
+          push: true
+        env:
+          USERNAME: localhost:5000/frappe
+
+      - name: Test
+        run: python3 tests/main.py
 
       - name: Login
         if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
