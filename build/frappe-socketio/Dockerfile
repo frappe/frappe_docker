@@ -1,35 +1,23 @@
 FROM alpine/git as builder
 
-ARG GIT_REPO=https://github.com/frappe/frappe.git
-ARG GIT_BRANCH=develop
+ARG FRAPPE_VERSION
+RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe /opt/frappe
 
-RUN git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} /opt/frappe
+FROM node:17-alpine
 
-FROM node:bullseye-slim
+RUN addgroup -S frappe \
+    && adduser -S frappe -G frappe
+USER frappe
 
-# Add frappe user
-RUN useradd -ms /bin/bash frappe
 WORKDIR /home/frappe/frappe-bench
+RUN mkdir -p sites apps/frappe
 
-# Create bench directories and set ownership
-RUN mkdir -p sites apps/frappe \
-    && chown -R frappe:frappe /home/frappe
-
-# Download socketio
-COPY build/frappe-socketio/package.json apps/frappe
-COPY --from=builder /opt/frappe/socketio.js apps/frappe/socketio.js
-COPY --from=builder /opt/frappe/node_utils.js apps/frappe/node_utils.js
+COPY --from=builder /opt/frappe/socketio.js /opt/frappe/node_utils.js apps/frappe/
+COPY package.json apps/frappe/
 
 RUN cd apps/frappe \
-    && npm install --only=prod
+    && npm install
 
-# Setup docker-entrypoint
-COPY build/frappe-socketio/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-# backwards compat
-RUN ln -s /usr/local/bin/docker-entrypoint.sh /
-
-USER frappe
 WORKDIR /home/frappe/frappe-bench/sites
 
-ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["start"]
+CMD [ "node", "/home/frappe/frappe-bench/apps/frappe/socketio.js" ]
