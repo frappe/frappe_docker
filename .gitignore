@@ -14,3 +14,8 @@ development
 
 # VS Code devcontainer
 .devcontainer
+
+# Python
+*.pyc
+__pycache__
+venv
