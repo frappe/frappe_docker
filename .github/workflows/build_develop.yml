@@ -51,7 +51,7 @@ jobs:
         if: env.IS_AUTHORIZED_RUN == 'true'
         with:
           files: docker-bake.hcl
-          targets: bench-build
+          targets: bench
           push: true
 
   build_main:

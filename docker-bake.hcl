@@ -4,14 +4,14 @@
 
 # Bench images
 
-target "bench-build" {
+target "bench" {
     tags = ["frappe/bench:latest"]
     dockerfile = "build/bench/Dockerfile"
     target = "build"
 }
 
 target "bench-test" {
-    inherits = ["bench-build"]
+    inherits = ["bench"]
     target = "test"
 }
 
