@@ -1,4 +1,5 @@
 import os
+import shutil
 import ssl
 import subprocess
 from enum import Enum
@@ -81,13 +82,26 @@ def docker_compose(*cmd: str):
         "-p",
         "test",
         "--env-file",
-        "example.env",
+        "tests/.env",
         "-f",
         "compose.yml",
     ]
     if CI:
         args.extend(("-f", "tests/compose.ci.yml"))
     return run(*args, *cmd)
+
+
+@log("Setup .env")
+def setup_env():
+    shutil.copy("example.env", "tests/.env")
+    if CI:
+        with open("tests/.env", "a") as f:
+            f.write(
+                f"""
+FRAPPE_VERSION={os.getenv("FRAPPE_VERSION")}
+ERPNEXT_VERSION={os.getenv("ERPNEXT_VERSION")}
+"""
+            )
 
 
 @log("Create containers")
@@ -286,6 +300,11 @@ def create_postgres_site():
     docker_compose("restart", "backend")
 
 
+@log("Delete .env")
+def delete_env():
+    os.remove("tests/.env")
+
+
 @log("Show docker compose logs")
 def show_docker_compose_logs():
     docker_compose("logs")
@@ -295,6 +314,7 @@ def main() -> int:
     try:
         patch_print()
 
+        setup_env()
         create_containers()
         ping_links_in_backends()
         create_site()
@@ -319,6 +339,7 @@ def main() -> int:
         ping_links_in_backends()
 
     finally:
+        delete_env()
         show_docker_compose_logs()
         stop_containers()
 
