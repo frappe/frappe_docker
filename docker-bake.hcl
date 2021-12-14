@@ -58,34 +58,34 @@ target "default-args" {
 
 target "frappe-worker" {
     inherits = ["default-args"]
-    context = "build/frappe-worker"
+    context = "build/worker"
     target = "frappe"
     tags = tag("frappe-worker", "${FRAPPE_VERSION}")
 }
 
 target "erpnext-worker" {
     inherits = ["default-args"]
-    context = "build/frappe-worker"
+    context = "build/worker"
     target = "erpnext"
     tags =  tag("erpnext-worker", "${ERPNEXT_VERSION}")
 }
 
 target "frappe-nginx" {
     inherits = ["default-args"]
-    context = "build/frappe-nginx"
+    context = "build/nginx"
     target = "frappe"
     tags =  tag("frappe-nginx", "${FRAPPE_VERSION}")
 }
 
 target "erpnext-nginx" {
     inherits = ["default-args"]
-    context = "build/frappe-nginx"
+    context = "build/nginx"
     target = "erpnext"
     tags =  tag("erpnext-nginx", "${ERPNEXT_VERSION}")
 }
 
 target "frappe-socketio" {
     inherits = ["default-args"]
-    context = "build/frappe-socketio"
+    context = "build/socketio"
     tags =  tag("frappe-socketio", "${FRAPPE_VERSION}")
 }

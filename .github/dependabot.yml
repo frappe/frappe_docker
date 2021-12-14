@@ -11,31 +11,21 @@ updates:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/erpnext-nginx
+    directory: build/nginx
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/erpnext-worker
+    directory: build/worker
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/frappe-nginx
-    schedule:
-      interval: daily
-
-  - package-ecosystem: docker
-    directory: build/frappe-socketio
-    schedule:
-      interval: daily
-
-  - package-ecosystem: docker
-    directory: build/frappe-worker
+    directory: build/socketio
     schedule:
       interval: daily
 
   - package-ecosystem: npm
-    directory: build/frappe-socketio
+    directory: build/socketio
     schedule:
       interval: daily
