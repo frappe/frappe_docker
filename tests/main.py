@@ -102,8 +102,6 @@ FRAPPE_VERSION={os.getenv("FRAPPE_VERSION")}
 ERPNEXT_VERSION={os.getenv("ERPNEXT_VERSION")}
 """
             )
-        with open("tests/.env") as f:
-            print(f.read())
 
 
 @log("Print compose configuration")
