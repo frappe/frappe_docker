@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     image: localhost:5000/frappe/frappe-worker:${FRAPPE_VERSION}
