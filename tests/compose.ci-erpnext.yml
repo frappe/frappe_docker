@@ -5,7 +5,7 @@ services:
     image: localhost:5000/frappe/erpnext-worker:${ERPNEXT_VERSION}
 
   frontend:
-    image: localhost:5000/frappe/erpnext-frontend:${ERPNEXT_VERSION}
+    image: localhost:5000/frappe/erpnext-nginx:${ERPNEXT_VERSION}
 
   websocket:
     image: localhost:5000/frappe/frappe-socketio:${FRAPPE_VERSION}
