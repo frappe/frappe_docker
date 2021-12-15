@@ -3,6 +3,7 @@
 import argparse
 import os
 import sys
+from typing import List
 
 import boto3
 import frappe
@@ -58,7 +59,7 @@ def upload(arguments: Arguments):
         os.remove(file_name)
 
 
-def _parse_args(args: list[str]):
+def _parse_args(args: List[str]):
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", required=True)
     parser.add_argument("--bucket", required=True)
@@ -76,7 +77,7 @@ def _parse_args(args: list[str]):
     return parser.parse_args(args, namespace=Arguments())
 
 
-def main(args: list[str]) -> int:
+def main(args: List[str]) -> int:
     arguments = _parse_args(args)
     upload(arguments)
     return 0
