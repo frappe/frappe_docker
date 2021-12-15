@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# TODO: Set config dynamically, so changes in compose file have affect
-
 set -e
 
 function create_common_site_config() {
