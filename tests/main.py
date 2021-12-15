@@ -6,7 +6,7 @@ from enum import Enum
 from functools import wraps
 from time import sleep
 from typing import Any, Callable, Optional
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 CI = os.getenv("CI")
@@ -160,6 +160,8 @@ def ping_and_check_content(url: str, callback: Callable[[str], Optional[str]]):
         except HTTPError as exc:
             if exc.code not in (404, 502):
                 raise
+        except URLError:
+            pass
         else:
             text: str = response.read().decode()
             ret = callback(text)
