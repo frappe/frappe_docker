@@ -1,6 +1,7 @@
 services:
-  backend:
+  configurator:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
+    command: configure.sh
     environment:
       DB_HOST: db
       DB_PORT: 3306
@@ -10,10 +11,18 @@ services:
       SOCKETIO_PORT: 9000
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-      - assets:/home/frappe/frappe-bench/sites/assets
     depends_on:
       db:
         condition: service_healthy
+
+  backend:
+    image: frappe/frappe-worker:${FRAPPE_VERSION}
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
+    depends_on: &depends_on_configurator
+      configurator:
+        condition: service_completed_successfully
 
   db:
     image: mariadb:10.6
@@ -29,18 +38,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - db:/var/lib/mysql
+      - db-data:/var/lib/mysql
 
   redis:
     image: redis:6.2-alpine
     volumes:
-      - redis:/data
+      - redis-data:/data
 
   frontend:
     image: frappe/frappe-nginx:${FRAPPE_VERSION}
-    depends_on:
-      - backend
-      - websocket
     environment:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
@@ -48,6 +54,9 @@ services:
     volumes:
       - sites:/usr/share/nginx/html/sites
       - assets:/usr/share/nginx/html/assets
+    depends_on:
+      - backend
+      - websocket
     labels:
       - traefik.enable=true
       - traefik.http.services.frontend.loadbalancer.server.port=80
@@ -68,46 +77,41 @@ services:
 
   websocket:
     image: frappe/frappe-socketio:${FRAPPE_VERSION}
-    depends_on:
-      - backend
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+    depends_on: *depends_on_configurator
 
   queue-short:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
     command: bench worker --queue short
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-    depends_on:
-      - backend
+    depends_on: *depends_on_configurator
 
   queue-default:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
     command: bench worker --queue default
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-    depends_on:
-      - backend
+    depends_on: *depends_on_configurator
 
   queue-long:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
     command: bench worker --queue long
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-    depends_on:
-      - backend
+    depends_on: *depends_on_configurator
 
   scheduler:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
     command: bench schedule
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-    depends_on:
-      - backend
+    depends_on: *depends_on_configurator
 
 # ERPNext requires local assets access (Frappe does not)
 volumes:
   sites:
   assets:
-  db:
-  redis:
+  db-data:
+  redis-data:

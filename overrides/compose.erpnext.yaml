@@ -1,4 +1,7 @@
 services:
+  configurator:
+    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+
   backend:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
 

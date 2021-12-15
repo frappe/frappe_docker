@@ -90,13 +90,11 @@ USER frappe
 COPY pretend-bench.sh /usr/local/bin/bench
 COPY push_backup.py /usr/local/bin/push-backup
 # healthcheck.sh used in helm chart
-COPY entrypoint.sh patched_bench_helper.py healthcheck.sh /usr/local/bin/
+COPY configure.sh patched_bench_helper.py healthcheck.sh /usr/local/bin/
 
 WORKDIR /home/frappe/frappe-bench/sites
 
 VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/frappe-bench/logs" ]
-
-ENTRYPOINT [ "entrypoint.sh" ]
 
 CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frappe.app:application", "--access-logfile", "-" ]
 

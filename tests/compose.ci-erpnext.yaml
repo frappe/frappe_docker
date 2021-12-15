@@ -1,4 +1,7 @@
 services:
+  configurator:
+    image: localhost:5000/frappe/erpnext-worker:${ERPNEXT_VERSION}
+
   backend:
     image: localhost:5000/frappe/erpnext-worker:${ERPNEXT_VERSION}
 

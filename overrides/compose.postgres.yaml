@@ -1,8 +1,6 @@
 services:
-  backend:
-    image: frappe/frappe-worker:${FRAPPE_VERSION}
+  configurator:
     environment:
-      DB_HOST: db
       DB_PORT: 5432
     depends_on:
       - db
@@ -17,4 +15,4 @@ services:
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - db:/var/lib/postgresql
+      - db-data:/var/lib/postgresql

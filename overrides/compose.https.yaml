@@ -21,7 +21,7 @@ services:
     ports:
       - 443:443
     volumes:
-      - cert:/letsencrypt
+      - cert-data:/letsencrypt
 
 volumes:
-  cert:
+  cert-data:
