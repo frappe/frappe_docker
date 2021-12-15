@@ -1,4 +1,4 @@
 README.md
 LICENSE
 .gitignore
-docker-*.yml
+compose*.yaml
