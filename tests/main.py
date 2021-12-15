@@ -302,7 +302,7 @@ def stop_s3_container():
 
 @log("Recreate with https override")
 def recreate_with_https_override():
-    docker_compose("-f", "overrides/compose.https.yaml", "up", "-d", "--quiet-pull")
+    docker_compose("-f", "overrides/compose.https.yaml", "up", "-d")
 
 
 @log("Check / (https)")
