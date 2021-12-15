@@ -1,3 +1,0 @@
-services:
-  backend:
-    image: localhost:5000/frappe/frappe-worker:${FRAPPE_VERSION}

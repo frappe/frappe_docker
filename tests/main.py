@@ -359,10 +359,7 @@ def check_erpnext_assets():
 
 @log("Create containers with Postgres override")
 def create_containers_with_postgres_override():
-    args = ["-f", "overrides/compose.postgres.yaml"]
-    if CI:
-        args.extend(("-f", "tests/compose.ci-postgres.yaml"))
-    docker_compose(*args, "up", "-d", "--quiet-pull")
+    docker_compose("-f", "overrides/compose.postgres.yaml", "up", "-d", "--quiet-pull")
 
 
 @log("Create Postgres site")
