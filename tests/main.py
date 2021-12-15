@@ -361,7 +361,7 @@ def check_erpnext_assets():
 def create_containers_with_postgres_override():
     args = ["-f", "overrides/compose.postgres.yaml"]
     if CI:
-        args.extend(("-f", "tests/compose.ci.postgres.yaml"))
+        args.extend(("-f", "tests/compose.ci-postgres.yaml"))
     docker_compose(*args, "up", "-d", "--quiet-pull")
 
 
