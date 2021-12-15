@@ -1,7 +1,7 @@
 services:
   configurator:
     image: frappe/frappe-worker:${FRAPPE_VERSION}
-    command: configure.sh
+    command: configure.py
     environment:
       DB_HOST: db
       DB_PORT: 3306

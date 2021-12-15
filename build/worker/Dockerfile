@@ -90,11 +90,12 @@ USER frappe
 COPY pretend-bench.sh /usr/local/bin/bench
 COPY push_backup.py /usr/local/bin/push-backup
 # healthcheck.sh used in helm chart
-COPY configure.sh patched_bench_helper.py healthcheck.sh /usr/local/bin/
+COPY configure.py patched_bench_helper.py healthcheck.sh /usr/local/bin/
 
 WORKDIR /home/frappe/frappe-bench/sites
 
-VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/frappe-bench/logs" ]
+# TODO: Do volumes are being overwritten after copying from other stages?
+VOLUME [ "/home/frappe/frappe-bench/sites" ]
 
 CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frappe.app:application", "--access-logfile", "-" ]
 
