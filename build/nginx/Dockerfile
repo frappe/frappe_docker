@@ -1,4 +1,3 @@
-# TODO: Add errorpages
 FROM node:14-bullseye-slim as base
 
 RUN apt-get update \
@@ -40,17 +39,6 @@ RUN yarn run production \
 COPY --from=frappe_node_modules /root/frappe-bench/apps/frappe/node_modules /root/frappe-bench/sites/assets/frappe/
 
 
-FROM nginx:1.21-alpine as frappe
-
-COPY --from=frappe_assets /root/frappe-bench/sites /usr/share/nginx/html
-COPY nginx-template.conf /
-
-CMD [ "/bin/sh" , "-c" , "envsubst '${BACKEND} ${SOCKETIO} ${FRAPPE_SITE_NAME_HEADER}' </nginx-template.conf >/etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'" ]
-
-
-# Next stages are relevant to ERPNext.
-# Builds are much more efficient if we reuse Frappe assets and Node modules.
-
 FROM base as erpnext_node_modules
 
 ARG ERPNEXT_VERSION
@@ -63,12 +51,12 @@ RUN yarn --cwd ../erpnext --prod
 
 FROM erpnext_node_modules as erpnext_assets
 
+RUN mkdir -p ../../sites/assets/erpnext
+RUN yarn --cwd ../erpnext
+
 # Reuse development node_modules from frappe_assets
 COPY --from=frappe_assets /root/frappe-bench/apps/frappe/node_modules /root/frappe-bench/apps/frappe/node_modules
 COPY --from=frappe_assets /root/frappe-bench/apps/frappe/package.json /root/frappe-bench/apps/frappe/yarn.lock /root/frappe-bench/apps/frappe/
-
-RUN mkdir -p ../../sites/assets/erpnext
-RUN yarn --cwd ../erpnext
 
 RUN yarn run production --app erpnext \
     && cp -R ../erpnext/erpnext/public/* ../../sites/assets/erpnext \
@@ -76,6 +64,14 @@ RUN yarn run production --app erpnext \
 
 # Get rid of development node modules
 COPY --from=erpnext_node_modules /root/frappe-bench/apps/erpnext/node_modules /root/frappe-bench/apps/erpnext/node_modules
+
+
+FROM nginx:1.21-alpine as frappe
+
+COPY --from=frappe_assets /root/frappe-bench/sites /usr/share/nginx/html
+COPY nginx-template.conf /
+
+CMD [ "/bin/sh" , "-c" , "envsubst '${BACKEND} ${SOCKETIO} ${FRAPPE_SITE_NAME_HEADER}' </nginx-template.conf >/etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'" ]
 
 
 FROM frappe as erpnext
