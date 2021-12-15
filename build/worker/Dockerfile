@@ -59,6 +59,7 @@ RUN git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext 
 FROM base as configured_base
 
 COPY pretend-bench.sh /usr/local/bin/bench
+COPY push_backup.py /usr/local/bin/push-backup
 # healthcheck.sh used in helm chart
 COPY entrypoint.sh patched_bench_helper.py healthcheck.sh /usr/local/bin/
 

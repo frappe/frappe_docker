@@ -9,6 +9,8 @@ from typing import Any, Callable, Optional
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+import boto3
+
 CI = os.getenv("CI")
 SITE_NAME = "tests"
 BACKEND_SERVICES = (
@@ -18,6 +20,8 @@ BACKEND_SERVICES = (
     "queue-long",
     "scheduler",
 )
+MINIO_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE"
+MINIO_SECRET_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 
 
 def patch_print():
@@ -111,7 +115,7 @@ def print_compose_configuration():
 
 @log("Create containers")
 def create_containers():
-    docker_compose("up", "-d")
+    docker_compose("up", "-d", "--quiet-pull")
 
 
 @log("Check if backend services have connections")
@@ -221,9 +225,101 @@ def check_files():
     )
 
 
+def get_s3_resource():
+    return boto3.resource(
+        service_name="s3",
+        endpoint_url="http://127.0.0.1:9000",
+        region_name="us-east-1",
+        aws_access_key_id=MINIO_ACCESS_KEY,
+        aws_secret_access_key=MINIO_SECRET_KEY,
+        use_ssl=False,
+    )
+
+
+@log("Prepare S3 server")
+def prepare_s3_server():
+    run(
+        "docker",
+        "run",
+        "--name",
+        "minio",
+        "-d",
+        "-e",
+        f"MINIO_ACCESS_KEY={MINIO_ACCESS_KEY}",
+        "-e",
+        f"MINIO_SECRET_KEY={MINIO_SECRET_KEY}",
+        "--network",
+        "test_default",
+        "--publish",
+        "9000:9000",
+        "minio/minio",
+        "server",
+        "/data",
+    )
+    get_s3_resource().create_bucket(Bucket="frappe")
+
+
+@log("Push backup to S3")
+def push_backup_to_s3():
+    docker_compose(
+        "exec", "backend", "bench", "--site", SITE_NAME, "backup", "--with-files"
+    )
+    docker_compose(
+        "exec",
+        "backend",
+        "push-backup",
+        "--site",
+        SITE_NAME,
+        "--bucket",
+        "frappe",
+        "--region-name",
+        "us-east-1",
+        "--endpoint-url",
+        "http://minio:9000",
+        "--aws-access-key-id",
+        MINIO_ACCESS_KEY,
+        "--aws-secret-access-key",
+        MINIO_SECRET_KEY,
+    )
+
+
+@log("Check backup in S3")
+def check_backup_in_s3():
+    bucket = get_s3_resource().Bucket("frappe")
+    db = False
+    config = False
+    private_files = False
+    public_files = False
+    for obj in bucket.objects.all():
+        if obj.key.endswith("database.sql.gz"):
+            db = True
+        elif obj.key.endswith("site_config_backup.json"):
+            config = True
+        elif obj.key.endswith("private-files.tar"):
+            private_files = True
+        elif obj.key.endswith("files.tar"):
+            public_files = True
+
+    exc = lambda type_: Exception(f"Didn't push {type_} backup")
+    if not db:
+        raise exc("database")
+    if not config:
+        raise exc("site config")
+    if not private_files:
+        raise exc("private files")
+    if not public_files:
+        raise exc("public files")
+    print("All files was pushed to S3!")
+
+
+@log("Stop S3 container")
+def stop_s3_container():
+    run("docker", "rm", "minio", "-f")
+
+
 @log("Recreate with https override")
 def recreate_with_https_override():
-    docker_compose("-f", "overrides/compose.https.yml", "up", "-d")
+    docker_compose("-f", "overrides/compose.https.yml", "up", "-d", "--quiet-pull")
 
 
 @log("Check / (https)")
@@ -241,7 +337,7 @@ def create_containers_with_erpnext_override():
     args = ["-f", "overrides/compose.erpnext.yml"]
     if CI:
         args.extend(("-f", "tests/compose.ci-erpnext.yml"))
-    docker_compose(*args, "up", "-d")
+    docker_compose(*args, "up", "-d", "--quiet-pull")
 
 
 @log("Create ERPNext site")
@@ -280,7 +376,7 @@ def check_erpnext_assets():
 
 @log("Create containers with Postgres override")
 def create_containers_with_postgres_override():
-    docker_compose("-f", "overrides/compose.postgres.yml", "up", "-d")
+    docker_compose("-f", "overrides/compose.postgres.yml", "up", "-d", "--quiet-pull")
 
 
 @log("Create Postgres site")
@@ -330,6 +426,11 @@ def main() -> int:
         ping_frappe_connections_in_backends()
         check_assets()
         check_files()
+
+        prepare_s3_server()
+        push_backup_to_s3()
+        check_backup_in_s3()
+        stop_s3_container()
 
         recreate_with_https_override()
         check_index_https()
