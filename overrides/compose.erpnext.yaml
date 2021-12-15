@@ -1,13 +1,9 @@
 services:
   backend:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
-    volumes:
-      - assets:/home/frappe/frappe-bench/sites/assets
 
   frontend:
     image: frappe/erpnext-nginx:${ERPNEXT_VERSION}
-    volumes:
-      - assets:/usr/share/nginx/html/assets
 
   queue-short:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -20,7 +16,3 @@ services:
 
   scheduler:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
-
-# ERPNext requires local assets access (Frappe does not)
-volumes:
-  assets:

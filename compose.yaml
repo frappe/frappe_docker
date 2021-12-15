@@ -10,6 +10,7 @@ services:
       SOCKETIO_PORT: 9000
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
     depends_on:
       db:
         condition: service_healthy
@@ -46,6 +47,7 @@ services:
       FRAPPE_SITE_NAME_HEADER: $$host
     volumes:
       - sites:/usr/share/nginx/html/sites
+      - assets:/usr/share/nginx/html/assets
     labels:
       - traefik.enable=true
       - traefik.http.services.frontend.loadbalancer.server.port=80
@@ -103,7 +105,9 @@ services:
     depends_on:
       - backend
 
+# ERPNext requires local assets access (Frappe does not)
 volumes:
   sites:
+  assets:
   db:
   redis:
