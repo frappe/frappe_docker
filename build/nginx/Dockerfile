@@ -66,8 +66,14 @@ RUN yarn run production --app erpnext \
 COPY --from=erpnext_node_modules /root/frappe-bench/apps/erpnext/node_modules /root/frappe-bench/apps/erpnext/node_modules
 
 
+FROM base as error_pages
+
+RUN git clone --depth 1 https://github.com/frappe/bench /root/bench
+
+
 FROM nginx:1.21-alpine as frappe
 
+COPY --from=error_pages /root/bench/bench/config/templates/502.html /usr/share/nginx/html
 COPY --from=frappe_assets /root/frappe-bench/sites /usr/share/nginx/html
 COPY nginx-template.conf /
 
