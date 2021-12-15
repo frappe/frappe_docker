@@ -1,19 +1,12 @@
+# syntax=docker/dockerfile:1.3
+
 ARG PYTHON_VERSION
 FROM python:${PYTHON_VERSION}-slim-bullseye as base
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-    # MariaDB
-    mariadb-client \
     # Postgres
-    postgresql-client \
     libpq-dev \
-    # wkhtmltopdf
-    xvfb \
-    libfontconfig \
-    wkhtmltopdf \
-    # For healthcheck.sh in helm chart
-    wait-for-it \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -ms /bin/bash frappe
@@ -24,11 +17,11 @@ WORKDIR /home/frappe/frappe-bench
 RUN pip install --no-cache-dir -U pip wheel \
     && python -m venv env \
     && env/bin/pip install --no-cache-dir -U pip wheel
-
-
-FROM base as frappe_builder
-
 USER root
+
+
+FROM base as build_deps
+
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
     # Install git here because it is not required in production
@@ -40,7 +33,11 @@ RUN apt-get update \
     gcc \
     g++ \
     && rm -rf /var/lib/apt/lists/*
+
 USER frappe
+
+
+FROM build_deps as frappe_builder
 
 ARG FRAPPE_VERSION
 RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
@@ -48,15 +45,41 @@ RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe ap
     && rm -r apps/frappe/.git
 
 
-FROM frappe_builder as erpnext_builder
+# We split ERPNext wheels build in separate stage to achieve concurrency with Frappe build
+FROM build_deps as erpnext_wheels
 
 ARG ERPNEXT_VERSION
 RUN git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext apps/erpnext \
-    && env/bin/pip install --no-cache-dir -e apps/erpnext \
     && rm -r apps/erpnext/.git
+
+RUN pip wheel --wheel-dir /home/frappe/erpnext-wheels -r apps/erpnext/requirements.txt
+
+
+FROM frappe_builder as erpnext_builder
+
+COPY --from=erpnext_wheels --chown=frappe /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext
+RUN --mount=type=bind,target=/home/frappe/erpnext-wheels,source=/home/frappe/erpnext-wheels,from=erpnext_wheels \
+    --mount=type=cache,target=/home/frappe/.cache/pip,source=/home/frappe/.cache/pip,from=erpnext_wheels \
+    env/bin/pip install --find-links=/home/frappe/erpnext-wheels --no-cache-dir -e apps/erpnext
 
 
 FROM base as configured_base
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+    # MariaDB
+    mariadb-client \
+    # Postgres
+    postgresql-client \
+    # wkhtmltopdf
+    xvfb \
+    libfontconfig \
+    wkhtmltopdf \
+    # For healthcheck.sh in helm chart
+    wait-for-it \
+    && rm -rf /var/lib/apt/lists/*
+
+USER frappe
 
 COPY pretend-bench.sh /usr/local/bin/bench
 COPY push_backup.py /usr/local/bin/push-backup
