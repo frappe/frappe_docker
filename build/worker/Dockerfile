@@ -66,6 +66,10 @@ RUN --mount=type=bind,target=/home/frappe/erpnext-wheels,source=/home/frappe/erp
 FROM base as configured_base
 
 RUN apt-get update \
+    && apt-get install --no-install-recommends -y curl \
+    && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+    && apt-get purge -y --auto-remove curl \
+    && apt-get update \
     && apt-get install --no-install-recommends -y \
     # MariaDB
     mariadb-client \
@@ -77,6 +81,8 @@ RUN apt-get update \
     wkhtmltopdf \
     # For healthcheck.sh in helm chart
     wait-for-it \
+    # other
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 USER frappe
