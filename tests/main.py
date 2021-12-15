@@ -88,10 +88,10 @@ def docker_compose(*cmd: str):
         "--env-file",
         "tests/.env",
         "-f",
-        "compose.yml",
+        "compose.yaml",
     ]
     if CI:
-        args.extend(("-f", "tests/compose.ci.yml"))
+        args.extend(("-f", "tests/compose.ci.yaml"))
     return run(*args, *cmd)
 
 
@@ -319,7 +319,7 @@ def stop_s3_container():
 
 @log("Recreate with https override")
 def recreate_with_https_override():
-    docker_compose("-f", "overrides/compose.https.yml", "up", "-d", "--quiet-pull")
+    docker_compose("-f", "overrides/compose.https.yaml", "up", "-d", "--quiet-pull")
 
 
 @log("Check / (https)")
@@ -334,9 +334,9 @@ def stop_containers():
 
 @log("Recreate with ERPNext override")
 def create_containers_with_erpnext_override():
-    args = ["-f", "overrides/compose.erpnext.yml"]
+    args = ["-f", "overrides/compose.erpnext.yaml"]
     if CI:
-        args.extend(("-f", "tests/compose.ci-erpnext.yml"))
+        args.extend(("-f", "tests/compose.ci-erpnext.yaml"))
     docker_compose(*args, "up", "-d", "--quiet-pull")
 
 
@@ -376,9 +376,9 @@ def check_erpnext_assets():
 
 @log("Create containers with Postgres override")
 def create_containers_with_postgres_override():
-    args = ["-f", "overrides/compose.postgres.yml"]
+    args = ["-f", "overrides/compose.postgres.yaml"]
     if CI:
-        args.extend(("-f", "tests/compose.ci.postgres.yml"))
+        args.extend(("-f", "tests/compose.ci.postgres.yaml"))
     docker_compose(*args, "up", "-d", "--quiet-pull")
 
 

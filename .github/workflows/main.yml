@@ -12,7 +12,7 @@ on:
   #     - build/worker/**
   #     - overrides/**
   #     - tests/**
-  #     - compose.yml
+  #     - compose.yaml
   #     - docker-bake.hcl
   #     - example.env
 
@@ -25,7 +25,7 @@ on:
   #     - build/worker/**
   #     - overrides/**
   #     - tests/**
-  #     - compose.yml
+  #     - compose.yaml
   #     - docker-bake.hcl
   #     - example.env
 
