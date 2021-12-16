@@ -1,4 +1,4 @@
 - [ ] Docs
 - [ ] Test with helm chart
 - [ ] Play With Docker generation
-- [ ] Custom app compose and dockerfile examples
+- [x] Custom app compose and dockerfile examples

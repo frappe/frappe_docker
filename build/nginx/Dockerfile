@@ -33,7 +33,7 @@ RUN cd apps/frappe && \
     fi \
     && yarn
 
-# Build assets stored in frappe-bench/sites/assets
+# Build assets they're stored in frappe-bench/sites/assets
 RUN echo "frappe" >sites/apps.txt \
     && yarn --cwd apps/frappe run production \
     && rm sites/apps.txt
