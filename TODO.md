@@ -1,5 +1,4 @@
 - [ ] Docs
 - [ ] Test with helm chart
-- [ ] CI (also: build only published tag)
 - [ ] Play With Docker generation
 - [ ] Custom app compose and dockerfile examples
