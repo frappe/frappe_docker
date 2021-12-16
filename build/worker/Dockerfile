@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir -U pip wheel \
 USER root
 
 
+
 FROM base as build_deps
 
 RUN apt-get update \
@@ -33,8 +34,8 @@ RUN apt-get update \
     gcc \
     g++ \
     && rm -rf /var/lib/apt/lists/*
-
 USER frappe
+
 
 
 FROM build_deps as frappe_builder
@@ -43,6 +44,7 @@ ARG FRAPPE_VERSION
 RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
     && env/bin/pip install --no-cache-dir -e apps/frappe \
     && rm -r apps/frappe/.git
+
 
 
 # We split ERPNext wheels build in separate stage to achieve concurrency with Frappe build
@@ -55,12 +57,14 @@ RUN git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext 
 RUN pip wheel --wheel-dir /home/frappe/erpnext-wheels -r apps/erpnext/requirements.txt
 
 
+
 FROM frappe_builder as erpnext_builder
 
 COPY --from=erpnext_wheels --chown=frappe /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext
 RUN --mount=type=bind,target=/home/frappe/erpnext-wheels,source=/home/frappe/erpnext-wheels,from=erpnext_wheels \
     --mount=type=cache,target=/home/frappe/.cache/pip,source=/home/frappe/.cache/pip,from=erpnext_wheels \
     env/bin/pip install --find-links=/home/frappe/erpnext-wheels --no-cache-dir -e apps/erpnext
+
 
 
 FROM base as configured_base
@@ -84,7 +88,6 @@ RUN apt-get update \
     # other
     nodejs \
     && rm -rf /var/lib/apt/lists/*
-
 USER frappe
 
 COPY pretend-bench.sh /usr/local/bin/bench
@@ -93,9 +96,6 @@ COPY push_backup.py /usr/local/bin/push-backup
 COPY configure.py patched_bench_helper.py healthcheck.sh /usr/local/bin/
 
 WORKDIR /home/frappe/frappe-bench/sites
-
-# TODO: Do volumes are being overwritten after copying from other stages?
-VOLUME [ "/home/frappe/frappe-bench/sites" ]
 
 CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frappe.app:application", "--access-logfile", "-" ]
 
