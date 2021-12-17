@@ -43,8 +43,12 @@ group "default" {
 
 function "tag" {
     params = [repo, version]
-    # If `version` parameter is develop (development build) then use tag `latest`
-    result = ["${version}" == "develop" ? "${USERNAME}/${repo}:latest" : "${USERNAME}/${repo}:${version}"]
+    result = [
+      # If `version` param is develop (development build) then use tag `latest`
+      "${version}" == "develop" ? "${USERNAME}/${repo}:latest" : "${USERNAME}/${repo}:${version}",
+      # Make short tag for major version if possible. For example, from v13.16.0 make v13.
+      can(regex("(v[0-9]+)[.]", "${version}")) ? "${USERNAME}/${repo}:${regex("(v[0-9]+)[.]", "${version}")[0]}" : "",
+    ]
 }
 
 target "default-args" {
