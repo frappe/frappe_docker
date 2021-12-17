@@ -17,7 +17,9 @@ After building the images we have to run the containers. The best and simplest w
 
 We have one main compose file, `compose.yaml`. Services described, networking, volumes are also handled there.
 
-Services that the file contains:
+## Services
+
+All services are described in `compose.yaml`
 
 - `configurator`. Updates `common_site_config.json` so Frappe knows how to access db and redis. It is executed on every `docker-compose up` (and exited immediately). Other services start after this container exits successfully.
 - `backend`. [Werkzeug server](https://werkzeug.palletsprojects.com/en/2.0.x/).
@@ -43,3 +45,27 @@ docker-compose -f compose.yaml -f overrides/compose.erpnext.yaml
 ```
 
 That's it! Of course, we also have to setup `.env` before all of that, but that's not the point.
+
+## Configuration
+
+We use environment variables to configure our setup. docker-compose uses variables from `.env` file. To get started, copy `example.env` to `.env`.
+
+### `FRAPPE_VERSION`
+
+Frappe framework release. You can find all releases [here](https://github.com/frappe/frappe/releases).
+
+### `DB_PASSWORD`
+
+Password for MariaDB (or Postgres) database.
+
+### `ERPNEXT_VERSION`
+
+ERPNext [release](https://github.com/frappe/frappe/releases). This variable is required if you use ERPNext override.
+
+### `LETSENCRYPT_EMAIL`
+
+Email that used to register https certificate. This one is required only if you use HTTPS override.
+
+### `FRAPPE_SITE_NAME_HEADER`
+
+This environment variable is not required. Default value is `$$host` which resolves site by host. For example, if your host is `example.com`, site's name should be `example.com`, or if host is `127.0.0.1` (local debugging), it should be `127.0.0.1` This variable allows to override described behavior. Let's say you create site named `mysite` and do want to access it by `127.0.0.1` host. Than you would set this variable to `mysite`.

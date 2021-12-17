@@ -56,7 +56,7 @@ services:
     environment:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
-      FRAPPE_SITE_NAME_HEADER: $$host
+      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-$$host}
     volumes:
       - sites:/usr/share/nginx/html/sites
       - assets:/usr/share/nginx/html/assets
