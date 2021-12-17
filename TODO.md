@@ -1,4 +1,5 @@
 - [ ] Docs
+- [ ] Move some things from wiki to /docs and remove it
 - [ ] Remove/change docker swarm guide
-- [ ] Test with helm chart
 - [ ] Modify single-bench guide to single-server; decide what to do with multi-bench guide
+- [ ] Test with helm chart
