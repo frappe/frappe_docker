@@ -69,3 +69,5 @@ Email that used to register https certificate. This one is required only if you 
 ### `FRAPPE_SITE_NAME_HEADER`
 
 This environment variable is not required. Default value is `$$host` which resolves site by host. For example, if your host is `example.com`, site's name should be `example.com`, or if host is `127.0.0.1` (local debugging), it should be `127.0.0.1` This variable allows to override described behavior. Let's say you create site named `mysite` and do want to access it by `127.0.0.1` host. Than you would set this variable to `mysite`.
+
+There is other variables not mentioned here. They're somewhat internal and you don't have to worry about them except you want to change main compose file.
