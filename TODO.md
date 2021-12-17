@@ -1,6 +1,3 @@
 - [ ] Docs
+- [ ] Remove/change docker swarm guide
 - [ ] Test with helm chart
-- [x] Play With Docker generation
-- [x] Custom app compose and dockerfile examples
-- [x] Add v13 v12 tags
-- [x] Use &\* feature of yaml to describe backends
