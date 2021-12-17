@@ -1,4 +1,6 @@
 - [ ] Docs
 - [ ] Test with helm chart
-- [ ] Play With Docker generation
+- [x] Play With Docker generation
 - [x] Custom app compose and dockerfile examples
+- [ ] Add v13 v12 tags
+- [ ] Use &\* feature of yaml to describe backends
