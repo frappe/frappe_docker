@@ -22,6 +22,7 @@ on:
 
 jobs:
   build_bench:
+    name: Bench
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -50,6 +51,7 @@ jobs:
           push: true
 
   build_main:
+    name: Frappe and ERPNext
     uses: vrslev/frappe_docker/.github/workflows/docker-build-push.yml@beautify
     with:
       repo: erpnext
