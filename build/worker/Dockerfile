@@ -85,6 +85,7 @@ RUN apt-get update \
     wkhtmltopdf \
     # For healthcheck.sh in helm chart
     wait-for-it \
+    jq \
     # other
     nodejs \
     && rm -rf /var/lib/apt/lists/*

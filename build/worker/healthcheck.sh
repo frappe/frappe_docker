@@ -2,7 +2,7 @@
 set -e
 
 get_key() {
-  grep "$1" /home/frappe/frappe-bench/sites/common_site_config.json | awk -v word="$1" '$word { gsub(/[",]/,"",$2); print $2}' | tr -d '\n'
+  jq -r ".$1" /home/frappe/frappe-bench/sites/common_site_config.json
 }
 
 get_redis_url() {
