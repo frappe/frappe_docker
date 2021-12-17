@@ -98,17 +98,15 @@ def setup_env():
     shutil.copy("example.env", "tests/.env")
     if not CI:
         return
-    frappe_version = os.getenv("FRAPPE_VERSION")
-    if frappe_version == "develop":
-        frappe_version = "latest"
-    erpnext_version = os.getenv("ERPNEXT_VERSION")
-    if erpnext_version == "develop":
-        erpnext_version = "latest"
+    for env in ("FRAPPE_VERSION", "ERPNEXT_VERSION"):
+        if os.environ[env] == "develop":
+            with open(os.environ["GITHUB_ENV"], "a") as f:
+                f.write(f"\n{env}=latest")
     with open("tests/.env", "a") as f:
         f.write(
             f"""
-FRAPPE_VERSION={frappe_version}
-ERPNEXT_VERSION={erpnext_version}
+FRAPPE_VERSION={os.environ['FRAPPE_VERSION']}
+ERPNEXT_VERSION={os.environ['ERPNEXT_VERSION']}
 """
         )
     with open("tests/.env") as f:
@@ -408,35 +406,35 @@ def main() -> int:
         patch_print()
 
         setup_env()
-        print_compose_configuration()
-        create_containers()
+        # print_compose_configuration()
+        # create_containers()
 
-        ping_links_in_backends()
-        create_site()
-        check_index()
-        check_api()
-        ping_frappe_connections_in_backends()
-        check_assets()
-        check_files()
+        # ping_links_in_backends()
+        # create_site()
+        # check_index()
+        # check_api()
+        # ping_frappe_connections_in_backends()
+        # check_assets()
+        # check_files()
 
-        prepare_s3_server()
-        push_backup_to_s3()
-        check_backup_in_s3()
-        stop_s3_container()
+        # prepare_s3_server()
+        # push_backup_to_s3()
+        # check_backup_in_s3()
+        # stop_s3_container()
 
-        recreate_with_https_override()
-        check_index_https()
-        stop_containers()
+        # recreate_with_https_override()
+        # check_index_https()
+        # stop_containers()
 
-        create_containers_with_erpnext_override()
-        create_erpnext_site()
-        check_erpnext_api()
-        check_erpnext_assets()
-        stop_containers()
+        # create_containers_with_erpnext_override()
+        # create_erpnext_site()
+        # check_erpnext_api()
+        # check_erpnext_assets()
+        # stop_containers()
 
-        create_containers_with_postgres_override()
-        create_postgres_site()
-        ping_links_in_backends()
+        # create_containers_with_postgres_override()
+        # create_postgres_site()
+        # ping_links_in_backends()
 
     finally:
         delete_env()
