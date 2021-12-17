@@ -16,7 +16,7 @@ services:
       - --entrypoints.websecure.address=:443
       - --certificatesResolvers.main-resolver.acme.httpChallenge=true
       - --certificatesResolvers.main-resolver.acme.httpChallenge.entrypoint=web
-      - --certificatesResolvers.main-resolver.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesResolvers.main-resolver.acme.email=${LETSENCRYPT_EMAIL:?No Let's Encrypt email set}
       - --certificatesResolvers.main-resolver.acme.storage=/letsencrypt/acme.json
     ports:
       - 443:443

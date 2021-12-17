@@ -13,6 +13,6 @@ services:
       retries: 15
     command: []
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?No db password set}
     volumes:
       - db-data:/var/lib/postgresql

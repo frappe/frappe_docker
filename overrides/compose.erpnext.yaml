@@ -1,21 +1,24 @@
+x-erpnext-backend-image: &erpnext_backend_image
+  image: frappe/erpnext-worker:${ERPNEXT_VERSION:?No ERPNext version set}
+
 services:
   configurator:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    <<: *erpnext_backend_image
 
   backend:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    <<: *erpnext_backend_image
 
   frontend:
     image: frappe/erpnext-nginx:${ERPNEXT_VERSION}
 
   queue-short:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    <<: *erpnext_backend_image
 
   queue-default:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    <<: *erpnext_backend_image
 
   queue-long:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    <<: *erpnext_backend_image
 
   scheduler:
-    image: frappe/erpnext-worker:${ERPNEXT_VERSION}
+    <<: *erpnext_backend_image
