@@ -1,38 +1,36 @@
 name: Build Stable
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - build/nginx/**
+      - build/socketio/**
+      - build/worker/**
+      - overrides/**
+      - tests/**
+      - compose.yaml
+      - docker-bake.hcl
+      - example.env
+
   push:
+    branches:
+      - main
+    paths:
+      - build/nginx/**
+      - build/socketio/**
+      - build/worker/**
+      - overrides/**
+      - tests/**
+      - compose.yaml
+      - docker-bake.hcl
+      - example.env
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - build/nginx/**
-  #     - build/frappe-socketio/**
-  #     - build/worker/**
-  #     - overrides/**
-  #     - tests/**
-  #     - compose.yaml
-  #     - docker-bake.hcl
-  #     - example.env
+  # Triggered from frappe/frappe and frappe/erpnext on releases
+  repository_dispatch:
 
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - build/nginx/**
-  #     - build/frappe-socketio/**
-  #     - build/worker/**
-  #     - overrides/**
-  #     - tests/**
-  #     - compose.yaml
-  #     - docker-bake.hcl
-  #     - example.env
-
-  # # Triggered from frappe/frappe and frappe/erpnext on releases
-  # repository_dispatch:
-
-  # workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   v12:
