@@ -35,79 +35,89 @@ on:
   # workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+  # build:
+  #   runs-on: ubuntu-latest
+  #   services:
+  #     registry:
+  #       image: registry:2
+  #       ports:
+  #         - 5000:5000
 
-    strategy:
-      matrix:
-        version: [12, 13]
+  #   strategy:
+  #     matrix:
+  #       version: [12, 13]
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: 3.9
 
-      - name: Setup Buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          driver-opts: network=host
+  #     - name: Setup Buildx
+  #       uses: docker/setup-buildx-action@v1
+  #       with:
+  #         driver-opts: network=host
 
-      - name: Install Docker Compose v2
-        uses: ndeloof/install-compose-action@4a33bc31f327b8231c4f343f6fba704fedc0fa23
+  #     - name: Install Docker Compose v2
+  #       uses: ndeloof/install-compose-action@4a33bc31f327b8231c4f343f6fba704fedc0fa23
 
-      - name: Get latest versions
-        run: python3 ./.github/scripts/get_latest_tags.py --repo erpnext --version ${{ matrix.version }}
+  #     - name: Get latest versions
+  #       run: python3 ./.github/scripts/get_latest_tags.py --repo erpnext --version ${{ matrix.version }}
 
-      - name: Build
-        uses: docker/bake-action@v1.6.0
-        with:
-          push: true
-        env:
-          USERNAME: localhost:5000/frappe
+  #     - name: Build
+  #       uses: docker/bake-action@v1.6.0
+  #       with:
+  #         push: true
+  #       env:
+  #         USERNAME: localhost:5000/frappe
 
-      - name: Test
-        run: python3 tests/main.py
+  #     - name: Test
+  #       run: python3 tests/main.py
 
-      - name: Login
-        if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     - name: Login
+  #       if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+  #       uses: docker/login-action@v1
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push
-        if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-        uses: docker/bake-action@v1.6.0
-        with:
-          push: true
+  #     - name: Push
+  #       if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+  #       uses: docker/bake-action@v1.6.0
+  #       with:
+  #         push: true
 
-  release_helm:
-    runs-on: ubuntu-latest
-    if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
-    needs: build
+  # release_helm:
+  #   runs-on: ubuntu-latest
+  #   if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
+  #   needs: build
 
-    steps:
-      - name: Setup deploy key
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
+  #   steps:
+  #     - name: Setup deploy key
+  #       uses: webfactory/ssh-agent@v0.5.4
+  #       with:
+  #         ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
 
-      - name: Setup Git Credentials
-        run: |
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
+  #     - name: Setup Git Credentials
+  #       run: |
+  #         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+  #         git config --global user.name "github-actions[bot]"
 
-      - name: Release
-        run: |
-          git clone git@github.com:frappe/helm.git && cd helm
-          pip install -r release_wizard/requirements.txt
-          ./release_wizard/wizard 13 patch --remote origin --ci
+  #     - name: Release
+  #       run: |
+  #         git clone git@github.com:frappe/helm.git && cd helm
+  #         pip install -r release_wizard/requirements.txt
+  #         ./release_wizard/wizard 13 patch --remote origin --ci
+
+  build2:
+    uses: vrslev/frappe_docker/.github/workflows/docker-build.yml@beautify
+    with:
+      repo: "erpnext"
+      version: "13"
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      HELM_DEPLOY_KEY: ${{ secrets.HELM_DEPLOY_KEY }}
