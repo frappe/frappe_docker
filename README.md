@@ -19,10 +19,7 @@ We have baseline for developing in VSCode devcontainer with [frappe/bench](https
 
 # Production
 
-We provide simple and intuitive production setup with prebuilt Frappe and ERPNext images and compose files. To learn more about those, follow the docs:
-
-- [images](docs/images.md),
-- [compose files](docs/compose-files.md).
+We provide simple and intuitive production setup with prebuilt Frappe and ERPNext images and compose files. To learn more about those, [read the docs](docs/images-and-compose-files.md).
 
 Also, there's docs to help with deployment:
 
