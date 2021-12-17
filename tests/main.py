@@ -96,14 +96,23 @@ def docker_compose(*cmd: str):
 @log("Setup .env")
 def setup_env():
     shutil.copy("example.env", "tests/.env")
-    if CI:
-        with open("tests/.env", "a") as f:
-            f.write(
-                f"""
-FRAPPE_VERSION={os.getenv("FRAPPE_VERSION")}
-ERPNEXT_VERSION={os.getenv("ERPNEXT_VERSION")}
+    if not CI:
+        return
+    frappe_version = os.getenv("FRAPPE_VERSION")
+    if frappe_version == "develop":
+        frappe_version = "latest"
+    erpnext_version = os.getenv("ERPNEXT_VERSION")
+    if erpnext_version == "develop":
+        erpnext_version = "latest"
+    with open("tests/.env", "a") as f:
+        f.write(
+            f"""
+FRAPPE_VERSION={frappe_version}
+ERPNEXT_VERSION={erpnext_version}
 """
-            )
+        )
+    with open("tests/.env") as f:
+        print(f.read())
 
 
 @log("Print compose configuration")
