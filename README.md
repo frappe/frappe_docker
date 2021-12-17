@@ -3,14 +3,6 @@
 
 ## Getting Started
 
-### Try in Play With Docker
-
-<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
-  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
-</a>
-
-Wait for 5 minutes for ERPNext site to be created or check `site-creator` container logs before opening browser on port 80. (username: `Administrator`, password: `admin`)
-
 ### Setting up Pre-requisites
 
 This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
