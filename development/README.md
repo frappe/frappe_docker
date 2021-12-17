@@ -52,12 +52,12 @@ After the extensions are installed, you can:
 
 - Open frappe_docker folder in VS Code.
   - `code .`
-- Launch the command, from Command Palette (Ctrl + Shift + P) `Execute Remote Containers : Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
+- Launch the command, from Command Palette (Ctrl + Shift + P) `Remote-Containers: Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
 
 Notes:
 
 - The `development` directory is ignored by git. It is mounted and available inside the container. Create all your benches (installations of bench, the tool that manages frappe) inside this directory.
-- nvm with node v12 and v10 is installed. Check with `nvm ls`. Node v12 is used by default.
+- Node v14 and v10 are installed. Check with `nvm ls`. Node v14 is used by default.
 
 ### Setup first bench
 
@@ -68,7 +68,7 @@ bench init --skip-redis-config-generation --frappe-branch version-13 frappe-benc
 cd frappe-bench
 ```
 
-Note: For version 12 use python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench`
+Note: For version 12 use Python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench`
 
 ### Setup hosts
 
@@ -162,14 +162,14 @@ To install custom app
 
 ```shell
 # --branch is optional, use it to point to branch on custom app repository
-bench get-app --branch version-12 myapp https://github.com/myusername/myapp.git
+bench get --branch version-12 https://github.com/myusername/myapp
 bench --site mysite.localhost install-app myapp
 ```
 
 To install ERPNext (from the version-12 branch):
 
 ```shell
-bench get-app --branch version-12 erpnext https://github.com/frappe/erpnext.git
+bench get --branch version-12 erpnext
 bench --site mysite.localhost install-app erpnext
 ```
 
@@ -242,6 +242,7 @@ Replace `mysite.localhost` with your site and run the following code in a Jupyte
 
 ```python
 import frappe
+
 frappe.init(site='mysite.localhost', sites_path='/workspace/development/frappe-bench/sites')
 frappe.connect()
 frappe.local.lang = frappe.db.get_default('lang')
