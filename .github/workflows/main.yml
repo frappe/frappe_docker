@@ -36,7 +36,7 @@ on:
 
 jobs:
   v12:
-    uses: vrslev/frappe_docker/.github/workflows/docker-build.yml@beautify
+    uses: vrslev/frappe_docker/.github/workflows/docker-build-push.yml@beautify
     with:
       repo: "erpnext"
       version: "13"
@@ -44,10 +44,9 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      HELM_DEPLOY_KEY: ${{ secrets.HELM_DEPLOY_KEY }}
 
   v13:
-    uses: vrslev/frappe_docker/.github/workflows/docker-build.yml@beautify
+    uses: vrslev/frappe_docker/.github/workflows/docker-build-push.yml@beautify
     with:
       repo: "erpnext"
       version: "13"
@@ -55,7 +54,6 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      HELM_DEPLOY_KEY: ${{ secrets.HELM_DEPLOY_KEY }}
 
   release_helm:
     runs-on: ubuntu-latest
