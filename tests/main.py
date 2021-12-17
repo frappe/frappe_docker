@@ -102,6 +102,7 @@ def setup_env():
         if os.environ[env] == "develop":
             with open(os.environ["GITHUB_ENV"], "a") as f:
                 f.write(f"\n{env}=latest")
+            os.environ[env] = "latest"
     with open("tests/.env", "a") as f:
         f.write(
             f"""
