@@ -19,8 +19,6 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
-      HELM_DEPLOY_KEY:
-        required: true
 
 jobs:
   build:
