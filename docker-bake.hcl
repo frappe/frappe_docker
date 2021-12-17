@@ -16,14 +16,14 @@ variable "ERPNEXT_VERSION" {
 # Bench image
 
 target "bench" {
+    context = "build/bench"
+    target = "bench"
     tags = ["frappe/bench:latest"]
-    dockerfile = "build/bench/Dockerfile"
-    target = "build"
 }
 
 target "bench-test" {
     inherits = ["bench"]
-    target = "test"
+    target = "bench-test"
 }
 
 # Main images
