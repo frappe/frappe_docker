@@ -38,7 +38,7 @@ jobs:
   v12:
     uses: vrslev/frappe_docker/.github/workflows/docker-build-push.yml@beautify
     with:
-      repo: "erpnext"
+      repo: erpnext
       version: "13"
       push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     secrets:
@@ -48,7 +48,7 @@ jobs:
   v13:
     uses: vrslev/frappe_docker/.github/workflows/docker-build-push.yml@beautify
     with:
-      repo: "erpnext"
+      repo: erpnext
       version: "13"
       push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     secrets:
