@@ -98,7 +98,7 @@ COPY configure.py patched_bench_helper.py healthcheck.sh /usr/local/bin/
 
 WORKDIR /home/frappe/frappe-bench/sites
 
-CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frappe.app:application", "--access-logfile", "-" ]
+CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frappe.app:application" ]
 
 
 FROM configured_base as frappe
