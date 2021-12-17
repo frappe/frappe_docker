@@ -10,7 +10,7 @@ on:
       version:
         required: true
         type: string
-        description: "'12', '13' or 'develop'"
+        description: "Major version, git tags should match 'v{version}.*'; or 'develop'"
       push:
         required: true
         type: boolean
