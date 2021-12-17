@@ -44,7 +44,7 @@ To get started, copy the existing `env-local` or `env-production` file to `.env`
 - `ADMIN_PASSWORD=admin`
   - Password for the `Administrator` user, credentials after install `Administrator:$ADMIN_PASSWORD`.
 - `INSTALL_APPS=erpnext`
-  - Apps to install, the app must be already in the container image, to install other application read the [instructions on installing custom apps](./custom-apps-for-production.md).
+  - Apps to install, the app must be already in the container image, to install other application read the [instructions on installing custom apps](../custom_app/README.md).
 - `LETSENCRYPT_EMAIL=email@example.com`
   - Email for LetsEncrypt expiry notification. This is only required if you are setting up LetsEncrypt.
 - `ENTRYPOINT_LABEL=traefik.http.routers.erpnext-nginx.entrypoints=websecure`
