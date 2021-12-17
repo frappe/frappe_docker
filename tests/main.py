@@ -214,7 +214,7 @@ def ping_frappe_connections_in_backends():
 @log("Check /assets")
 def check_assets():
     ping_and_check_content(
-        url="http://127.0.0.1/assets/js/frappe-web.min.js",
+        url="http://127.0.0.1/assets/frappe/images/frappe-framework-logo.svg",
         callback=lambda text: text[:200] if text is not None else None,
     )
 
