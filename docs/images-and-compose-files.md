@@ -31,7 +31,9 @@ All services are described in `compose.yaml`
 - `queue-short`, `queue-default`, `queue-long`. Python servers that run job queues using [rq](https://python-rq.org).
 - `scheduler`. Python server that runs tasks on schedule using [schedule](https://schedule.readthedocs.io/en/stable/).
 
-Also, we have several [overrides](https://docs.docker.com/compose/extends/).
+## Overrides
+
+We have several [overrides](https://docs.docker.com/compose/extends/):
 
 - `overrides/compose.erpnext.yaml`. Replaces all Frappe images with ERPNext ones. ERPNext images are built on top of Frappe ones, so it is safe to replace them.
 - `overrides/compose.https.yaml`. Automatically sets up Let's Encrypt certificate and redirects all requests to directed to http, to https.
