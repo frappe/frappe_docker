@@ -3,7 +3,8 @@
   "appPort": [8000, 9000, 6787],
   "remoteUser": "frappe",
   "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash"
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "debug.node.autoAttach": "disabled"
   },
   "dockerComposeFile": "./docker-compose.yml",
   "service": "frappe",
