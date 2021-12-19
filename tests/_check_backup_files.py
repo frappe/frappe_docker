@@ -35,7 +35,7 @@ def main() -> int:
         raise exc("private files")
     if not public_files:
         raise exc("public files")
-    print("All files was pushed to S3!")
+    print("All files were pushed to S3!")
     return 0
 
 
