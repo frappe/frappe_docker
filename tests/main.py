@@ -18,8 +18,8 @@ BACKEND_SERVICES = (
     "queue-long",
     "scheduler",
 )
-MINIO_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE"
-MINIO_SECRET_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+S3_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE"
+S3_SECRET_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 
 
 def patch_print():
@@ -242,9 +242,9 @@ def prepare_s3_server():
         "minio",
         "-d",
         "-e",
-        f"MINIO_ACCESS_KEY={MINIO_ACCESS_KEY}",
+        f"S3_ACCESS_KEY={S3_ACCESS_KEY}",
         "-e",
-        f"MINIO_SECRET_KEY={MINIO_SECRET_KEY}",
+        f"S3_SECRET_KEY={S3_SECRET_KEY}",
         "--network",
         "test_default",
         "minio/minio",
@@ -255,9 +255,9 @@ def prepare_s3_server():
     docker_compose(
         "exec",
         "-e",
-        f"MINIO_ACCESS_KEY={MINIO_ACCESS_KEY}",
+        f"S3_ACCESS_KEY={S3_ACCESS_KEY}",
         "-e",
-        f"MINIO_SECRET_KEY={MINIO_SECRET_KEY}",
+        f"S3_SECRET_KEY={S3_SECRET_KEY}",
         "backend",
         "/home/frappe/frappe-bench/env/bin/python",
         "/tmp/_create_bucket.py",
@@ -282,9 +282,9 @@ def push_backup_to_s3():
         "--endpoint-url",
         "http://minio:9000",
         "--aws-access-key-id",
-        MINIO_ACCESS_KEY,
+        S3_ACCESS_KEY,
         "--aws-secret-access-key",
-        MINIO_SECRET_KEY,
+        S3_SECRET_KEY,
     )
 
 
@@ -294,9 +294,9 @@ def check_backup_in_s3():
     docker_compose(
         "exec",
         "-e",
-        f"MINIO_ACCESS_KEY={MINIO_ACCESS_KEY}",
+        f"S3_ACCESS_KEY={S3_ACCESS_KEY}",
         "-e",
-        f"MINIO_SECRET_KEY={MINIO_SECRET_KEY}",
+        f"S3_SECRET_KEY={S3_SECRET_KEY}",
         "backend",
         "/home/frappe/frappe-bench/env/bin/python",
         "/tmp/_check_backup_files.py",

@@ -8,8 +8,8 @@ def main() -> int:
         service_name="s3",
         endpoint_url="http://minio:9000",
         region_name="us-east-1",
-        aws_access_key_id=os.getenv("MINIO_ACCESS_KEY"),
-        aws_secret_access_key=os.getenv("MINIO_SECRET_KEY"),
+        aws_access_key_id=os.getenv("S3_ACCESS_KEY"),
+        aws_secret_access_key=os.getenv("S3_SECRET_KEY"),
     )
     bucket = resource.Bucket("frappe")
     db = False
