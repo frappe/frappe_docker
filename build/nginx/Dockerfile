@@ -67,8 +67,7 @@ FROM base as error_pages
 RUN git clone --depth 1 https://github.com/frappe/bench /root/bench
 
 
-
-FROM nginx:1.21-alpine as frappe
+FROM nginxinc/nginx-unprivileged:1.20-alpine as frappe
 
 COPY --from=error_pages /root/bench/bench/config/templates/502.html /usr/share/nginx/html
 COPY --from=base /root/frappe-bench/apps/frappe/frappe/public /usr/share/nginx/html/assets/frappe
@@ -76,6 +75,8 @@ COPY --from=frappe_prod_node_modules /root/frappe-bench/apps/frappe/node_modules
 COPY --from=frappe_assets /root/frappe-bench/sites /usr/share/nginx/html
 
 COPY nginx-template.conf /
+
+USER 1001
 
 CMD [ "/bin/sh" , "-c" , "envsubst '${BACKEND} ${SOCKETIO} ${FRAPPE_SITE_NAME_HEADER}' </nginx-template.conf >/etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'" ]
 
