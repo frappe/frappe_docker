@@ -67,6 +67,7 @@ FROM base as error_pages
 RUN git clone --depth 1 https://github.com/frappe/bench /root/bench
 
 
+
 FROM nginxinc/nginx-unprivileged:1.20-alpine as frappe
 
 COPY --from=error_pages /root/bench/bench/config/templates/502.html /usr/share/nginx/html
