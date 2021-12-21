@@ -75,11 +75,12 @@ COPY --from=base /root/frappe-bench/apps/frappe/frappe/public /usr/share/nginx/h
 COPY --from=frappe_prod_node_modules /root/frappe-bench/apps/frappe/node_modules /usr/share/nginx/html/assets/frappe/node_modules
 COPY --from=frappe_assets /root/frappe-bench/sites /usr/share/nginx/html
 
-COPY nginx-template.conf /
+# https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/alpine/20-envsubst-on-templates.sh
+COPY nginx-template.conf /etc/nginx/templates/default.conf.template
+# https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/alpine/docker-entrypoint.sh
+COPY entrypoint.sh /docker-entrypoint.d/frappe-entrypoint.sh
 
-USER 1001
-
-CMD [ "/bin/sh" , "-c" , "envsubst '${BACKEND} ${SOCKETIO} ${FRAPPE_SITE_NAME_HEADER}' </nginx-template.conf >/etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'" ]
+USER 1000
 
 
 
