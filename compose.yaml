@@ -28,7 +28,7 @@ services:
     <<: *backend_defaults
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-      - assets:/home/frappe/frappe-bench/sites/assets
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
 
   db:
     image: mariadb:10.6
