@@ -36,7 +36,9 @@ RUN cd apps/frappe && \
 # Build assets they're stored in frappe-bench/sites/assets
 RUN echo "frappe" >sites/apps.txt \
     && yarn --cwd apps/frappe run production \
-    && rm sites/apps.txt
+    && rm sites/apps.txt \
+    # TODO: Currently `yarn run production` doesn't create .build: https://github.com/frappe/frappe/issues/15396
+    && if [ ! -f sites/.build ]; then touch .build; fi
 
 
 
