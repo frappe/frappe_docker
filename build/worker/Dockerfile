@@ -33,6 +33,8 @@ RUN apt-get update \
     # because they won't be included in final images.
     gcc \
     g++ \
+    # Make is required to build wheels of ERPNext deps in develop branch for linux/arm64
+    make \
     && rm -rf /var/lib/apt/lists/*
 USER frappe
 
