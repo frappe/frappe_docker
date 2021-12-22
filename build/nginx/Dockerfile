@@ -37,8 +37,8 @@ RUN cd apps/frappe && \
 RUN echo "frappe" >sites/apps.txt \
     && yarn --cwd apps/frappe run production \
     && rm sites/apps.txt \
-    # TODO: Currently `yarn run production` doesn't create .build: https://github.com/frappe/frappe/issues/15396
-    && if [ ! -f sites/.build ]; then touch .build; fi
+    # TODO: Currently `yarn run production` doesn't create .build on develop branch: https://github.com/frappe/frappe/issues/15396
+    && if [ ! -f sites/.build ]; then touch sites/.build; fi
 
 
 
