@@ -70,19 +70,22 @@ jobs:
       - name: Get latest versions
         run: python3 ./.github/scripts/get_latest_tags.py --repo erpnext --version 13
 
-      - name: Update example.env
+      - name: Update
         run: python3 ./.github/scripts/update_example_env.py
 
-      - name: Setup Git Credentials
+      - name: Push
         run: |
           git config --global user.name github-actions
           git config --global user.email github-actions@github.com
-
-      - name: Commit and push
-        run: |
           git add example.env
-          git commit -m "chore: Update `example.env`"
-          git push origin main
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "example.env did not change, exiting."
+            exit 0
+          else
+            echo "example.env changed, pushing changes..."
+            git commit -m "chore: Update example.env"
+            git push origin main
+          fi
 
   release_helm:
     runs-on: ubuntu-latest
