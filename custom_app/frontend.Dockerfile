@@ -15,12 +15,7 @@ RUN mkdir -p sites/assets
 ARG FRAPPE_VERSION
 RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe
 
-RUN cd apps/frappe \
-    && if [ "$(uname -m)" = "aarch64" ]; then \
-    yarn remove svg-sprite || true \
-    && yarn add sass; \
-    fi \
-    && yarn
+RUN yarn --cwd apps/frappe
 
 
 ARG APP_NAME

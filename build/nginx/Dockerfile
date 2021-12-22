@@ -26,12 +26,7 @@ RUN yarn --cwd apps/frappe --prod
 FROM frappe_prod_node_modules as frappe_assets
 
 # Install development node modules
-RUN cd apps/frappe && \
-    if [ "$(uname -m)" = "aarch64" ]; then \
-    yarn remove svg-sprite || true \
-    && yarn add sass; \
-    fi \
-    && yarn
+RUN yarn --cwd apps/frappe
 
 # Build assets they're stored in frappe-bench/sites/assets
 RUN echo "frappe" >sites/apps.txt \
