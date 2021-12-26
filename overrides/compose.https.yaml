@@ -7,6 +7,7 @@ services:
       - traefik.http.routers.frontend-http.tls.certresolver=main-resolver
 
   proxy:
+    image: traefik:2.5
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
@@ -19,6 +20,7 @@ services:
       - --certificatesResolvers.main-resolver.acme.email=${LETSENCRYPT_EMAIL:?No Let's Encrypt email set}
       - --certificatesResolvers.main-resolver.acme.storage=/letsencrypt/acme.json
     ports:
+      - 80:80
       - 443:443
     volumes:
       - cert-data:/letsencrypt

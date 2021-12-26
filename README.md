@@ -23,7 +23,7 @@ We provide simple and intuitive production setup with prebuilt Frappe and ERPNex
 
 Also, there's docs to help with deployment:
 
-- [on single server](docs/single-server.md),
+- [setup options](docs/setup-options.md),
 - in cluster:
   - [Docker Swarm](docs/docker-swarm.md),
   - [Kubernetes (frappe/helm)](https://helm.erpnext.com),
