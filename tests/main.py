@@ -87,6 +87,12 @@ def docker_compose(*cmd: str):
         "tests/.env",
         "-f",
         "compose.yaml",
+        "-f",
+        "overrides/compose.proxy.yaml",
+        "-f",
+        "overrides/compose.mariadb.yaml",
+        "-f",
+        "overrides/compose.redis.yaml",
     ]
     if CI:
         args.extend(("-f", "tests/compose.ci.yaml"))
