@@ -99,7 +99,7 @@ The docker-compose file contains following services:
 - erpnext-nginx: serves static assets and proxies web request to the appropriate container, allowing to offer all services on the same port.
   - volume: assets-vol and sites-vol
 - erpnext-python: main application code
-  - volume: sites-vol and sites-vol
+  - volume: assets-vol and sites-vol
 - frappe-socketio: enables realtime communication to the user interface through websockets
   - volume: sites-vol
 - erpnext-worker-default: background runner
