@@ -251,38 +251,6 @@ frappe.db.connect()
 
 The first command can take a few seconds to be executed, this is to be expected.
 
-### Fixing MariaDB issues after rebuilding the container
-
-For any reason after rebuilding the container if you are not be able to access MariaDB correctly with the previous configuration. Follow these instructions.
-
-The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
-
-This step has to be repeated for all sites available under the current bench.
-Example shows the queries to be executed for site `localhost`
-
-Open sites/localhost/site_config.json:
-
-```shell
-code sites/localhost/site_config.json
-```
-
-and take note of the parameters `db_name` and `db_password`.
-
-Enter MariaDB Interactive shell:
-
-```shell
-mysql -uroot -p123 -hmariadb
-```
-
-Execute following queries replacing `db_name` and `db_password` with the values found in site_config.json.
-
-```sql
-UPDATE mysql.user SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
-SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
-GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
-EXIT;
-```
-
 ## Manually start containers
 
 In case you don't use VSCode, you may start the containers manually with the following command:

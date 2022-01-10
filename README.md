@@ -28,6 +28,15 @@ Also, there's docs to help with deployment:
   - [Docker Swarm](docs/docker-swarm.md),
   - [Kubernetes (frappe/helm)](https://helm.erpnext.com),
 - [site operations](docs/site-operations.md).
+- Other
+   - [add custom domain using traefik](docs/add-custom-domain-using-traefik.md)
+   - [backup and push cron jobs](docs/backup-and-push-cronjob.md)
+   - [bench console and vscode debugger](docs/bench-console-and-vscode-debugger.md)
+   - [build version 10](docs/build-version-10-images.md)
+   - [connect to localhost services from containers for local app development](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
+   - [patch code from images](docs/patch-code-from-images.md)
+   - [port based multi tenancy](docs/port-based-multi-tenancy.md)
+- [Troubleshoot](docs/troubleshoot.md)
 
 # Custom app
 
