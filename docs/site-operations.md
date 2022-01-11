@@ -123,7 +123,7 @@ Environment Variables
     -e "BUCKET_DIR=frappe-bench" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/frappe-worker:$ERPNEXT_VERSION push-backup
+    frappe/frappe-worker:$FRAPPE_VERSION push-backup
 ```
 
 Note:
@@ -157,7 +157,7 @@ docker run \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     -v ./backups:/home/frappe/backups \
     --network <project-name>_default \
-    frappe/frappe-worker:$ERPNEXT_VERSION restore-backup
+    frappe/frappe-worker:$FRAPPE_VERSION restore-backup
 ```
 
 Note:
@@ -213,7 +213,7 @@ To execute commands using bench helper.
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
     --user frappe \
-    frappe/frappe-worker:$ERPNEXT_VERSION bench --help
+    frappe/frappe-worker:$FRAPPE_VERSION bench --help
 ```
 
 Example command to clear cache
@@ -223,7 +223,7 @@ Example command to clear cache
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
     --user frappe \
-    frappe/frappe-worker:$ERPNEXT_VERSION bench --site erp.mysite.com clear-cache
+    frappe/frappe-worker:$FRAPPE_VERSION bench --site erp.mysite.com clear-cache
 ```
 
 Notes:
