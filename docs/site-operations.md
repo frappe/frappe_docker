@@ -28,7 +28,7 @@ docker run \
     -e "INSTALL_APPS=erpnext" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/erpnext-worker:$VERSION new
+    frappe/erpnext-worker:$ERPNEXT_VERSION new
 ```
 
 #### PostgreSQL Site
@@ -46,7 +46,7 @@ docker run \
     -e "ADMIN_PASSWORD=$ADMIN_PASSWORD" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/erpnext-worker:$VERSION new
+    frappe/erpnext-worker:$ERPNEXT_VERSION new
 ```
 
 Environment Variables needed:
@@ -96,7 +96,7 @@ docker run \
     -e "WITH_FILES=1" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/erpnext-worker:$VERSION backup
+    frappe/erpnext-worker:$ERPNEXT_VERSION backup
 ```
 
 The backup will be available in the `sites-vol` volume.
@@ -123,7 +123,7 @@ Environment Variables
     -e "BUCKET_DIR=frappe-bench" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/frappe-worker:$VERSION push-backup
+    frappe/frappe-worker:$FRAPPE_VERSION push-backup
 ```
 
 Note:
@@ -157,7 +157,7 @@ docker run \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     -v ./backups:/home/frappe/backups \
     --network <project-name>_default \
-    frappe/frappe-worker:$VERSION restore-backup
+    frappe/frappe-worker:$FRAPPE_VERSION restore-backup
 ```
 
 Note:
@@ -213,7 +213,7 @@ To execute commands using bench helper.
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
     --user frappe \
-    frappe/frappe-worker:$VERSION bench --help
+    frappe/frappe-worker:$FRAPPE_VERSION bench --help
 ```
 
 Example command to clear cache
@@ -223,7 +223,7 @@ Example command to clear cache
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
     --user frappe \
-    frappe/frappe-worker:$VERSION bench --site erp.mysite.com clear-cache
+    frappe/frappe-worker:$FRAPPE_VERSION bench --site erp.mysite.com clear-cache
 ```
 
 Notes:
@@ -243,7 +243,7 @@ docker run \
     -e "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/erpnext-worker:$VERSION drop
+    frappe/erpnext-worker:$ERPNEXT_VERSION drop
 ```
 
 #### PostgreSQL Site
@@ -256,7 +256,7 @@ docker run \
     -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
     -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
     --network <project-name>_default \
-    frappe/erpnext-worker:$VERSION drop
+    frappe/erpnext-worker:$ERPNEXT_VERSION drop
 ```
 
 Environment Variables needed:
