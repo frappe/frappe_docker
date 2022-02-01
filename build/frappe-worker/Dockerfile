@@ -41,6 +41,8 @@ RUN apt-get update \
     zlib1g-dev \
     # For psycopg2
     libpq-dev \
+    # For attachments-s3
+    libmagic-dev \
     # For arm64 python wheel builds
     && if [ "$(uname -m)" = "aarch64" ]; then \
     apt-get install --no-install-recommends -y \
