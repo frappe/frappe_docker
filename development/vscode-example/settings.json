@@ -1,3 +1,7 @@
 {
-  "debug.node.autoAttach": "disabled"
+  "debug.node.autoAttach": "disabled",
+  "python.pythonPath": "/workspace/frappe-bench/env/bin/python",
+  "python.analysis.extraPaths": [
+    "./frappe-bench/apps/frappe"
+  ],
 }
