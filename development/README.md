@@ -276,7 +276,7 @@ mysql -uroot -p123 -hmariadb
 Execute following queries replacing `db_name` and `db_password` with the values found in site_config.json.
 
 ```sql
-UPDATE mysql.user SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
+UPDATE mysql.global_priv SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
 SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
 GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
 EXIT;
