@@ -36,7 +36,7 @@ repos:
       - id: shfmt
         name: shfmt
         language: golang
-        additional_dependencies: [mvdan.cc/sh/v3/cmd/shfmt]
+        additional_dependencies: [mvdan.cc/sh/v3/cmd/shfmt@latest]
         entry: shfmt
         args: [-w]
         types: [shell]
