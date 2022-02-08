@@ -5,8 +5,7 @@ services:
       REDIS_QUEUE: redis:6379/1
       REDIS_SOCKETIO: redis:6379/2
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
 
   redis:
     image: redis:6.2-alpine
