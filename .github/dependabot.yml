@@ -29,3 +29,8 @@ updates:
     directory: build/socketio
     schedule:
       interval: daily
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
