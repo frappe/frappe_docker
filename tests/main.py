@@ -2,6 +2,7 @@ import os
 import shutil
 import ssl
 import subprocess
+import sys
 from enum import Enum
 from functools import wraps
 from time import sleep
@@ -20,6 +21,7 @@ BACKEND_SERVICES = (
 )
 S3_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE"
 S3_SECRET_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+TTY = sys.stdout.isatty()
 
 
 def patch_print():
@@ -99,6 +101,13 @@ def docker_compose(*cmd: str):
     return run(*args, *cmd)
 
 
+def dco_exec(*cmd: str):
+    if TTY:
+        return docker_compose("exec", *cmd)
+    else:
+        return docker_compose("exec", "-T", *cmd)
+
+
 @log("Setup .env")
 def setup_env():
     shutil.copy("example.env", "tests/.env")
@@ -135,7 +144,7 @@ def ping_links_in_backends():
     for service in BACKEND_SERVICES:
         for _ in range(10):
             try:
-                docker_compose("exec", "-T", service, "healthcheck.sh")
+                dco_exec(service, "healthcheck.sh")
                 break
             except subprocess.CalledProcessError:
                 sleep(1)
@@ -145,9 +154,7 @@ def ping_links_in_backends():
 
 @log("Create test site")
 def create_site():
-    docker_compose(
-        "exec",
-        "-T",
+    dco_exec(
         "backend",
         "bench",
         "new-site",
@@ -210,9 +217,7 @@ def check_api():
 def ping_frappe_connections_in_backends():
     for service in BACKEND_SERVICES:
         docker_compose("cp", "tests/_ping_frappe_connections.py", f"{service}:/tmp/")
-        docker_compose(
-            "exec",
-            "-T",
+        dco_exec(
             service,
             "/home/frappe/frappe-bench/env/bin/python",
             f"/tmp/_ping_frappe_connections.py",
@@ -260,9 +265,7 @@ def prepare_s3_server():
         "/data",
     )
     docker_compose("cp", "tests/_create_bucket.py", "backend:/tmp")
-    docker_compose(
-        "exec",
-        "-T",
+    dco_exec(
         "-e",
         f"S3_ACCESS_KEY={S3_ACCESS_KEY}",
         "-e",
@@ -275,12 +278,8 @@ def prepare_s3_server():
 
 @log("Push backup to S3")
 def push_backup_to_s3():
-    docker_compose(
-        "exec", "-T", "backend", "bench", "--site", SITE_NAME, "backup", "--with-files"
-    )
-    docker_compose(
-        "exec",
-        "-T",
+    dco_exec("backend", "bench", "--site", SITE_NAME, "backup", "--with-files")
+    dco_exec(
         "backend",
         "push-backup",
         "--site",
@@ -301,9 +300,7 @@ def push_backup_to_s3():
 @log("Check backup in S3")
 def check_backup_in_s3():
     docker_compose("cp", "tests/_check_backup_files.py", "backend:/tmp")
-    docker_compose(
-        "exec",
-        "-T",
+    dco_exec(
         "-e",
         f"S3_ACCESS_KEY={S3_ACCESS_KEY}",
         "-e",
@@ -344,9 +341,7 @@ def create_containers_with_erpnext_override():
 
 @log("Create ERPNext site")
 def create_erpnext_site():
-    docker_compose(
-        "exec",
-        "-T",
+    dco_exec(
         "backend",
         "bench",
         "new-site",
@@ -384,15 +379,9 @@ def create_containers_with_postgres_override():
 
 @log("Create Postgres site")
 def create_postgres_site():
-    docker_compose(
-        "exec", "-T", "backend", "bench", "set-config", "-g", "root_login", "postgres"
-    )
-    docker_compose(
-        "exec", "-T", "backend", "bench", "set-config", "-g", "root_password", "123"
-    )
-    docker_compose(
-        "exec",
-        "-T",
+    dco_exec("backend", "bench", "set-config", "-g", "root_login", "postgres")
+    dco_exec("backend", "bench", "set-config", "-g", "root_password", "123")
+    dco_exec(
         "backend",
         "bench",
         "new-site",
