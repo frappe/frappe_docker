@@ -22,7 +22,6 @@ on:
 
 jobs:
   build:
-    name: Frappe and ERPNext
     uses: vrslev/frappe_docker/.github/workflows/docker-build-push.yml@beautify
     with:
       repo: erpnext

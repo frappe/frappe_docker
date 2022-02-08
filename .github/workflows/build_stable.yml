@@ -54,6 +54,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   update_example_env:
+    name: Update example.env
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v13
@@ -88,6 +89,7 @@ jobs:
           fi
 
   release_helm:
+    name: Release Helm
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v13
