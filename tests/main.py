@@ -135,7 +135,7 @@ def ping_links_in_backends():
     for service in BACKEND_SERVICES:
         for _ in range(10):
             try:
-                docker_compose("exec", service, "healthcheck.sh")
+                docker_compose("exec", "-T", service, "healthcheck.sh")
                 break
             except subprocess.CalledProcessError:
                 sleep(1)
@@ -147,6 +147,7 @@ def ping_links_in_backends():
 def create_site():
     docker_compose(
         "exec",
+        "-T",
         "backend",
         "bench",
         "new-site",
@@ -211,6 +212,7 @@ def ping_frappe_connections_in_backends():
         docker_compose("cp", "tests/_ping_frappe_connections.py", f"{service}:/tmp/")
         docker_compose(
             "exec",
+            "-T",
             service,
             "/home/frappe/frappe-bench/env/bin/python",
             f"/tmp/_ping_frappe_connections.py",
@@ -260,6 +262,7 @@ def prepare_s3_server():
     docker_compose("cp", "tests/_create_bucket.py", "backend:/tmp")
     docker_compose(
         "exec",
+        "-T",
         "-e",
         f"S3_ACCESS_KEY={S3_ACCESS_KEY}",
         "-e",
@@ -273,10 +276,11 @@ def prepare_s3_server():
 @log("Push backup to S3")
 def push_backup_to_s3():
     docker_compose(
-        "exec", "backend", "bench", "--site", SITE_NAME, "backup", "--with-files"
+        "exec", "-T", "backend", "bench", "--site", SITE_NAME, "backup", "--with-files"
     )
     docker_compose(
         "exec",
+        "-T",
         "backend",
         "push-backup",
         "--site",
@@ -299,6 +303,7 @@ def check_backup_in_s3():
     docker_compose("cp", "tests/_check_backup_files.py", "backend:/tmp")
     docker_compose(
         "exec",
+        "-T",
         "-e",
         f"S3_ACCESS_KEY={S3_ACCESS_KEY}",
         "-e",
@@ -341,6 +346,7 @@ def create_containers_with_erpnext_override():
 def create_erpnext_site():
     docker_compose(
         "exec",
+        "-T",
         "backend",
         "bench",
         "new-site",
@@ -379,13 +385,14 @@ def create_containers_with_postgres_override():
 @log("Create Postgres site")
 def create_postgres_site():
     docker_compose(
-        "exec", "backend", "bench", "set-config", "-g", "root_login", "postgres"
+        "exec", "-T", "backend", "bench", "set-config", "-g", "root_login", "postgres"
     )
     docker_compose(
-        "exec", "backend", "bench", "set-config", "-g", "root_password", "123"
+        "exec", "-T", "backend", "bench", "set-config", "-g", "root_password", "123"
     )
     docker_compose(
         "exec",
+        "-T",
         "backend",
         "bench",
         "new-site",
