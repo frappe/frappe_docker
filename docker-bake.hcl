@@ -2,17 +2,17 @@
 # Reference: https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md
 
 
-# Bench images
+# Bench image
 
-target "bench-build" {
+target "bench" {
+    context = "build/bench"
+    target = "bench"
     tags = ["frappe/bench:latest"]
-    dockerfile = "build/bench/Dockerfile"
-    target = "build"
 }
 
 target "bench-test" {
-    inherits = ["bench-build"]
-    target = "test"
+    inherits = ["bench"]
+    target = "bench-test"
 }
 
 # Main images
