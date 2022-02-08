@@ -71,3 +71,13 @@ For reference of commands like `backup`, `drop-site` or `migrate` check [officia
 ```sh
 docker-compose exec backend bench --help
 ```
+
+## Migrate site
+
+Note:
+
+- Wait for the `db` service to start and `configurator` to exit before trying to migrate a site. Usually this takes up to 10 seconds.
+
+```sh
+docker-compose exec backend bench --site <site-name> migrate
+```

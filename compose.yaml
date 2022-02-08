@@ -14,42 +14,19 @@ services:
     <<: *backend_defaults
     command: configure.py
     environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      REDIS_CACHE: redis:6379/0
-      REDIS_QUEUE: redis:6379/1
-      REDIS_SOCKETIO: redis:6379/2
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      REDIS_CACHE: ${REDIS_CACHE}
+      REDIS_QUEUE: ${REDIS_QUEUE}
+      REDIS_SOCKETIO: ${REDIS_SOCKETIO}
       SOCKETIO_PORT: 9000
-    depends_on:
-      db:
-        condition: service_healthy
+    depends_on: {}
 
   backend:
     <<: *backend_defaults
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - assets:/home/frappe/frappe-bench/sites/assets:ro
-
-  db:
-    image: mariadb:10.6
-    healthcheck:
-      test: mysqladmin ping -h localhost --password=${DB_PASSWORD}
-      interval: 1s
-      retries: 15
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?No db password set}
-    volumes:
-      - db-data:/var/lib/mysql
-
-  redis:
-    image: redis:6.2-alpine
-    volumes:
-      - redis-data:/data
 
   frontend:
     image: frappe/frappe-nginx:${FRAPPE_VERSION}
@@ -68,18 +45,6 @@ services:
       - traefik.http.services.frontend.loadbalancer.server.port=8080
       - traefik.http.routers.frontend-http.entrypoints=web
       - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
-
-  proxy:
-    image: traefik:2.5
-    command:
-      - --providers.docker
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-    ports:
-      - 80:80
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    userns_mode: host
 
   websocket:
     <<: *depends_on_configurator
@@ -107,5 +72,3 @@ services:
 volumes:
   sites:
   assets:
-  db-data:
-  redis-data:
