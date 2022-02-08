@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim as build
+FROM debian:bullseye-slim as bench
 
 LABEL author=frappé
 
@@ -125,7 +125,7 @@ RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | 
 
 EXPOSE 8000-8005 9000-9005 6787
 
-FROM build as test
+FROM bench as bench-test
 
 # Print version and verify bashrc is properly sourced so that everything works
 # in the interactive shell and Dockerfile
