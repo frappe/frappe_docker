@@ -52,6 +52,7 @@ docker-compose -f compose.yaml \
 # Start containers
 docker-compose --project <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
+
 ### Setup ERPNext using containerized MariaDB and Redis with Letsencrypt certificates.
 
 ```sh

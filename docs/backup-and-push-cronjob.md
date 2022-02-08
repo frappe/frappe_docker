@@ -37,10 +37,10 @@ volumes:
 networks:
   frappe-network:
     external: true
-
 ```
 
 Note:
+
 - In Above stack, `backup` runs every 3 hours.
 - Change image and tag version as per need.
 - Change environment variables as per the bucket credentials.

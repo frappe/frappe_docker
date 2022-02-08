@@ -45,6 +45,7 @@ Commands explained:
 - `yq eval ".\"networks\"={\"traefik-public\":{\"external\":true}}"`, this commands adds external network `traefik-public` to the stack
 
 Notes:
+
 - Set `BENCH_SUFFIX` to the stack name. the stack will be located at `~/gitops/compose-${BENCH_SUFFIX}.yaml`.
 - `traefik-public` is assumed to be the network for traefik loadbalancer for swarm.
 - Once the stack YAML is generated, you can edit it further for advance setup and commit it to your gitops
