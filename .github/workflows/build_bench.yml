@@ -27,6 +27,7 @@ jobs:
       - name: Build and test
         uses: docker/bake-action@v1.6.0
         with:
+          files: docker-bake.hcl
           targets: bench-test
 
       - name: Login
@@ -41,4 +42,5 @@ jobs:
         uses: docker/bake-action@v1.6.0
         with:
           targets: bench
+          files: docker-bake.hcl
           push: true
