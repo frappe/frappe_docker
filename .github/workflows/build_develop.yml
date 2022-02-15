@@ -48,14 +48,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Frappe
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: frappe-develop-test
           load: true
 
       - name: Push Frappe to local registry
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: frappe-develop-test-local
@@ -65,7 +65,7 @@ jobs:
         run: ./tests/test-frappe.sh
 
       - name: Build ERPNext
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: erpnext-develop-test
@@ -76,7 +76,7 @@ jobs:
 
       - name: Push
         if: env.IS_AUTHORIZED_RUN == 'true'
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: frappe-develop,erpnext-develop

@@ -50,7 +50,7 @@ jobs:
 
       - name: Build
         if: github.event_name != 'schedule'
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: frappe-develop,frappe-stable
