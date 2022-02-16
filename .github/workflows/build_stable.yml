@@ -69,14 +69,14 @@ jobs:
           VERSION: ${{ matrix.version }}
 
       - name: Build Frappe
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: frappe-stable-test
           load: true
 
       - name: Push Frappe to local registry
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: frappe-stable-test-local
@@ -87,7 +87,7 @@ jobs:
         run: ./tests/test-frappe.sh
 
       - name: Build ERPNext
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: erpnext-stable-test
@@ -99,7 +99,7 @@ jobs:
 
       - name: Push Frappe
         if: env.IS_AUTHORIZED_RUN == 'true'
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: frappe-stable
@@ -109,7 +109,7 @@ jobs:
 
       - name: Push ERPNext
         if: env.IS_AUTHORIZED_RUN == 'true'
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           files: docker-bake.hcl
           targets: erpnext-stable
