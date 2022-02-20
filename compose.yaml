@@ -34,6 +34,9 @@ services:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
       FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-$$host}
+      UPSTREAM_REAL_IP_ADDRESS: ${UPSTREAM_REAL_IP_ADDRESS:-127.0.0.1}
+      UPSTREAM_REAL_IP_HEADER: ${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
+      UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
     volumes:
       - sites:/usr/share/nginx/html/sites
       - assets:/usr/share/nginx/html/assets

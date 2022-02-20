@@ -155,9 +155,10 @@ def create_containers():
 @log("Check if Python services have connections")
 def ping_links_in_backends():
     for service in BACKEND_SERVICES:
+        docker_compose("cp", "tests/healthcheck.sh", f"{service}:/tmp/")
         for _ in range(10):
             try:
-                docker_compose_exec(service, "healthcheck.sh")
+                docker_compose_exec(service, "bash", "/tmp/healthcheck.sh")
                 break
             except subprocess.CalledProcessError:
                 sleep(1)

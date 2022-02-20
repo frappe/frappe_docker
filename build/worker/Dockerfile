@@ -16,7 +16,7 @@ WORKDIR /home/frappe/frappe-bench
 
 RUN pip install --no-cache-dir -U pip wheel \
     && python -m venv env \
-    && env/bin/pip install --no-cache-dir -U pip wheel
+    && env/bin/pip install --no-cache-dir -U pip wheel gevent
 USER root
 
 
@@ -85,7 +85,7 @@ RUN apt-get update \
     xvfb \
     libfontconfig \
     wkhtmltopdf \
-    # For healthcheck.sh in helm chart
+    # For healthcheck
     wait-for-it \
     jq \
     # other
@@ -95,8 +95,8 @@ USER frappe
 
 COPY pretend-bench.sh /usr/local/bin/bench
 COPY push_backup.py /usr/local/bin/push-backup
-# healthcheck.sh used in helm chart
-COPY configure.py patched_bench_helper.py healthcheck.sh /usr/local/bin/
+COPY configure.py patched_bench_helper.py /usr/local/bin/
+COPY gevent_patch.py /opt/patches/
 
 WORKDIR /home/frappe/frappe-bench/sites
 
