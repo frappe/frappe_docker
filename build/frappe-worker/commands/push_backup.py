@@ -75,7 +75,7 @@ def delete_old_backups(limit, bucket, site_name):
         for obj in objects.get("CommonPrefixes"):
             if obj.get("Prefix") == bucket_dir + "/":
                 for backup_obj in bucket.objects.filter(Prefix=obj.get("Prefix")):
-                    if backup_obj.get()["ContentType"] == "application/x-directory":
+                    if backup_obj.get()["ContentType"].startswith("application/x-directory"):
                         continue
                     try:
                         # backup_obj.key is bucket_dir/site/date_time/backupfile.extension
