@@ -1,3 +1,5 @@
+import click
+import click.exceptions
 import frappe.app
 import frappe.database.db_manager
 import frappe.utils.bench_helper
@@ -14,8 +16,28 @@ def patch_database_creator():
     frappe.database.db_manager.DbManager.get_current_host = lambda self: "%"
 
 
+def patch_click_usage_error():
+    bits: tuple[str, ...] = (
+        click.style(
+            "Only Frappe framework bench commands are available in container setup.",
+            fg="yellow",
+            bold=True,
+        ),
+        "https://frappeframework.com/docs/v13/user/en/bench/frappe-commands",
+    )
+    notice = "\n".join(bits)
+
+    def format_message(self: click.exceptions.UsageError):
+        if "No such command" in self.message:
+            return f"{notice}\n\n{self.message}"
+        return self.message
+
+    click.exceptions.UsageError.format_message = format_message
+
+
 def main() -> int:
     patch_database_creator()
+    patch_click_usage_error()
     frappe.utils.bench_helper.main()
     return 0
 
