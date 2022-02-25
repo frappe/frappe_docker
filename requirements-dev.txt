@@ -1,2 +1,2 @@
 frappe @ git+git://github.com/frappe/frappe.git
-boto3-stubs[s3]==1.20.23
+boto3-stubs[s3]
