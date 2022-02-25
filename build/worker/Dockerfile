@@ -16,7 +16,7 @@ WORKDIR /home/frappe/frappe-bench
 
 RUN pip install --no-cache-dir -U pip wheel \
     && python -m venv env \
-    && env/bin/pip install --no-cache-dir -U pip wheel gevent
+    && env/bin/pip install --no-cache-dir -U pip wheel
 USER root
 
 
@@ -45,6 +45,7 @@ FROM build_deps as frappe_builder
 ARG FRAPPE_VERSION
 RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
     && env/bin/pip install --no-cache-dir -e apps/frappe \
+    && env/bin/pip install --no-cache-dir -U gevent \
     && rm -r apps/frappe/.git
 
 
