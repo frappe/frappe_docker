@@ -4,11 +4,14 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from typing import Any, List, cast
+from typing import TYPE_CHECKING, Any, List, cast
 
 import boto3
 import frappe
 from frappe.utils.backups import BackupGenerator
+
+if TYPE_CHECKING:
+    from mypy_boto3_s3.service_resource import _Bucket
 
 
 class Arguments(argparse.Namespace):
@@ -20,17 +23,7 @@ class Arguments(argparse.Namespace):
     aws_secret_access_key: str
 
 
-def get_bucket(arguments: Arguments):
-    return boto3.resource(
-        service_name="s3",
-        endpoint_url=arguments.endpoint_url,
-        region_name=arguments.region_name,
-        aws_access_key_id=arguments.aws_access_key_id,
-        aws_secret_access_key=arguments.aws_secret_access_key,
-    ).Bucket(arguments.bucket)
-
-
-def get_files(site_name: str):
+def _get_files_from_previous_backup(site_name: str) -> list[Path]:
     frappe.connect(site_name)
 
     conf = cast(Any, frappe.conf)
@@ -42,31 +35,50 @@ def get_files(site_name: str):
         db_port=frappe.db.port,
         db_type=conf.db_type,
     )
-
     recent_backup_files = backup_generator.get_recent_backup(24)
+
+    frappe.destroy()
     return [Path(f) for f in recent_backup_files if f]
 
 
-def upload(arguments: Arguments):
-    """Get latest backup files using Frappe utils, push them to S3 and remove local copy"""
-    files = get_files(arguments.site)
+def get_files_from_previous_backup(site_name: str) -> list[Path]:
+    files = _get_files_from_previous_backup(site_name)
     if not files:
         print("No backup found that was taken <24 hours ago.")
-        return
+    return files
 
-    bucket = get_bucket(arguments)
+
+def get_bucket(args: Arguments) -> "_Bucket":
+    return boto3.resource(
+        service_name="s3",
+        endpoint_url=args.endpoint_url,
+        region_name=args.region_name,
+        aws_access_key_id=args.aws_access_key_id,
+        aws_secret_access_key=args.aws_secret_access_key,
+    ).Bucket(args.bucket)
+
+
+def upload_file(path: Path, site_name: str, bucket: "_Bucket") -> None:
+    filename = str(path.absolute())
+    key = str(Path(site_name) / path.name)
+    print(f"Uploading {key}")
+    bucket.upload_file(Filename=filename, Key=key)
+    os.remove(path)
+
+
+def push_backup(args: Arguments) -> None:
+    """Get latest backup files using Frappe utils, push them to S3 and remove local copy"""
+
+    files = get_files_from_previous_backup(args.site)
+    bucket = get_bucket(args)
 
     for path in files:
-        print(f"Uploading {path}")
-        filename = str(path.absolute())
-        key = str(Path(arguments.site) / path.name)
-        bucket.upload_file(Filename=filename, Key=key)
-        os.remove(path)
+        upload_file(path=path, site_name=args.site, bucket=bucket)
 
     print("Done!")
 
 
-def _parse_args(args: List[str]):
+def parse_args(args: List[str]) -> Arguments:
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", required=True)
     parser.add_argument("--bucket", required=True)
@@ -85,8 +97,7 @@ def _parse_args(args: List[str]):
 
 
 def main(args: List[str]) -> int:
-    arguments = _parse_args(args)
-    upload(arguments)
+    push_backup(parse_args(args))
     return 0
 
 
