@@ -84,5 +84,4 @@ def main(args: List[str]) -> int:
 
 
 if __name__ == "__main__":
-    print(sys.argv[1:])
     raise SystemExit(main(sys.argv[1:]))
