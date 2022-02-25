@@ -3,6 +3,7 @@
 import argparse
 import os
 import sys
+from pathlib import Path
 from typing import Any, List, cast
 
 import boto3
@@ -43,7 +44,7 @@ def get_files(site_name: str):
     )
 
     recent_backup_files = backup_generator.get_recent_backup(24)
-    return [f for f in recent_backup_files if f]
+    return [Path(f) for f in recent_backup_files if f]
 
 
 def upload(arguments: Arguments):
@@ -54,12 +55,15 @@ def upload(arguments: Arguments):
         return
 
     bucket = get_bucket(arguments)
-    print(f"Uploading files: {str(files)}")
 
-    for file_name in files:
-        abs_file_path = os.path.abspath(file_name)
-        bucket.upload_file(Filename=abs_file_path, Key=abs_file_path)
-        os.remove(file_name)
+    for path in files:
+        print(f"Uploading {path}")
+        filename = str(path.absolute())
+        key = str(Path(arguments.site) / path.name)
+        bucket.upload_file(Filename=filename, Key=key)
+        os.remove(path)
+
+    print("Done!")
 
 
 def _parse_args(args: List[str]):
