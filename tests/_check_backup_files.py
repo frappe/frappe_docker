@@ -1,29 +1,48 @@
 import os
+from typing import TYPE_CHECKING
 
 import boto3
 
+if TYPE_CHECKING:
+    from mypy_boto3_s3.service_resource import BucketObjectsCollection, _Bucket
 
-def main() -> int:
-    resource = boto3.resource(
+
+def get_bucket() -> "_Bucket":
+    return boto3.resource(
         service_name="s3",
         endpoint_url="http://minio:9000",
         region_name="us-east-1",
         aws_access_key_id=os.getenv("S3_ACCESS_KEY"),
         aws_secret_access_key=os.getenv("S3_SECRET_KEY"),
-    )
-    bucket = resource.Bucket("frappe")
+    ).Bucket("frappe")
+
+
+def get_key_builder():
+    site_name = os.getenv("SITE_NAME")
+    assert site_name
+
+    def builder(key: str, suffix: str) -> bool:
+        return key == os.path.join(site_name, suffix)
+
+    return builder
+
+
+def check_keys(objects: "BucketObjectsCollection"):
+    check_key = get_key_builder()
+
     db = False
     config = False
     private_files = False
     public_files = False
-    for obj in bucket.objects.all():
-        if obj.key.endswith("database.sql.gz"):
+
+    for obj in objects:
+        if check_key(obj.key, "database.sql.gz"):
             db = True
-        elif obj.key.endswith("site_config_backup.json"):
+        elif check_key(obj.key, "site_config_backup.json"):
             config = True
-        elif obj.key.endswith("private-files.tar"):
+        elif check_key(obj.key, "private-files.tar"):
             private_files = True
-        elif obj.key.endswith("files.tar"):
+        elif check_key(obj.key, "files.tar"):
             public_files = True
 
     exc = lambda type_: Exception(f"Didn't push {type_} backup")
@@ -35,7 +54,13 @@ def main() -> int:
         raise exc("private files")
     if not public_files:
         raise exc("public files")
+
     print("All files were pushed to S3!")
+
+
+def main() -> int:
+    bucket = get_bucket()
+    check_keys(bucket.objects.all())
     return 0
 
 
