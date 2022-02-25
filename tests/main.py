@@ -326,6 +326,8 @@ def check_backup_in_s3():
         f"S3_ACCESS_KEY={S3_ACCESS_KEY}",
         "-e",
         f"S3_SECRET_KEY={S3_SECRET_KEY}",
+        "-e",
+        f"SITE_NAME={SITE_NAME}",
         "backend",
         "/home/frappe/frappe-bench/env/bin/python",
         "/tmp/_check_backup_files.py",
