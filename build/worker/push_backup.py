@@ -3,7 +3,7 @@
 import argparse
 import os
 import sys
-from typing import List
+from typing import Any, List, cast
 
 import boto3
 import frappe
@@ -31,14 +31,17 @@ def get_bucket(arguments: Arguments):
 
 def get_files(site_name: str):
     frappe.connect(site_name)
+
+    conf = cast(Any, frappe.conf)
     backup_generator = BackupGenerator(
-        db_name=frappe.conf.db_name,
-        user=frappe.conf.db_name,
-        password=frappe.conf.db_password,
+        db_name=conf.db_name,
+        user=conf.db_name,
+        password=conf.db_password,
         db_host=frappe.db.host,
         db_port=frappe.db.port,
-        db_type=frappe.conf.db_type,
+        db_type=conf.db_type,
     )
+
     recent_backup_files = backup_generator.get_recent_backup(24)
     return [f for f in recent_backup_files if f]
 
