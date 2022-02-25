@@ -14,9 +14,10 @@ USER frappe
 RUN mkdir -p /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/logs /home/frappe/frappe-bench/sites
 WORKDIR /home/frappe/frappe-bench
 
-RUN pip install --no-cache-dir -U pip wheel \
+RUN --mount=type=cache,target=/home/frappe/.cache/pip \
+    pip install -U pip wheel \
     && python -m venv env \
-    && env/bin/pip install --no-cache-dir -U pip wheel
+    && env/bin/pip install -U pip wheel
 USER root
 
 
@@ -43,9 +44,10 @@ USER frappe
 FROM build_deps as frappe_builder
 
 ARG FRAPPE_VERSION
-RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
-    && env/bin/pip install --no-cache-dir -e apps/frappe \
-    && env/bin/pip install --no-cache-dir -U gevent \
+RUN --mount=type=cache,target=/home/frappe/.cache/pip \
+    git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
+    && env/bin/pip install -e apps/frappe \
+    && env/bin/pip install -U gevent \
     && rm -r apps/frappe/.git
 
 
@@ -57,7 +59,8 @@ ARG ERPNEXT_VERSION
 RUN git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext apps/erpnext \
     && rm -r apps/erpnext/.git
 
-RUN pip wheel --wheel-dir /home/frappe/erpnext-wheels -r apps/erpnext/requirements.txt
+RUN --mount=type=cache,target=/home/frappe/.cache/pip \
+    pip wheel --wheel-dir /home/frappe/erpnext-wheels -r apps/erpnext/requirements.txt
 
 
 
@@ -65,8 +68,9 @@ FROM frappe_builder as erpnext_builder
 
 COPY --from=erpnext_wheels --chown=frappe /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext
 RUN --mount=type=bind,target=/home/frappe/erpnext-wheels,source=/home/frappe/erpnext-wheels,from=erpnext_wheels \
+    --mount=type=cache,target=/home/frappe/.cache/pip \
     --mount=type=cache,target=/home/frappe/.cache/pip,source=/home/frappe/.cache/pip,from=erpnext_wheels \
-    env/bin/pip install --find-links=/home/frappe/erpnext-wheels --no-cache-dir -e apps/erpnext
+    env/bin/pip install --find-links=/home/frappe/erpnext-wheels -e apps/erpnext
 
 
 
