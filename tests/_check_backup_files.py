@@ -1,4 +1,5 @@
 import os
+import re
 from typing import TYPE_CHECKING
 
 import boto3
@@ -22,7 +23,7 @@ def get_key_builder():
     assert site_name
 
     def builder(key: str, suffix: str) -> bool:
-        return key == os.path.join(site_name, suffix)
+        return bool(re.match(rf"{site_name}.*{suffix}$", key))
 
     return builder
 
