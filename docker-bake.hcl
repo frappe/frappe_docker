@@ -16,7 +16,7 @@ variable "ERPNEXT_VERSION" {
 # Bench image
 
 target "bench" {
-    context = "build/bench"
+    context = "images/bench"
     target = "bench"
     tags = ["frappe/bench:latest"]
 }
@@ -62,34 +62,34 @@ target "default-args" {
 
 target "frappe-worker" {
     inherits = ["default-args"]
-    context = "build/worker"
+    context = "images/worker"
     target = "frappe"
     tags = tag("frappe-worker", "${FRAPPE_VERSION}")
 }
 
 target "erpnext-worker" {
     inherits = ["default-args"]
-    context = "build/worker"
+    context = "images/worker"
     target = "erpnext"
     tags =  tag("erpnext-worker", "${ERPNEXT_VERSION}")
 }
 
 target "frappe-nginx" {
     inherits = ["default-args"]
-    context = "build/nginx"
+    context = "images/nginx"
     target = "frappe"
     tags =  tag("frappe-nginx", "${FRAPPE_VERSION}")
 }
 
 target "erpnext-nginx" {
     inherits = ["default-args"]
-    context = "build/nginx"
+    context = "images/nginx"
     target = "erpnext"
     tags =  tag("erpnext-nginx", "${ERPNEXT_VERSION}")
 }
 
 target "frappe-socketio" {
     inherits = ["default-args"]
-    context = "build/socketio"
+    context = "images/socketio"
     tags =  tag("frappe-socketio", "${FRAPPE_VERSION}")
 }

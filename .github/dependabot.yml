@@ -6,27 +6,27 @@ updates:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/bench
+    directory: images/bench
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/nginx
+    directory: images/nginx
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/worker
+    directory: images/worker
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/socketio
+    directory: images/socketio
     schedule:
       interval: daily
 
   - package-ecosystem: npm
-    directory: build/socketio
+    directory: images/socketio
     schedule:
       interval: daily
 

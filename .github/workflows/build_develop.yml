@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths:
-      - build/nginx/**
-      - build/socketio/**
-      - build/worker/**
+      - images/nginx/**
+      - images/socketio/**
+      - images/worker/**
       - overrides/**
       - tests/**
       - compose.yaml

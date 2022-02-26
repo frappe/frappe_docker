@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - build/bench/**
+      - images/bench/**
       - docker-bake.hcl
 
   schedule:
