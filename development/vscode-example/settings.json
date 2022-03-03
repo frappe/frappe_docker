@@ -1,4 +1,10 @@
 {
+  "terminal.integrated.profiles.linux": {
+    "frappe bash": {
+      "path": "/bin/bash"
+    }
+  },
+  "terminal.integrated.defaultProfile.linux": "frappe bash",
   "debug.node.autoAttach": "disabled",
   "python.pythonPath": "/workspace/frappe-bench/env/bin/python",
   "python.analysis.extraPaths": ["./frappe-bench/apps/frappe"]
