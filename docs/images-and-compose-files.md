@@ -1,6 +1,6 @@
 # Images
 
-There's 4 images that you can find in `/build` directory:
+There's 4 images that you can find in `/images` directory:
 
 - `bench`. It is used for development. [Learn more how to start development](../development/README.md).
 - `nginx`. This image contains JS and CSS assets. Container using this image also routes incoming requests using [nginx](https://www.nginx.com).
