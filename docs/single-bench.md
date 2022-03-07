@@ -82,6 +82,26 @@ Notes:
 - The local deployment is for testing and REST API development purpose only
 - A complete development environment is available [here](../development)
 
+## Create Site
+
+Set environment variables
+
+```sh
+export $(cat .env | xargs)
+```
+
+Create site as per use and install apps optionally.
+
+```sh
+docker-compose exec erpnext-python bench new-site ${SITE_NAME} --mariadb-root-username=${DB_ROOT_USER} --mariadb-root-password=${MYSQL_ROOT_PASSWORD} --admin-password=${ADMIN_PASSWORD} --install-app=${INSTALL_APPS} --db-type=mariadb --no-mariadb-socket
+```
+
+If this is the first site created then remove `currentsite.txt` to unset default site.
+
+```sh
+docker-compose exec erpnext-python rm -f currentsite.txt
+```
+
 ## Docker containers
 
 The docker-compose file contains following services:
