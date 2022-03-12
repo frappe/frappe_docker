@@ -23,7 +23,7 @@ Note: To know more about environment variable [read here](./images-and-compose-f
 docker-compose -f compose.yaml -f overrides/compose.noproxy.yaml config > ~/gitops/docker-compose.yml
 
 # Start containers
-docker-compose --project <project-name> -f ~/gitops/docker-compose.yml up -d
+docker-compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
 ### Setup ERPNext with proxy and external MariaDB and Redis
@@ -36,7 +36,7 @@ docker-compose -f compose.yaml \
   config > ~/gitops/docker-compose.yml
 
 # Start containers
-docker-compose --project <project-name> -f ~/gitops/docker-compose.yml up -d
+docker-compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
 ### Setup Frappe using containerized MariaDB and Redis with Letsencrypt certificates.
@@ -50,7 +50,7 @@ docker-compose -f compose.yaml \
   config > ~/gitops/docker-compose.yml
 
 # Start containers
-docker-compose --project <project-name> -f ~/gitops/docker-compose.yml up -d
+docker-compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
 ### Setup ERPNext using containerized MariaDB and Redis with Letsencrypt certificates.
@@ -65,7 +65,7 @@ docker-compose -f compose.yaml \
   config > ~/gitops/docker-compose.yml
 
 # Start containers
-docker-compose --project <project-name> -f ~/gitops/docker-compose.yml up -d
+docker-compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
 Notes:
@@ -87,10 +87,10 @@ docker-compose -f compose.yaml \
   # ... your other overrides
   config > ~/gitops/docker-compose.yml
 
-docker-compose --project <project-name> -f ~/gitops/docker-compose.yml pull
+docker-compose --project-name <project-name> -f ~/gitops/docker-compose.yml pull
 
 # Restart containers
-docker-compose --project <project-name> -f ~/gitops/docker-compose.yml up -d
+docker-compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
 To migrate sites refer [site operations](./site-operations.md#migrate-site)
