@@ -55,7 +55,7 @@ jobs:
         with:
           push: true
         env:
-          USERNAME: localhost:5000/frappe
+          REGISTRY_USER: localhost:5000/frappe
 
       - name: Test
         run: python3 tests/main.py
