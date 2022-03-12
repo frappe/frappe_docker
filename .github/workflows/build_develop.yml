@@ -22,7 +22,7 @@ on:
 
 jobs:
   build:
-    uses: vrslev/frappe_docker/.github/workflows/docker-build-push.yml@beautify
+    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
     with:
       repo: erpnext
       version: develop
