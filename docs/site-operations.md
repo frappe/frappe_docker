@@ -1,5 +1,7 @@
 # Site operations
 
+> 💡 You should setup `--project-name` option in `docker-compose` commands if you have non-standard project name.
+
 ## Setup new site
 
 Note:
