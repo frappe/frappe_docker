@@ -12,7 +12,7 @@ x-backend-defaults: &backend_defaults
 services:
   configurator:
     <<: *backend_defaults
-    command: configure.py
+    command: /usr/local/bin/configure.py
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
