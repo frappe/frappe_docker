@@ -27,7 +27,6 @@ on:
       - compose.yaml
       - docker-bake.hcl
       - example.env
-      - .github/workflows/build_stable.yml
 
   # Triggered from frappe/frappe and frappe/erpnext on releases
   repository_dispatch:
