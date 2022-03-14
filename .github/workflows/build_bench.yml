@@ -7,6 +7,7 @@ on:
     paths:
       - images/bench/**
       - docker-bake.hcl
+      - .github/workflows/build_bench.yml
 
   schedule:
     # Every day at 12:00 pm
