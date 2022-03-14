@@ -1,69 +1,53 @@
 [![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
 [![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
 
-## Getting Started
+Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers.
 
-### Try in Play With Docker
+# Getting Started
 
-<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
-  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
-</a>
-
-Wait for 5 minutes for ERPNext site to be created or check `site-creator` container logs before opening browser on port 80. (username: `Administrator`, password: `admin`)
-
-### Setting up Pre-requisites
-
-This repository requires Docker, docker-compose and Git to be setup on the instance to be used.
-
-For Docker basics and best practices. Refer Docker [documentation](http://docs.docker.com).
-
-### Cloning the repository and preliminary steps
-
-Clone this repository somewhere in your system:
+To get started, you need Docker, docker-compose and git setup on your machine. For Docker basics and best practices. Refer Docker [documentation](http://docs.docker.com).
+After that, clone this repo:
 
 ```sh
-git clone https://github.com/frappe/frappe_docker.git
+git clone https://github.com/frappe/frappe_docker
 cd frappe_docker
 ```
 
-## Production Setup
+# Development
 
-It takes care of the following:
+We have baseline for developing in VSCode devcontainer with [frappe/bench](https://github.com/frappe/bench). [Start development](development).
 
-- Setting up the desired version of Frappe/ERPNext.
-- Setting up all the system requirements: eg. MariaDB, Node, Redis.
-- Configure networking for remote access and setting up LetsEncrypt.
+# Production
 
-It doesn't take care of the following:
+We provide simple and intuitive production setup with prebuilt Frappe and ERPNext images and compose files. To learn more about those, [read the docs](docs/images-and-compose-files.md).
 
-- Cron Job to backup sites is not created by default.
-- Use `CronJob` on k8s or refer wiki for alternatives.
+Also, there's docs to help with deployment:
 
-1. Single Server Installs
-   1. [Single bench](docs/single-bench.md). Easiest Install!
-   2. [Multi bench](docs/multi-bench.md)
-2. Multi Server Installs
-   1. [Docker Swarm](docs/docker-swarm.md)
-   2. [Kubernetes](https://helm.erpnext.com)
-3. [Site Operations](docs/site-operations.md)
-4. [Environment Variables](docs/environment-variables.md)
-5. [Custom apps for production](docs/custom-apps-for-production.md)
-6. [Tips for moving deployments](docs/tips-for-moving-deployments.md)
-7. [Wiki for optional recipes](https://github.com/frappe/frappe_docker/wiki)
+- [setup options](docs/setup-options.md),
+- in cluster:
+  - [Docker Swarm](docs/docker-swarm.md),
+  - [Kubernetes (frappe/helm)](https://helm.erpnext.com),
+- [site operations](docs/site-operations.md).
+- Other
+  - [add custom domain using traefik](docs/add-custom-domain-using-traefik.md)
+  - [backup and push cron jobs](docs/backup-and-push-cronjob.md)
+  - [bench console and vscode debugger](docs/bench-console-and-vscode-debugger.md)
+  - [build version 10](docs/build-version-10-images.md)
+  - [connect to localhost services from containers for local app development](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
+  - [patch code from images](docs/patch-code-from-images.md)
+  - [port based multi tenancy](docs/port-based-multi-tenancy.md)
+- [Troubleshoot](docs/troubleshoot.md)
 
-## Development Setup
+# Custom app
 
-It takes care of complete setup to develop with Frappe/ERPNext and Bench, Including the following features:
+Learn how to containerize your custom Frappe app in [this guide](custom_app/README.md).
 
-- VSCode containers integration
-- VSCode Python debugger
-- Pre-configured Docker containers for an easy start
+# Contributing
 
-[Start development](development).
+If you want to contribute to this repo refer to [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## Contributing
+This repository is only for Docker related stuff. You also might want to contribute to:
 
-- [Frappe Docker Images](CONTRIBUTING.md)
-- [Frappe Framework](https://github.com/frappe/frappe#contributing)
-- [ERPNext](https://github.com/frappe/erpnext#contributing)
-- [frappe/bench](https://github.com/frappe/bench)
+- [Frappe framework](https://github.com/frappe/frappe#contributing),
+- [ERPNext](https://github.com/frappe/erpnext#contributing),
+- or [Frappe Bench](https://github.com/frappe/bench).

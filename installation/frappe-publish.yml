@@ -1,6 +1,0 @@
-version: "3"
-
-services:
-  frappe-nginx:
-    ports:
-      - "80:8080"

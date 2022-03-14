@@ -1,0 +1,10 @@
+services:
+  frontend:
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        traefik.enable: true
+        traefik.http.services.frontend.loadbalancer.server.port: 8080
+        traefik.http.routers.frontend-http.entrypoints: websecure
+        traefik.http.routers.frontend-http.tls.certresolver: main-resolver

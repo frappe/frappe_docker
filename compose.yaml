@@ -1,0 +1,77 @@
+x-depends-on-configurator: &depends_on_configurator
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
+
+x-backend-defaults: &backend_defaults
+  <<: *depends_on_configurator
+  image: frappe/frappe-worker:${FRAPPE_VERSION:?No Frappe version set}
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+
+services:
+  configurator:
+    <<: *backend_defaults
+    command: configure.py
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      REDIS_CACHE: ${REDIS_CACHE}
+      REDIS_QUEUE: ${REDIS_QUEUE}
+      REDIS_SOCKETIO: ${REDIS_SOCKETIO}
+      SOCKETIO_PORT: 9000
+    depends_on: {}
+
+  backend:
+    <<: *backend_defaults
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
+
+  frontend:
+    image: frappe/frappe-nginx:${FRAPPE_VERSION}
+    environment:
+      BACKEND: backend:8000
+      SOCKETIO: websocket:9000
+      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-$$host}
+      UPSTREAM_REAL_IP_ADDRESS: ${UPSTREAM_REAL_IP_ADDRESS:-127.0.0.1}
+      UPSTREAM_REAL_IP_HEADER: ${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
+      UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
+    volumes:
+      - sites:/usr/share/nginx/html/sites
+      - assets:/usr/share/nginx/html/assets
+    depends_on:
+      - backend
+      - websocket
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.frontend.loadbalancer.server.port=8080
+      - traefik.http.routers.frontend-http.entrypoints=web
+      - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
+
+  websocket:
+    <<: *depends_on_configurator
+    image: frappe/frappe-socketio:${FRAPPE_VERSION}
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+
+  queue-short:
+    <<: *backend_defaults
+    command: bench worker --queue short
+
+  queue-default:
+    <<: *backend_defaults
+    command: bench worker --queue default
+
+  queue-long:
+    <<: *backend_defaults
+    command: bench worker --queue long
+
+  scheduler:
+    <<: *backend_defaults
+    command: bench schedule
+
+# ERPNext requires local assets access (Frappe does not)
+volumes:
+  sites:
+  assets:

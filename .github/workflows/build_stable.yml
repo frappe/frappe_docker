@@ -1,127 +1,98 @@
-name: Build Stable
+name: Stable build
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/build_stable.yml
-      - .github/scripts/get-latest-tags.sh
-      - build/**
-      - installation/**
+      - images/nginx/**
+      - images/socketio/**
+      - images/worker/**
+      - overrides/**
       - tests/**
-      - .dockerignore
+      - compose.yaml
       - docker-bake.hcl
-      - env-example
+      - example.env
 
   push:
     branches:
       - main
     paths:
-      - .github/workflows/build_stable.yml
-      - .github/scripts/get-latest-tags.sh
-      - build/**
-      - installation/**
+      - images/nginx/**
+      - images/socketio/**
+      - images/worker/**
+      - overrides/**
       - tests/**
-      - .dockerignore
+      - compose.yaml
       - docker-bake.hcl
-      - env-example
+      - example.env
 
   # Triggered from frappe/frappe and frappe/erpnext on releases
   repository_dispatch:
 
   workflow_dispatch:
 
-env:
-  IS_AUTHORIZED_RUN: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-
 jobs:
-  build:
-    name: Frappe & ERPNext
+  v12:
+    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
+    with:
+      repo: erpnext
+      version: "13"
+      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  v13:
+    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
+    with:
+      repo: erpnext
+      version: "13"
+      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  update_example_env:
+    name: Update example.env
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        version: [12, 13]
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    needs: v13
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Buildx
-        uses: docker/setup-buildx-action@v1
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          driver-opts: network=host
-
-      - name: Login
-        uses: docker/login-action@v1
-        if: env.IS_AUTHORIZED_RUN == 'true'
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          python-version: 3.9
 
       - name: Get latest versions
-        run: ./.github/scripts/get-latest-tags.sh
-        env:
-          VERSION: ${{ matrix.version }}
+        run: python3 ./.github/scripts/get_latest_tags.py --repo erpnext --version 13
 
-      - name: Build Frappe
-        uses: docker/bake-action@v1.7.0
-        with:
-          files: docker-bake.hcl
-          targets: frappe-stable-test
-          load: true
+      - name: Update
+        run: python3 ./.github/scripts/update_example_env.py
 
-      - name: Push Frappe to local registry
-        uses: docker/bake-action@v1.7.0
-        with:
-          files: docker-bake.hcl
-          targets: frappe-stable-test-local
-          push: true
-
-      - name: Test Frappe
-        if: github.event_name == 'pull_request'
-        run: ./tests/test-frappe.sh
-
-      - name: Build ERPNext
-        uses: docker/bake-action@v1.7.0
-        with:
-          files: docker-bake.hcl
-          targets: erpnext-stable-test
-          load: true
-
-      - name: Test ERPNext
-        if: github.event_name == 'pull_request'
-        run: ./tests/test-erpnext.sh
-
-      - name: Push Frappe
-        if: env.IS_AUTHORIZED_RUN == 'true'
-        uses: docker/bake-action@v1.7.0
-        with:
-          files: docker-bake.hcl
-          targets: frappe-stable
-          push: true
-        env:
-          GIT_TAG: ${{ env.FRAPPE_VERSION }}
-
-      - name: Push ERPNext
-        if: env.IS_AUTHORIZED_RUN == 'true'
-        uses: docker/bake-action@v1.7.0
-        with:
-          files: docker-bake.hcl
-          targets: erpnext-stable
-          push: true
-        env:
-          GIT_TAG: ${{ env.ERPNEXT_VERSION }}
+      - name: Push
+        run: |
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
+          git add example.env
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "example.env did not change, exiting."
+            exit 0
+          else
+            echo "example.env changed, pushing changes..."
+            git commit -m "chore: Update example.env"
+            git push origin main
+          fi
 
   release_helm:
     name: Release Helm
     runs-on: ubuntu-latest
-    if: github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request'
-    needs: build
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    needs: v13
 
     steps:
       - name: Setup deploy key

@@ -1,0 +1,2 @@
+frappe @ git+git://github.com/frappe/frappe.git
+boto3-stubs[s3]

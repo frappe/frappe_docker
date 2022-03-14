@@ -6,36 +6,31 @@ updates:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/bench
+    directory: images/bench
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/erpnext-nginx
+    directory: images/nginx
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/erpnext-worker
+    directory: images/worker
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: build/frappe-nginx
-    schedule:
-      interval: daily
-
-  - package-ecosystem: docker
-    directory: build/frappe-socketio
-    schedule:
-      interval: daily
-
-  - package-ecosystem: docker
-    directory: build/frappe-worker
+    directory: images/socketio
     schedule:
       interval: daily
 
   - package-ecosystem: npm
-    directory: build/frappe-socketio
+    directory: images/socketio
+    schedule:
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: /
     schedule:
       interval: daily
