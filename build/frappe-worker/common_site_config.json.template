@@ -1,8 +1,0 @@
-{
-    "db_host": "${DB_HOST}",
-    "db_port": ${DB_PORT},
-    "redis_cache": "redis://${REDIS_CACHE}",
-    "redis_queue": "redis://${REDIS_QUEUE}",
-    "redis_socketio": "redis://${REDIS_SOCKETIO}",
-    "socketio_port": ${SOCKETIO_PORT}
-}

@@ -52,12 +52,12 @@ After the extensions are installed, you can:
 
 - Open frappe_docker folder in VS Code.
   - `code .`
-- Launch the command, from Command Palette (Ctrl + Shift + P) `Execute Remote Containers : Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
+- Launch the command, from Command Palette (Ctrl + Shift + P) `Remote-Containers: Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
 
 Notes:
 
 - The `development` directory is ignored by git. It is mounted and available inside the container. Create all your benches (installations of bench, the tool that manages frappe) inside this directory.
-- nvm with node v12 and v10 is installed. Check with `nvm ls`. Node v12 is used by default.
+- Node v14 and v10 are installed. Check with `nvm ls`. Node v14 is used by default.
 
 ### Setup first bench
 
@@ -68,7 +68,7 @@ bench init --skip-redis-config-generation --frappe-branch version-13 frappe-benc
 cd frappe-bench
 ```
 
-Note: For version 12 use python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench`
+Note: For version 12 use Python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench`
 
 ### Setup hosts
 
@@ -162,14 +162,14 @@ To install custom app
 
 ```shell
 # --branch is optional, use it to point to branch on custom app repository
-bench get-app --branch version-12 myapp https://github.com/myusername/myapp.git
+bench get --branch version-12 https://github.com/myusername/myapp
 bench --site mysite.localhost install-app myapp
 ```
 
 To install ERPNext (from the version-12 branch):
 
 ```shell
-bench get-app --branch version-12 erpnext https://github.com/frappe/erpnext.git
+bench get --branch version-12 erpnext
 bench --site mysite.localhost install-app erpnext
 ```
 
@@ -242,6 +242,7 @@ Replace `mysite.localhost` with your site and run the following code in a Jupyte
 
 ```python
 import frappe
+
 frappe.init(site='mysite.localhost', sites_path='/workspace/development/frappe-bench/sites')
 frappe.connect()
 frappe.local.lang = frappe.db.get_default('lang')
@@ -249,38 +250,6 @@ frappe.db.connect()
 ```
 
 The first command can take a few seconds to be executed, this is to be expected.
-
-### Fixing MariaDB issues after rebuilding the container
-
-For any reason after rebuilding the container if you are not be able to access MariaDB correctly with the previous configuration. Follow these instructions.
-
-The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
-
-This step has to be repeated for all sites available under the current bench.
-Example shows the queries to be executed for site `localhost`
-
-Open sites/localhost/site_config.json:
-
-```shell
-code sites/localhost/site_config.json
-```
-
-and take note of the parameters `db_name` and `db_password`.
-
-Enter MariaDB Interactive shell:
-
-```shell
-mysql -uroot -p123 -hmariadb
-```
-
-Execute following queries replacing `db_name` and `db_password` with the values found in site_config.json.
-
-```sql
-UPDATE mysql.global_priv SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
-SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
-GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
-EXIT;
-```
 
 ## Manually start containers
 

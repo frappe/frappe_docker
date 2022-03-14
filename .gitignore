@@ -1,18 +1,25 @@
-*.code-workspace
-
 # Environment Variables
 .env
 
 # mounted volume
 sites
 
-development
+development/*
 !development/README.md
-deploy_key
-deploy_key.pub
+!development/vscode-example/
 
 # Pycharm
 .idea
 
+# VS Code
+.vscode/**
+!.vscode/extensions.json
+
 # VS Code devcontainer
 .devcontainer
+*.code-workspace
+
+# Python
+*.pyc
+__pycache__
+venv

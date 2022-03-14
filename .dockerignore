@@ -1,7 +1,4 @@
-# frappe_docker .dockerignore file
-
-.travis.yml
 README.md
-LICENSE.md
+LICENSE
 .gitignore
-docker-*.yml
+compose*.yaml

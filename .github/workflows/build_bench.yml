@@ -5,8 +5,9 @@ on:
     branches:
       - main
     paths:
-      - build/bench/**
+      - images/bench/**
       - docker-bake.hcl
+      - .github/workflows/build_bench.yml
 
   schedule:
     # Every day at 12:00 pm
@@ -19,15 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v1
 
       - name: Build and test
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
-          files: docker-bake.hcl
           targets: bench-test
 
       - name: Login
@@ -39,8 +39,7 @@ jobs:
 
       - name: Push
         if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-        uses: docker/bake-action@v1.6.0
+        uses: docker/bake-action@v1.7.0
         with:
           targets: bench
-          files: docker-bake.hcl
           push: true
