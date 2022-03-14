@@ -65,7 +65,7 @@ RUN git clone --depth 1 https://github.com/frappe/bench /root/bench
 
 
 
-FROM nginxinc/nginx-unprivileged:1.20-alpine as frappe
+FROM nginxinc/nginx-unprivileged:1.21.6-alpine as frappe
 
 COPY --from=error_pages /root/bench/bench/config/templates/502.html /usr/share/nginx/html
 COPY --from=base /root/frappe-bench/apps/frappe/frappe/public /usr/share/nginx/html/assets/frappe
