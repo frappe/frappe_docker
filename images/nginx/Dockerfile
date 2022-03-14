@@ -1,4 +1,4 @@
-FROM node:14-bullseye-slim as base
+FROM node:17-bullseye-slim as base
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
