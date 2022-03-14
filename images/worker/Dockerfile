@@ -102,8 +102,11 @@ COPY pretend-bench.sh /usr/local/bin/bench
 COPY push_backup.py /usr/local/bin/push-backup
 COPY configure.py patched_bench_helper.py /usr/local/bin/
 COPY gevent_patch.py /opt/patches/
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 WORKDIR /home/frappe/frappe-bench/sites
+
+ENTRYPOINT [ "entrypoint.sh" ]
 
 CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frappe.app:application" ]
 
