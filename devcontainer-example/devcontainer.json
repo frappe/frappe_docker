@@ -2,6 +2,15 @@
   "name": "Frappe Bench",
   "forwardPorts": [8000, 9000, 6787],
   "remoteUser": "frappe",
+  "settings": {
+    "terminal.integrated.profiles.linux": {
+      "frappe bash": {
+        "path": "/bin/bash"
+      }
+    },
+    "terminal.integrated.defaultProfile.linux": "frappe bash",
+    "debug.node.autoAttach": "disabled"
+  },
   "dockerComposeFile": "./docker-compose.yml",
   "service": "frappe",
   "workspaceFolder": "/workspace/development",
