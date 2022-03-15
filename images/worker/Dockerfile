@@ -114,13 +114,13 @@ CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frapp
 FROM configured_base as frappe
 
 RUN echo "frappe" >/home/frappe/frappe-bench/sites/apps.txt
-COPY --from=frappe_builder /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
-COPY --from=frappe_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
+COPY --from=frappe_builder --chown=frappe:frappe /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
+COPY --from=frappe_builder --chown=frappe:frappe /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
 
 
 FROM configured_base as erpnext
 
 RUN echo "frappe\nerpnext" >/home/frappe/frappe-bench/sites/apps.txt
-COPY --from=frappe_builder /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
-COPY --from=erpnext_builder /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext
-COPY --from=erpnext_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
+COPY --from=frappe_builder --chown=frappe:frappe /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
+COPY --from=erpnext_builder --chown=frappe:frappe /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext
+COPY --from=erpnext_builder --chown=frappe:frappe /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
