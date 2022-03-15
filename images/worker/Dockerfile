@@ -106,7 +106,7 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 WORKDIR /home/frappe/frappe-bench/sites
 
-ENTRYPOINT [ "entrypoint.sh" ]
+ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
 
 CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frappe.app:application" ]
 
