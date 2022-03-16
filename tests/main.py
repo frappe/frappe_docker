@@ -339,6 +339,16 @@ def stop_s3_container():
     run("docker", "rm", "minio", "-f")
 
 
+@log("Check Website Theme creation")
+def check_website_theme_creation():
+    docker_compose("cp", "tests/_check_website_theme.py", "backend:/tmp")
+    docker_compose_exec(
+        "backend",
+        "/home/frappe/frappe-bench/env/bin/python",
+        "/tmp/_check_website_theme.py",
+    )
+
+
 @log("Recreate with HTTPS override")
 def recreate_with_https_override():
     docker_compose("-f", "overrides/compose.https.yaml", "up", "-d")
@@ -456,6 +466,10 @@ def check_s3():
         stop_s3_container()
 
 
+def check_website_theme():
+    check_website_theme_creation()
+
+
 def check_https():
     print_compose_configuration()
     recreate_with_https_override()
@@ -485,6 +499,7 @@ def main() -> int:
         start()
         create_frappe_site_and_check_availability()
         check_s3()
+        check_website_theme()
         check_https()
         check_erpnext()
         check_postgres()
