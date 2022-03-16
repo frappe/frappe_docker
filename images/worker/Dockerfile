@@ -48,7 +48,10 @@ RUN --mount=type=cache,target=/home/frappe/.cache/pip \
     git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
     && env/bin/pip install -e apps/frappe \
     && env/bin/pip install -U gevent \
-    && rm -r apps/frappe/.git
+    && rm -r apps/frappe/.git \
+    # Link Frappe's node_modules/ to make Website Theme work
+    && mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
+    && ln -s /home/frappe/frappe-bench/sites/assets/frappe/node_modules /home/frappe/frappe-bench/apps/frappe/node_modules
 
 
 

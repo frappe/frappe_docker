@@ -43,11 +43,6 @@ services:
     depends_on:
       - backend
       - websocket
-    labels:
-      - traefik.enable=true
-      - traefik.http.services.frontend.loadbalancer.server.port=8080
-      - traefik.http.routers.frontend-http.entrypoints=web
-      - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
 
   websocket:
     <<: *depends_on_configurator
