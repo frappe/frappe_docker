@@ -345,7 +345,7 @@ def check_website_theme_creation():
     docker_compose_exec(
         "backend",
         "/home/frappe/frappe-bench/env/bin/python",
-        "tests/_check_website_theme.py",
+        "/tmp/_check_website_theme.py",
     )
 
 
