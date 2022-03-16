@@ -1,4 +1,11 @@
 services:
+  frontend:
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.frontend.loadbalancer.server.port=8080
+      - traefik.http.routers.frontend-http.entrypoints=web
+      - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
+
   proxy:
     image: traefik:2.5
     command:
