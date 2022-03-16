@@ -1,7 +1,6 @@
 import os
 import shutil
 import subprocess
-import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -39,7 +38,7 @@ def env_file(tmp_path_factory: pytest.TempPathFactory):
 
 @pytest.fixture(scope="session")
 def compose(env_file: str):
-    return Compose(project_name=str(uuid.uuid4()), env_file=env_file)
+    return Compose(project_name="test", env_file=env_file)
 
 
 @pytest.fixture(autouse=True, scope="session")
