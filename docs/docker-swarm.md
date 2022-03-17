@@ -52,4 +52,4 @@ Notes:
 
 #### Site Operations
 
-Refer [site operations documentation](./site-operations) to create new site, migrate site, drop site and perform other site operations.
+Refer [site operations documentation](./site-operations.md) to create new site, migrate site, drop site and perform other site operations.
