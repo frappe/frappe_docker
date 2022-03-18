@@ -79,9 +79,20 @@ RUN --mount=type=bind,target=/home/frappe/erpnext-wheels,source=/home/frappe/erp
 
 FROM base as configured_base
 
+ARG WKHTMLTOPDF_VERSION=0.12.6-1
+
 RUN apt-get update \
+    # Setup Node lists
     && apt-get install --no-install-recommends -y curl \
     && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+    # Install wkhtmltopdf with patched qt
+    && if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
+    && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
+    && downloaded_file=wkhtmltox_$WKHTMLTOPDF_VERSION.buster_${ARCH}.deb \
+    && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
+    && apt-get install -y ./$downloaded_file \
+    && rm $downloaded_file \
+    # Cleanup
     && apt-get purge -y --auto-remove curl \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -89,16 +100,13 @@ RUN apt-get update \
     mariadb-client \
     # Postgres
     postgresql-client \
-    # wkhtmltopdf
-    xvfb \
-    libfontconfig \
-    wkhtmltopdf \
     # For healthcheck
     wait-for-it \
     jq \
     # other
     nodejs \
     && rm -rf /var/lib/apt/lists/*
+
 USER frappe
 
 COPY pretend-bench.sh /usr/local/bin/bench
