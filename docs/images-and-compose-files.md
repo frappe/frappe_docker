@@ -51,6 +51,8 @@ It is quite simple to run overrides. All we need to do is to specify compose fil
 docker-compose -f compose.yaml -f overrides/compose.erpnext.yaml config
 ```
 
+⚠ Make sure to use docker-compose v2 (run `docker-compose -v` to check). If you want to use v1 make sure the correct `$`-signs as they get duplicated by the `config` command!
+
 That's it! Of course, we also have to setup `.env` before all of that, but that's not the point.
 
 ## Configuration
