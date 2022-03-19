@@ -1,0 +1,41 @@
+services:
+  frontend:
+    networks:
+      - traefik-public
+      - mariadb-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${ROUTER?ROUTER not set}.rule=Host(${SITES?SITES not set})
+      - traefik.http.routers.${ROUTER}.entrypoints=http,https
+      - traefik.http.routers.${ROUTER}.tls.certresolver=le
+      - traefik.http.services.${ROUTER}.loadbalancer.server.port=8080
+  configurator:
+    networks:
+      - mariadb-network
+  backend:
+    networks:
+      - mariadb-network
+  websocket:
+    networks:
+      - mariadb-network
+  scheduler:
+    networks:
+      - mariadb-network
+  queue-default:
+    networks:
+      - mariadb-network
+  queue-short:
+    networks:
+      - mariadb-network
+  queue-long:
+    networks:
+      - mariadb-network
+  redis:
+    networks:
+      - mariadb-network
+
+networks:
+  traefik-public:
+    external: true
+  mariadb-network:
+    external: true
