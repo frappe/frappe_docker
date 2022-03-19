@@ -23,10 +23,14 @@ RUN yarn --cwd apps/frappe --prod
 
 
 
-FROM frappe_prod_node_modules as frappe_assets
+FROM frappe_prod_node_modules as assets_builder
 
 # Install development node modules
 RUN yarn --cwd apps/frappe
+
+
+
+FROM assets_builder as frappe_assets
 
 # Build assets they're stored in frappe-bench/sites/assets
 RUN echo "frappe" >sites/apps.txt \

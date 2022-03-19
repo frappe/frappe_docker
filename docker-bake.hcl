@@ -81,6 +81,13 @@ target "frappe-nginx" {
     tags =  tag("frappe-nginx", "${FRAPPE_VERSION}")
 }
 
+target "assets-builder" {
+  inherits = ["default-args"]
+  context = "images/nginx"
+  target = "assets_builder"
+  tags = tag("assets-builder", "${FRAPPE_VERSION}")
+}
+
 target "erpnext-nginx" {
     inherits = ["default-args"]
     context = "images/nginx"
