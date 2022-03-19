@@ -30,7 +30,7 @@ target "bench-test" {
 # Base for all other targets
 
 group "frappe" {
-    targets = ["frappe-worker", "frappe-nginx", "frappe-socketio"]
+    targets = ["frappe-worker", "frappe-nginx", "frappe-socketio", "assets-builder"]
 }
 
 group "erpnext" {
