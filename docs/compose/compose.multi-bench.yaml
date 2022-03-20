@@ -3,12 +3,14 @@ services:
     networks:
       - traefik-public
       - mariadb-network
+      - bench-network
     labels:
       - traefik.enable=true
-      - traefik.http.routers.${ROUTER?ROUTER not set}.rule=Host(${SITES?SITES not set})
-      - traefik.http.routers.${ROUTER}.entrypoints=http,https
-      - traefik.http.routers.${ROUTER}.tls.certresolver=le
-      - traefik.http.services.${ROUTER}.loadbalancer.server.port=8080
+      - traefik.docker.network=traefik-public
+      - traefik.http.services.${ROUTER?ROUTER not set}.loadbalancer.server.port=8080
+      - traefik.http.routers.${ROUTER}.service=${ROUTER}
+      - traefik.http.routers.${ROUTER}.entrypoints=http
+      - traefik.http.routers.${ROUTER}.rule=Host(${SITES?SITES not set})
   configurator:
     networks:
       - mariadb-network
@@ -39,3 +41,6 @@ networks:
     external: true
   mariadb-network:
     external: true
+  bench-network:
+    name: ${ROUTER}
+    external: false

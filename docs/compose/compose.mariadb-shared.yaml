@@ -4,6 +4,7 @@ services:
   database:
     container_name: mariadb-database
     image: mariadb:10.6
+    restart: unless-stopped
     healthcheck:
       test: mysqladmin ping -h localhost --password=${DB_PASSWORD:-changeit}
       interval: 1s

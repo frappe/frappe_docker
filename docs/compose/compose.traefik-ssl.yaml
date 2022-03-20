@@ -1,24 +1,11 @@
-version: "3.3"
-
 services:
   traefik:
-    image: "traefik:v2.6"
     labels:
-      # Enable Traefik for this service, to make it available in the public network
-      - traefik.enable=true
-      # Use the traefik-public network (declared below)
-      - traefik.docker.network=traefik-public
-      # admin-auth middleware with HTTP Basic auth
-      # Using the environment variables USERNAME and HASHED_PASSWORD
-      - traefik.http.middlewares.admin-auth.basicauth.users=admin:${HASHED_PASSWORD:?No HASHED_PASSWORD set}
       # https-redirect middleware to redirect HTTP to HTTPS
       # It can be re-used by other stacks in other Docker Compose files
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-      # traefik-http set up only to use the middleware to redirect to https
-      # Uses the environment variable DOMAIN
-      - traefik.http.routers.traefik-public-http.rule=Host(`${TRAEFIK_DOMAIN:?No TRAEFIK_DOMAIN set}`)
-      - traefik.http.routers.traefik-public-http.entrypoints=http
+      # traefik-http to use the middleware to redirect to https
       - traefik.http.routers.traefik-public-http.middlewares=https-redirect
       # traefik-https the actual router using HTTPS
       # Uses the environment variable DOMAIN
@@ -31,15 +18,7 @@ services:
       - traefik.http.routers.traefik-public-https.tls.certresolver=le
       # Enable HTTP Basic auth, using the middleware created above
       - traefik.http.routers.traefik-public-https.middlewares=admin-auth
-      # Define the port inside of the Docker service to use
-      - traefik.http.services.traefik-public.loadbalancer.server.port=8080
     command:
-      # Enable Docker in Traefik, so that it reads labels from Docker services
-      - --providers.docker=true
-      # Do not expose all Docker services, only the ones explicitly exposed
-      - --providers.docker.exposedbydefault=false
-      # Create an entrypoint http listening on port 80
-      - --entrypoints.http.address=:80
       # Create an entrypoint https listening on port 443
       - --entrypoints.https.address=:443
       # Create the certificate resolver le for Let's Encrypt, uses the environment variable EMAIL
@@ -48,22 +27,7 @@ services:
       - --certificatesresolvers.le.acme.storage=/certificates/acme.json
       # Use the TLS Challenge for Let's Encrypt
       - --certificatesresolvers.le.acme.tlschallenge=true
-      # Enable the access log, with HTTP requests
-      - --accesslog
-      # Enable the Traefik log, for configurations and errors
-      - --log
-      # Enable the Dashboard and API
-      - --api
     ports:
-      - 80:80
       - 443:443
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /data/traefik/certificates:/certificates
-    networks:
-      - traefik-public
-
-networks:
-  traefik-public:
-    name: traefik-public
-    external: false
