@@ -18,10 +18,10 @@ To get started, install Docker and [Buildx](https://github.com/docker/buildx#ins
 Before the next step—to build images—replace "custom_app" with your app's name in `docker-bake.hcl`. After that, let's try to build:
 
 ```bash
-FRAPPE_VERSION=<Frappe version you need> docker buildx bake
+FRAPPE_VERSION=... ERPNEXT_VERSION=... docker buildx bake
 ```
 
-> 💡 We assume that majority of our users use ERPNext, that's why images in this tutorial are based on ERPNext images. In case you don't want to use ERPNext, remove erpnext references in Dockerfiles and change base images to Frappe ones.
+> 💡 We assume that majority of our users use ERPNext, that's why images in this tutorial are based on ERPNext images. If don't want ERPNext, change base image in Dockerfiles and remove ERPNEXT_VERSION from bake file.
 
 If something goes wrong feel free to leave an issue.
 
