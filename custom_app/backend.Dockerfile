@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.3
 ARG FRAPPE_VERSION
 FROM frappe/erpnext-worker:${FRAPPE_VERSION}
 
@@ -6,7 +7,8 @@ USER root
 ARG APP_NAME
 COPY . ../apps/${APP_NAME}
 
-RUN install-app ${APP_NAME}
+RUN --mount=type=cache,target=/root/.cache/pip \
+    install-app ${APP_NAME}
 
 # or with git:
 # ARG APP_NAME
