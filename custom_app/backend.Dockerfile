@@ -1,8 +1,17 @@
 ARG FRAPPE_VERSION
 FROM frappe/erpnext-worker:${FRAPPE_VERSION}
 
-ARG APP_NAME
-COPY --chown=frappe . ../apps/${APP_NAME}
+USER root
 
-RUN echo "frappe\nerpnext\n${APP_NAME}" >/home/frappe/frappe-bench/sites/apps.txt \
-    && ../env/bin/pip install --no-cache-dir -e ../apps/${APP_NAME}
+ARG APP_NAME
+COPY . ../apps/${APP_NAME}
+
+RUN install-app ${APP_NAME}
+
+# or with git:
+# ARG APP_NAME
+# ARG BRANCH
+# ARG GIT_URL
+# RUN install-assets ${APP_NAME} ${BRANCH} ${GIT_URL}
+
+USER frappe
