@@ -22,18 +22,18 @@ RUN yarn --cwd apps/frappe \
     && if [ ! -f sites/.build ]; then touch sites/.build; fi \
     && cp sites/.build /out
 
-COPY build-assets.sh /usr/local/bin/build-assets
+COPY install-app.sh /usr/local/bin/install-app
 
 
 FROM assets_builder as frappe_assets
 
-RUN build-assets frappe
+RUN install-app frappe
 
 
 FROM assets_builder as erpnext_assets
 
 ARG ERPNEXT_VERSION
-RUN build-assets erpnext ${ERPNEXT_VERSION} https://github.com/frappe/erpnext
+RUN install-app erpnext ${ERPNEXT_VERSION} https://github.com/frappe/erpnext
 
 
 FROM alpine/git as bench
