@@ -101,7 +101,7 @@ FROM configured_base as frappe
 
 COPY --from=frappe_builder /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
 COPY --from=frappe_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
-COPY --from=erpnext_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
+COPY --from=frappe_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
 
 USER frappe
 
