@@ -36,14 +36,14 @@ RUN apt-get update \
     make \
     && rm -rf /var/lib/apt/lists/*
 
+COPY install-app.sh /usr/local/bin/install-app
+
 
 FROM build_deps as frappe_builder
 
 ARG FRAPPE_VERSION
 RUN --mount=type=cache,target=/root/.cache/pip \
-    git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
-    && rm -r apps/frappe/.git \
-    && env/bin/pip install -e apps/frappe \
+    install-app frappe ${FRAPPE_VERSION} https://github.com/frappe/frappe \
     && env/bin/pip install -U gevent \
     # Link Frappe's node_modules/ to make Website Theme work
     && mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
@@ -54,9 +54,7 @@ FROM frappe_builder as erpnext_builder
 
 ARG ERPNEXT_VERSION
 RUN --mount=type=cache,target=/root/.cache/pip \
-    git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext apps/erpnext \
-    && rm -r apps/erpnext/.git \
-    && env/bin/pip install -e apps/erpnext
+    install-app erpnext ${ERPNEXT_VERSION} https://github.com/frappe/erpnext
 
 
 FROM base as configured_base
@@ -94,16 +92,19 @@ CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frapp
 
 FROM configured_base as frappe
 
-RUN echo frappe >/home/frappe/frappe-bench/sites/apps.txt
 COPY --from=frappe_builder /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
 COPY --from=frappe_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
+COPY --from=erpnext_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
+
 USER frappe
+
 
 # Split frappe and erpnext to reduce image size (because of frappe-bench/env/ directory)
 FROM configured_base as erpnext
 
-RUN echo erpnext >>/home/frappe/frappe-bench/sites/apps.txt
 COPY --from=frappe_builder /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
 COPY --from=erpnext_builder /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext
 COPY --from=erpnext_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
+COPY --from=erpnext_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
+
 USER frappe
