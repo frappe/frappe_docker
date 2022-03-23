@@ -14,12 +14,10 @@ USER frappe
 RUN mkdir -p /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/logs /home/frappe/frappe-bench/sites
 WORKDIR /home/frappe/frappe-bench
 
-RUN --mount=type=cache,target=/home/frappe/.cache/pip \
-    pip install -U pip wheel \
+USER root
+RUN pip install -U pip wheel \
     && python -m venv env \
     && env/bin/pip install -U pip wheel
-USER root
-
 
 
 FROM base as build_deps
@@ -37,44 +35,26 @@ RUN apt-get update \
     # Make is required to build wheels of ERPNext deps in develop branch for linux/arm64
     make \
     && rm -rf /var/lib/apt/lists/*
-USER frappe
 
+COPY install-app.sh /usr/local/bin/install-app
 
 
 FROM build_deps as frappe_builder
 
 ARG FRAPPE_VERSION
-RUN --mount=type=cache,target=/home/frappe/.cache/pip \
-    git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
-    && env/bin/pip install -e apps/frappe \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    install-app frappe ${FRAPPE_VERSION} https://github.com/frappe/frappe \
     && env/bin/pip install -U gevent \
-    && rm -r apps/frappe/.git \
     # Link Frappe's node_modules/ to make Website Theme work
     && mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
     && ln -s /home/frappe/frappe-bench/sites/assets/frappe/node_modules /home/frappe/frappe-bench/apps/frappe/node_modules
 
 
-
-# We split ERPNext wheels build in separate stage to achieve concurrency with Frappe build
-FROM build_deps as erpnext_wheels
-
-ARG ERPNEXT_VERSION
-RUN git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext apps/erpnext \
-    && rm -r apps/erpnext/.git
-
-RUN --mount=type=cache,target=/home/frappe/.cache/pip \
-    pip wheel --wheel-dir /home/frappe/erpnext-wheels -r apps/erpnext/requirements.txt
-
-
-
 FROM frappe_builder as erpnext_builder
 
-COPY --from=erpnext_wheels --chown=frappe /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext
-RUN --mount=type=bind,target=/home/frappe/erpnext-wheels,source=/home/frappe/erpnext-wheels,from=erpnext_wheels \
-    --mount=type=cache,target=/home/frappe/.cache/pip \
-    --mount=type=cache,target=/home/frappe/.cache/pip,source=/home/frappe/.cache/pip,from=erpnext_wheels \
-    env/bin/pip install --find-links=/home/frappe/erpnext-wheels -e apps/erpnext
-
+ARG ERPNEXT_VERSION
+RUN --mount=type=cache,target=/root/.cache/pip \
+    install-app erpnext ${ERPNEXT_VERSION} https://github.com/frappe/erpnext
 
 
 FROM base as configured_base
@@ -107,8 +87,6 @@ RUN apt-get update \
     nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-USER frappe
-
 COPY pretend-bench.sh /usr/local/bin/bench
 COPY push_backup.py /usr/local/bin/push-backup
 COPY configure.py patched_bench_helper.py /usr/local/bin/
@@ -121,14 +99,19 @@ CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frapp
 
 FROM configured_base as frappe
 
-RUN echo "frappe" >/home/frappe/frappe-bench/sites/apps.txt
 COPY --from=frappe_builder /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
 COPY --from=frappe_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
+COPY --from=frappe_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
+
+USER frappe
 
 
+# Split frappe and erpnext to reduce image size (because of frappe-bench/env/ directory)
 FROM configured_base as erpnext
 
-RUN echo "frappe\nerpnext" >/home/frappe/frappe-bench/sites/apps.txt
 COPY --from=frappe_builder /home/frappe/frappe-bench/apps/frappe /home/frappe/frappe-bench/apps/frappe
 COPY --from=erpnext_builder /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext
 COPY --from=erpnext_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
+COPY --from=erpnext_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
+
+USER frappe

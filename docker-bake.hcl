@@ -30,7 +30,7 @@ target "bench-test" {
 # Base for all other targets
 
 group "frappe" {
-    targets = ["frappe-worker", "frappe-nginx", "frappe-socketio"]
+    targets = ["frappe-worker", "frappe-nginx", "frappe-socketio", "assets-builder"]
 }
 
 group "erpnext" {
@@ -79,6 +79,13 @@ target "frappe-nginx" {
     context = "images/nginx"
     target = "frappe"
     tags =  tag("frappe-nginx", "${FRAPPE_VERSION}")
+}
+
+target "assets-builder" {
+  inherits = ["default-args"]
+  context = "images/nginx"
+  target = "assets_builder"
+  tags = tag("assets-builder", "${FRAPPE_VERSION}")
 }
 
 target "erpnext-nginx" {
