@@ -73,6 +73,10 @@ target "frappe-worker" {
     context = "images/worker"
     target = "frappe"
     tags = tag("frappe-worker", "${FRAPPE_VERSION}")
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "erpnext-worker" {
@@ -80,6 +84,10 @@ target "erpnext-worker" {
     context = "images/worker"
     target = "erpnext"
     tags =  tag("erpnext-worker", "${ERPNEXT_VERSION}")
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "frappe-nginx" {
@@ -87,6 +95,10 @@ target "frappe-nginx" {
     context = "images/nginx"
     target = "frappe"
     tags =  tag("frappe-nginx", "${FRAPPE_VERSION}")
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "assets-builder" {
@@ -94,6 +106,10 @@ target "assets-builder" {
   context = "images/nginx"
   target = "assets_builder"
   tags = tag("assets-builder", "${FRAPPE_VERSION}")
+  platforms = [
+    "linux/amd64",
+    "linux/arm64"
+  ]
 }
 
 target "erpnext-nginx" {
@@ -101,10 +117,18 @@ target "erpnext-nginx" {
     context = "images/nginx"
     target = "erpnext"
     tags =  tag("erpnext-nginx", "${ERPNEXT_VERSION}")
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "frappe-socketio" {
     inherits = ["default-args"]
     context = "images/socketio"
     tags =  tag("frappe-socketio", "${FRAPPE_VERSION}")
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
