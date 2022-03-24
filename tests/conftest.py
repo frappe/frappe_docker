@@ -10,13 +10,12 @@ from tests.utils import CI, Compose
 
 
 def _add_version_var(name: str, env_path: Path):
-    if not os.getenv(name):
+    value = os.getenv(name)
+
+    if not value:
         return
 
-    if (gh_env := os.getenv("GITHUB_ENV")) and os.environ[name] == "develop":
-        with open(gh_env, "a") as f:
-            f.write(f"\n{name}=latest")
-
+    if value == "develop":
         os.environ[name] = "latest"
 
     with open(env_path, "a") as f:
@@ -32,7 +31,7 @@ def env_file(tmp_path_factory: pytest.TempPathFactory):
     for var in ("FRAPPE_VERSION", "ERPNEXT_VERSION"):
         _add_version_var(name=var, env_path=file_path)
 
-    yield file_path
+    yield str(file_path)
     os.remove(file_path)
 
 
