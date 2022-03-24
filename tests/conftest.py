@@ -16,10 +16,10 @@ def _add_version_var(name: str, env_path: Path):
         return
 
     if value == "develop":
-        value = "latest"
+        os.environ[name] = "latest"
 
     with open(env_path, "a") as f:
-        f.write(f"\n{name}={value}")
+        f.write(f"\n{name}={os.environ[name]}")
 
 
 @pytest.fixture(scope="session")
@@ -31,7 +31,7 @@ def env_file(tmp_path_factory: pytest.TempPathFactory):
     for var in ("FRAPPE_VERSION", "ERPNEXT_VERSION"):
         _add_version_var(name=var, env_path=file_path)
 
-    yield file_path
+    yield str(file_path)
     os.remove(file_path)
 
 
