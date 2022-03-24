@@ -19,11 +19,19 @@ target "bench" {
     context = "images/bench"
     target = "bench"
     tags = ["frappe/bench:latest"]
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "bench-test" {
     inherits = ["bench"]
     target = "bench-test"
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 # Main images
