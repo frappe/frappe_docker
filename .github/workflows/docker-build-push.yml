@@ -34,18 +34,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.9
-
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v1
         with:
           driver-opts: network=host
-
-      - name: Install Docker Compose v2
-        uses: ndeloof/install-compose-action@4a33bc31f327b8231c4f343f6fba704fedc0fa23
 
       - name: Get latest versions
         run: python3 ./.github/scripts/get_latest_tags.py --repo ${{ inputs.repo }} --version ${{ inputs.version }}
@@ -57,8 +49,21 @@ jobs:
         env:
           REGISTRY_USER: localhost:5000/frappe
 
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - name: Install Docker Compose v2
+        uses: ndeloof/install-compose-action@4a33bc31f327b8231c4f343f6fba704fedc0fa23
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          venv/bin/pip install -r requirements-test.txt
+
       - name: Test
-        run: python3 tests/main.py
+        run: pytest
 
       - name: Login
         if: ${{ inputs.push }}
