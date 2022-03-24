@@ -8,11 +8,19 @@ target "bench" {
     context = "build/bench"
     target = "bench"
     tags = ["frappe/bench:latest"]
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "bench-test" {
     inherits = ["bench"]
     target = "bench-test"
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 # Main images
@@ -20,22 +28,42 @@ target "bench-test" {
 
 target "frappe-nginx" {
     dockerfile = "build/frappe-nginx/Dockerfile"
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "frappe-worker" {
     dockerfile = "build/frappe-worker/Dockerfile"
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "frappe-socketio" {
     dockerfile = "build/frappe-socketio/Dockerfile"
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "erpnext-nginx" {
     dockerfile = "build/erpnext-nginx/Dockerfile"
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 target "erpnext-worker" {
     dockerfile = "build/erpnext-worker/Dockerfile"
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
 
 
