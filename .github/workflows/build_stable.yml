@@ -86,6 +86,7 @@ jobs:
           else
             echo "example.env changed, pushing changes..."
             git commit -m "chore: Update example.env"
+            git pull --rebase
             git push origin main
           fi
 
