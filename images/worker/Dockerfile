@@ -19,6 +19,8 @@ RUN pip install -U pip wheel \
     && python -m venv env \
     && env/bin/pip install -U pip wheel
 
+COPY install-app.sh /usr/local/bin/install-app
+
 
 FROM base as build_deps
 
@@ -35,8 +37,6 @@ RUN apt-get update \
     # Make is required to build wheels of ERPNext deps in develop branch for linux/arm64
     make \
     && rm -rf /var/lib/apt/lists/*
-
-COPY install-app.sh /usr/local/bin/install-app
 
 
 FROM build_deps as frappe_builder
