@@ -1,10 +1,6 @@
 # Contribution Guidelines
 
-Before publishing a PR, please test builds locally:
-
-- with docker-compose for production,
-- with and without nginx proxy,
-- with VSCode for testing environments (only for frappe/bench image).
+Before publishing a PR, please test builds locally.
 
 On each PR that contains changes relevant to Docker builds, images are being built and tested in our CI (GitHub Actions).
 
@@ -39,43 +35,37 @@ pre-commit run --all-files
 
 ## Build
 
+We use [Docker Buildx Bake](https://docs.docker.com/engine/reference/commandline/buildx_bake/). To build the images, run command below:
+
 ```shell
-# *...* — targets from docker-bake.hcl,
-# e.g. bench-build, frappe-socketio-develop or erpnext-nginx-stable.
-# Stable builds require GIT_BRANCH (e.g. v13.15.0), IMAGE_TAG (version-13), VERSION (13)
-# environment variables set.
-docker buildx bake -f docker-bake.hcl *...*
+FRAPPE_VERSION=... ERPNEXT_VERSION=... docker buildx bake <targets>
 ```
+
+Available targets can be found in `docker-bake.hcl`.
 
 ## Test
 
-### Ping site
+We use [pytest](https://pytest.org) for our integration tests.
 
-Lightweight test that just checks if site will be available after creation.
-
-Frappe:
+Install Python test requirements:
 
 ```shell
-./tests/test-frappe.sh
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements-test.txt
 ```
 
-ERPNext:
+Run pytest:
 
 ```shell
-./tests/test-erpnext.sh
+pytest
 ```
 
-### Integration test
-
-Tests frappe-bench-like commands, for example, `backup` and `restore`.
-
-```shell
-./tests/integration-test.sh
-```
+> We also have `requirements-dev.txt` file that contains development requirements for backend image (you can find it in `images/worker/` directory).
 
 # Documentation
 
-Place relevant markdown file(s) in the `docs` directory and index them in README.md located at the root of repo.
+Place relevant markdown files in the `docs` directory and index them in README.md located at the root of repo.
 
 # Wiki
 
