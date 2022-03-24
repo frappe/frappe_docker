@@ -63,7 +63,7 @@ jobs:
           venv/bin/pip install -r requirements-test.txt
 
       - name: Test
-        run: pytest
+        run: venv/bin/pytest
 
       - name: Login
         if: ${{ inputs.push }}
