@@ -10,17 +10,16 @@ from tests.utils import CI, Compose
 
 
 def _add_version_var(name: str, env_path: Path):
-    if not os.getenv(name):
+    value = os.getenv(name)
+
+    if not value:
         return
 
-    if (gh_env := os.getenv("GITHUB_ENV")) and os.environ[name] == "develop":
-        with open(gh_env, "a") as f:
-            f.write(f"\n{name}=latest")
-
-        os.environ[name] = "latest"
+    if value == "develop":
+        value = "latest"
 
     with open(env_path, "a") as f:
-        f.write(f"\n{name}={os.environ[name]}")
+        f.write(f"\n{name}={value}")
 
 
 @pytest.fixture(scope="session")
