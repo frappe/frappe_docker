@@ -17,7 +17,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-changeit}
     volumes:
-      - /data/mariadb:/var/lib/mysql
+      - ${HOME}/data/mariadb:/var/lib/mysql
     networks:
       - mariadb-network
 
