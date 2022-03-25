@@ -175,7 +175,7 @@ Create sites `one.example.com` and `two.example.com`:
 
 ```shell
 # one.example.com
-docker compose --project-name erpnext-one --env-file ~/gitops/erpnext-one.env exec backend \
+docker compose --project-name erpnext-one exec backend \
   bench new-site one.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
@@ -183,7 +183,7 @@ You can stop here and have a single bench single site setup complete. Continue t
 
 ```shell
 # two.example.com
-docker compose --project-name erpnext-one --env-file ~/gitops/erpnext-one.env exec backend \
+docker compose --project-name erpnext-one exec backend \
   bench new-site two.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
@@ -235,10 +235,10 @@ Create sites `three.example.com` and `four.example.com`:
 
 ```shell
 # three.example.com
-docker compose --project-name erpnext-two --env-file ~/gitops/erpnext-two.env exec backend \
+docker compose --project-name erpnext-two exec backend \
   bench new-site three.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 # four.example.com
-docker compose --project-name erpnext-two --env-file ~/gitops/erpnext-two.env exec backend \
+docker compose --project-name erpnext-two exec backend \
   bench new-site four.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
