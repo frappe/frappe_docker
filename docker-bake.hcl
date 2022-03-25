@@ -127,4 +127,8 @@ target "frappe-socketio" {
     inherits = ["default-args"]
     context = "images/socketio"
     tags =  tag("frappe-socketio", "${FRAPPE_VERSION}")
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
 }
