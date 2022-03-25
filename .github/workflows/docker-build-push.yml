@@ -42,8 +42,6 @@ jobs:
 
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v1
-        with:
-          driver-opts: network=host
 
       - name: Get latest versions
         run: python3 ./.github/scripts/get_latest_tags.py --repo ${{ inputs.repo }} --version ${{ inputs.version }}
