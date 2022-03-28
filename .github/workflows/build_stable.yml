@@ -14,6 +14,7 @@ on:
       - docker-bake.hcl
       - example.env
       - .github/workflows/build_stable.yml
+      - .github/workflows/docker_build_push.yml
 
   push:
     branches:
