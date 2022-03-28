@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  frappedocker:
+    image: frappedocker
+    build:
+      context: .
+      dockerfile: ./Dockerfile

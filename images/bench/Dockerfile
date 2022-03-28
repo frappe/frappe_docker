@@ -139,3 +139,4 @@ RUN bash -c "node --version" \
     && bash -c "npm --version" \
     && bash -c "yarn --version" \
     && bash -c "bench --help"
+    
