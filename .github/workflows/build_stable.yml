@@ -14,7 +14,6 @@ on:
       - docker-bake.hcl
       - example.env
       - .github/workflows/build_stable.yml
-      - .github/workflows/docker_build_push.yml
 
   push:
     branches:
@@ -36,7 +35,7 @@ on:
 
 jobs:
   v12:
-    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@${{github.sha}}
+    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
     with:
       repo: erpnext
       version: "13"
@@ -46,7 +45,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   v13:
-    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@${{github.sha}}
+    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
     with:
       repo: erpnext
       version: "13"
