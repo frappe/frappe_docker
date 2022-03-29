@@ -43,7 +43,8 @@ FROM build_deps as frappe_builder
 
 ARG FRAPPE_VERSION
 RUN --mount=type=cache,target=/root/.cache/pip \
-    install-app frappe ${FRAPPE_VERSION} https://github.com/frappe/frappe \
+    git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
+    && install-app frappe \
     && env/bin/pip install -U gevent \
     # Link Frappe's node_modules/ to make Website Theme work
     && mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/node_modules \
@@ -54,7 +55,8 @@ FROM frappe_builder as erpnext_builder
 
 ARG ERPNEXT_VERSION
 RUN --mount=type=cache,target=/root/.cache/pip \
-    install-app erpnext ${ERPNEXT_VERSION} https://github.com/frappe/erpnext
+    git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext apps/erpnext \
+    && install-app erpnext
 
 
 FROM base as configured_base

@@ -14,10 +14,9 @@ RUN mkdir -p sites/assets /out/assets \
     && echo frappe >sites/apps.txt
 
 ARG FRAPPE_VERSION
-RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe
-
 # Install development node modules
-RUN yarn --cwd apps/frappe \
+RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
+    && yarn --cwd apps/frappe \
     # TODO: Currently `yarn run production` doesn't create .build on develop branch: https://github.com/frappe/frappe/issues/15396
     && if [ ! -f sites/.build ]; then touch sites/.build; fi \
     && cp sites/.build /out
@@ -33,7 +32,8 @@ RUN install-app frappe
 FROM assets_builder as erpnext_assets
 
 ARG ERPNEXT_VERSION
-RUN install-app erpnext ${ERPNEXT_VERSION} https://github.com/frappe/erpnext
+RUN git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext apps/erpnext \
+    && install-app erpnext
 
 
 FROM alpine/git as bench
