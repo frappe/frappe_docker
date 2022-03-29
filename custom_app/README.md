@@ -41,4 +41,6 @@ Cool! You just containerized your app!
 
 ## Installing multiple apps
 
-Both backend and frontend builds contain `install-app` script that places app where it should be. Each call to script installs given app. Usage: `install-app [APP_NAME] [BRANCH?] [GIT_URL?]`.
+Both backend and frontend builds contain `install-app` script that places app where it should be. Each call to script installs given app. Usage: `install-app [APP_NAME]`.
+
+If you want to install an app from git, clone it locally, COPY in Dockerfile.
