@@ -34,6 +34,7 @@ on:
   workflow_dispatch:
 
 jobs:
+#force build
   v12:
     uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
     with:
