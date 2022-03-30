@@ -1,14 +1,13 @@
 name: Bench
 
 on:
-  # toggle commenting to run on PR
-  #  pull_request:
-  #    branches:
-  #      - main
-  #    paths:
-  #      - images/bench/**
-  #      - docker-bake.hcl
-  #      - .github/workflows/build_bench.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - images/bench/**
+      - docker-bake.hcl
+      - .github/workflows/build_bench.yml
 
   schedule:
     # Every day at 12:00 pm
@@ -34,6 +33,8 @@ jobs:
 
       - name: Build and test
         uses: docker/bake-action@v1.7.0
+        env:
+          GITHUB_EVENT_NAME: "none"
         with:
           targets: bench-test
 
