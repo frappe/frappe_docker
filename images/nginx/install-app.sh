@@ -4,7 +4,17 @@ set -x
 
 APP=$1
 
+cleanup() {
+  rm -rf "apps/$APP"
+  rm -rf sites/assets/*
+}
+
 cd /frappe-bench
+
+if ! test -d "apps/$APP/$APP/public"; then
+  cleanup
+  exit 0
+fi
 
 # Add all not built assets
 cp -r "apps/$APP/$APP/public" "/out/assets/$APP"
@@ -19,6 +29,4 @@ echo "$APP" >>sites/apps.txt
 yarn --cwd apps/frappe run production --app "$APP"
 cp -r sites/assets /out
 
-# Cleanup
-rm -rf "apps/$APP"
-rm -rf sites/assets/*
+cleanup
