@@ -33,10 +33,10 @@ jobs:
 
       - name: Build and test
         uses: docker/bake-action@v1.7.0
-        env:
-          GITHUB_EVENT_NAME: ${{github.event_name}}
         with:
           targets: bench-test
+        env:
+          MULTI_ARCH_BUILD: ${{ github.event_name != 'pull_request' }}
 
       - name: Login
         if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
