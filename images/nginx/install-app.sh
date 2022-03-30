@@ -2,13 +2,18 @@
 set -e
 set -x
 
-APP=$1 BRANCH=$2 GIT_URL=$3
+APP=$1
+
+cleanup() {
+  rm -rf "apps/$APP"
+  rm -rf sites/assets/*
+}
 
 cd /frappe-bench
 
-if test "$BRANCH" && test "$GIT_URL"; then
-  # Clone in case not copied manually
-  git clone --depth 1 -b "$BRANCH" "$GIT_URL" "apps/$APP"
+if ! test -d "apps/$APP/$APP/public"; then
+  cleanup
+  exit 0
 fi
 
 # Add all not built assets
@@ -24,6 +29,4 @@ echo "$APP" >>sites/apps.txt
 yarn --cwd apps/frappe run production --app "$APP"
 cp -r sites/assets /out
 
-# Cleanup
-rm -rf "apps/$APP"
-rm -rf sites/assets
+cleanup
