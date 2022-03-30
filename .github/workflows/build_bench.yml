@@ -1,13 +1,14 @@
 name: Bench
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - images/bench/**
-      - docker-bake.hcl
-      - .github/workflows/build_bench.yml
+  # toggle commenting to run on PR
+  #  pull_request:
+  #    branches:
+  #      - main
+  #    paths:
+  #      - images/bench/**
+  #      - docker-bake.hcl
+  #      - .github/workflows/build_bench.yml
 
   schedule:
     # Every day at 12:00 pm
