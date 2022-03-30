@@ -13,8 +13,8 @@ variable "ERPNEXT_VERSION" {
     default = "develop"
 }
 
-variable "GITHUB_EVENT_NAME" {
-    default = "pull_request"
+variable "MULTI_ARCH_BUILD" {
+    default = "true"
 }
 
 # Bench image
@@ -62,7 +62,7 @@ target "default-args" {
         # If `ERPNEXT_VERSION` variable contains "v12" use Python 3.7. Else — 3.9.
         PYTHON_VERSION = can(regex("v12", "${ERPNEXT_VERSION}")) ? "3.7" : "3.9"
     }
-    platforms = notequal("pull_request", "${GITHUB_EVENT_NAME}") ? ["linux/amd64","linux/arm64"] : ["linux/amd64"]
+    platforms = equal("true", "${MULTI_ARCH_BUILD}") ? ["linux/amd64","linux/arm64"] : ["linux/amd64"]
 }
 
 target "frappe-worker" {
