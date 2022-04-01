@@ -36,7 +36,7 @@ jobs:
         with:
           targets: bench-test
         env:
-          MULTI_ARCH_BUILD: "${{ github.event_name == 'pull_request' }}"
+          MULTI_ARCH_BUILD: "${{ github.event_name != 'pull_request' }}"
 
       - name: Login
         if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}

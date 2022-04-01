@@ -1,20 +1,19 @@
 name: Stable build
 
 on:
-  # toggle commenting to run on PR
-  #  pull_request:
-  #    branches:
-  #      - main
-  #    paths:
-  #      - images/nginx/**
-  #      - images/socketio/**
-  #      - images/worker/**
-  #      - overrides/**
-  #      - tests/**
-  #      - compose.yaml
-  #      - docker-bake.hcl
-  #      - example.env
-  #      - .github/workflows/build_stable.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - images/nginx/**
+      - images/socketio/**
+      - images/worker/**
+      - overrides/**
+      - tests/**
+      - compose.yaml
+      - docker-bake.hcl
+      - example.env
+      - .github/workflows/build_stable.yml
 
   push:
     branches:
