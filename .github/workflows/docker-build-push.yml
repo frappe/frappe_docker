@@ -14,9 +14,6 @@ on:
       push:
         required: true
         type: boolean
-      platform:
-        required: true
-        type: string
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -54,11 +51,10 @@ jobs:
       - name: Build
         uses: docker/bake-action@v1.7.0
         with:
-          set: "*.platform=${{ inputs.platform }}"
           push: true
-          
         env:
           REGISTRY_USER: localhost:5000/frappe
+          MULTI_ARCH_BUILD: false
 
       - name: Setup Python
         uses: actions/setup-python@v3
