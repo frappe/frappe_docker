@@ -23,6 +23,7 @@ target "bench" {
     context = "images/bench"
     target = "bench"
     tags = ["frappe/bench:latest"]
+    platforms = equal(true, "${MULTI_ARCH_BUILD}") ? ["linux/amd64","linux/arm64"] : ["linux/amd64"]
 }
 
 target "bench-test" {
