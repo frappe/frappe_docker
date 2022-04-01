@@ -1,20 +1,19 @@
 name: Develop build
 
 on:
-  # toggle commenting to run on PR
-  #  pull_request:
-  #    branches:
-  #      - main
-  #    paths:
-  #      - images/nginx/**
-  #      - images/socketio/**
-  #      - images/worker/**
-  #      - overrides/**
-  #      - tests/**
-  #      - compose.yaml
-  #      - docker-bake.hcl
-  #      - example.env
-  #      - .github/workflows/build_develop.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - images/nginx/**
+      - images/socketio/**
+      - images/worker/**
+      - overrides/**
+      - tests/**
+      - compose.yaml
+      - docker-bake.hcl
+      - example.env
+      - .github/workflows/build_develop.yml
 
   schedule:
     # Every day at 12:00 pm
@@ -28,6 +27,7 @@ jobs:
     with:
       repo: erpnext
       version: develop
+      platform: linux/amd64
       push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
