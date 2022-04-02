@@ -13,8 +13,8 @@ variable "ERPNEXT_VERSION" {
     default = "develop"
 }
 
-variable "MULTI_ARCH_BUILD" {
-    default = false
+variable "ARCH_PLATFORMS" {
+    default = "local"
 }
 
 # Bench image
@@ -23,7 +23,7 @@ target "bench" {
     context = "images/bench"
     target = "bench"
     tags = ["frappe/bench:latest"]
-    platforms = equal(true, "${MULTI_ARCH_BUILD}") ? ["linux/amd64","linux/arm64"] : ["linux/amd64"]
+    platforms = "${ARCH_PLATFORMS}"
 }
 
 target "bench-test" {
@@ -63,7 +63,7 @@ target "default-args" {
         # If `ERPNEXT_VERSION` variable contains "v12" use Python 3.7. Else — 3.9.
         PYTHON_VERSION = can(regex("v12", "${ERPNEXT_VERSION}")) ? "3.7" : "3.9"
     }
-    platforms = equal(true, "${MULTI_ARCH_BUILD}") ? ["linux/amd64","linux/arm64"] : ["linux/amd64"]
+    platforms = "${ARCH_PLATFORMS}"
 }
 
 target "frappe-worker" {
