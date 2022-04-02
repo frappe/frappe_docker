@@ -83,7 +83,7 @@ nano .env
 
 # Pull new images
 docker-compose -f compose.yaml \
-  -f overrides/erpnext.yaml \
+  -f overrides/compose.erpnext.yaml \
   # ... your other overrides
   config > ~/gitops/docker-compose.yml
 
