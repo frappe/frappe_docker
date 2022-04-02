@@ -23,7 +23,7 @@ on:
 
 jobs:
   build:
-    uses: restlessronin/frappe_docker/.github/workflows/docker-build-push.yml@images-for-m1-mac
+    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
     with:
       repo: erpnext
       version: develop
