@@ -14,9 +14,10 @@ on:
       push:
         required: true
         type: boolean
-    env:
-      MULTI_ARCH_BUILD:
+      multiarch:
         required: true
+        type: boolean
+        description: "toggle for multi arch build"
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -57,7 +58,7 @@ jobs:
           push: true
         env:
           REGISTRY_USER: localhost:5000/frappe
-          MULTI_ARCH_BUILD: ${{ env.MULTI_ARCH_BUILD }}
+          MULTI_ARCH_BUILD: ${{ input.multiarch }}
 
       - name: Setup Python
         uses: actions/setup-python@v3
