@@ -58,7 +58,7 @@ jobs:
           push: true
         env:
           REGISTRY_USER: localhost:5000/frappe
-          MULTI_ARCH_BUILD: ${{ input.multiarch }}
+          MULTI_ARCH_BUILD: ${{ inputs.multiarch }}
 
       - name: Setup Python
         uses: actions/setup-python@v3
