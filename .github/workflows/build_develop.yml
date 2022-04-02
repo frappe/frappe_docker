@@ -28,6 +28,8 @@ jobs:
       repo: erpnext
       version: develop
       push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    env:
+      MULTI_ARCH_BUILD: ${{ github.event_name != 'pull_request' }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
