@@ -1,8 +1,9 @@
 #!/usr/local/bin/python
+from __future__ import annotations
 
 import json
 import os
-from typing import Any, Type, TypeVar
+from typing import Any, TypeVar
 
 
 def update_config(**values: Any):
@@ -22,7 +23,7 @@ def update_config(**values: Any):
 _T = TypeVar("_T")
 
 
-def env(name: str, type_: Type[_T] = str) -> _T:
+def env(name: str, type_: type[_T] = str) -> _T:
     value = os.getenv(name)
     if not value:
         raise RuntimeError(f'Required environment variable "{name}" not set')
