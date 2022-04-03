@@ -35,7 +35,6 @@ jobs:
         uses: docker/bake-action@v1.7.0
         with:
           targets: bench-test
-          set: "*.platform=${{ github.event_name != 'pull_request' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}"
 
       - name: Login
         if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
@@ -50,3 +49,4 @@ jobs:
         with:
           targets: bench
           push: true
+          set: "*.platform=linux/amd64,linux/arm64"

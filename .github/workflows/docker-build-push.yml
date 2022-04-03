@@ -56,7 +56,6 @@ jobs:
         uses: docker/bake-action@v1.7.0
         with:
           push: true
-          set: "*.platform=${{ inputs.platforms }}"
         env:
           REGISTRY_USER: localhost:5000/frappe
 
@@ -88,3 +87,4 @@ jobs:
         uses: docker/bake-action@v1.7.0
         with:
           push: true
+          set: "*.platform=${{ inputs.platforms }}"
