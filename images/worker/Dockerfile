@@ -96,7 +96,16 @@ COPY gevent_patch.py /opt/patches/
 
 WORKDIR /home/frappe/frappe-bench/sites
 
-CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", "-b", "0.0.0.0:8000", "frappe.app:application" ]
+CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", \
+  "--bind=0.0.0.0:8000", \
+  "--threads=4", \
+  "--workers=2", \
+  "--worker-class=gthread", \
+  "--worker-tmp-dir=/dev/shm", \
+  "--timeout=120", \
+  "--preload", \
+  "frappe.app:application" \
+]
 
 
 FROM configured_base as frappe
