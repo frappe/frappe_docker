@@ -1,4 +1,5 @@
 #!/home/frappe/frappe-bench/env/bin/python
+from __future__ import annotations
 
 import argparse
 import os
@@ -48,7 +49,7 @@ def get_files_from_previous_backup(site_name: str) -> list[Path]:
     return files
 
 
-def get_bucket(args: Arguments) -> "_Bucket":
+def get_bucket(args: Arguments) -> _Bucket:
     return boto3.resource(
         service_name="s3",
         endpoint_url=args.endpoint_url,
@@ -58,7 +59,7 @@ def get_bucket(args: Arguments) -> "_Bucket":
     ).Bucket(args.bucket)
 
 
-def upload_file(path: Path, site_name: str, bucket: "_Bucket") -> None:
+def upload_file(path: Path, site_name: str, bucket: _Bucket) -> None:
     filename = str(path.absolute())
     key = str(Path(site_name) / path.name)
     print(f"Uploading {key}")
@@ -78,7 +79,7 @@ def push_backup(args: Arguments) -> None:
     print("Done!")
 
 
-def parse_args(args: List[str]) -> Arguments:
+def parse_args(args: list[str]) -> Arguments:
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", required=True)
     parser.add_argument("--bucket", required=True)
@@ -96,7 +97,7 @@ def parse_args(args: List[str]) -> Arguments:
     return parser.parse_args(args, namespace=Arguments())
 
 
-def main(args: List[str]) -> int:
+def main(args: list[str]) -> int:
     push_backup(parse_args(args))
     return 0
 

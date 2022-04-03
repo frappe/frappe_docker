@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import click
 import click.exceptions
 import frappe.app

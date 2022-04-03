@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import asyncio
 import json
 import socket
-from typing import Any, Iterable
+from typing import Any, Iterable, Tuple
 
-Address = tuple[str, int]
+Address = Tuple[str, int]
 
 
 async def wait_for_port(address: Address) -> None:

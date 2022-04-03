@@ -38,7 +38,7 @@ jobs:
     uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
     with:
       repo: erpnext
-      version: "13"
+      version: "12"
       push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
