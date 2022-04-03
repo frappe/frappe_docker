@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any
 
@@ -38,16 +39,22 @@ def assets_cb(text: str):
 
 
 @pytest.mark.parametrize(
-    ("url", "callback"),
-    (
-        ("/", index_cb),
-        ("/api/method/version", api_cb),
-        ("/assets/frappe/images/frappe-framework-logo.svg", assets_cb),
-    ),
+    ("url", "callback"), (("/", index_cb), ("/api/method/version", api_cb))
 )
 def test_endpoints(url: str, callback: Any, frappe_site: str):
     check_url_content(
         url=f"http://127.0.0.1{url}", callback=callback, site_name=frappe_site
+    )
+
+
+@pytest.mark.skipif(
+    os.environ["FRAPPE_VERSION"][0:3] == "v12", reason="v12 doesn't have the asset"
+)
+def test_assets_endpoint(frappe_site: str):
+    check_url_content(
+        url=f"http://127.0.0.1/assets/frappe/images/frappe-framework-logo.svg",
+        callback=assets_cb,
+        site_name=frappe_site,
     )
 
 
