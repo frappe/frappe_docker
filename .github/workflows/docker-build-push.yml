@@ -14,6 +14,10 @@ on:
       push:
         required: true
         type: boolean
+      platforms:
+        required: true
+        type: string
+        description: "list of target platforms"
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -83,3 +87,4 @@ jobs:
         uses: docker/bake-action@v1.7.0
         with:
           push: true
+          set: "*.platform=${{ inputs.platforms }}"
