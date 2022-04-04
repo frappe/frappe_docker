@@ -23,7 +23,7 @@ on:
 
 jobs:
   build:
-    uses: frappe/frappe_docker/.github/workflows/docker-build-push.yml@main
+    uses: ./.github/workflows/docker-build-push.yml
     with:
       repo: erpnext
       version: develop
