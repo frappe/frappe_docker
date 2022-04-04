@@ -56,8 +56,8 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  update_example_env:
-    name: Update example.env
+  update_versions:
+    name: Update example.env and pwd.yml
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v13
@@ -75,18 +75,20 @@ jobs:
         run: python3 ./.github/scripts/get_latest_tags.py --repo erpnext --version 13
 
       - name: Update
-        run: python3 ./.github/scripts/update_example_env.py
+        run: |
+          python3 ./.github/scripts/update_example_env.py
+          python3 ./.github/scripts/update_pwd.py
 
       - name: Push
         run: |
           git config --global user.name github-actions
           git config --global user.email github-actions@github.com
-          git add example.env
+          git add example.env pwd.yml
           if [ -z "$(git status --porcelain)" ]; then
-            echo "example.env did not change, exiting."
+            echo "versions did not change, exiting."
             exit 0
           else
-            echo "example.env changed, pushing changes..."
+            echo "version changed, pushing changes..."
             git commit -m "chore: Update example.env"
             git pull --rebase
             git push origin main
