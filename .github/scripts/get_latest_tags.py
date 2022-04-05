@@ -54,7 +54,9 @@ def _print_resp(frappe_tag: str, erpnext_tag: str | None = None):
 def main(_args: list[str]) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", choices=["frappe", "erpnext"], required=True)
-    parser.add_argument("--version", choices=["12", "13", "14", "develop"], required=True)
+    parser.add_argument(
+        "--version", choices=["12", "13", "14", "develop"], required=True
+    )
     args = parser.parse_args(_args)
 
     frappe_tag = get_latest_tag("frappe", args.version)
