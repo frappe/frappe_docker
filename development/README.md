@@ -266,3 +266,29 @@ And enter the interactive shell for the development container with the following
 ```shell
 docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer_frappe_1 bash
 ```
+
+## Use additional services during development
+
+Add any service that is needed for development in the `.devcontainer/docker-compose.yml` then rebuild and reopen in devcontainer.
+
+e.g.
+
+```yaml
+...
+services:
+ ...
+  postgresql:
+    image: postgres:11.8
+    environment:
+      POSTGRES_PASSWORD: 123
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  ...
+  postgresql-data:
+```
+
+Access the service by service name from the `frappe` development container. The above service will be accessible via hostname `postgresql`. If ports are published on to host, access it via `localhost:5432`.
