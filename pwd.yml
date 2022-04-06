@@ -86,8 +86,8 @@ services:
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - assets:/home/frappe/frappe-bench/sites/assets
+      - sites:/usr/share/nginx/html/sites
+      - assets:/usr/share/nginx/html/assets
     ports:
       - "8080:8080"
 
