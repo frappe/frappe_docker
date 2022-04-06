@@ -75,10 +75,21 @@ Note: For version 12 use Python 3.7 by passing option to `bench init` command, e
 We need to tell bench to use the right containers instead of localhost. Run the following commands inside the container:
 
 ```shell
-bench set-mariadb-host mariadb
-bench set-redis-cache-host redis-cache:6379
-bench set-redis-queue-host redis-queue:6379
-bench set-redis-socketio-host redis-socketio:6379
+bench set-config -g db_host mariadb
+bench set-config -g redis_cache redis://redis-cache:6379
+bench set-config -g redis_queue redis://redis-queue:6379
+bench set-config -g redis_socketio redis://redis-socketio:6379
+```
+
+For any reason the above commands fail, set the values in `common_site_config.json` manually.
+
+```json
+{
+  "db_host": "mariadb",
+  "redis_cache": "redis://redis-cache:6379",
+  "redis_queue": "redis://redis-queue:6379",
+  "redis_socketio": "redis://redis-socketio:6379"
+}
 ```
 
 ### Edit Honcho's Procfile
