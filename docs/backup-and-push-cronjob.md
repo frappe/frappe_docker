@@ -27,15 +27,6 @@ services:
       - ENDPOINT_URL=https://endpoint.url
     volumes:
       - "sites-vol:/home/frappe/frappe-bench/sites"
-    # Uncomment in case of Docker Swarm with crazy-max/swarm-cronjob
-    # deploy:
-    #   labels:
-    #     - "swarm.cronjob.enable=true"
-    #     - "swarm.cronjob.schedule=0 */3 * * *"
-    #     - "swarm.cronjob.skip-running=true"
-    #   replicas: 0
-    #   restart_policy:
-    #     condition: none
     networks:
       - erpnext-network
 
@@ -58,6 +49,4 @@ In case of single docker host setup, add crontab entry for backup every 6 hours.
 
 Notes:
 
-- Install [crazy-max/swarm-cronjob](https://github.com/crazy-max/swarm-cronjob) for docker swarm.
-- Uncomment `deploy` section in case of usage on docker swarm.
 - Change the cron string as per need.
