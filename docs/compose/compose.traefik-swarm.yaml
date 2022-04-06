@@ -1,7 +1,0 @@
-version: "3.3"
-
-services:
-  traefik:
-    command:
-      # Enable Docker Swarm mode
-      - --providers.docker.swarmmode

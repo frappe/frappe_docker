@@ -34,7 +34,6 @@ Also, there's docs to help with deployment:
 - [Setup options](docs/setup-options.md)
 - Examples:
   - [Single Server](docs/single-server-example.md)
-  - [Docker Swarm](docs/docker-swarm.md),
   - [Kubernetes (frappe/helm)](https://helm.erpnext.com),
 - [site operations](docs/site-operations.md).
 - Other

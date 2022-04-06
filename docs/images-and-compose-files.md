@@ -42,7 +42,6 @@ We have several [overrides](https://docs.docker.com/compose/extends/):
 - `overrides/compose.mariadb.yaml`. Adds `db` service and sets its image to MariaDB.
 - `overrides/compose.postgres.yaml`. Adds `db` service and sets its image to Postgres. Note that ERPNext currently doesn't support Postgres.
 - `overrides/compose.redis.yaml`. Adds `redis` service and sets its image to `redis`.
-- `overrides/compose.swarm.yaml`. Workaround override for generating swarm stack.
 
 It is quite simple to run overrides. All we need to do is to specify compose files that should be used by docker-compose. For example, we want ERPNext:
 
