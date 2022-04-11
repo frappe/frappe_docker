@@ -42,8 +42,9 @@ RUN apt-get update \
 FROM build_deps as frappe_builder
 
 ARG FRAPPE_VERSION
+ARG FRAPPE_REPO=https://github.com/frappe/frappe
 RUN --mount=type=cache,target=/root/.cache/pip \
-    git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe apps/frappe \
+    git clone --depth 1 -b ${FRAPPE_VERSION} ${FRAPPE_REPO} apps/frappe \
     && install-app frappe \
     && env/bin/pip install -U gevent \
     # Link Frappe's node_modules/ to make Website Theme work
@@ -54,8 +55,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM frappe_builder as erpnext_builder
 
 ARG ERPNEXT_VERSION
+ARG ERPNEXT_REPO=https://github.com/frappe/erpnext
 RUN --mount=type=cache,target=/root/.cache/pip \
-    git clone --depth 1 -b ${ERPNEXT_VERSION} https://github.com/frappe/erpnext apps/erpnext \
+    git clone --depth 1 -b ${ERPNEXT_VERSION} ${ERPNEXT_REPO} apps/erpnext \
     && install-app erpnext
 
 

@@ -13,9 +13,24 @@ variable "ERPNEXT_VERSION" {
     default = "develop"
 }
 
+variable "FRAPPE_REPO" {
+    default = "https://github.com/frappe/frappe"
+}
+
+variable "ERPNEXT_REPO" {
+    default = "https://github.com/frappe/erpnext"
+}
+
+variable "BENCH_REPO" {
+    default = "https://github.com/frappe/bench"
+}
+
 # Bench image
 
 target "bench" {
+    args = {
+        GIT_REPO = "${BENCH_REPO}"
+    }
     context = "images/bench"
     target = "bench"
     tags = ["frappe/bench:latest"]
@@ -53,6 +68,9 @@ function "tag" {
 
 target "default-args" {
     args = {
+        FRAPPE_REPO = "${FRAPPE_REPO}"
+        ERPNEXT_REPO = "${ERPNEXT_REPO}"
+        BENCH_REPO = "${BENCH_REPO}"
         FRAPPE_VERSION = "${FRAPPE_VERSION}"
         ERPNEXT_VERSION = "${ERPNEXT_VERSION}"
         # If `ERPNEXT_VERSION` variable contains "v12" use Python 3.7. Else — 3.9.
