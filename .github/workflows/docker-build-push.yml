@@ -14,10 +14,6 @@ on:
       push:
         required: true
         type: boolean
-      platforms:
-        required: true
-        type: string
-        description: "list of target platforms"
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -37,12 +33,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v1
-        with:
-          image: tonistiigi/binfmt:latest
-          platforms: all
 
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v1
@@ -87,4 +77,3 @@ jobs:
         uses: docker/bake-action@v1.7.0
         with:
           push: true
-          set: "*.platform=${{ inputs.platforms }}"
