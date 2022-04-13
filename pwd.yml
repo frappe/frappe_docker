@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: frappe/erpnext-worker:v13.25.2
+    image: frappe/erpnext-worker:v13.26.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -11,7 +11,7 @@ services:
       - assets:/home/frappe/frappe-bench/sites/assets
 
   configurator:
-    image: frappe/erpnext-worker:v13.25.2
+    image: frappe/erpnext-worker:v13.26.0
     command:
       - configure.py
     environment:
@@ -25,7 +25,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   create-site:
-    image: frappe/erpnext-worker:v13.25.2
+    image: frappe/erpnext-worker:v13.26.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -74,7 +74,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext-nginx:v13.25.2
+    image: frappe/erpnext-nginx:v13.26.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -92,7 +92,7 @@ services:
       - "8080:8080"
 
   queue-default:
-    image: frappe/erpnext-worker:v13.25.2
+    image: frappe/erpnext-worker:v13.26.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -105,7 +105,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   queue-long:
-    image: frappe/erpnext-worker:v13.25.2
+    image: frappe/erpnext-worker:v13.26.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -118,7 +118,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   queue-short:
-    image: frappe/erpnext-worker:v13.25.2
+    image: frappe/erpnext-worker:v13.26.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -139,7 +139,7 @@ services:
       - redis-data:/data
 
   scheduler:
-    image: frappe/erpnext-worker:v13.25.2
+    image: frappe/erpnext-worker:v13.26.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -150,7 +150,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   websocket:
-    image: frappe/frappe-socketio:v13.25.0
+    image: frappe/frappe-socketio:v13.26.0
     deploy:
       restart_policy:
         condition: on-failure
