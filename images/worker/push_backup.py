@@ -22,6 +22,7 @@ class Arguments(argparse.Namespace):
     endpoint_url: str
     aws_access_key_id: str
     aws_secret_access_key: str
+    bucket_directory: str
 
 
 def _get_files_from_previous_backup(site_name: str) -> list[Path]:
@@ -59,9 +60,13 @@ def get_bucket(args: Arguments) -> _Bucket:
     ).Bucket(args.bucket)
 
 
-def upload_file(path: Path, site_name: str, bucket: _Bucket) -> None:
+def upload_file(
+    path: Path, site_name: str, bucket: _Bucket, bucket_directory: str = None
+) -> None:
     filename = str(path.absolute())
     key = str(Path(site_name) / path.name)
+    if bucket_directory:
+        key = bucket_directory + "/" + key
     print(f"Uploading {key}")
     bucket.upload_file(Filename=filename, Key=key)
     os.remove(path)
@@ -74,7 +79,12 @@ def push_backup(args: Arguments) -> None:
     bucket = get_bucket(args)
 
     for path in files:
-        upload_file(path=path, site_name=args.site, bucket=bucket)
+        upload_file(
+            path=path,
+            site_name=args.site,
+            bucket=bucket,
+            bucket_directory=args.bucket_directory,
+        )
 
     print("Done!")
 
@@ -94,6 +104,7 @@ def parse_args(args: list[str]) -> Arguments:
         required=True,
         default=os.getenv("AWS_SECRET_ACCESS_KEY"),
     )
+    parser.add_argument("--bucket-directory")
     return parser.parse_args(args, namespace=Arguments())
 
 
