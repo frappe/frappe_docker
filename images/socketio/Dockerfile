@@ -5,7 +5,7 @@ ARG FRAPPE_REPO=https://github.com/frappe/frappe
 RUN git clone --depth 1 -b ${FRAPPE_VERSION} ${FRAPPE_REPO} /opt/frappe
 
 
-FROM node:17-alpine
+FROM node:18-alpine
 
 RUN addgroup -S frappe \
     && adduser -S frappe -G frappe
