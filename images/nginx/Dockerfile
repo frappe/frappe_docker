@@ -1,4 +1,4 @@
-FROM node:14-bullseye-slim as assets_builder
+FROM node:18-bullseye-slim as assets_builder
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
