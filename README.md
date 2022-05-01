@@ -31,13 +31,12 @@ We provide simple and intuitive production setup with prebuilt Frappe and ERPNex
 
 Also, there's docs to help with deployment:
 
-- [Setup options](docs/setup-options.md)
 - Examples:
   - [Single Server](docs/single-server-example.md)
-  - [Kubernetes (frappe/helm)](https://helm.erpnext.com),
-- [site operations](docs/site-operations.md).
+  - [Setup options](docs/setup-options.md)
+  - [Kubernetes (frappe/helm)](https://helm.erpnext.com)
+- [Site operations](docs/site-operations.md).
 - Other
-  - [add custom domain using traefik](docs/add-custom-domain-using-traefik.md)
   - [backup and push cron jobs](docs/backup-and-push-cronjob.md)
   - [bench console and vscode debugger](docs/bench-console-and-vscode-debugger.md)
   - [build version 10](docs/build-version-10-images.md)
@@ -48,7 +47,7 @@ Also, there's docs to help with deployment:
 
 # Custom app
 
-Learn how to containerize your custom Frappe app in [this guide](custom_app/README.md).
+Learn how to containerize your custom Frappe app(s) in [this guide](custom_app/README.md).
 
 # Contributing
 

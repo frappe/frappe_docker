@@ -8,7 +8,7 @@ services:
     image: frappe/erpnext-worker:v13
     entrypoint: ["bash", "-c"]
     command: |
-      for $SITE in $(/home/frappe/frappe-bench/env/bin/python -c "import frappe;print(' '.join(frappe.utils.get_sites()))")
+      for SITE in $(/home/frappe/frappe-bench/env/bin/python -c "import frappe;print(' '.join(frappe.utils.get_sites()))")
       do
         bench --site $SITE backup --with-files
         push-backup \
