@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -42,7 +43,11 @@ def compose(env_file: str):
 
 @pytest.fixture(autouse=True, scope="session")
 def frappe_setup(compose: Compose):
-    compose.stop()
+    # Stop all containers in `test` project if they are running.
+    # We don't care if it fails.
+    with suppress(subprocess.CalledProcessError):
+        compose.stop()
+
     compose("up", "-d", "--quiet-pull")
     yield
     compose.stop()
