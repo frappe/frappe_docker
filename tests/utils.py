@@ -46,7 +46,11 @@ class Compose:
             self("exec", "-T", *cmd)
 
     def stop(self) -> None:
-        subprocess.check_call(self.base_cmd + ("down", "-v", "--remove-orphans"))
+        try:
+            subprocess.check_call(self.base_cmd + ("down", "-v", "--remove-orphans"))
+        except subprocess.CalledProcessError as e:
+            print("docker compose stop command failed")
+            print(e)
 
     def bench(self, *cmd: str) -> None:
         self.exec("backend", "bench", *cmd)
