@@ -1,3 +1,4 @@
+from contextlib import suppress
 import os
 import ssl
 import subprocess
@@ -46,7 +47,10 @@ class Compose:
             self("exec", "-T", *cmd)
 
     def stop(self) -> None:
-        subprocess.check_call(self.base_cmd + ("down", "-v", "--remove-orphans"))
+        # Stop all containers in `test` project if they are running.
+        # We don't care if it fails.
+        with suppress(subprocess.CalledProcessError):
+            subprocess.check_call(self.base_cmd + ("down", "-v", "--remove-orphans"))
 
     def bench(self, *cmd: str) -> None:
         self.exec("backend", "bench", *cmd)

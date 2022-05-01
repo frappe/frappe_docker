@@ -43,16 +43,12 @@ def compose(env_file: str):
 
 @pytest.fixture(autouse=True, scope="session")
 def frappe_setup(compose: Compose):
-    # Stop all containers in `test` project if they are running.
-    # We don't care if it fails.
-    with suppress(subprocess.CalledProcessError):
-        compose.stop()
+    compose.stop()
 
     compose("up", "-d", "--quiet-pull")
     yield
 
-    with suppress(subprocess.CalledProcessError):
-        compose.stop()
+    compose.stop()
 
 
 @pytest.fixture(scope="session")
