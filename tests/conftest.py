@@ -50,7 +50,9 @@ def frappe_setup(compose: Compose):
 
     compose("up", "-d", "--quiet-pull")
     yield
-    compose.stop()
+
+    with suppress(subprocess.CalledProcessError):
+        compose.stop()
 
 
 @pytest.fixture(scope="session")
