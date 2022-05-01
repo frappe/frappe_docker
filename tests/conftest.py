@@ -43,8 +43,10 @@ def compose(env_file: str):
 @pytest.fixture(autouse=True, scope="session")
 def frappe_setup(compose: Compose):
     compose.stop()
+
     compose("up", "-d", "--quiet-pull")
     yield
+
     compose.stop()
 
 

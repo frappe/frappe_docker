@@ -3,6 +3,7 @@ import ssl
 import subprocess
 import sys
 import time
+from contextlib import suppress
 from typing import Callable, Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -46,7 +47,10 @@ class Compose:
             self("exec", "-T", *cmd)
 
     def stop(self) -> None:
-        subprocess.check_call(self.base_cmd + ("down", "-v", "--remove-orphans"))
+        # Stop all containers in `test` project if they are running.
+        # We don't care if it fails.
+        with suppress(subprocess.CalledProcessError):
+            subprocess.check_call(self.base_cmd + ("down", "-v", "--remove-orphans"))
 
     def bench(self, *cmd: str) -> None:
         self.exec("backend", "bench", *cmd)
