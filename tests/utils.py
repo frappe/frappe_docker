@@ -1,9 +1,9 @@
-from contextlib import suppress
 import os
 import ssl
 import subprocess
 import sys
 import time
+from contextlib import suppress
 from typing import Callable, Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
