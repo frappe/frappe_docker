@@ -35,6 +35,8 @@ GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
 EXIT;
 ```
 
+Note: For MariaDB 10.4 and above use `mysql.global_priv` instead of `mysql.user`.
+
 ### Letsencrypt companion not working
 
 - Nginx Letsencrypt Companion needs to be setup before starting ERPNext services.
