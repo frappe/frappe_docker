@@ -21,7 +21,7 @@ server {
 
 		proxy_set_header X-Frappe-Site-Name mysite.localhost;
 		proxy_set_header Host mysite.localhost;
-		proxy_pass  http://erpnext-nginx;
+		proxy_pass  http://frontend;
 	}
 }
 ```
@@ -31,6 +31,7 @@ Notes:
 - Replace the port with any port of choice e.g. `listen 4200;`
 - Change `mysite.localhost` to site name
 - Repeat the server blocks for multiple ports and site names to get the effect of port based multi tenancy
+- For old images use `proxy_pass http://erpnext-nginx` instead of `proxy_pass http://frontend`
 
 ### Step 3
 
