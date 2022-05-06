@@ -173,14 +173,14 @@ To install custom app
 
 ```shell
 # --branch is optional, use it to point to branch on custom app repository
-bench get --branch version-12 https://github.com/myusername/myapp
+bench get-app --branch version-12 https://github.com/myusername/myapp
 bench --site mysite.localhost install-app myapp
 ```
 
-To install ERPNext (from the version-12 branch):
+To install ERPNext (from the version-13 branch):
 
 ```shell
-bench get --branch version-12 erpnext
+bench get-app --branch version-13 erpnext
 bench --site mysite.localhost install-app erpnext
 ```
 
