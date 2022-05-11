@@ -24,6 +24,7 @@ services:
 
   backend:
     <<: *backend_defaults
+    user: "1000:1000"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - assets:/home/frappe/frappe-bench/sites/assets:ro
@@ -47,23 +48,28 @@ services:
   websocket:
     <<: *depends_on_configurator
     image: frappe/frappe-socketio:${FRAPPE_VERSION}
+    user: "1000:1000"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
 
   queue-short:
     <<: *backend_defaults
+    user: "1000:1000"
     command: bench worker --queue short
 
   queue-default:
     <<: *backend_defaults
+    user: "1000:1000"
     command: bench worker --queue default
 
   queue-long:
     <<: *backend_defaults
+    user: "1000:1000"
     command: bench worker --queue long
 
   scheduler:
     <<: *backend_defaults
+    user: "1000:1000"
     command: bench schedule
 
 # ERPNext requires local assets access (Frappe does not)
