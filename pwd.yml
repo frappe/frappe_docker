@@ -150,7 +150,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   websocket:
-    image: frappe/frappe-socketio:v13.29.1
+    image: frappe/frappe-socketio:v13.29.2
     deploy:
       restart_policy:
         condition: on-failure
