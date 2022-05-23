@@ -275,7 +275,7 @@ docker-compose -f .devcontainer/docker-compose.yml up -d
 And enter the interactive shell for the development container with the following command:
 
 ```shell
-docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer_frappe_1 bash
+docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer-frappe-1 bash
 ```
 
 ## Use additional services during development
