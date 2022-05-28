@@ -1,7 +1,7 @@
 FROM alpine/git as builder
 
 ARG FRAPPE_VERSION
-ARG FRAPPE_REPO=https://github.com/frappe/frappe
+ARG FRAPPE_REPO
 RUN git clone --depth 1 -b ${FRAPPE_VERSION} ${FRAPPE_REPO} /opt/frappe
 
 

@@ -2,8 +2,8 @@ FROM debian:bullseye-slim as bench
 
 LABEL author=frappé
 
-ARG GIT_REPO=https://github.com/frappe/bench.git
-ARG GIT_BRANCH=develop
+ARG BENCH_REPO
+ARG BENCH_BRANCH=develop
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -97,7 +97,7 @@ RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
 ENV PATH /home/frappe/.local/bin:$PATH
 # Skip editable-bench warning
 # https://github.com/frappe/bench/commit/20560c97c4246b2480d7358c722bc9ad13606138
-RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
+RUN git clone ${BENCH_REPO} --depth 1 -b ${BENCH_BRANCH} .bench \
     && pip install --user -e .bench \
     && echo "export PATH=/home/frappe/.local/bin:\$PATH" >>/home/frappe/.bashrc \
     && echo "export BENCH_DEVELOPER=1" >>/home/frappe/.bashrc

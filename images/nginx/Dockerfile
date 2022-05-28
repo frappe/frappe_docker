@@ -14,7 +14,7 @@ RUN mkdir -p sites/assets /out/assets \
     && echo frappe >sites/apps.txt
 
 ARG FRAPPE_VERSION
-ARG FRAPPE_REPO=https://github.com/frappe/frappe
+ARG FRAPPE_REPO
 # Install development node modules
 RUN git clone --depth 1 -b ${FRAPPE_VERSION} ${FRAPPE_REPO} apps/frappe \
     && yarn --cwd apps/frappe \
