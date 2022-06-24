@@ -14,8 +14,8 @@ USER frappe
 WORKDIR /home/frappe/frappe-bench
 RUN mkdir -p sites apps/frappe
 
-COPY --from=builder /opt/frappe/socketio.js /opt/frappe/node_utils.js apps/frappe/
-COPY package.json apps/frappe/
+COPY --chown=frappe:frappe --from=builder /opt/frappe/socketio.js /opt/frappe/node_utils.js apps/frappe/
+COPY --chown=frappe:frappe package.json apps/frappe/
 
 RUN cd apps/frappe \
     && npm install
