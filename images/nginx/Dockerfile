@@ -47,7 +47,7 @@ RUN git clone --depth 1 ${BENCH_REPO} /tmp/bench \
     && mv /tmp/bench/bench/config/templates/502.html /out/
 
 
-FROM nginxinc/nginx-unprivileged:1.21.6-alpine as frappe
+FROM nginxinc/nginx-unprivileged:1.23.0-alpine as frappe
 
 # https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/alpine/20-envsubst-on-templates.sh
 COPY nginx-template.conf /etc/nginx/templates/default.conf.template
