@@ -1,4 +1,4 @@
-openssl passwd -apr1 Ramadan1
+openssl passwd -apr1 <Password>
 
 TRAEFIK_DOMAIN=traefik.ecoteq.app
 EMAIL=admin@ecoteq.app
@@ -41,7 +41,7 @@ docker-compose --project-name erpnext-one exec backend bench new-site two.ecoteq
 
 
 
-ssh -v root@144.91.66.45
+ssh -v <user>@144.91.66.45
 
 
 docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml exec backend bench drop-site acc.ecoteq.app
@@ -50,6 +50,3 @@ docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml exec backen
 
 docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml exec backend bench new-site acc.ecoteq.app --install-app erpnext
 docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml exec backend bench new-site erp.ecoteq.app --install-app erpnext
-
-Administrator
-Ramadan@2022
