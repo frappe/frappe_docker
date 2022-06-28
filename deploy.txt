@@ -1,0 +1,55 @@
+openssl passwd -apr1 Ramadan1
+
+TRAEFIK_DOMAIN=traefik.ecoteq.app
+EMAIL=admin@ecoteq.app
+HASHED_PASSWORD=$apr1$8NX6xEmO$EFU6qXSajSQ379rugjXDE/
+
+
+docker-compose --project-name traefik \
+  --env-file gitops/traefik.env \
+  -f docs/compose/compose.traefik.yaml \
+  -f docs/compose/compose.traefik-ssl.yaml up -d
+
+
+docker-compose --project-name mariadb --env-file gitops/mariadb.env -f docs/compose/compose.mariadb-shared.yaml up -d
+
+docker-compose --project-name mariadb --env-file gitops/mariadb.env -f docs/compose/compose.mariadb-shared.yaml config > gitops/mariadb-shared.yaml
+
+docker-compose --project-name mariadb -f gitops/mariadb-shared.yaml up -d
+
+
+
+docker-compose --project-name erpnext-one \
+  --env-file gitops/erpnext-one.env \
+  -f compose.yaml \
+  -f overrides/compose.erpnext.yaml \
+  -f overrides/compose.redis.yaml \
+  -f docs/compose/compose.multi-bench.yaml \
+  -f docs/compose/compose.multi-bench-ssl.yaml config > gitops/erpnext-one.yaml
+
+
+docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml up -d
+
+
+# one.example.com
+docker-compose --project-name erpnext-one exec -it backend bench new-site erp.ecoteq.app --mariadb-root-password 'ecoteq3737' --install-app erpnext --admin-password 'admin123'
+
+bench new-site erp.ecoteq.app --mariadb-root-password 'ecoteq3737' --install-app erpnext --admin-password 'admin123'
+bench new-site acc.ecoteq.app --mariadb-root-password 'ecoteq3737' --install-app erpnext --admin-password 'admin123'
+
+docker-compose --project-name erpnext-one exec backend bench new-site two.ecoteq.app --mariadb-root-password mOpHo$e2h --install-app erpnext --admin-password mOpHo$e2h
+
+
+
+ssh -v root@144.91.66.45
+
+
+docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml exec backend bench drop-site acc.ecoteq.app
+docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml exec backend bench drop-site erp.ecoteq.app
+
+
+docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml exec backend bench new-site acc.ecoteq.app --install-app erpnext
+docker-compose --project-name erpnext-one -f gitops/erpnext-one.yaml exec backend bench new-site erp.ecoteq.app --install-app erpnext
+
+Administrator
+Ramadan@2022
