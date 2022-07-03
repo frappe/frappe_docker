@@ -87,7 +87,7 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 # From https://github.com/pyenv/pyenv#basic-github-checkout
 RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
     && pyenv install $PYTHON_VERSION_V12 \
-    && pyenv install $PYTHON_VERSION_v13 \
+    && pyenv install $PYTHON_VERSION_V13 \
     && pyenv install $PYTHON_VERSION \
     && pyenv global $PYTHON_VERSION $PYTHON_VERSION_V12 $PYTHON_VERSION_v13 \
     && sed -Ei -e '/^([^#]|$)/ {a export PYENV_ROOT="/home/frappe/.pyenv" a export PATH="$PYENV_ROOT/bin:$PATH" a ' -e ':a' -e '$!{n;ba};}' ~/.profile \
