@@ -64,11 +64,23 @@ Notes:
 Run the following commands in the terminal inside the container. You might need to create a new terminal in VSCode.
 
 ```shell
-bench init --skip-redis-config-generation --frappe-branch version-13 frappe-bench
+bench init --skip-redis-config-generation frappe-bench
 cd frappe-bench
 ```
 
-Note: For version 12 use Python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench`
+For version 13 use Python 3.9 by passing option to `bench init` command,
+
+```shell
+bench init --skip-redis-config-generation --frappe-branch version-13 --python python3.9 frappe-bench
+cd frappe-bench
+```
+
+For version 12 use Python 3.7 by passing option to `bench init` command,
+
+```shell
+bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench
+cd frappe-bench
+```
 
 ### Setup hosts
 
