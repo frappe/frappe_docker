@@ -2,7 +2,6 @@ services:
   frontend:
     networks:
       - traefik-public
-      - mariadb-network
       - bench-network
     labels:
       - traefik.enable=true
@@ -16,6 +15,7 @@ services:
       - bench-network
   backend:
     networks:
+      - mariadb-network
       - bench-network
   websocket:
     networks:
