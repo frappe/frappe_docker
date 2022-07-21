@@ -13,28 +13,28 @@ services:
       - traefik.http.routers.${ROUTER}-http.rule=Host(${SITES?SITES not set})
   configurator:
     networks:
-      - mariadb-network
+      - bench-network
   backend:
     networks:
-      - mariadb-network
+      - bench-network
   websocket:
     networks:
-      - mariadb-network
+      - bench-network
   scheduler:
     networks:
-      - mariadb-network
+      - bench-network
   queue-default:
     networks:
-      - mariadb-network
+      - bench-network
   queue-short:
     networks:
-      - mariadb-network
+      - bench-network
   queue-long:
     networks:
-      - mariadb-network
+      - bench-network
   redis:
     networks:
-      - mariadb-network
+      - bench-network
 
 networks:
   traefik-public:
