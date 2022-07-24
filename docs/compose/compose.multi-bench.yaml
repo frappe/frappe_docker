@@ -13,6 +13,7 @@ services:
   configurator:
     networks:
       - bench-network
+      - mariadb-network
   backend:
     networks:
       - mariadb-network
@@ -20,21 +21,26 @@ services:
   websocket:
     networks:
       - bench-network
+      - mariadb-network
   scheduler:
     networks:
       - bench-network
+      - mariadb-network
   queue-default:
     networks:
       - bench-network
+      - mariadb-network
   queue-short:
     networks:
       - bench-network
   queue-long:
     networks:
       - bench-network
+      - mariadb-network
   redis:
     networks:
       - bench-network
+      - mariadb-network
 
 networks:
   traefik-public:
