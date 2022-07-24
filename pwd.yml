@@ -17,9 +17,9 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: "3306"
-      REDIS_CACHE: redis:6379/0
-      REDIS_QUEUE: redis:6379/1
-      REDIS_SOCKETIO: redis:6379/2
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-queue:6379
+      REDIS_SOCKETIO: redis-socketio:6379
       SOCKETIO_PORT: "9000"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
@@ -38,7 +38,9 @@ services:
     command:
       - >
         wait-for-it -t 120 db:3306;
-        wait-for-it -t 120 redis:6379;
+        wait-for-it -t 120 redis-cache:6379;
+        wait-for-it -t 120 redis-queue:6379;
+        wait-for-it -t 120 redis-socketio:6379;
         export start=`date +%s`;
         until [[ -n `grep -hs ^ common_site_config.json | jq -r ".db_host // empty"` ]] && \
           [[ -n `grep -hs ^ common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
@@ -130,13 +132,29 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
 
-  redis:
+  redis-queue:
     image: redis:6.2-alpine
     deploy:
       restart_policy:
         condition: on-failure
     volumes:
-      - redis-data:/data
+      - redis-queue-data:/data
+
+  redis-cache:
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - redis-cache-data:/data
+
+  redis-socketio:
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - redis-socketio-data:/data
 
   scheduler:
     image: frappe/erpnext-worker:v13.36.1
@@ -160,5 +178,7 @@ services:
 volumes:
   assets:
   db-data:
-  redis-data:
+  redis-queue-data:
+  redis-cache-data:
+  redis-socketio-data:
   sites:
