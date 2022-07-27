@@ -129,7 +129,7 @@ This will make `mariadb-database` service available under `mariadb-network`. Dat
 
 #### Create first bench
 
-Create second bench called `erpnext-one` with `one.example.com` and `two.example.com`
+Create first bench called `erpnext-one` with `one.example.com` and `two.example.com`
 
 Create a file called `erpnext-one.env` in `~/gitops`
 
