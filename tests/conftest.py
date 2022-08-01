@@ -92,7 +92,10 @@ def erpnext_site(compose: Compose):
         "erpnext",
     ]
     erpnext_version = os.environ.get("ERPNEXT_VERSION")
-    if erpnext_version == "develop" or erpnext_version.startswith("v14"):
+    if erpnext_version in [
+        "develop",
+        "version-14",
+    ] or erpnext_version.startswith("v14"):
         args.append("--install-app=payments")
     compose.bench(*args)
     compose("restart", "backend")
