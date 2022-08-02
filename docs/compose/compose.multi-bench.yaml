@@ -2,7 +2,6 @@ services:
   frontend:
     networks:
       - traefik-public
-      - mariadb-network
       - bench-network
     labels:
       - traefik.enable=true
@@ -13,27 +12,34 @@ services:
       - traefik.http.routers.${ROUTER}-http.rule=Host(${SITES?SITES not set})
   configurator:
     networks:
+      - bench-network
       - mariadb-network
   backend:
     networks:
       - mariadb-network
+      - bench-network
   websocket:
     networks:
+      - bench-network
       - mariadb-network
   scheduler:
     networks:
+      - bench-network
       - mariadb-network
   queue-default:
     networks:
+      - bench-network
       - mariadb-network
   queue-short:
     networks:
-      - mariadb-network
+      - bench-network
   queue-long:
     networks:
+      - bench-network
       - mariadb-network
   redis:
     networks:
+      - bench-network
       - mariadb-network
 
 networks:
