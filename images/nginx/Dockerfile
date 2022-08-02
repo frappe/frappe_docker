@@ -32,9 +32,14 @@ RUN install-app frappe
 
 FROM assets_builder as erpnext_assets
 
+ARG PAYMENTS_VERSION=develop
+ARG PAYMENTS_REPO=https://github.com/frappe/payments
 ARG ERPNEXT_VERSION
 ARG ERPNEXT_REPO=https://github.com/frappe/erpnext
-RUN git clone --depth 1 -b ${ERPNEXT_VERSION} ${ERPNEXT_REPO} apps/erpnext \
+RUN if [ -z "${ERPNEXT_VERSION##*v14*}" ] || [ "$ERPNEXT_VERSION" = "develop" ]; then \
+        git clone --depth 1 -b ${PAYMENTS_VERSION} ${PAYMENTS_REPO} apps/payments && install-app payments; \
+    fi \
+    && git clone --depth 1 -b ${ERPNEXT_VERSION} ${ERPNEXT_REPO} apps/erpnext \
     && install-app erpnext
 
 
