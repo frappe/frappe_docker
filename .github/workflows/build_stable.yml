@@ -68,7 +68,7 @@ jobs:
     name: Update example.env and pwd.yml
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-    needs: v13
+    needs: v14
 
     steps:
       - name: Checkout
@@ -80,7 +80,7 @@ jobs:
           python-version: "3.10"
 
       - name: Get latest versions
-        run: python3 ./.github/scripts/get_latest_tags.py --repo erpnext --version 13
+        run: python3 ./.github/scripts/get_latest_tags.py --repo erpnext --version 14
 
       - name: Update
         run: |
@@ -106,7 +106,7 @@ jobs:
     name: Release Helm
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-    needs: v13
+    needs: v14
 
     steps:
       - name: Setup deploy key
@@ -123,4 +123,4 @@ jobs:
         run: |
           git clone git@github.com:frappe/helm.git && cd helm
           pip install -r release_wizard/requirements.txt
-          ./release_wizard/wizard 13 patch --remote origin --ci
+          ./release_wizard/wizard 14 patch --remote origin --ci
