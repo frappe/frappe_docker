@@ -72,7 +72,6 @@ Note:
 
 - Change the domain from `traefik.example.com` to the one used in production. DNS entry needs to point to the Server IP.
 - Change the letsencrypt notification email from `admin@example.com` to correct email.
-- Change the password from `changeit` to more secure.
 
 env file generated at location `~/gitops/traefik.env` will look like following:
 
