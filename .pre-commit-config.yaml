@@ -32,6 +32,9 @@ repos:
     rev: v2.2.0
     hooks:
       - id: codespell
+        args:
+          - -L
+          - "ro"
 
   - repo: local
     hooks:
