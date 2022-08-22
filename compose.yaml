@@ -8,7 +8,7 @@ x-backend-defaults: &backend_defaults
   image: frappe/frappe-worker:${FRAPPE_VERSION:?No Frappe version set}
   volumes:
     - sites:/home/frappe/frappe-bench/sites
-    - assets:/home/frappe/frappe-bench/sites/assets
+    - assets:/home/frappe/frappe-bench/sites/assets:ro
 
 services:
   configurator:
@@ -25,9 +25,6 @@ services:
 
   backend:
     <<: *backend_defaults
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - assets:/home/frappe/frappe-bench/sites/assets:ro
 
   frontend:
     image: frappe/frappe-nginx:${FRAPPE_VERSION}
