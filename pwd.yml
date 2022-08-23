@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: frappe/erpnext-worker:v14.0.1
+    image: frappe/erpnext-worker:v14.0.2
     deploy:
       restart_policy:
         condition: on-failure
@@ -11,7 +11,7 @@ services:
       - assets:/home/frappe/frappe-bench/sites/assets
 
   configurator:
-    image: frappe/erpnext-worker:v14.0.1
+    image: frappe/erpnext-worker:v14.0.2
     command:
       - configure.py
     environment:
@@ -25,7 +25,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   create-site:
-    image: frappe/erpnext-worker:v14.0.1
+    image: frappe/erpnext-worker:v14.0.2
     deploy:
       restart_policy:
         condition: on-failure
@@ -76,7 +76,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext-nginx:v14.0.1
+    image: frappe/erpnext-nginx:v14.0.2
     deploy:
       restart_policy:
         condition: on-failure
@@ -94,7 +94,7 @@ services:
       - "8080:8080"
 
   queue-default:
-    image: frappe/erpnext-worker:v14.0.1
+    image: frappe/erpnext-worker:v14.0.2
     deploy:
       restart_policy:
         condition: on-failure
@@ -107,7 +107,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   queue-long:
-    image: frappe/erpnext-worker:v14.0.1
+    image: frappe/erpnext-worker:v14.0.2
     deploy:
       restart_policy:
         condition: on-failure
@@ -120,7 +120,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   queue-short:
-    image: frappe/erpnext-worker:v14.0.1
+    image: frappe/erpnext-worker:v14.0.2
     deploy:
       restart_policy:
         condition: on-failure
@@ -157,7 +157,7 @@ services:
       - redis-socketio-data:/data
 
   scheduler:
-    image: frappe/erpnext-worker:v14.0.1
+    image: frappe/erpnext-worker:v14.0.2
     deploy:
       restart_policy:
         condition: on-failure
