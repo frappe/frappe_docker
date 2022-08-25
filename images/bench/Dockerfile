@@ -104,6 +104,9 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
     && echo "export PATH=/home/frappe/.local/bin:\$PATH" >>/home/frappe/.bashrc \
     && echo "export BENCH_DEVELOPER=1" >>/home/frappe/.bashrc
 
+# On Some ERPNext database tabDelete Document have big data and 16M allowed packet is too small to perform bench backup
+RUN sed -Ei -e 's/max_allowed_packet	= 16M/max_allowed_packet	= 512M/' /etc/mysql/conf.d/mysqldump.cnf
+
 # Install Node via nvm
 ENV NODE_VERSION=14.18.1
 ENV NODE_VERSION_FRAPPEV11=10.24.1
