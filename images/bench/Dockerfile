@@ -44,7 +44,6 @@ RUN apt-get update \
     libwebp-dev \
     redis-tools \
     rlwrap \
-    libbz2-dev \
     tk8.6-dev \
     ssh-client \
     # VSCode container requirements
