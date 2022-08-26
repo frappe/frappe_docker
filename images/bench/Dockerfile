@@ -48,7 +48,7 @@ RUN apt-get update \
     ssh-client \
     # VSCode container requirements
     net-tools \
-    # uncomment for python depencies
+    # Uncomment for python depencies
     #make \
     ## For pandas
     #libbz2-dev \
