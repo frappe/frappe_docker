@@ -44,12 +44,26 @@ RUN apt-get update \
     libwebp-dev \
     redis-tools \
     rlwrap \
-    # for pandas "_bz2" NoModuleFound
     libbz2-dev \
     tk8.6-dev \
     ssh-client \
     # VSCode container requirements
     net-tools \
+    # uncomment for python depencies
+    #make \
+    ## For pandas
+    #libbz2-dev \
+    ## For bench execute
+    #libsqlite3-dev \
+    ## For other dependencies
+    #zlib1g-dev \
+    #libreadline-dev \
+    #llvm \
+    #libncurses5-dev \
+    #libncursesw5-dev \
+    #xz-utils \
+    #tk-dev \
+    #liblzma-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
