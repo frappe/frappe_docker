@@ -13,9 +13,6 @@ RUN apt-get update \
     postgresql-client \
     gettext-base \
     wget \
-    # for ERPNext v12
-    # TODO: Remove after v12 is deprecated
-    python2 \
     # for PDF
     libssl-dev \
     fonts-cantarell \
@@ -51,6 +48,21 @@ RUN apt-get update \
     ssh-client \
     # VSCode container requirements
     net-tools \
+    # Uncomment for python depencies
+    #make \
+    ## For pandas
+    #libbz2-dev \
+    ## For bench execute
+    #libsqlite3-dev \
+    ## For other dependencies
+    #zlib1g-dev \
+    #libreadline-dev \
+    #llvm \
+    #libncurses5-dev \
+    #libncursesw5-dev \
+    #xz-utils \
+    #tk-dev \
+    #liblzma-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
@@ -76,9 +88,6 @@ USER frappe
 WORKDIR /home/frappe
 
 # Install Python via pyenv
-# Python 3.7 sits here for ERPNext version-12
-# TODO: Remove Python 3.7 when version-12 will not be supported
-ENV PYTHON_VERSION_V12=3.7.12
 ENV PYTHON_VERSION_V13=3.9.9
 ENV PYTHON_VERSION=3.10.5
 ENV PYENV_ROOT /home/frappe/.pyenv
@@ -86,10 +95,9 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 # From https://github.com/pyenv/pyenv#basic-github-checkout
 RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
-    && pyenv install $PYTHON_VERSION_V12 \
     && pyenv install $PYTHON_VERSION_V13 \
     && pyenv install $PYTHON_VERSION \
-    && pyenv global $PYTHON_VERSION $PYTHON_VERSION_V12 $PYTHON_VERSION_v13 \
+    && pyenv global $PYTHON_VERSION $PYTHON_VERSION_v13 \
     && sed -Ei -e '/^([^#]|$)/ {a export PYENV_ROOT="/home/frappe/.pyenv" a export PATH="$PYENV_ROOT/bin:$PATH" a ' -e ':a' -e '$!{n;ba};}' ~/.profile \
     && echo 'eval "$(pyenv init --path)"' >>~/.profile \
     && echo 'eval "$(pyenv init -)"' >>~/.bashrc
@@ -106,14 +114,11 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
 
 # Install Node via nvm
 ENV NODE_VERSION=14.18.1
-ENV NODE_VERSION_FRAPPEV11=10.24.1
 ENV NVM_DIR /home/frappe/.nvm
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
 RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
     && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${NODE_VERSION_FRAPPEV11} \
-    && nvm use v${NODE_VERSION_FRAPPEV11} \
     && npm install -g yarn \
     && nvm install ${NODE_VERSION} \
     && nvm use v${NODE_VERSION} \
