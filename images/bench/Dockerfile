@@ -48,7 +48,7 @@ RUN apt-get update \
     ssh-client \
     # VSCode container requirements
     net-tools \
-    # For pyenv build depencies
+    # For pyenv build dependencies
     # https://github.com/frappe/frappe_docker/issues/840#issuecomment-1185206895
     make \
     # For pandas
