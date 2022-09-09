@@ -81,7 +81,7 @@ def erpnext_setup(compose: Compose):
 @pytest.fixture(scope="class")
 def erpnext_site(compose: Compose):
     site_name = "test_erpnext_site"
-    compose.bench(
+    args = [
         "new-site",
         site_name,
         "--mariadb-root-password",
@@ -90,7 +90,14 @@ def erpnext_site(compose: Compose):
         "admin",
         "--install-app",
         "erpnext",
-    )
+    ]
+    erpnext_version = os.environ.get("ERPNEXT_VERSION")
+    if erpnext_version in [
+        "develop",
+        "version-14",
+    ] or erpnext_version.startswith("v14"):
+        args.append("--install-app=payments")
+    compose.bench(*args)
     compose("restart", "backend")
     yield site_name
 

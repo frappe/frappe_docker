@@ -19,6 +19,8 @@ def get_latest_tag(repo: Repo, version: MajorVersion) -> str:
     refs = subprocess.check_output(
         (
             "git",
+            "-c",
+            "versionsort.suffix=-",
             "ls-remote",
             "--refs",
             "--tags",

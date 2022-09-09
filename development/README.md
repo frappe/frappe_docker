@@ -64,11 +64,23 @@ Notes:
 Run the following commands in the terminal inside the container. You might need to create a new terminal in VSCode.
 
 ```shell
-bench init --skip-redis-config-generation --frappe-branch version-13 frappe-bench
+bench init --skip-redis-config-generation frappe-bench
 cd frappe-bench
 ```
 
-Note: For version 12 use Python 3.7 by passing option to `bench init` command, e.g. `bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench`
+For version 13 use Python 3.9 by passing option to `bench init` command,
+
+```shell
+bench init --skip-redis-config-generation --frappe-branch version-13 --python python3.9 frappe-bench
+cd frappe-bench
+```
+
+For version 12 use Python 3.7 by passing option to `bench init` command,
+
+```shell
+bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench
+cd frappe-bench
+```
 
 ### Setup hosts
 
@@ -97,6 +109,8 @@ For any reason the above commands fail, set the values in `common_site_config.js
 Note : With the option '--skip-redis-config-generation' during bench init, these actions are no more needed. But at least, take a look to ProcFile to see what going on when bench launch honcho on start command
 
 Honcho is the tool used by Bench to manage all the processes Frappe requires. Usually, these all run in localhost, but in this case, we have external containers for Redis. For this reason, we have to stop Honcho from trying to start Redis processes.
+
+Honcho is installed in global python environment along with bench. To make it available locally you've to install it in every `frappe-bench/env` you create. Install it using command `./env/bin/pip install honcho`. It is required locally if you wish to use is as part of VSCode launch configuration.
 
 Open the Procfile file and remove the three lines containing the configuration from Redis, either by editing manually the file:
 

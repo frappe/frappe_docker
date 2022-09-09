@@ -32,9 +32,14 @@ RUN install-app frappe
 
 FROM assets_builder as erpnext_assets
 
+ARG PAYMENTS_VERSION=develop
+ARG PAYMENTS_REPO=https://github.com/frappe/payments
 ARG ERPNEXT_VERSION
 ARG ERPNEXT_REPO=https://github.com/frappe/erpnext
-RUN git clone --depth 1 -b ${ERPNEXT_VERSION} ${ERPNEXT_REPO} apps/erpnext \
+RUN if [ -z "${ERPNEXT_VERSION##*v14*}" ] || [ "$ERPNEXT_VERSION" = "develop" ]; then \
+        git clone --depth 1 -b ${PAYMENTS_VERSION} ${PAYMENTS_REPO} apps/payments && install-app payments; \
+    fi \
+    && git clone --depth 1 -b ${ERPNEXT_VERSION} ${ERPNEXT_REPO} apps/erpnext \
     && install-app erpnext
 
 
@@ -47,7 +52,7 @@ RUN git clone --depth 1 ${BENCH_REPO} /tmp/bench \
     && mv /tmp/bench/bench/config/templates/502.html /out/
 
 
-FROM nginxinc/nginx-unprivileged:1.23.0-alpine as frappe
+FROM nginxinc/nginx-unprivileged:1.23.1-alpine as frappe
 
 # https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/alpine/20-envsubst-on-templates.sh
 COPY nginx-template.conf /etc/nginx/templates/default.conf.template

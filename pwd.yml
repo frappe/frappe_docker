@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: frappe/erpnext-worker:v13.34.1
+    image: frappe/erpnext-worker:v14.1.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -11,21 +11,21 @@ services:
       - assets:/home/frappe/frappe-bench/sites/assets
 
   configurator:
-    image: frappe/erpnext-worker:v13.34.1
+    image: frappe/erpnext-worker:v14.1.0
     command:
       - configure.py
     environment:
       DB_HOST: db
       DB_PORT: "3306"
-      REDIS_CACHE: redis:6379/0
-      REDIS_QUEUE: redis:6379/1
-      REDIS_SOCKETIO: redis:6379/2
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-queue:6379
+      REDIS_SOCKETIO: redis-socketio:6379
       SOCKETIO_PORT: "9000"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
 
   create-site:
-    image: frappe/erpnext-worker:v13.34.1
+    image: frappe/erpnext-worker:v14.1.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -38,7 +38,9 @@ services:
     command:
       - >
         wait-for-it -t 120 db:3306;
-        wait-for-it -t 120 redis:6379;
+        wait-for-it -t 120 redis-cache:6379;
+        wait-for-it -t 120 redis-queue:6379;
+        wait-for-it -t 120 redis-socketio:6379;
         export start=`date +%s`;
         until [[ -n `grep -hs ^ common_site_config.json | jq -r ".db_host // empty"` ]] && \
           [[ -n `grep -hs ^ common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
@@ -52,7 +54,7 @@ services:
           fi
         done;
         echo "common_site_config.json found";
-        bench new-site frontend --admin-password=admin --db-root-password=admin --install-app erpnext --set-default;
+        bench new-site frontend --admin-password=admin --db-root-password=admin --install-app payments --install-app erpnext --set-default;
 
   db:
     image: mariadb:10.6
@@ -74,7 +76,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext-nginx:v13.34.1
+    image: frappe/erpnext-nginx:v14.1.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -92,7 +94,7 @@ services:
       - "8080:8080"
 
   queue-default:
-    image: frappe/erpnext-worker:v13.34.1
+    image: frappe/erpnext-worker:v14.1.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -105,7 +107,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   queue-long:
-    image: frappe/erpnext-worker:v13.34.1
+    image: frappe/erpnext-worker:v14.1.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -118,7 +120,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   queue-short:
-    image: frappe/erpnext-worker:v13.34.1
+    image: frappe/erpnext-worker:v14.1.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -130,16 +132,32 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
 
-  redis:
+  redis-queue:
     image: redis:6.2-alpine
     deploy:
       restart_policy:
         condition: on-failure
     volumes:
-      - redis-data:/data
+      - redis-queue-data:/data
+
+  redis-cache:
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - redis-cache-data:/data
+
+  redis-socketio:
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - redis-socketio-data:/data
 
   scheduler:
-    image: frappe/erpnext-worker:v13.34.1
+    image: frappe/erpnext-worker:v14.1.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -150,7 +168,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
 
   websocket:
-    image: frappe/frappe-socketio:v13.34.0
+    image: frappe/frappe-socketio:v14.6.0
     deploy:
       restart_policy:
         condition: on-failure
@@ -160,5 +178,7 @@ services:
 volumes:
   assets:
   db-data:
-  redis-data:
+  redis-queue-data:
+  redis-cache-data:
+  redis-socketio-data:
   sites:

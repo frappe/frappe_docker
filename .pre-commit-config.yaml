@@ -8,13 +8,13 @@ repos:
       - id: end-of-file-fixer
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.34.0
+    rev: v2.37.3
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
 
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 22.8.0
     hooks:
       - id: black
 
@@ -29,9 +29,12 @@ repos:
       - id: prettier
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.1.0
+    rev: v2.2.1
     hooks:
       - id: codespell
+        args:
+          - -L
+          - "ro"
 
   - repo: local
     hooks:
