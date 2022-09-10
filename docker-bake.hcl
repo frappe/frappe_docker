@@ -73,8 +73,7 @@ target "default-args" {
         BENCH_REPO = "${BENCH_REPO}"
         FRAPPE_VERSION = "${FRAPPE_VERSION}"
         ERPNEXT_VERSION = "${ERPNEXT_VERSION}"
-        # If `ERPNEXT_VERSION` variable contains "v12" use Python 3.7. If "v13" — 3.9. Else 3.10.
-        PYTHON_VERSION = can(regex("v12", "${ERPNEXT_VERSION}")) ? "3.7" : can(regex("v13", "${ERPNEXT_VERSION}")) ? "3.9" : "3.10"
+        PYTHON_VERSION = can(regex("v13", "${ERPNEXT_VERSION}")) ? "3.9" : "3.10"
     }
 }
 
