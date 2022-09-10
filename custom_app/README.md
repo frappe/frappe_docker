@@ -7,9 +7,9 @@ You can see that there's four files in this folder:
 - `docker-bake.hcl`,
 - `compose.override.yaml`.
 
-Python code will `backend.Dockerfile`. JS and CSS (and other fancy frontend stuff) files will be built in `frontend.Dockerfile` if required and served from there.
+Python code will be built in `backend.Dockerfile`. JS and CSS (and other fancy frontend stuff) files will be built in `frontend.Dockerfile`.
 
-`docker-bake.hcl` is reference file for cool new [Buildx Bake](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md). It helps to build images without having to remember all build arguments.
+`docker-bake.hcl` is reference file for [Buildx Bake](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md). It helps to build images without having to remember all build arguments.
 
 `compose.override.yaml` is [Compose](https://docs.docker.com/compose/compose-file/) override that replaces images from [main compose file](https://github.com/frappe/frappe_docker/blob/main/compose.yaml) so it would use your own images.
 
@@ -21,7 +21,7 @@ Before the next step—to build images—replace "custom_app" with your app's na
 FRAPPE_VERSION=... ERPNEXT_VERSION=... docker buildx bake
 ```
 
-> 💡 We assume that majority of our users use ERPNext, that's why images in this tutorial are based on ERPNext images. If don't want ERPNext, change base image in Dockerfiles and remove ERPNEXT_VERSION from bake file.
+> 💡 We assume that majority of our users use ERPNext, that's why images in this tutorial are based on ERPNext images. If don't want ERPNext, change base image in Dockerfile and remove ERPNEXT_VERSION from bake file. To know more about steps used to build frontend image read comments in `frontend.Dockerfile`.
 
 If something goes wrong feel free to leave an issue.
 
@@ -41,6 +41,6 @@ Cool! You just containerized your app!
 
 ## Installing multiple apps
 
-Both backend and frontend builds contain `install-app` script that places app where it should be. Each call to script installs given app. Usage: `install-app [APP_NAME]`.
+Backend builds contain `install-app` script that places app where it should be. Each call to script installs given app. Usage: `install-app [APP_NAME]`.
 
 If you want to install an app from git, clone it locally, COPY in Dockerfile.
