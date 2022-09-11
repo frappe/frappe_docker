@@ -1,24 +1,19 @@
 FROM frappe/bench:latest as assets_builder
 
-USER root
-
-WORKDIR /builds
-
-RUN chown -R frappe:frappe /builds
-
-USER frappe
-
 ARG FRAPPE_VERSION
 ARG FRAPPE_REPO=https://github.com/frappe/frappe
-RUN bench init --version=${FRAPPE_VERSION} --frappe-path=${FRAPPE_REPO} --skip-redis-config-generation --verbose --skip-assets /builds/bench
+RUN bench init --version=${FRAPPE_VERSION} --frappe-path=${FRAPPE_REPO} --skip-redis-config-generation --verbose --skip-assets /home/frappe/frappe-bench
 
-WORKDIR /builds/bench
+WORKDIR /home/frappe/frappe-bench
 
 
 FROM assets_builder as frappe_assets
 
 RUN bench setup requirements \
-    && bench build --production --verbose --hard-link
+    && if [ -z "${FRAPPE_VERSION##*v14*}" ] || [ "$FRAPPE_VERSION" = "develop" ]; then \
+        export BUILD_OPTS="--production";\
+    fi \
+    && FRAPPE_ENV=production bench build --verbose --hard-link ${BUILD_OPTS}
 
 
 FROM assets_builder as erpnext_assets
@@ -26,7 +21,10 @@ FROM assets_builder as erpnext_assets
 ARG ERPNEXT_VERSION
 ARG ERPNEXT_REPO=https://github.com/frappe/erpnext
 RUN bench get-app --branch=${ERPNEXT_VERSION} --skip-assets --resolve-deps erpnext ${ERPNEXT_REPO}\
-    && bench build --production --verbose --hard-link
+    && if [ -z "${ERPNEXT_VERSION##*v14*}" ] || [ "$ERPNEXT_VERSION" = "develop" ]; then \
+        export BUILD_OPTS="--production"; \
+    fi \
+    && FRAPPE_ENV=production bench build --verbose --hard-link ${BUILD_OPTS}
 
 
 FROM alpine/git as bench
@@ -46,11 +44,11 @@ COPY nginx-template.conf /etc/nginx/templates/default.conf.template
 COPY entrypoint.sh /docker-entrypoint.d/frappe-entrypoint.sh
 
 COPY --from=bench /out /usr/share/nginx/html/
-COPY --from=frappe_assets /builds/bench/sites/assets /usr/share/nginx/html/assets
+COPY --from=frappe_assets /home/frappe/frappe-bench/sites/assets /usr/share/nginx/html/assets
 
 USER 1000
 
 
 FROM frappe as erpnext
 
-COPY --from=erpnext_assets /builds/bench/sites/assets /usr/share/nginx/html/assets
+COPY --from=erpnext_assets /home/frappe/frappe-bench/sites/assets /usr/share/nginx/html/assets
