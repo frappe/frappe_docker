@@ -34,16 +34,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  v12:
-    uses: ./.github/workflows/docker-build-push.yml
-    with:
-      repo: erpnext
-      version: "12"
-      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
   v13:
     uses: ./.github/workflows/docker-build-push.yml
     with:

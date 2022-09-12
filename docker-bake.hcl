@@ -45,7 +45,7 @@ target "bench-test" {
 # Base for all other targets
 
 group "frappe" {
-    targets = ["frappe-worker", "frappe-nginx", "frappe-socketio", "assets-builder"]
+    targets = ["frappe-worker", "frappe-nginx", "frappe-socketio"]
 }
 
 group "erpnext" {
@@ -73,8 +73,7 @@ target "default-args" {
         BENCH_REPO = "${BENCH_REPO}"
         FRAPPE_VERSION = "${FRAPPE_VERSION}"
         ERPNEXT_VERSION = "${ERPNEXT_VERSION}"
-        # If `ERPNEXT_VERSION` variable contains "v12" use Python 3.7. If "v13" — 3.9. Else 3.10.
-        PYTHON_VERSION = can(regex("v12", "${ERPNEXT_VERSION}")) ? "3.7" : can(regex("v13", "${ERPNEXT_VERSION}")) ? "3.9" : "3.10"
+        PYTHON_VERSION = can(regex("v13", "${ERPNEXT_VERSION}")) ? "3.9" : "3.10"
     }
 }
 
@@ -97,13 +96,6 @@ target "frappe-nginx" {
     context = "images/nginx"
     target = "frappe"
     tags =  tag("frappe-nginx", "${FRAPPE_VERSION}")
-}
-
-target "assets-builder" {
-  inherits = ["default-args"]
-  context = "images/nginx"
-  target = "assets_builder"
-  tags = tag("assets-builder", "${FRAPPE_VERSION}")
 }
 
 target "erpnext-nginx" {
