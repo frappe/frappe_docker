@@ -130,5 +130,6 @@ FROM configured_base as erpnext
 COPY --from=erpnext_builder /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/apps
 COPY --from=erpnext_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
 COPY --from=erpnext_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
+RUN chown -R frappe:frappe /home/frappe
 
 USER frappe
