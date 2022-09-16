@@ -61,9 +61,11 @@ ARG ERPNEXT_REPO=https://github.com/frappe/erpnext
 RUN --mount=type=cache,target=/root/.cache/pip \
     if [ -z "${ERPNEXT_VERSION##*v14*}" ] || [ "$ERPNEXT_VERSION" = "develop" ]; then \
         git clone --depth 1 -b ${PAYMENTS_VERSION} ${PAYMENTS_REPO} apps/payments && install-app payments; \
+        && grep payments apps.txt || exit 1 \
     fi \
     && git clone --depth 1 -b ${ERPNEXT_VERSION} ${ERPNEXT_REPO} apps/erpnext \
-    && install-app erpnext
+    && install-app erpnext \
+    && grep erpnext apps.txt || exit 1
 
 
 FROM base as configured_base
@@ -130,6 +132,7 @@ FROM configured_base as erpnext
 COPY --from=erpnext_builder /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/apps
 COPY --from=erpnext_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
 COPY --from=erpnext_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
-RUN chown -R frappe:frappe /home/frappe
+RUN chown -R frappe:frappe /home/frappe /
+    && grep erpnext apps.txt || exit 1
 
 USER frappe
