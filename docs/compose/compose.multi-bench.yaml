@@ -33,6 +33,7 @@ services:
   queue-short:
     networks:
       - bench-network
+      - mariadb-network
   queue-long:
     networks:
       - bench-network
