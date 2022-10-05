@@ -191,6 +191,13 @@ bench get-app --branch version-12 https://github.com/myusername/myapp
 bench --site mysite.localhost install-app myapp
 ```
 
+At the time of this writing, the Payments app has been factored out of the Version 14 ERPNext app and is now a separate app. ERPNext will not install without it, however, so we need to specify `--resolve-deps` command line switch to install it.
+
+```shell
+bench get-app --branch version-14 --resolve-deps erpnext
+bench --site mysite.localhost install-app erpnext
+```
+
 To install ERPNext (from the version-13 branch):
 
 ```shell
@@ -198,7 +205,7 @@ bench get-app --branch version-13 erpnext
 bench --site mysite.localhost install-app erpnext
 ```
 
-Note: Both frappe and erpnext must be on branch with same name. e.g. version-12
+Note: Both frappe and erpnext must be on branch with same name. e.g. version-14
 
 ### Start Frappe without debugging
 
