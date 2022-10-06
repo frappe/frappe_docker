@@ -105,6 +105,7 @@ services:
       - default
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
 
   queue-long:
     image: frappe/erpnext-worker:v14.2.2
@@ -118,6 +119,7 @@ services:
       - long
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
 
   queue-short:
     image: frappe/erpnext-worker:v14.2.2
@@ -131,6 +133,7 @@ services:
       - short
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
 
   redis-queue:
     image: redis:6.2-alpine
@@ -166,6 +169,7 @@ services:
       - schedule
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
 
   websocket:
     image: frappe/frappe-socketio:v14.10.0
@@ -174,6 +178,7 @@ services:
         condition: on-failure
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
 
 volumes:
   assets:
