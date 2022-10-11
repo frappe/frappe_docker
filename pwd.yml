@@ -172,7 +172,7 @@ services:
       - assets:/home/frappe/frappe-bench/sites/assets
 
   websocket:
-    image: frappe/frappe-socketio:v14.11.0
+    image: frappe/frappe-socketio:v14.11.1
     deploy:
       restart_policy:
         condition: on-failure
