@@ -14,6 +14,7 @@
   "dockerComposeFile": "./docker-compose.yml",
   "service": "frappe",
   "workspaceFolder": "/workspace/development",
+  "onCreateCommand": "sudo apt update && sudo apt upgrade && sudo apt install -y python3-venv python3.9-dev",
   "shutdownAction": "stopCompose",
   "extensions": [
     "ms-python.python",
