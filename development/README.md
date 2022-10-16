@@ -68,17 +68,23 @@ bench init --skip-redis-config-generation frappe-bench
 cd frappe-bench
 ```
 
-For version 13 use Python 3.9 by passing option to `bench init` command,
+To setup frappe framework version 14 bench set `PYENV_VERSION` environment variable to `3.10.5` (default) and use NodeJS version 14 (default),
 
 ```shell
-bench init --skip-redis-config-generation --frappe-branch version-13 --python python3.9 frappe-bench
+# Use default environments
+bench init --skip-redis-config-generation --frappe-branch version-14 frappe-bench
+# Or set environment versions explicitly
+nvm use v16
+PYENV_VERSION=3.10.5 bench init --skip-redis-config-generation --frappe-branch version-14 frappe-bench
+# Switch directory
 cd frappe-bench
 ```
 
-For version 12 use Python 3.7 by passing option to `bench init` command,
+To setup frappe framework version 13 bench set `PYENV_VERSION` environment variable to `3.9.9` and use NodeJS version 14,
 
 ```shell
-bench init --skip-redis-config-generation --frappe-branch version-12 --python python3.7 frappe-bench
+nvm use v14
+PYENV_VERSION=3.9.9 bench init --skip-redis-config-generation --frappe-branch version-13 frappe-bench
 cd frappe-bench
 ```
 
