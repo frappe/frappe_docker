@@ -138,9 +138,9 @@ USER frappe
 # Split frappe and erpnext to reduce image size (because of frappe-bench/env/ directory)
 FROM configured_base as erpnext
 
-COPY --from=erpnext_builder /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/apps
-COPY --from=erpnext_builder /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
-COPY --from=erpnext_builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
-RUN chown -R frappe:frappe /home/frappe
+COPY --from=erpnext_builder --chown=frappe:frappe /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/apps
+COPY --from=erpnext_builder --chown=frappe:frappe /home/frappe/frappe-bench/env /home/frappe/frappe-bench/env
+COPY --from=erpnext_builder --chown=frappe:frappe /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/
+
 
 USER frappe
