@@ -15,9 +15,9 @@ RUN mkdir -p /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/logs /home
 WORKDIR /home/frappe/frappe-bench
 
 USER root
-RUN pip install -U pip wheel \
+RUN pip install --no-cache-dir -U pip wheel \
     && python -m venv env \
-    && env/bin/pip install -U pip wheel
+    && env/bin/pip install --no-cache-dir -U pip wheel
 
 COPY install-app.sh /usr/local/bin/install-app
 
