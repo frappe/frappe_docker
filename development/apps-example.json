@@ -1,0 +1,15 @@
+{
+  "client_name": [
+    {
+      "name": "frappe",
+      "branch": "develop",
+      "upstream": "git@github.com:frappe/frappe.git",
+      "fork": "[your fork]"
+    },
+    {
+      "name": "erpnext",
+      "branch": "develop",
+      "upstream": "git@github.com:frappe/erpnext.git"
+    }
+  ]
+}
