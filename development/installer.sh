@@ -2,6 +2,7 @@
 # Developer Note: Run this script in the /workspace/development directory
 
 export NVM_DIR=~/.nvm
+# shellcheck disable=SC1091
 source $NVM_DIR/nvm.sh
 
 sudo apt -qq update && sudo apt -qq install jq -y
