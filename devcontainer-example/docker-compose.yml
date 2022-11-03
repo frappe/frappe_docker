@@ -36,6 +36,8 @@ services:
       - SHELL=/bin/bash
     volumes:
       - ..:/workspace:cached
+      # Enable if you require git cloning
+      # - ${HOME}/.ssh:/home/frappe/.ssh
     working_dir: /workspace/development
     ports:
       - 8000-8005:8000-8005

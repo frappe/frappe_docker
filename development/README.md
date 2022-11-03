@@ -61,6 +61,8 @@ Notes:
 
 ### Setup first bench
 
+> Jump to [scripts](#setup-bench--new-site-using-script) section to setup a bench automatically. Alternatively, you can setup a bench manually using below guide.
+
 Run the following commands in the terminal inside the container. You might need to create a new terminal in VSCode.
 
 ```shell
@@ -224,6 +226,39 @@ bench start
 You can now login with user `Administrator` and the password you choose when creating the site.
 Your website will now be accessible at location [mysite.localhost:8000](http://mysite.localhost:8000)
 Note: To start bench with debugger refer section for debugging.
+
+### Setup bench / new site using script
+
+Most developers work with numerous clients and versions. Moreover, apps may be required to be installed by everyone on the team working for a client.
+
+This is simplified using a script to automate the process of creating a new bench / site and installing the required apps.
+
+Create a copy of apps-example.json and name it apps.json
+
+```shell
+cp apps-example.json apps.json
+```
+
+Maintain a directory of all client apps in apps.json. Note that Maintaining a fork is optional in apps.json. Also `name` should be app name in apps.json (could be different from repo name).
+
+> You may have apps in private repos which may require ssh access. You may use SSH from your home directory on linux (configurable in docker-compose.yml).
+
+After you have created apps.json, run the following command:
+
+```shell
+bash installer.sh
+```
+
+The script will ask for the following information:
+
+- Client name (from apps.json).
+- Bench directory name. If you enter existing bench directory name, it will create a new site in that bench. Else it will create a new bench and site.
+- Site name (should end with `.localhost`).
+
+A new bench and / or site is created for the client with following defaults.
+
+- MariaDB root password: `123`
+- Admin password: `admin`
 
 ### Start Frappe with Visual Studio Code Python Debugging
 

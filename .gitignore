@@ -6,6 +6,8 @@ sites
 
 development/*
 !development/README.md
+!development/installer.sh
+!development/apps-example.json
 !development/vscode-example/
 
 # Pycharm
