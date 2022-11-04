@@ -41,7 +41,7 @@ validate_site() {
     exit 1
   fi
 
-  if [ "$is_existing_bench" ]; then
+  if [ "$is_existing_bench" = true ]; then
     validate_site_exists
   fi
 }
@@ -85,10 +85,10 @@ install_apps() {
     upstream=$(_jq '.upstream')
     fork=$(_jq '.fork')
 
-    if [ "$initialize_bench" ] && [ "$app" == "frappe" ]; then
+    if [ "$initialize_bench" = true ] && [ "$app" == "frappe" ]; then
       init_bench
     fi
-    if [ ! "$initialize_bench" ]; then
+    if [ "$initialize_bench" = false ]; then
       get_apps_from_upstream
     fi
   done
@@ -123,7 +123,7 @@ init_bench() {
 
 get_apps_from_upstream() {
   validate_app_exists
-  if [ ! "$is_app_installed" ]; then
+  if [ "$is_app_installed" = false ]; then
     bench get-app --branch "$branch" --resolve-deps "$app" "$upstream" && add_fork
   fi
 
@@ -141,14 +141,14 @@ read -r bench_name && bench_name=${bench_name:-frappe-bench} && validate_bench_e
 echo "Site Name? (should end with .localhost) (default: site1.localhost)"
 read -r site_name && site_name=${site_name:-site1.localhost} && validate_site
 
-if [ "$is_existing_bench" == true ]; then
+if [ "$is_existing_bench" = true ]; then
   cd "$bench_name" || exit
 else
   install_apps true
 fi
 
 echo "Getting apps from upstream for $client"
-all_apps=() && install_apps
+all_apps=() && install_apps false
 
 echo "Creating site $site_name"
 bench new-site "$site_name" --mariadb-root-password 123 --admin-password admin --no-mariadb-socket
