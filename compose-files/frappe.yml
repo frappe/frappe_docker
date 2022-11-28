@@ -1,0 +1,168 @@
+version: "3"
+# Frappe-only fork of https://github.com/frappe/frappe_docker/blob/ed5311473cfa2647df486b1adf4a3c12262067bf/pwd.yml
+# Forked from https://github.com/gavindsouza/install-scripts/tree/main/frappe/pwd.yml
+services:
+  backend:
+    image: frappe/frappe-worker:${VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
+
+  configurator:
+    image: frappe/frappe-worker:${VERSION}
+    command:
+      - configure.py
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      REDIS_CACHE: redis:6379/0
+      REDIS_QUEUE: redis:6379/1
+      REDIS_SOCKETIO: redis:6379/2
+      SOCKETIO_PORT: "9000"
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+
+  create-site:
+    image: frappe/frappe-worker:${VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    environment:
+      SITENAME: ${SITENAME}
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - assets:/home/frappe/frappe-bench/sites/assets
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        wait-for-it -t 120 db:3306;
+        wait-for-it -t 120 redis:6379;
+        export start=`date +%s`;
+        until [[ -n `grep -hs ^ common_site_config.json | jq -r ".db_host // empty"` ]] && \
+          [[ -n `grep -hs ^ common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
+          [[ -n `grep -hs ^ common_site_config.json | jq -r ".redis_queue // empty"` ]];
+        do
+          echo "Waiting for common_site_config.json to be created";
+          sleep 5;
+          if (( `date +%s`-start > 120 )); then
+            echo "could not find common_site_config.json with required keys";
+            exit 1
+          fi
+        done;
+        echo ""
+        echo "common_site_config.json found";
+        bench set-config -g developer_mode 1;
+        bench new-site $${SITENAME} --admin-password=admin --db-root-password=admin --set-default;
+
+  db:
+    image: mariadb:10.6
+    healthcheck:
+      test: mysqladmin ping -h localhost --password=admin
+      interval: 1s
+      retries: 15
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - db-data:/var/lib/mysql
+
+  frontend:
+    image: frappe/frappe-nginx:${VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: ${SITENAME}
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+    volumes:
+      - sites:/usr/share/nginx/html/sites
+      - assets:/usr/share/nginx/html/assets
+    ports:
+      - "8080:8080"
+
+  queue-default:
+    image: frappe/frappe-worker:${VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - worker
+      - --queue
+      - default
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+
+  queue-long:
+    image: frappe/frappe-worker:${VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - worker
+      - --queue
+      - long
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+
+  queue-short:
+    image: frappe/frappe-worker:${VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - worker
+      - --queue
+      - short
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+
+  redis:
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - redis-data:/data
+
+  scheduler:
+    image: frappe/frappe-worker:${VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - schedule
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+
+  websocket:
+    image: frappe/frappe-socketio:${VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+
+volumes:
+  assets:
+  db-data:
+  redis-data:
+  sites:
