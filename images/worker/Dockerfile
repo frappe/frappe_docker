@@ -11,7 +11,7 @@ RUN apt-get update \
 
 RUN useradd -ms /bin/bash frappe
 USER frappe
-RUN mkdir -p /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/logs /home/frappe/frappe-bench/sites
+RUN mkdir -p /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/logs /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/config
 WORKDIR /home/frappe/frappe-bench
 
 USER root
@@ -73,7 +73,7 @@ ENV NVM_DIR=/home/frappe/.nvm
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 RUN apt-get update \
     # Setup Node lists
-    && apt-get install --no-install-recommends -y curl \
+    && apt-get install --no-install-recommends -y curl git \
     # NodeJS with NVM
     && mkdir -p ${NVM_DIR} \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
