@@ -11,7 +11,7 @@ RUN apt-get update \
 
 RUN useradd -ms /bin/bash frappe
 USER frappe
-RUN mkdir -p /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/logs /home/frappe/frappe-bench/sites
+RUN mkdir -p /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/logs /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/config
 WORKDIR /home/frappe/frappe-bench
 
 USER root
