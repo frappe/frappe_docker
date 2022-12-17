@@ -1,5 +1,8 @@
 x-erpnext-backend-image: &erpnext_backend_image
   image: frappe/erpnext-worker:${ERPNEXT_VERSION:?No ERPNext version set}
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - assets:/home/frappe/frappe-bench/sites/assets:ro
 
 services:
   configurator:
