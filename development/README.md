@@ -14,9 +14,9 @@ It is recommended you allocate at least 4GB of RAM to docker:
 - [Instructions for macOS](https://docs.docker.com/desktop/settings/mac/#advanced)
 
 Here is a screenshot showing the relevant setting in the Help Manual
-![image](https://user-images.githubusercontent.com/11910293/206360646-8d7c0d31-7b0f-4a15-afc8-c586e9eaeba2.png)
+![image](/docs/images/Docker%20Manual%20Screenshot%20-%20Resources%20section.png)
 Here is a screenshot showing the settings in Docker Desktop on Mac
-![image](https://user-images.githubusercontent.com/11910293/206360688-dc0fe0d7-5bdb-47c6-a159-49f2d31d5ac9.png)
+![images](/docs/images/Docker%20Desktop%20Screenshot%20-%20Resources%20section.png)
 
 ## Bootstrap Containers for development
 
