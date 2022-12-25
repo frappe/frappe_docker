@@ -42,6 +42,9 @@ RUN git clone --depth 1 ${BENCH_REPO} /tmp/bench \
 
 FROM nginxinc/nginx-unprivileged:1.23.3-alpine as frappe
 
+# Set default ENV variables for backwards compatibility
+ENV PROXY_READ_TIMOUT=120
+
 # https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/alpine/20-envsubst-on-templates.sh
 COPY nginx-template.conf /etc/nginx/templates/default.conf.template
 # https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/alpine/docker-entrypoint.sh
