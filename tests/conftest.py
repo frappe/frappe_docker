@@ -66,19 +66,6 @@ def frappe_site(compose: Compose):
 
 
 @pytest.fixture(scope="class")
-def erpnext_setup(compose: Compose):
-    compose.stop()
-
-    args = ["-f", "overrides/compose.erpnext.yaml"]
-    if CI:
-        args += ("-f", "tests/compose.ci-erpnext.yaml")
-    compose(*args, "up", "-d", "--quiet-pull")
-
-    yield
-    compose.stop()
-
-
-@pytest.fixture(scope="class")
 def erpnext_site(compose: Compose):
     site_name = "test_erpnext_site"
     args = [

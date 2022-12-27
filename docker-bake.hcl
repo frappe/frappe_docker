@@ -53,7 +53,7 @@ group "erpnext" {
 }
 
 group "default" {
-    targets = ["frappe", "erpnext"]
+    targets = ["erpnext"]
 }
 
 function "tag" {
