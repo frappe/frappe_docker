@@ -14,15 +14,15 @@ Example change:
 
 ```yaml
 # ... removed for brevity
-  frontend:
-    image: frappe/erpnext:${ERPNEXT_VERSION:?ERPNext version not set}
-    command:
-      - nginx-entrypoint.sh
-    environment:
-      BACKEND: backend:8000
-      SOCKETIO: websocket:9000
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
+frontend:
+  image: frappe/erpnext:${ERPNEXT_VERSION:?ERPNext version not set}
+  command:
+    - nginx-entrypoint.sh
+  environment:
+    BACKEND: backend:8000
+    SOCKETIO: websocket:9000
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
 # ... removed for brevity
 ```
 
@@ -34,11 +34,11 @@ Example change:
 
 ```yaml
 # ... removed for brevity
-  websocket:
-    image: frappe/erpnext:${ERPNEXT_VERSION:?ERPNext version not set}
-    command:
-      - node
-      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+websocket:
+  image: frappe/erpnext:${ERPNEXT_VERSION:?ERPNext version not set}
+  command:
+    - node
+    - /home/frappe/frappe-bench/apps/frappe/socketio.js
 # ... removed for brevity
 ```
 
@@ -50,27 +50,27 @@ Example change:
 
 ```yaml
 # ... removed for brevity
-  configurator:
-    image: frappe/erpnext:${ERPNEXT_VERSION:?ERPNext version not set}
-    restart: "no"
-    entrypoint:
-      - bash
-      - -c
-    command:
-      - >
-        bench set-config -g db_host $$DB_HOST;
-        bench set-config -gp db_port $$DB_PORT;
-        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
-        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -g redis_socketio "redis://$$REDIS_SOCKETIO";
-        bench set-config -gp socketio_port $$SOCKETIO_PORT;
-    environment:
-      DB_HOST: db
-      DB_PORT: "3306"
-      REDIS_CACHE: redis-cache:6379
-      REDIS_QUEUE: redis-queue:6379
-      REDIS_SOCKETIO: redis-socketio:6379
-      SOCKETIO_PORT: "9000"
+configurator:
+  image: frappe/erpnext:${ERPNEXT_VERSION:?ERPNext version not set}
+  restart: "no"
+  entrypoint:
+    - bash
+    - -c
+  command:
+    - >
+      bench set-config -g db_host $$DB_HOST;
+      bench set-config -gp db_port $$DB_PORT;
+      bench set-config -g redis_cache "redis://$$REDIS_CACHE";
+      bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
+      bench set-config -g redis_socketio "redis://$$REDIS_SOCKETIO";
+      bench set-config -gp socketio_port $$SOCKETIO_PORT;
+  environment:
+    DB_HOST: db
+    DB_PORT: "3306"
+    REDIS_CACHE: redis-cache:6379
+    REDIS_QUEUE: redis-queue:6379
+    REDIS_SOCKETIO: redis-socketio:6379
+    SOCKETIO_PORT: "9000"
 # ... removed for brevity
 ```
 
@@ -84,31 +84,32 @@ Example change:
 
 ```yaml
 # ... removed for brevity
-  create-site:
-    image: frappe/erpnext:${ERPNEXT_VERSION:?ERPNext version not set}
-    restart: "no"
-    entrypoint:
-      - bash
-      - -c
-    command:
-      - >
-        wait-for-it -t 120 db:3306;
-        wait-for-it -t 120 redis-cache:6379;
-        wait-for-it -t 120 redis-queue:6379;
-        wait-for-it -t 120 redis-socketio:6379;
-        export start=`date +%s`;
-        until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_queue // empty"` ]];
-        do
-          echo "Waiting for sites/common_site_config.json to be created";
-          sleep 5;
-          if (( `date +%s`-start > 120 )); then
-            echo "could not find sites/common_site_config.json with required keys";
-            exit 1
-          fi
-        done;
-        echo "sites/common_site_config.json found";
-        bench new-site frontend --no-mariadb-socket --admin-password=admin --db-root-password=admin --install-app payments --install-app erpnext --set-default;
+create-site:
+  image: frappe/erpnext:${ERPNEXT_VERSION:?ERPNext version not set}
+  restart: "no"
+  entrypoint:
+    - bash
+    - -c
+  command:
+    - >
+      wait-for-it -t 120 db:3306;
+      wait-for-it -t 120 redis-cache:6379;
+      wait-for-it -t 120 redis-queue:6379;
+      wait-for-it -t 120 redis-socketio:6379;
+      export start=`date +%s`;
+      until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
+        [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
+        [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_queue // empty"` ]];
+      do
+        echo "Waiting for sites/common_site_config.json to be created";
+        sleep 5;
+        if (( `date +%s`-start > 120 )); then
+          echo "could not find sites/common_site_config.json with required keys";
+          exit 1
+        fi
+      done;
+      echo "sites/common_site_config.json found";
+      bench new-site frontend --no-mariadb-socket --admin-password=admin --db-root-password=admin --install-app payments --install-app erpnext --set-default;
+
 # ... removed for brevity
 ```
