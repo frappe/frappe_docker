@@ -5,7 +5,7 @@ x-depends-on-configurator: &depends_on_configurator
 
 x-backend-defaults: &backend_defaults
   <<: *depends_on_configurator
-  image: frappe/frappe-worker:${FRAPPE_VERSION:?No Frappe version set}
+  image: frappe/erpnext-worker:${ERPNEXT_VERSION:?No Frappe version set}
   volumes:
     - sites:/home/frappe/frappe-bench/sites
     - assets:/home/frappe/frappe-bench/sites/assets:ro

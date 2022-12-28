@@ -28,8 +28,6 @@ class Compose:
             "-f",
             "compose.yaml",
             "-f",
-            "overrides/compose.erpnext.yaml",
-            "-f",
             "overrides/compose.proxy.yaml",
             "-f",
             "overrides/compose.mariadb.yaml",
