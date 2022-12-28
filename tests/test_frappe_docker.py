@@ -134,7 +134,7 @@ def test_https(frappe_site: str, compose: Compose):
     check_url_content(url="https://127.0.0.1", callback=index_cb, site_name=frappe_site)
 
 
-@pytest.mark.usefixtures("frappe_setup")
+@pytest.mark.usefixtures("erpnext_setup")
 class TestErpnext:
     @pytest.mark.parametrize(
         ("url", "callback"),
