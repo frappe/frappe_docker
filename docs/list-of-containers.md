@@ -37,7 +37,6 @@ We have several [overrides](https://docs.docker.com/compose/extends/):
 
 - `overrides/compose.proxy.yaml`. Adds traefik proxy to setup.
 - `overrides/compose.noproxy.yaml`. Publishes `frontend` ports directly without any proxy.
-- `overrides/compose.erpnext.yaml`. Replaces all Frappe images with ERPNext ones. ERPNext images are built on top of Frappe ones, so it is safe to replace them.
 - `overrides/compose.https.yaml`. Automatically sets up Let's Encrypt certificate and redirects all requests to directed to http, to https.
 - `overrides/compose.mariadb.yaml`. Adds `db` service and sets its image to MariaDB.
 - `overrides/compose.postgres.yaml`. Adds `db` service and sets its image to Postgres. Note that ERPNext currently doesn't support Postgres.
@@ -47,55 +46,11 @@ It is quite simple to run overrides. All we need to do is to specify compose fil
 
 ```bash
 # Point to main compose file (compose.yaml) and add one more.
-docker-compose -f compose.yaml -f overrides/compose.erpnext.yaml config
+docker-compose -f compose.yaml -f overrides/compose.redis.yaml config
 ```
 
 ⚠ Make sure to use docker-compose v2 (run `docker-compose -v` to check). If you want to use v1 make sure the correct `$`-signs as they get duplicated by the `config` command!
 
 That's it! Of course, we also have to setup `.env` before all of that, but that's not the point.
 
-## Configuration
-
-We use environment variables to configure our setup. docker-compose uses variables from `.env` file. To get started, copy `example.env` to `.env`.
-
-### `FRAPPE_VERSION`
-
-Frappe framework release. You can find all releases [here](https://github.com/frappe/frappe/releases).
-
-### `DB_PASSWORD`
-
-Password for MariaDB (or Postgres) database.
-
-### `DB_HOST`
-
-Hostname for MariaDB (or Postgres) database. Set only if external service for database is used.
-
-### `DB_PORT`
-
-Port for MariaDB (3306) or Postgres (5432) database. Set only if external service for database is used.
-
-### `REDIS_CACHE`
-
-Hostname for redis server to store cache. Set only if external service for redis is used.
-
-### `REDIS_QUEUE`
-
-Hostname for redis server to store queue data. Set only if external service for redis is used.
-
-### `REDIS_SOCKETIO`
-
-Hostname for redis server to store socketio data. Set only if external service for redis is used.
-
-### `ERPNEXT_VERSION`
-
-ERPNext [release](https://github.com/frappe/frappe/releases). This variable is required if you use ERPNext override.
-
-### `LETSENCRYPT_EMAIL`
-
-Email that used to register https certificate. This one is required only if you use HTTPS override.
-
-### `FRAPPE_SITE_NAME_HEADER`
-
-This environment variable is not required. Default value is `$$host` which resolves site by host. For example, if your host is `example.com`, site's name should be `example.com`, or if host is `127.0.0.1` (local debugging), it should be `127.0.0.1` This variable allows to override described behavior. Let's say you create site named `mysite` and do want to access it by `127.0.0.1` host. Than you would set this variable to `mysite`.
-
-There is other variables not mentioned here. They're somewhat internal and you don't have to worry about them except you want to change main compose file.
+Check [environment variables](environment-variables.md) for more.

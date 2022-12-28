@@ -60,7 +60,6 @@ environment variables or the `configurator` will fail.
 # Generate YAML
 docker compose -f compose.yaml \
   -f overrides/compose.proxy.yaml \
-  -f overrides/compose.erpnext.yaml \
   config > ~/gitops/docker-compose.yml
 
 # Start containers
@@ -86,7 +85,6 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -
 ```sh
 # Generate YAML
 docker compose -f compose.yaml \
-  -f overrides/compose.erpnext.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
   -f overrides/compose.https.yaml \
@@ -110,7 +108,6 @@ nano .env
 
 # Pull new images
 docker compose -f compose.yaml \
-  -f overrides/compose.erpnext.yaml \
   # ... your other overrides
   config > ~/gitops/docker-compose.yml
 
