@@ -44,16 +44,12 @@ target "bench-test" {
 # Main images
 # Base for all other targets
 
-group "frappe" {
-    targets = ["frappe-worker", "frappe-nginx", "frappe-socketio"]
-}
-
 group "erpnext" {
-    targets = ["erpnext-worker", "erpnext-nginx"]
+    targets = ["erpnext-worker", "erpnext-nginx", "frappe-socketio"]
 }
 
 group "default" {
-    targets = ["frappe", "erpnext"]
+    targets = ["erpnext"]
 }
 
 function "tag" {
