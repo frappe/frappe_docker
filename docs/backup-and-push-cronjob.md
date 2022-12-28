@@ -5,7 +5,7 @@ Create backup service or stack.
 version: "3.7"
 services:
   backup:
-    image: frappe/erpnext-worker:v14
+    image: frappe/erpnext:v14
     entrypoint: ["bash", "-c"]
     command: |
       for SITE in $(/home/frappe/frappe-bench/env/bin/python -c "import frappe;print(' '.join(frappe.utils.get_sites()))")

@@ -109,6 +109,7 @@ def parse_args(args: list[str]) -> Arguments:
 
 
 def main(args: list[str]) -> int:
+    os.chdir("sites")
     push_backup(parse_args(args))
     return 0
 

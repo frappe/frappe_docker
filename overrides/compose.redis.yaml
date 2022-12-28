@@ -1,16 +1,30 @@
 services:
   configurator:
     environment:
-      REDIS_CACHE: redis:6379/0
-      REDIS_QUEUE: redis:6379/1
-      REDIS_SOCKETIO: redis:6379/2
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-queue:6379
+      REDIS_SOCKETIO: redis-socketio:6379
     depends_on:
-      - redis
+      - redis-cache
+      - redis-queue
+      - redis-socketio
 
-  redis:
+  redis-cache:
     image: redis:6.2-alpine
     volumes:
-      - redis-data:/data
+      - redis-cache-data:/data
+
+  redis-queue:
+    image: redis:6.2-alpine
+    volumes:
+      - redis-queue-data:/data
+
+  redis-socketio:
+    image: redis:6.2-alpine
+    volumes:
+      - redis-socketio-data:/data
 
 volumes:
-  redis-data:
+  redis-cache-data:
+  redis-queue-data:
+  redis-socketio-data:

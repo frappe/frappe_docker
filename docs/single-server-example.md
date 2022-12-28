@@ -176,7 +176,7 @@ Create sites `one.example.com` and `two.example.com`:
 ```shell
 # one.example.com
 docker compose --project-name erpnext-one exec backend \
-  bench new-site one.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site one.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
 You can stop here and have a single bench single site setup complete. Continue to add one more site to the current bench.
@@ -184,7 +184,7 @@ You can stop here and have a single bench single site setup complete. Continue t
 ```shell
 # two.example.com
 docker compose --project-name erpnext-one exec backend \
-  bench new-site two.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site two.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
 #### Create second bench
@@ -236,10 +236,10 @@ Create sites `three.example.com` and `four.example.com`:
 ```shell
 # three.example.com
 docker compose --project-name erpnext-two exec backend \
-  bench new-site three.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site three.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 # four.example.com
 docker compose --project-name erpnext-two exec backend \
-  bench new-site four.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site four.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
 #### Create custom domain to existing site
