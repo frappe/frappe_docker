@@ -73,23 +73,29 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # apps.json includes
-ARG APPS_JSON=[]
-RUN mkdir /opt/frappe && echo "${APPS_JSON}" | jq . > /opt/frappe/apps.json
+ARG APPS_JSON_BASE64
+RUN if [ -n "${APPS_JSON_BASE64}" ]; then \
+    mkdir /opt/frappe && echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; \
+  fi
 
 USER frappe
 
 ARG FRAPPE_BRANCH=version-14
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
-RUN bench init \
-  --frappe-branch=${FRAPPE_BRANCH} \
-  --frappe-path=${FRAPPE_PATH} \
-  --no-procfile \
-  --no-backups \
-  --skip-redis-config-generation \
-  --verbose \
-  --skip-assets \
-  --apps_path=/opt/frappe/apps.json \
-  /home/frappe/frappe-bench && \
+RUN export APP_INSTALL_ARGS="" && \
+  if [ -n "${APPS_JSON_BASE64}" ]; then \
+    export APP_INSTALL_ARGS="--apps_path=/opt/frappe/apps.json"; \
+  fi && \
+  bench init ${APP_INSTALL_ARGS}\
+    --frappe-branch=${FRAPPE_BRANCH} \
+    --frappe-path=${FRAPPE_PATH} \
+    --no-procfile \
+    --no-backups \
+    --skip-redis-config-generation \
+    --verbose \
+    --skip-assets \
+    --apps_path=/opt/frappe/apps.json \
+    /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
   bench setup requirements && \
   find /home/frappe/frappe-bench/apps -mindepth 1 -path "*/.git" | xargs rm -fr

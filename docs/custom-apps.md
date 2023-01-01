@@ -24,6 +24,7 @@ export APPS_JSON='[
     "branch": "main"
   }
 ]'
+export APPS_JSON_BASE64=$(echo ${APPS_JSON} | base64 --wrap=0)
 ```
 
 Note:
@@ -38,7 +39,7 @@ buildah build \
   --build-arg=FRAPPE_BRANCH=version-14 \
   --build-arg=PYTHON_VERSION=3.10.5 \
   --build-arg=NODE_VERSION=16.18.0 \
-  --build-arg=APPS_JSON=$APPS_JSON \
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
   --tag=ghcr.io/user/repo/custom:1.0.0 \
   --file=images/custom/Containerfile .
 ```
@@ -46,9 +47,11 @@ buildah build \
 Note:
 
 - Use `docker` instead of `buildah` as per your setup.
-- Make sure `APPS_JSON` variable has correct JSON.
+- `FRAPPE_PATH` and `FRAPPE_BRANCH` build args are optional and can be overridden in case of fork/branch.
+- Make sure `APPS_JSON_BASE64` variable has correct base64 encoded JSON string. It is consumed as build arg, base64 encoding ensures it to be friendly with environment variables
 - Make sure the `--tag` is valid image name that will be pushed to registry.
 - Change `--build-arg` as per version of Python, NodeJS, Frappe Framework repo and branch
+- The final image will have no traces of `.git` directory for any apps including frappe framework.
 
 ### Push image to use in yaml files
 
