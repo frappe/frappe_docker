@@ -11,22 +11,12 @@ updates:
       interval: daily
 
   - package-ecosystem: docker
-    directory: images/nginx
+    directory: images/production
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: images/worker
-    schedule:
-      interval: daily
-
-  - package-ecosystem: docker
-    directory: images/socketio
-    schedule:
-      interval: daily
-
-  - package-ecosystem: npm
-    directory: images/socketio
+    directory: images/custom
     schedule:
       interval: daily
 
