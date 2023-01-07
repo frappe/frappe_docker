@@ -96,6 +96,7 @@ RUN export APP_INSTALL_ARGS="" && \
     --skip-assets \
     --apps_path=/opt/frappe/apps.json \
     /home/frappe/frappe-bench && \
+  echo "{}" > /home/frappe/frappe-bench/sites/common_site_config.json && \
   cd /home/frappe/frappe-bench && \
   bench setup requirements && \
   find /home/frappe/frappe-bench/apps -mindepth 1 -path "*/.git" | xargs rm -fr

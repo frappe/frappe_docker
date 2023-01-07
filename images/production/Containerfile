@@ -86,7 +86,8 @@ RUN bench init \
   --skip-redis-config-generation \
   --verbose \
   --skip-assets \
-  /home/frappe/frappe-bench
+  /home/frappe/frappe-bench && \
+  echo "{}" > /home/frappe/frappe-bench/sites/common_site_config.json
 
 WORKDIR /home/frappe/frappe-bench
 
