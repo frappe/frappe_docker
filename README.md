@@ -26,6 +26,7 @@ Wait for 5 minutes for ERPNext site to be created or check `create-site` contain
 ### [Production](#production)
 
 - [List of containers](docs/list-of-containers.md)
+- [Single Compose Setup](docs/single-compose-setup.md)
 - [Environment Variables](docs/environment-variables.md)
 - [Single Server Example](docs/single-server-example.md)
 - [Setup Options](docs/setup-options.md)
@@ -38,10 +39,12 @@ Wait for 5 minutes for ERPNext site to be created or check `create-site` contain
 
 - [Custom Apps](docs/custom-apps.md)
 - [Build Version 10 Images](docs/build-version-10-images.md)
+
+### [Development](#development)
+
+- [Development using containers](docs/development.md)
 - [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
 - [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
-
-### [Development](docs/development.md)
 
 ### [Troubleshoot](docs/troubleshoot.md)
 
@@ -49,8 +52,8 @@ Wait for 5 minutes for ERPNext site to be created or check `create-site` contain
 
 If you want to contribute to this repo refer to [CONTRIBUTING.md](CONTRIBUTING.md)
 
-This repository is only for Docker related stuff. You also might want to contribute to:
+This repository is only for container related stuff. You also might want to contribute to:
 
 - [Frappe framework](https://github.com/frappe/frappe#contributing),
 - [ERPNext](https://github.com/frappe/erpnext#contributing),
-- or [Frappe Bench](https://github.com/frappe/bench).
+- [Frappe Bench](https://github.com/frappe/bench).

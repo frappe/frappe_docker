@@ -3,13 +3,15 @@
 There's 4 images that you can find in `/images` directory:
 
 - `bench`. It is used for development. [Learn more how to start development](../development/README.md).
-- `nginx`. This image contains JS and CSS assets. Container using this image also routes incoming requests using [nginx](https://www.nginx.com).
-- `socketio`. Container using this image processes realtime websocket requests using [Socket.IO](https://socket.io).
-- `worker`. Multi-purpose Python backend. Runs [Werkzeug server](https://werkzeug.palletsprojects.com/en/2.0.x/) with [gunicorn](https://gunicorn.org), queues (via `bench worker`), or schedule (via `bench schedule`).
+- `production`.
+  - Multi-purpose Python backend. Runs [Werkzeug server](https://werkzeug.palletsprojects.com/en/2.0.x/) with [gunicorn](https://gunicorn.org), queues (via `bench worker`), or schedule (via `bench schedule`).
+  - Contains JS and CSS assets and routes incoming requests using [nginx](https://www.nginx.com).
+  - Processes realtime websocket requests using [Socket.IO](https://socket.io).
+- `custom`. It is used to build bench using `apps.json` file set with `--apps_path` during bench initialization. `apps.json` is a json array. e.g. `[{"url":"{{repo_url}}","branch":"{{repo_branch}}"}]`
 
-> `nginx`, `socketio` and `worker` images — everything we need to be able to run all processes that Frappe framework requires (take a look at [Bench Procfile reference](https://frappeframework.com/docs/v13/user/en/bench/resources/bench-procfile)). We follow [Docker best practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#decouple-applications) and split these processes to different containers.
+Image has everything we need to be able to run all processes that Frappe framework requires (take a look at [Bench Procfile reference](https://frappeframework.com/docs/v14/user/en/bench/resources/bench-procfile)). We follow [Docker best practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#decouple-applications) and split these processes to different containers.
 
-> ERPNext images don't have their own Dockerfiles. We use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/) and [Docker Buildx](https://docs.docker.com/engine/reference/commandline/buildx/) to reuse as much things as possible and make our builds more efficient.
+> We use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/) and [Docker Buildx](https://docs.docker.com/engine/reference/commandline/buildx/) to reuse as much things as possible and make our builds more efficient.
 
 # Compose files
 
