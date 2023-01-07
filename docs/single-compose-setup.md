@@ -26,6 +26,14 @@ This setup is a very simple single compose file that does everything to start re
 - redis-queue, redis for rq data.
 - redis-socketio, redis for socketio pubsub.
 
+## Volumes
+
+- sites: Volume for bench data. Common config, all sites, all site configs and site files will be stored here.
+- logs: Volume for bench logs. all process logs are dumped here. No need to mount it. Each container will create a temporary volume for logs if not specified.
+- assets: Volume for static. Do not mount it. Mounting it will cause static assets to not update. Each container will create a temporary volume for logs if not specified.
+
+## Adaptation
+
 If you understand containers use the `pwd.yml` as a reference to build more complex setup like, single server example, Docker Swarm stack, Kubernetes Helm chart, etc.
 
 This serves only site called `frontend` through the nginx. `FRAPPE_SITE_NAME_HEADER` is set to `frontend` and a default site called `frontend` is created.
