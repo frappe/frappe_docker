@@ -44,7 +44,20 @@ RUN useradd -ms /bin/bash frappe \
     # Clean up
     && rm -rf /var/lib/apt/lists/* \
     && rm -fr /etc/nginx/sites-enabled/default \
-    && pip3 install frappe-bench
+    && pip3 install frappe-bench \
+    # Fixes for non-root nginx and logs to stdout
+    && sed -i '/user www-data/d' /etc/nginx/nginx.conf \
+    && ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log \
+    && touch /run/nginx.pid \
+    && chown -R frappe:frappe /etc/nginx/conf.d \
+    && chown -R frappe:frappe /etc/nginx/nginx.conf \
+    && chown -R frappe:frappe /var/log/nginx \
+    && chown -R frappe:frappe /var/lib/nginx \
+    && chown -R frappe:frappe /run/nginx.pid
+
+COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
+COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
+COPY resources/push_backup.py /usr/local/bin/push-backup
 
 FROM base AS builder
 
@@ -85,35 +98,18 @@ RUN bench init \
   --no-backups \
   --skip-redis-config-generation \
   --verbose \
-  --skip-assets \
   /home/frappe/frappe-bench && \
-  echo "{}" > /home/frappe/frappe-bench/sites/common_site_config.json
-
-WORKDIR /home/frappe/frappe-bench
-
-RUN bench get-app --branch=${ERPNEXT_BRANCH} --skip-assets --resolve-deps erpnext ${ERPNEXT_REPO} && \
-  if [ -z "${FRAPPE_BRANCH##*v14*}" ] || [ "$FRAPPE_BRANCH" = "version-14" ] || [ "$FRAPPE_BRANCH" = "develop" ]; then \
-    export BUILD_OPTS="--production"; \
-  fi && \
-  FRAPPE_ENV=production bench build --verbose ${BUILD_OPTS}
+  cd /home/frappe/frappe-bench && \
+  bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
+  echo "$(jq 'del(.db_host, .redis_cache, .redis_queue, .redis_socketio)' sites/common_site_config.json)" \
+    > sites/common_site_config.json
 
 FROM base as erpnext
 
-# Fixes for non-root nginx and logs to stdout
-RUN sed -i '/user www-data/d' /etc/nginx/nginx.conf && \
-  ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log && \
-  touch /run/nginx.pid && \
-  chown -R frappe:frappe /etc/nginx/conf.d && \
-  chown -R frappe:frappe /etc/nginx/nginx.conf && \
-  chown -R frappe:frappe /var/log/nginx && \
-  chown -R frappe:frappe /var/lib/nginx && \
-  chown -R frappe:frappe /run/nginx.pid
-
-COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
-COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
-COPY resources/push_backup.py /usr/local/bin/push-backup
 USER frappe
+
 COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
+
 WORKDIR /home/frappe/frappe-bench
 
 VOLUME [ \
