@@ -54,9 +54,6 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install Docker Compose v2
-        uses: ndeloof/install-compose-action@4a33bc31f327b8231c4f343f6fba704fedc0fa23
-
       - name: Install dependencies
         run: |
           python -m venv venv
