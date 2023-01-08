@@ -103,10 +103,8 @@ RUN export APP_INSTALL_ARGS="" && \
 
 WORKDIR /home/frappe/frappe-bench
 
-RUN export BUILD_OPTS="--production --hard-link" && \
-  if [ -z "${FRAPPE_BRANCH##*v12*}" ] || [ -z "${FRAPPE_BRANCH##*v13*}" ] \
-    || [ "$FRAPPE_BRANCH" = "version-12" ] || [ "$FRAPPE_BRANCH" = "version-13" ]; then \
-    export BUILD_OPTS="--make-copy"; \
+RUN if [ -z "${FRAPPE_BRANCH##*v14*}" ] || [ "$FRAPPE_BRANCH" = "version-14" ] || [ "$FRAPPE_BRANCH" = "develop" ]; then \
+    export BUILD_OPTS="--production"; \
   fi && \
   FRAPPE_ENV=production bench build --verbose ${BUILD_OPTS}
 
