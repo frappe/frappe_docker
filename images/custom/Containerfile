@@ -93,6 +93,7 @@ RUN if [ -n "${APPS_JSON_BASE64}" ]; then \
 
 USER frappe
 
+ARG REMOVE_GIT_REMOTE
 ARG FRAPPE_BRANCH=version-14
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 RUN export APP_INSTALL_ARGS="" && \
@@ -111,7 +112,9 @@ RUN export APP_INSTALL_ARGS="" && \
   cd /home/frappe/frappe-bench && \
   echo "$(jq 'del(.db_host, .redis_cache, .redis_queue, .redis_socketio)' sites/common_site_config.json)" \
     > sites/common_site_config.json && \
-  find /home/frappe/frappe-bench/apps -mindepth 1 -path "*/.git" | xargs rm -fr
+  if [ -n "${REMOVE_GIT_REMOTE}" ]; then \
+    find apps -name .git -type d -prune | xargs -i git --git-dir {} remote rm upstream; \
+  fi
 
 WORKDIR /home/frappe/frappe-bench
 
