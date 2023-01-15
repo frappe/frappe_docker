@@ -3,21 +3,17 @@ import re
 
 
 def get_versions():
-    frappe_version = os.getenv("FRAPPE_VERSION")
     erpnext_version = os.getenv("ERPNEXT_VERSION")
-    assert frappe_version, "No Frappe version set"
     assert erpnext_version, "No ERPNext version set"
-    return frappe_version, erpnext_version
+    return erpnext_version
 
 
-def update_env(frappe_version: str, erpnext_version: str):
+def update_env(erpnext_version: str):
     with open("example.env", "r+") as f:
         content = f.read()
-        for env, var in (
-            ("FRAPPE_VERSION", frappe_version),
-            ("ERPNEXT_VERSION", erpnext_version),
-        ):
-            content = re.sub(rf"{env}=.*", f"{env}={var}", content)
+        content = re.sub(
+            rf"ERPNEXT_VERSION=.*", f"ERPNEXT_VERSION={erpnext_version}", content
+        )
         f.seek(0)
         f.truncate()
         f.write(content)
