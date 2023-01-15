@@ -107,7 +107,6 @@ RUN export APP_INSTALL_ARGS="" && \
     --no-backups \
     --skip-redis-config-generation \
     --verbose \
-    --apps_path=/opt/frappe/apps.json \
     /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
   echo "$(jq 'del(.db_host, .redis_cache, .redis_queue, .redis_socketio)' sites/common_site_config.json)" \

@@ -27,9 +27,17 @@ export APPS_JSON='[
 export APPS_JSON_BASE64=$(echo ${APPS_JSON} | base64 --wrap=0)
 ```
 
+You can also generate base64 string from json file:
+
+```shell
+export APPS_JSON_BASE64=$(base64 --wrap=0 /path/to/apps.json)
+```
+
 Note:
 
 - `url` needs to be http(s) git url with token/auth in case of private repo.
+- add dependencies manually in `apps.json` e.g. add `payments` if you are installing `erpnext`
+- use fork repo or branch for ERPNext in case you need to use your fork or test a PR.
 
 ### Build Image
 
@@ -47,8 +55,8 @@ buildah build \
 Note:
 
 - Use `docker` instead of `buildah` as per your setup.
-- `FRAPPE_PATH` and `FRAPPE_BRANCH` build args are optional and can be overridden in case of fork/branch.
-- Make sure `APPS_JSON_BASE64` variable has correct base64 encoded JSON string. It is consumed as build arg, base64 encoding ensures it to be friendly with environment variables
+- `FRAPPE_PATH` and `FRAPPE_BRANCH` build args are optional and can be overridden in case of fork/branch or test a PR.
+- Make sure `APPS_JSON_BASE64` variable has correct base64 encoded JSON string. It is consumed as build arg, base64 encoding ensures it to be friendly with environment variables. Use `jq empty apps.json` to validate `apps.json` file.
 - Make sure the `--tag` is valid image name that will be pushed to registry.
 - Change `--build-arg` as per version of Python, NodeJS, Frappe Framework repo and branch
 - Set `--build-arg=REMOVE_GIT_REMOTE=true` to remove git upstream remotes from all apps. Use this in case they have secrets or private tokens and you don't wish to ship them in final image.
