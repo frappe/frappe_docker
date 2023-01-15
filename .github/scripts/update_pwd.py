@@ -13,12 +13,9 @@ def get_versions():
 def update_pwd(frappe_version: str, erpnext_version: str):
     with open("pwd.yml", "r+") as f:
         content = f.read()
-        for image, version in (
-            ("frappe/frappe-socketio", frappe_version),
-            ("frappe/erpnext-worker", erpnext_version),
-            ("frappe/erpnext-nginx", erpnext_version),
-        ):
-            content = re.sub(rf"{image}:.*", f"{image}:{version}", content)
+        content = re.sub(
+            rf"frappe/erpnext:.*", f"frappe/erpnext:{erpnext_version}", content
+        )
         f.seek(0)
         f.truncate()
         f.write(content)

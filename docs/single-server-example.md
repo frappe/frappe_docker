@@ -87,13 +87,13 @@ Deploy the traefik container with letsencrypt SSL
 ```shell
 docker compose --project-name traefik \
   --env-file ~/gitops/traefik.env \
-  -f docs/compose/compose.traefik.yaml \
-  -f docs/compose/compose.traefik-ssl.yaml up -d
+  -f overrides/compose.traefik.yaml \
+  -f overrides/compose.traefik-ssl.yaml up -d
 ```
 
 This will make the traefik dashboard available on `traefik.example.com` and all certificates will reside in `/data/traefik/certificates` on host filesystem.
 
-For LAN setup deploy the traefik container without overriding `docs/compose/compose.traefik-ssl.yaml`.
+For LAN setup deploy the traefik container without overriding `overrides/compose.traefik-ssl.yaml`.
 
 ### Install MariaDB
 
@@ -120,7 +120,7 @@ Note: Change the password from `changeit` to more secure one.
 Deploy the mariadb container
 
 ```shell
-docker compose --project-name mariadb --env-file ~/gitops/mariadb.env -f docs/compose/compose.mariadb-shared.yaml up -d
+docker compose --project-name mariadb --env-file ~/gitops/mariadb.env -f overrides/compose.mariadb-shared.yaml up -d
 ```
 
 This will make `mariadb-database` service available under `mariadb-network`. Data will reside in `/data/mariadb`.
@@ -155,10 +155,9 @@ Create a yaml file called `erpnext-one.yaml` in `~/gitops` directory:
 docker compose --project-name erpnext-one \
   --env-file ~/gitops/erpnext-one.env \
   -f compose.yaml \
-  -f overrides/compose.erpnext.yaml \
   -f overrides/compose.redis.yaml \
-  -f docs/compose/compose.multi-bench.yaml \
-  -f docs/compose/compose.multi-bench-ssl.yaml config > ~/gitops/erpnext-one.yaml
+  -f overrides/compose.multi-bench.yaml \
+  -f overrides/compose.multi-bench-ssl.yaml config > ~/gitops/erpnext-one.yaml
 ```
 
 For LAN setup do not override `compose.multi-bench-ssl.yaml`.
@@ -176,7 +175,7 @@ Create sites `one.example.com` and `two.example.com`:
 ```shell
 # one.example.com
 docker compose --project-name erpnext-one exec backend \
-  bench new-site one.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site one.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
 You can stop here and have a single bench single site setup complete. Continue to add one more site to the current bench.
@@ -184,7 +183,7 @@ You can stop here and have a single bench single site setup complete. Continue t
 ```shell
 # two.example.com
 docker compose --project-name erpnext-one exec backend \
-  bench new-site two.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site two.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
 #### Create second bench
@@ -217,10 +216,9 @@ Create a yaml file called `erpnext-two.yaml` in `~/gitops` directory:
 docker compose --project-name erpnext-two \
   --env-file ~/gitops/erpnext-two.env \
   -f compose.yaml \
-  -f overrides/compose.erpnext.yaml \
   -f overrides/compose.redis.yaml \
-  -f docs/compose/compose.multi-bench.yaml \
-  -f docs/compose/compose.multi-bench-ssl.yaml config > ~/gitops/erpnext-two.yaml
+  -f overrides/compose.multi-bench.yaml \
+  -f overrides/compose.multi-bench-ssl.yaml config > ~/gitops/erpnext-two.yaml
 ```
 
 Use the above command after any changes are made to `erpnext-two.env` file to regenerate `~/gitops/erpnext-two.yaml`. e.g. after changing version to migrate the bench.
@@ -236,10 +234,10 @@ Create sites `three.example.com` and `four.example.com`:
 ```shell
 # three.example.com
 docker compose --project-name erpnext-two exec backend \
-  bench new-site three.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site three.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 # four.example.com
 docker compose --project-name erpnext-two exec backend \
-  bench new-site four.example.com --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site four.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
 ```
 
 #### Create custom domain to existing site
@@ -271,8 +269,8 @@ Generate yaml to reverse proxy:
 ```shell
 docker compose --project-name custom-one-example \
   --env-file ~/gitops/custom-one-example.env \
-  -f docs/compose/compose.custom-domain.yaml \
-  -f docs/compose/compose.custom-domain-ssl.yaml config > ~/gitops/custom-one-example.yaml
+  -f overrides/compose.custom-domain.yaml \
+  -f overrides/compose.custom-domain-ssl.yaml config > ~/gitops/custom-one-example.yaml
 ```
 
 For LAN setup do not override `compose.custom-domain-ssl.yaml`.

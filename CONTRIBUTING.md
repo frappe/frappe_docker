@@ -61,15 +61,9 @@ Run pytest:
 pytest
 ```
 
-> We also have `requirements-dev.txt` file that contains development requirements for backend image (you can find it in `images/worker/` directory).
-
 # Documentation
 
 Place relevant markdown files in the `docs` directory and index them in README.md located at the root of repo.
-
-# Wiki
-
-Add alternatives that can be used optionally along with frappe_docker. Add articles to list on home page as well.
 
 # Frappe and ERPNext updates
 

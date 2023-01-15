@@ -89,7 +89,13 @@ def test_frappe_connections_in_backends(
 ):
     filename = "_ping_frappe_connections.py"
     compose("cp", f"tests/{filename}", f"{service}:/tmp/")
-    compose.exec(service, python_path, f"/tmp/{filename}")
+    compose.exec(
+        "-w",
+        "/home/frappe/frappe-bench/sites",
+        service,
+        python_path,
+        f"/tmp/{filename}",
+    )
 
 
 def test_push_backup(

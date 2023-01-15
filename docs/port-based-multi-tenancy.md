@@ -6,43 +6,64 @@ Remove the traefik service from docker-compose.yml
 
 ### Step 2
 
-Create nginx config file `/opt/nginx/conf/serve-8001.conf`:
+Add service for each port that needs to be exposed.
 
-```
-server {
-	listen 8001;
-	server_name $http_host;
+e.g. `port-site-1`, `port-site-2`, `port-site-3`.
 
-	location / {
-
- 		rewrite ^(.+)/$ $1 permanent;
-  		rewrite ^(.+)/index\.html$ $1 permanent;
-  		rewrite ^(.+)\.html$ $1 permanent;
-
-		proxy_set_header X-Frappe-Site-Name mysite.localhost;
-		proxy_set_header Host mysite.localhost;
-		proxy_pass  http://frontend;
-	}
-}
+```yaml
+# ... removed for brevity
+services:
+	# ... removed for brevity
+  port-site-1:
+    image: frappe/erpnext:v14.11.1
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: site1.local
+      SOCKETIO: websocket:9000
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+    ports:
+      - "8080:8080"
+  port-site-2:
+    image: frappe/erpnext:v14.11.1
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: site2.local
+      SOCKETIO: websocket:9000
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+    ports:
+      - "8081:8080"
+  port-site-3:
+    image: frappe/erpnext:v14.11.1
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: site3.local
+      SOCKETIO: websocket:9000
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+    ports:
+      - "8082:8080"
 ```
 
 Notes:
 
-- Replace the port with any port of choice e.g. `listen 4200;`
-- Change `mysite.localhost` to site name
-- Repeat the server blocks for multiple ports and site names to get the effect of port based multi tenancy
-- For old images use `proxy_pass http://erpnext-nginx` instead of `proxy_pass http://frontend`
-
-### Step 3
-
-Run the docker container
-
-```shell
-docker run --network=<project-name>_default \
-  -p 8001:8001 \
-  --volume=/opt/nginx/conf/serve-8001.conf:/etc/nginx/conf.d/default.conf -d nginx
-```
-
-Note: Change the volumes, network and ports as needed
-
-With the above example configured site will be accessible on `http://localhost:8001`
+- Above setup will expose `site1.local`, `site2.local`, `site3.local` on port `8080`, `8081`, `8082` respectively.
+- Change `site1.local` to site name to serve from bench.
+- Change the `BACKEND` and `SOCKETIO` environment variables as per your service names.
+- Make sure `sites:` volume is available as part of yaml.

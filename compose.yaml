@@ -5,15 +5,24 @@ x-depends-on-configurator: &depends_on_configurator
 
 x-backend-defaults: &backend_defaults
   <<: *depends_on_configurator
-  image: frappe/frappe-worker:${FRAPPE_VERSION:?No Frappe version set}
+  image: frappe/erpnext:${ERPNEXT_VERSION:?No ERPNext version set}
   volumes:
     - sites:/home/frappe/frappe-bench/sites
-    - assets:/home/frappe/frappe-bench/sites/assets:ro
 
 services:
   configurator:
     <<: *backend_defaults
-    command: configure.py
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        bench set-config -g db_host $$DB_HOST;
+        bench set-config -gp db_port $$DB_PORT;
+        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
+        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
+        bench set-config -g redis_socketio "redis://$$REDIS_SOCKETIO";
+        bench set-config -gp socketio_port $$SOCKETIO_PORT;
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -27,7 +36,9 @@ services:
     <<: *backend_defaults
 
   frontend:
-    image: frappe/frappe-nginx:${FRAPPE_VERSION}
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    command:
+      - nginx-entrypoint.sh
     environment:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
@@ -38,15 +49,17 @@ services:
       PROXY_READ_TIMOUT: ${PROXY_READ_TIMOUT:-120}
       CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
     volumes:
-      - sites:/usr/share/nginx/html/sites
-      - assets:/usr/share/nginx/html/assets
+      - sites:/home/frappe/frappe-bench/sites
     depends_on:
       - backend
       - websocket
 
   websocket:
     <<: *depends_on_configurator
-    image: frappe/frappe-socketio:${FRAPPE_VERSION}
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
       - sites:/home/frappe/frappe-bench/sites
 
@@ -69,4 +82,3 @@ services:
 # ERPNext requires local assets access (Frappe does not)
 volumes:
   sites:
-  assets:

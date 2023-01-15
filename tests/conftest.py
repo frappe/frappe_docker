@@ -55,11 +55,12 @@ def frappe_site(compose: Compose):
     site_name = "tests"
     compose.bench(
         "new-site",
-        site_name,
+        "--no-mariadb-socket",
         "--mariadb-root-password",
         "123",
         "--admin-password",
         "admin",
+        site_name,
     )
     compose("restart", "backend")
     yield site_name
@@ -68,11 +69,7 @@ def frappe_site(compose: Compose):
 @pytest.fixture(scope="class")
 def erpnext_setup(compose: Compose):
     compose.stop()
-
-    args = ["-f", "overrides/compose.erpnext.yaml"]
-    if CI:
-        args += ("-f", "tests/compose.ci-erpnext.yaml")
-    compose(*args, "up", "-d", "--quiet-pull")
+    compose("up", "-d", "--quiet-pull")
 
     yield
     compose.stop()
@@ -83,13 +80,14 @@ def erpnext_site(compose: Compose):
     site_name = "test_erpnext_site"
     args = [
         "new-site",
-        site_name,
+        "--no-mariadb-socket",
         "--mariadb-root-password",
         "123",
         "--admin-password",
         "admin",
         "--install-app",
         "erpnext",
+        site_name,
     ]
     erpnext_version = os.environ.get("ERPNEXT_VERSION")
     if erpnext_version in [
