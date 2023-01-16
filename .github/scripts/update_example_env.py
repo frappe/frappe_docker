@@ -2,7 +2,7 @@ import os
 import re
 
 
-def get_versions():
+def get_erpnext_version():
     erpnext_version = os.getenv("ERPNEXT_VERSION")
     assert erpnext_version, "No ERPNext version set"
     return erpnext_version
@@ -20,7 +20,7 @@ def update_env(erpnext_version: str):
 
 
 def main() -> int:
-    update_env(*get_versions())
+    update_env(get_erpnext_version())
     return 0
 
 
