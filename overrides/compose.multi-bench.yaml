@@ -38,7 +38,17 @@ services:
     networks:
       - bench-network
       - mariadb-network
-  redis:
+  redis-cache:
+    networks:
+      - bench-network
+      - mariadb-network
+
+  redis-queue:
+    networks:
+      - bench-network
+      - mariadb-network
+
+  redis-socketio:
     networks:
       - bench-network
       - mariadb-network
