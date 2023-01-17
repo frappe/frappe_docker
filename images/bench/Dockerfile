@@ -18,6 +18,11 @@ RUN apt-get update \
     fonts-cantarell \
     xfonts-75dpi \
     xfonts-base \
+    # weasyprint dependencies
+    libpango-1.0-0 \
+    libharfbuzz0b \
+    libpangoft2-1.0-0 \
+    libpangocairo-1.0-0 \
     # to work inside the container
     locales \
     build-essential \
