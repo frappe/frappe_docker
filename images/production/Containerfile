@@ -14,6 +14,11 @@ RUN useradd -ms /bin/bash frappe \
     vim \
     nginx \
     gettext-base \
+    # weasyprint dependencies
+    libpango-1.0-0 \
+    libharfbuzz0b \
+    libpangoft2-1.0-0 \
+    libpangocairo-1.0-0 \
     # MariaDB
     mariadb-client \
     # Postgres
