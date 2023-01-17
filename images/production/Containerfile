@@ -19,6 +19,8 @@ RUN useradd -ms /bin/bash frappe \
     libharfbuzz0b \
     libpangoft2-1.0-0 \
     libpangocairo-1.0-0 \
+    # For backups
+    restic \
     # MariaDB
     mariadb-client \
     # Postgres
@@ -62,7 +64,6 @@ RUN useradd -ms /bin/bash frappe \
 
 COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
-COPY resources/push_backup.py /usr/local/bin/push-backup
 
 FROM base AS builder
 
