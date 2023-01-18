@@ -44,10 +44,11 @@ In case of single docker host setup, add crontab entry for backup every 6 hours.
 Or
 
 ```
-0 */6 * * * docker compose -p erpnext exec backend bench backup-all-sites > /dev/null
+0 */6 * * * docker compose -p erpnext exec backend bench --site all backup --with-files > /dev/null
 ```
 
 Notes:
 
+- Make sure `docker-compose` or `docker compose` is available in path during execution.
 - Change the cron string as per need.
-- In case of docker compose exec set the correct project name
+- Set the correct project name in place of `erpnext`.
