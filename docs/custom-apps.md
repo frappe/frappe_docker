@@ -59,7 +59,7 @@ Note:
 - Make sure `APPS_JSON_BASE64` variable has correct base64 encoded JSON string. It is consumed as build arg, base64 encoding ensures it to be friendly with environment variables. Use `jq empty apps.json` to validate `apps.json` file.
 - Make sure the `--tag` is valid image name that will be pushed to registry.
 - Change `--build-arg` as per version of Python, NodeJS, Frappe Framework repo and branch
-- Set `--build-arg=REMOVE_GIT_REMOTE=true` to remove git upstream remotes from all apps. Use this in case they have secrets or private tokens and you don't wish to ship them in final image.
+- `.git` directories for all apps are removed from the image.
 
 ### Push image to use in yaml files
 

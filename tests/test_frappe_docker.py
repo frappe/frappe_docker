@@ -99,40 +99,21 @@ def test_frappe_connections_in_backends(
 
 
 def test_push_backup(
-    python_path: str,
     frappe_site: str,
     s3_service: S3ServiceResult,
     compose: Compose,
 ):
+    restic_password = "secret"
     compose.bench("--site", frappe_site, "backup", "--with-files")
-    compose.exec(
-        "backend",
-        "push-backup",
-        "--site",
-        frappe_site,
-        "--bucket",
-        "frappe",
-        "--region-name",
-        "us-east-1",
-        "--endpoint-url",
-        "http://minio:9000",
-        "--aws-access-key-id",
-        s3_service.access_key,
-        "--aws-secret-access-key",
-        s3_service.secret_key,
-    )
-    compose("cp", "tests/_check_backup_files.py", "backend:/tmp")
-    compose.exec(
-        "-e",
-        f"S3_ACCESS_KEY={s3_service.access_key}",
-        "-e",
-        f"S3_SECRET_KEY={s3_service.secret_key}",
-        "-e",
-        f"SITE_NAME={frappe_site}",
-        "backend",
-        python_path,
-        "/tmp/_check_backup_files.py",
-    )
+    restic_args = [
+        "--env=RESTIC_REPOSITORY=s3:http://minio:9000/frappe",
+        f"--env=AWS_ACCESS_KEY_ID={s3_service.access_key}",
+        f"--env=AWS_SECRET_ACCESS_KEY={s3_service.secret_key}",
+        f"--env=RESTIC_PASSWORD={restic_password}",
+    ]
+    compose.exec(*restic_args, "backend", "restic", "init")
+    compose.exec(*restic_args, "backend", "restic", "backup", "sites")
+    compose.exec(*restic_args, "backend", "restic", "snapshots")
 
 
 def test_https(frappe_site: str, compose: Compose):

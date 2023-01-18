@@ -1,6 +1,6 @@
 # Images
 
-There's 4 images that you can find in `/images` directory:
+There are 3 images that you can find in `/images` directory:
 
 - `bench`. It is used for development. [Learn more how to start development](../development/README.md).
 - `production`.

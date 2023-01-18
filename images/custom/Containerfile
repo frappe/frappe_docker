@@ -19,6 +19,8 @@ RUN useradd -ms /bin/bash frappe \
     libharfbuzz0b \
     libpangoft2-1.0-0 \
     libpangocairo-1.0-0 \
+    # For backups
+    restic \
     # MariaDB
     mariadb-client \
     # Postgres
@@ -62,7 +64,6 @@ RUN useradd -ms /bin/bash frappe \
 
 COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
-COPY resources/push_backup.py /usr/local/bin/push-backup
 
 FROM base AS builder
 
@@ -98,7 +99,6 @@ RUN if [ -n "${APPS_JSON_BASE64}" ]; then \
 
 USER frappe
 
-ARG REMOVE_GIT_REMOTE
 ARG FRAPPE_BRANCH=version-14
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 RUN export APP_INSTALL_ARGS="" && \
@@ -116,9 +116,7 @@ RUN export APP_INSTALL_ARGS="" && \
   cd /home/frappe/frappe-bench && \
   echo "$(jq 'del(.db_host, .redis_cache, .redis_queue, .redis_socketio)' sites/common_site_config.json)" \
     > sites/common_site_config.json && \
-  if [ -n "${REMOVE_GIT_REMOTE}" ]; then \
-    find apps -name .git -type d -prune | xargs -i git --git-dir {} remote rm upstream; \
-  fi
+  find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
 WORKDIR /home/frappe/frappe-bench
 
