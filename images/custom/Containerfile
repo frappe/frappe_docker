@@ -1,6 +1,9 @@
 ARG PYTHON_VERSION=3.10.5
 FROM python:${PYTHON_VERSION}-slim-bullseye AS base
 
+COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
+COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
+
 ARG WKHTMLTOPDF_VERSION=0.12.6-1
 ARG NODE_VERSION=16.18.0
 ENV NVM_DIR=/home/frappe/.nvm
@@ -60,10 +63,8 @@ RUN useradd -ms /bin/bash frappe \
     && chown -R frappe:frappe /etc/nginx/nginx.conf \
     && chown -R frappe:frappe /var/log/nginx \
     && chown -R frappe:frappe /var/lib/nginx \
-    && chown -R frappe:frappe /run/nginx.pid
-
-COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
-COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
+    && chown -R frappe:frappe /run/nginx.pid \
+    && chmod +x /usr/local/bin/nginx-entrypoint.sh
 
 FROM base AS builder
 
