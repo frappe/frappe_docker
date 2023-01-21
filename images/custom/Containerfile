@@ -64,7 +64,8 @@ RUN useradd -ms /bin/bash frappe \
     && chown -R frappe:frappe /var/log/nginx \
     && chown -R frappe:frappe /var/lib/nginx \
     && chown -R frappe:frappe /run/nginx.pid \
-    && chmod +x /usr/local/bin/nginx-entrypoint.sh
+    && chmod 755 /usr/local/bin/nginx-entrypoint.sh \
+    && chmod 644 /templates/nginx/frappe.conf.template
 
 FROM base AS builder
 
