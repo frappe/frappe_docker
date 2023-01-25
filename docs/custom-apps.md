@@ -90,8 +90,10 @@ podman run --rm -it \
   --build-arg=FRAPPE_BRANCH=version-14 \
   --build-arg=PYTHON_VERSION=3.10.5 \
   --build-arg=NODE_VERSION=16.18.0 \
-  --build-arg=APPS_JSON=$APPS_JSON \
-  --destination=ghcr.io/user/repo/custom:1.0.0
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --cache=true \
+  --destination=ghcr.io/user/repo/custom:1.0.0 \
+  --destination=ghcr.io/user/repo/custom:latest
 ```
 
 More about [kaniko](https://github.com/GoogleContainerTools/kaniko)
