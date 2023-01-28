@@ -111,16 +111,19 @@ docker compose -f compose.yaml \
   # ... your other overrides
   config > ~/gitops/docker-compose.yml
 
+# Pull images
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml pull
 
 # Stop containers
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml down
 
-# Remove assets volume for repopulation
-docker volume rm <name of assets volume>
-
 # Restart containers
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
+
+Note:
+
+- pull and stop container commands can be skipped if immutable image tags are used
+- `docker compose up -d` will pull new immutable tags if not found.
 
 To migrate sites refer [site operations](./site-operations.md#migrate-site)
