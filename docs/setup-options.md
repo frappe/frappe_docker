@@ -116,9 +116,6 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml pull
 # Stop containers
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml down
 
-# Remove assets volume for repopulation
-docker volume rm <name of assets volume>
-
 # Restart containers
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
