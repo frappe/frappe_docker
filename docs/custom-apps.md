@@ -98,7 +98,6 @@ podman run --rm -it \
 
 More about [kaniko](https://github.com/GoogleContainerTools/kaniko)
 
-
 ### Use Images
 
 On the [compose.yaml](../compose.yaml) replace the image reference to the `tag` you used when you built it. Then, if you used a tag like `custom_erpnext:staging` the `x-customizable-image` section will look like this:
