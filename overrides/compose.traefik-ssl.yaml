@@ -42,4 +42,7 @@ services:
     ports:
       - 443:443
     volumes:
-      - ${HOME}/data/traefik/certificates:/certificates
+      - cert-data:/certificates
+
+volumes:
+  cert-data:
