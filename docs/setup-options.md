@@ -68,6 +68,8 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -
 
 ### Setup Frappe using containerized MariaDB and Redis with Letsencrypt certificates.
 
+In this case make sure you've set `LETSENCRYPT_EMAIL` and `SITES` environment variables are set or certificates won't work.
+
 ```sh
 # Generate YAML
 docker compose -f compose.yaml \
@@ -81,6 +83,8 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -
 ```
 
 ### Setup ERPNext using containerized MariaDB and Redis with Letsencrypt certificates.
+
+In this case make sure you've set `LETSENCRYPT_EMAIL` and `SITES` environment variables are set or certificates won't work.
 
 ```sh
 # Generate YAML

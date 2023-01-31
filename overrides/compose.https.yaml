@@ -5,7 +5,7 @@ services:
       - traefik.http.services.frontend.loadbalancer.server.port=8080
       - traefik.http.routers.frontend-http.entrypoints=websecure
       - traefik.http.routers.frontend-http.tls.certresolver=main-resolver
-      - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
+      - traefik.http.routers.frontend-http.rule=Host(${SITES:?List of sites not set})
 
   proxy:
     image: traefik:2.5
