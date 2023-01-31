@@ -144,7 +144,7 @@ class TestPostgres:
     def test_site_creation(self, compose: Compose):
         compose.bench(
             "new-site",
-            "test_pg_site",
+            "test-pg-site.localhost",
             "--db-type",
             "postgres",
             "--admin-password",
