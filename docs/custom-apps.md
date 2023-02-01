@@ -57,7 +57,7 @@ Note:
 - Use `docker` instead of `buildah` as per your setup.
 - `FRAPPE_PATH` and `FRAPPE_BRANCH` build args are optional and can be overridden in case of fork/branch or test a PR.
 - Make sure `APPS_JSON_BASE64` variable has correct base64 encoded JSON string. It is consumed as build arg, base64 encoding ensures it to be friendly with environment variables. Use `jq empty apps.json` to validate `apps.json` file.
-- Make sure the `--tag` is valid image name that will be pushed to registry.
+- Make sure the `--tag` is valid image name that will be pushed to registry. See section [below](#use-images) for remarks about its use.
 - Change `--build-arg` as per version of Python, NodeJS, Frappe Framework repo and branch
 - `.git` directories for all apps are removed from the image.
 
@@ -99,5 +99,15 @@ podman run --rm -it \
 More about [kaniko](https://github.com/GoogleContainerTools/kaniko)
 
 ### Use Images
+
+On the [compose.yaml](../compose.yaml) replace the image reference to the `tag` you used when you built it. Then, if you used a tag like `custom_erpnext:staging` the `x-customizable-image` section will look like this:
+
+```
+x-customizable-image: &customizable_image
+  image: custom_erpnext:staging
+  pull_policy: never
+```
+
+The `pull_policy` above is optional and prevents `docker` to try to download the image when that one has been built locally.
 
 Make sure image name is correct to be pushed to registry. After the images are pushed, you can pull them to servers to be deployed. If the registry is private, additional auth is needed.

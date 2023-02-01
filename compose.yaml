@@ -1,3 +1,9 @@
+x-customizable-image: &customizable_image
+  # By default the image used only contains the `frappe` and `erpnext` apps.
+  # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
+  # about using custom images.
+  image: frappe/erpnext:${ERPNEXT_VERSION:?No ERPNext version set}
+
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
     configurator:
@@ -5,7 +11,7 @@ x-depends-on-configurator: &depends_on_configurator
 
 x-backend-defaults: &backend_defaults
   <<: *depends_on_configurator
-  image: frappe/erpnext:${ERPNEXT_VERSION:?No ERPNext version set}
+  <<: *customizable_image
   volumes:
     - sites:/home/frappe/frappe-bench/sites
 
@@ -36,7 +42,7 @@ services:
     <<: *backend_defaults
 
   frontend:
-    image: frappe/erpnext:${ERPNEXT_VERSION}
+    <<: *customizable_image
     command:
       - nginx-entrypoint.sh
     environment:
@@ -56,7 +62,7 @@ services:
 
   websocket:
     <<: *depends_on_configurator
-    image: frappe/erpnext:${ERPNEXT_VERSION}
+    <<: *customizable_image
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
