@@ -62,7 +62,7 @@ services:
 
   websocket:
     <<: *depends_on_configurator
-    image: frappe/erpnext:${ERPNEXT_VERSION:?No ERPNext version set}
+    <<: *customizable_image
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
