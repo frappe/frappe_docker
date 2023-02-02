@@ -3,6 +3,7 @@ version: "3.3"
 services:
   traefik:
     image: "traefik:v2.6"
+    restart: unless-stopped
     labels:
       # Enable Traefik for this service, to make it available in the public network
       - traefik.enable=true
