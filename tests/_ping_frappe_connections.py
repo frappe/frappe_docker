@@ -16,7 +16,7 @@ def check_cache():
 
 
 def main() -> int:
-    frappe.connect(site="tests")
+    frappe.connect(site="tests.localhost")
     check_db()
     check_cache()
     return 0
