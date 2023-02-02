@@ -135,7 +135,7 @@ get_apps_from_upstream() {
 echo "Client Name (from apps.json file)?"
 read -r client && client=${client:-develop_client} && get_client_apps
 
-echo "Bench Directory Name? (give name of existing bench to just create a new site) (default: frape-bench)"
+echo "Bench Directory Name? (give name of existing bench to just create a new site) (default: frappe-bench)"
 read -r bench_name && bench_name=${bench_name:-frappe-bench} && validate_bench_exists
 
 echo "Site Name? (should end with .localhost) (default: site1.localhost)"
