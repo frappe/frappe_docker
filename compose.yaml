@@ -3,6 +3,9 @@ x-customizable-image: &customizable_image
   # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
   # about using custom images.
   image: frappe/erpnext:${ERPNEXT_VERSION:?No ERPNext version set}
+  volumes:
+    - assets:/home/frappe/frappe-bench/sites/assets:ro
+    - sites:/home/frappe/frappe-bench/sites
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
@@ -12,9 +15,6 @@ x-depends-on-configurator: &depends_on_configurator
 x-backend-defaults: &backend_defaults
   <<: *depends_on_configurator
   <<: *customizable_image
-  volumes:
-    - sites:/home/frappe/frappe-bench/sites
-    - assets:/home/frappe/frappe-bench/sites/assets:ro
 
 services:
   configurator:
