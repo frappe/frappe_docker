@@ -14,6 +14,7 @@ x-backend-defaults: &backend_defaults
   <<: *customizable_image
   volumes:
     - sites:/home/frappe/frappe-bench/sites
+    - assets:/home/frappe/frappe-bench/sites/assets:ro
 
 services:
   configurator:
