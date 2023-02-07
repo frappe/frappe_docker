@@ -55,8 +55,6 @@ services:
       UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
       PROXY_READ_TIMOUT: ${PROXY_READ_TIMOUT:-120}
       CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
     depends_on:
       - backend
       - websocket
@@ -67,8 +65,6 @@ services:
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
 
   queue-short:
     <<: *backend_defaults
@@ -89,3 +85,4 @@ services:
 # ERPNext requires local assets access (Frappe does not)
 volumes:
   sites:
+  assets:
