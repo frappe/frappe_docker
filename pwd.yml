@@ -9,6 +9,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
 
   configurator:
     image: frappe/erpnext:v14.15.1
@@ -36,6 +37,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
 
   create-site:
     image: frappe/erpnext:v14.15.1
@@ -45,6 +47,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
     entrypoint:
       - bash
       - -c
@@ -107,6 +110,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
     ports:
       - "8080:8080"
 
@@ -123,6 +127,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
 
   queue-long:
     image: frappe/erpnext:v14.15.1
@@ -137,6 +142,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
 
   queue-short:
     image: frappe/erpnext:v14.15.1
@@ -151,6 +157,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
 
   redis-queue:
     image: redis:6.2-alpine
@@ -187,6 +194,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
 
   websocket:
     image: frappe/erpnext:v14.15.1
@@ -206,4 +214,5 @@ volumes:
   redis-cache-data:
   redis-socketio-data:
   sites:
+  assets:
   logs:
