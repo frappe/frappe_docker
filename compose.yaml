@@ -11,6 +11,8 @@ x-depends-on-configurator: &depends_on_configurator
   depends_on:
     configurator:
       condition: service_completed_successfully
+    populate-assets:
+      condition: service_completed_successfully
 
 x-backend-defaults: &backend_defaults
   <<: *depends_on_configurator
@@ -37,6 +39,16 @@ services:
       REDIS_QUEUE: ${REDIS_QUEUE}
       REDIS_SOCKETIO: ${REDIS_SOCKETIO}
       SOCKETIO_PORT: 9000
+    depends_on: {}
+
+  populate-assets:
+    <<: *customizable_image
+    entrypoint: ["sh", "-c"]
+    command:
+      - >
+        cp -fR /home/frappe/frappe-bench/sites/assets /data;
+    volumes:
+      - assets:/data/assets:rw
     depends_on: {}
 
   backend:
