@@ -24,13 +24,13 @@ export APPS_JSON='[
     "branch": "main"
   }
 ]'
-export APPS_JSON_BASE64=$(echo ${APPS_JSON} | base64 --wrap=0)
+export APPS_JSON_BASE64=$(echo ${APPS_JSON} | base64 -w 0)
 ```
 
 You can also generate base64 string from json file:
 
 ```shell
-export APPS_JSON_BASE64=$(base64 --wrap=0 /path/to/apps.json)
+export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
 ```
 
 Note:
