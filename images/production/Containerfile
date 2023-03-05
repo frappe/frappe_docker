@@ -107,8 +107,7 @@ RUN bench init \
   /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
   bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
-  echo "$(jq 'del(.db_host, .redis_cache, .redis_queue, .redis_socketio)' sites/common_site_config.json)" \
-    > sites/common_site_config.json && \
+  echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
 FROM base as erpnext
