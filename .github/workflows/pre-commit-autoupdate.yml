@@ -16,7 +16,7 @@ jobs:
         uses: vrslev/pre-commit-autoupdate@v1.0.0
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v5
         with:
           branch: pre-commit-autoupdate
           title: "chore(deps): Update pre-commit hooks"
