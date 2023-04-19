@@ -43,7 +43,7 @@ jobs:
         run: python3 ./.github/scripts/get_latest_tags.py --repo ${{ inputs.repo }} --version ${{ inputs.version }}
 
       - name: Build
-        uses: docker/bake-action@v2.3.0
+        uses: docker/bake-action@v3.0.0
         with:
           push: true
         env:
@@ -71,6 +71,6 @@ jobs:
 
       - name: Push
         if: ${{ inputs.push }}
-        uses: docker/bake-action@v2.3.0
+        uses: docker/bake-action@v3.0.0
         with:
           push: true
