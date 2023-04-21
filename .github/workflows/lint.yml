@@ -18,6 +18,9 @@ jobs:
       - name: Setup Python
         run: sudo apt-get install -y python3 python3-venv
 
+      - name: Setup Build Essential
+        run: sudo apt-get install -y build-essential
+
       # For shfmt pre-commit hook
       - name: Setup Go
         uses: actions/setup-go@v4
