@@ -12,7 +12,7 @@ services:
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD:?No db password set}
     volumes:
-      - db-data:/var/lib/postgresql
+      - db-data:/var/lib/postgresql/data
 
 volumes:
   db-data:
