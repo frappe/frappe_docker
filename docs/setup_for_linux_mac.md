@@ -1,6 +1,6 @@
 # How to install ERPNext on linux/mac using Frappe_docker ?
 
-step1: clone the repo 
+step1: clone the repo
 
 ```
 git clone https://github.com/frappe/frappe_docker
@@ -234,10 +234,9 @@ volumes:
   redis-socketio-data:
   sites:
   logs:
-
 ```
 
-step3: run the docker 
+step3: run the docker
 
 ```
 docker-compose -f ./pwd.yaml up
@@ -246,6 +245,5 @@ docker-compose -f ./pwd.yaml up
 ---
 
 Wait for couple of minutes.
-
 
 Open localhost:8080
