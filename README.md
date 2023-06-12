@@ -34,6 +34,7 @@ Wait for 5 minutes for ERPNext site to be created or check `create-site` contain
 - [Backup and Push Cron Job](docs/backup-and-push-cronjob.md)
 - [Port Based Multi Tenancy](docs/port-based-multi-tenancy.md)
 - [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
+- [running on linux/mac](docs/setup_for_linux_mac.md)
 
 ### [Custom Images](#custom-images)
 
