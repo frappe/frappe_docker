@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: on-failure
@@ -11,7 +11,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   configurator:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: none
@@ -39,7 +39,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   create-site:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: none
@@ -90,7 +90,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: on-failure
@@ -112,7 +112,7 @@ services:
       - "8080:8080"
 
   queue-default:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: on-failure
@@ -126,7 +126,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   queue-long:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: on-failure
@@ -140,7 +140,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   queue-short:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: on-failure
@@ -178,7 +178,7 @@ services:
       - redis-socketio-data:/data
 
   scheduler:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: on-failure
@@ -190,7 +190,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   websocket:
-    image: frappe/erpnext:v14.27.2
+    image: frappe/erpnext:v14.27.3
     deploy:
       restart_policy:
         condition: on-failure
