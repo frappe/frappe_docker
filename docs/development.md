@@ -106,6 +106,15 @@ bench set-config -g redis_queue redis://redis-queue:6379
 bench set-config -g redis_socketio redis://redis-socketio:6379
 ```
 
+or in the case of using postgresql instead:
+
+```shell
+bench set-config -g db_host postgresql
+bench set-config -g redis_cache redis://redis-cache:6379
+bench set-config -g redis_queue redis://redis-queue:6379
+bench set-config -g redis_socketio redis://redis-socketio:6379
+```
+
 For any reason the above commands fail, set the values in `common_site_config.json` manually.
 
 ```json
@@ -116,7 +125,15 @@ For any reason the above commands fail, set the values in `common_site_config.js
   "redis_socketio": "redis://redis-socketio:6379"
 }
 ```
+same here in the case of using postgresql, using this settings instead:
 
+```json
+{
+  "db_host": "postgresql",
+  "redis_cache": "redis://redis-cache:6379",
+  "redis_queue": "redis://redis-queue:6379",
+  "redis_socketio": "redis://redis-socketio:6379"
+}
 ### Edit Honcho's Procfile
 
 Note : With the option '--skip-redis-config-generation' during bench init, these actions are no more needed. But at least, take a look to ProcFile to see what going on when bench launch honcho on start command
