@@ -8,7 +8,7 @@ git clone https://github.com/frappe/frappe_docker
 
 step2: add platform: linux/amd64 to all services in the /pwd.yaml
 
-here is the update pwd.yml file
+here is the updated pwd.yml file
 
 ```yml
 version: "3"
