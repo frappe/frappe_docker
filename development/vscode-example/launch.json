@@ -72,9 +72,7 @@
         "socketio",
         "watch",
         "schedule",
-        "worker_short",
-        "worker_long",
-        "worker_default"
+        "worker"
       ]
     }
   ]
