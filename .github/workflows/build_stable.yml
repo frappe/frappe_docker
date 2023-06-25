@@ -36,6 +36,8 @@ jobs:
       repo: erpnext
       version: "13"
       push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+      python_version: 3.9.17
+      node_version: 14.21.3
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -46,6 +48,8 @@ jobs:
       repo: erpnext
       version: "14"
       push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+      python_version: 3.10.12
+      node_version: 16.20.1
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
