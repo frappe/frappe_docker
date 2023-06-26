@@ -1,11 +1,13 @@
-ARG PYTHON_VERSION=3.10.5
-FROM python:${PYTHON_VERSION}-slim-bullseye AS base
+ARG PYTHON_VERSION=3.11.4
+ARG DEBIAN_BASE=bookworm
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_BASE} AS base
 
 COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
 
-ARG WKHTMLTOPDF_VERSION=0.12.6-1
-ARG NODE_VERSION=16.18.0
+ARG WKHTMLTOPDF_VERSION=0.12.6.1-3
+ARG WKHTMLTOPDF_DISTRO=bookworm
+ARG NODE_VERSION=18.16.1
 ENV NVM_DIR=/home/frappe/.nvm
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
@@ -47,7 +49,7 @@ RUN useradd -ms /bin/bash frappe \
     # Install wkhtmltopdf with patched qt
     && if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
     && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
-    && downloaded_file=wkhtmltox_$WKHTMLTOPDF_VERSION.buster_${ARCH}.deb \
+    && downloaded_file=wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_DISTRO}_${ARCH}.deb \
     && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
     && apt-get install -y ./$downloaded_file \
     && rm $downloaded_file \

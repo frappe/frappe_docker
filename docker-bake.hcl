@@ -5,6 +5,13 @@ variable "REGISTRY_USER" {
     default = "frappe"
 }
 
+variable PYTHON_VERSION {
+    default = "3.11.4"
+}
+variable NODE_VERSION {
+    default = "18.16.1"
+}
+
 variable "FRAPPE_VERSION" {
     default = "develop"
 }
@@ -65,8 +72,8 @@ target "default-args" {
         BENCH_REPO = "${BENCH_REPO}"
         FRAPPE_BRANCH = "${FRAPPE_VERSION}"
         ERPNEXT_BRANCH = "${ERPNEXT_VERSION}"
-        PYTHON_VERSION = can(regex("v13", "${ERPNEXT_VERSION}")) ? "3.9.9" : "3.10.5"
-        NODE_VERSION = can(regex("v13", "${FRAPPE_VERSION}")) ? "14.19.3" : "16.18.0"
+        PYTHON_VERSION = "${PYTHON_VERSION}"
+        NODE_VERSION = "${NODE_VERSION}"
     }
 }
 
