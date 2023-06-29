@@ -1,9 +1,9 @@
-FROM debian:bullseye-slim as bench
+FROM debian:bookworm-slim as bench
 
 LABEL author=frappé
 
 ARG GIT_REPO=https://github.com/frappe/bench.git
-ARG GIT_BRANCH=develop
+ARG GIT_BRANCH=v5.x
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -75,10 +75,11 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
     && dpkg-reconfigure --frontend=noninteractive locales
 
 # Detect arch and install wkhtmltopdf
-ENV WKHTMLTOPDF_VERSION 0.12.6-1
+ARG WKHTMLTOPDF_VERSION=0.12.6.1-3
+ARG WKHTMLTOPDF_DISTRO=bookworm
 RUN if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
     && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
-    && downloaded_file=wkhtmltox_$WKHTMLTOPDF_VERSION.buster_${ARCH}.deb \
+    && downloaded_file=wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_DISTRO}_${ARCH}.deb \
     && wget -q https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
     && dpkg -i $downloaded_file \
     && rm $downloaded_file
@@ -94,16 +95,19 @@ USER frappe
 WORKDIR /home/frappe
 
 # Install Python via pyenv
-ENV PYTHON_VERSION_V13=3.9.9
-ENV PYTHON_VERSION=3.10.5
+ENV PYTHON_VERSION_V13=3.9.17
+ENV PYTHON_VERSION_DEVELOP=3.11.4
+ENV PYTHON_VERSION=3.10.12
 ENV PYENV_ROOT /home/frappe/.pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 # From https://github.com/pyenv/pyenv#basic-github-checkout
 RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
     && pyenv install $PYTHON_VERSION_V13 \
+    && pyenv install $PYTHON_VERSION_DEVELOP \
     && pyenv install $PYTHON_VERSION \
     && PYENV_VERSION=$PYTHON_VERSION_V13 pip install --no-cache-dir virtualenv \
+    && PYENV_VERSION=$PYTHON_VERSION_DEVELOP pip install --no-cache-dir virtualenv \
     && PYENV_VERSION=$PYTHON_VERSION pip install --no-cache-dir virtualenv \
     && pyenv global $PYTHON_VERSION $PYTHON_VERSION_v13 \
     && sed -Ei -e '/^([^#]|$)/ {a export PYENV_ROOT="/home/frappe/.pyenv" a export PATH="$PYENV_ROOT/bin:$PATH" a ' -e ':a' -e '$!{n;ba};}' ~/.profile \
@@ -121,15 +125,19 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
     && echo "export BENCH_DEVELOPER=1" >>/home/frappe/.bashrc
 
 # Install Node via nvm
-ENV NODE_VERSION_14=14.19.3
-ENV NODE_VERSION=16.18.0
+ENV NODE_VERSION_13=14.21.3
+ENV NODE_VERSION_DEVELOP=14.21.3
+ENV NODE_VERSION=16.20.1
 ENV NVM_DIR /home/frappe/.nvm
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
 RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
     && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${NODE_VERSION_14} \
-    && nvm use v${NODE_VERSION_14} \
+    && nvm install ${NODE_VERSION_13} \
+    && nvm use v${NODE_VERSION_13} \
+    && npm install -g yarn \
+    && nvm install ${NODE_VERSION_DEVELOP} \
+    && nvm use v${NODE_VERSION_DEVELOP} \
     && npm install -g yarn \
     && nvm install ${NODE_VERSION} \
     && nvm use v${NODE_VERSION} \

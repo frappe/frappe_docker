@@ -31,8 +31,11 @@ jobs:
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Set Environment Variables
+        run: cat example.env | grep -o '^[^#]*' >> "$GITHUB_ENV"
+
       - name: Build and test
-        uses: docker/bake-action@v2.3.0
+        uses: docker/bake-action@v3.1.0
         with:
           targets: bench-test
 
@@ -45,7 +48,7 @@ jobs:
 
       - name: Push
         if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-        uses: docker/bake-action@v2.3.0
+        uses: docker/bake-action@v3.1.0
         with:
           targets: bench
           push: true

@@ -68,3 +68,14 @@ Place relevant markdown files in the `docs` directory and index them in README.m
 # Frappe and ERPNext updates
 
 Each Frappe/ERPNext release triggers new stable images builds as well as bump to helm chart.
+
+# Maintenance
+
+In case of new release of Debian. e.g. bullseye to bookworm. Change following files:
+
+- `images/erpnext/Containerfile` and `images/custom/Containerfile`: Change the files to use new debian release, make sure new python version tag that is available on new debian release image. e.g. 3.9.9 (bullseye) to 3.9.17 (bookworm) or 3.10.5 (bullseye) to 3.10.12 (bookworm). Make sure apt-get packages and wkhtmltopdf version are also upgraded accordingly.
+- `images/bench/Dockerfile`: Change the files to use new debian release. Make sure apt-get packages and wkhtmltopdf version are also upgraded accordingly.
+
+Change following files on release of ERPNext
+
+- `.github/workflows/build_stable.yml`: Add the new release step under `jobs` and remove the unmaintained one. e.g. In case v12, v13 available, v14 will be added and v12 will be removed on release of v14. Also change the `needs:` for later steps to `v14` from `v13`.

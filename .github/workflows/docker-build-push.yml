@@ -14,6 +14,14 @@ on:
       push:
         required: true
         type: boolean
+      python_version:
+        required: true
+        type: string
+        description: Python Version
+      node_version:
+        required: true
+        type: string
+        description: NodeJS Version
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -42,8 +50,13 @@ jobs:
       - name: Get latest versions
         run: python3 ./.github/scripts/get_latest_tags.py --repo ${{ inputs.repo }} --version ${{ inputs.version }}
 
+      - name: Set build args
+        run: |
+          echo "PYTHON_VERSION=${{ inputs.python_version }}" >> "$GITHUB_ENV"
+          echo "NODE_VERSION=${{ inputs.node_version }}" >> "$GITHUB_ENV"
+
       - name: Build
-        uses: docker/bake-action@v2.3.0
+        uses: docker/bake-action@v3.1.0
         with:
           push: true
         env:
@@ -71,6 +84,6 @@ jobs:
 
       - name: Push
         if: ${{ inputs.push }}
-        uses: docker/bake-action@v2.3.0
+        uses: docker/bake-action@v3.1.0
         with:
           push: true
