@@ -73,8 +73,8 @@ target "default-args" {
         BENCH_REPO = "${BENCH_REPO}"
         FRAPPE_VERSION = "${FRAPPE_VERSION}"
         ERPNEXT_VERSION = "${ERPNEXT_VERSION}"
-        PYTHON_VERSION = can(regex("v13", "${ERPNEXT_VERSION}")) ? "3.9.9" : "3.10.5"
-        NODE_VERSION = can(regex("v13", "${FRAPPE_VERSION}")) ? "14.19.3" : "16.18.0"
+        PYTHON_VERSION = can(regex("v13", "${ERPNEXT_VERSION}")) ? "3.9.17" : "3.10.12"
+        NODE_VERSION = can(regex("v13", "${FRAPPE_VERSION}")) ? "14.21.3" : "16.20.1"
     }
 }
 
