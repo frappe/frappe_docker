@@ -20,7 +20,10 @@ COPY --chown=frappe:frappe . apps/${APP_NAME}
 RUN bench setup requirements
 
 # Build static assets, copy files instead of symlink
-RUN bench build --production --verbose --hard-link
+RUN if [ -z "${ERPNEXT_VERSION##*v14*}" ] || [ "$ERPNEXT_VERSION" = "develop" ]; then \
+        export BUILD_OPTS="--production"; \
+    fi \
+    && FRAPPE_ENV=production bench build --verbose --hard-link ${BUILD_OPTS}
 
 
 # Use frappe-nginx image with nginx template and env vars
