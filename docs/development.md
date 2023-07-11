@@ -238,27 +238,38 @@ Most developers work with numerous clients and versions. Moreover, apps may be r
 
 This is simplified using a script to automate the process of creating a new bench / site and installing the required apps.
 
-Create a copy of apps-example.json and name it apps.json
-
-```shell
-cp apps-example.json apps.json
-```
-
-Maintain a directory of all client apps in apps.json. Note that Maintaining a fork is optional in apps.json. Also `name` should be app name in apps.json (could be different from repo name).
+Sample `apps-example.json` is used by default, it installs erpnext on current stable release. To install custom apps, copy the `apps-example.json` to custom json file and make changes to list of apps. Pass this file to the `installer.py` script.
 
 > You may have apps in private repos which may require ssh access. You may use SSH from your home directory on linux (configurable in docker-compose.yml).
 
-After you have created apps.json, run the following command:
-
 ```shell
-bash installer.sh
+python installer.py
 ```
 
-The script will ask for the following information:
+For command help
 
-- Client name (from apps.json).
-- Bench directory name. If you enter existing bench directory name, it will create a new site in that bench. Else it will create a new bench and site.
-- Site name (should end with `.localhost`).
+```shell
+python installer.py --help
+usage: installer.py [-h] [-j APPS_JSON] [-b BENCH_NAME] [-s SITE_NAME] [-r FRAPPE_REPO] [-t FRAPPE_BRANCH] [-p PY_VERSION] [-n NODE_VERSION] [-v]
+
+options:
+  -h, --help            show this help message and exit
+  -j APPS_JSON, --apps-json APPS_JSON
+                        Path to apps.json, default: apps-example.json
+  -b BENCH_NAME, --bench-name BENCH_NAME
+                        Bench directory name, default: frappe-bench
+  -s SITE_NAME, --site-name SITE_NAME
+                        Site name, should end with .localhost, default: development.localhost
+  -r FRAPPE_REPO, --frappe-repo FRAPPE_REPO
+                        frappe repo to use, default: https://github.com/frappe/frappe
+  -t FRAPPE_BRANCH, --frappe-branch FRAPPE_BRANCH
+                        frappe repo to use, default: version-14
+  -p PY_VERSION, --py-version PY_VERSION
+                        python version, default: Not Set
+  -n NODE_VERSION, --node-version NODE_VERSION
+                        node version, default: Not Set
+  -v, --verbose         verbose output
+```
 
 A new bench and / or site is created for the client with following defaults.
 
