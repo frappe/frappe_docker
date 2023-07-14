@@ -14,11 +14,11 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v1
-      with:
-        version: 'v1.21.3'
-      id: install
+    # - name: Install kubectl
+    #   uses: azure/setup-kubectl@v1
+    #   with:
+    #     version: 'v1.21.3'
+    #   id: install
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -31,8 +31,8 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Load secrets and save to app.env
-      run: aws secretsmanager get-secret-value --secret-id simple_bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
+    # - name: Load secrets and save to app.env
+    #   run: aws secretsmanager get-secret-value --secret-id simple_bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
 
     - name: Build, tag, and push image to Amazon ECR
       env:
@@ -43,13 +43,13 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
         docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
-    - name: Update kube config
-      run: aws eks update-kubeconfig --name seleneks --region ap-southeast-1
+    # - name: Update kube config
+    #   run: aws eks update-kubeconfig --name seleneks --region ap-southeast-1
 
-    - name: Deploy image to Amazon EKS
-      run: |
-        kubectl apply -f eks/aws-auth.yaml
-        kubectl apply -f eks/deployment.yaml
-        kubectl apply -f eks/service.yaml
-        kubectl apply -f eks/issuer.yaml
-        kubectl apply -f eks/ingress.yaml
+    # - name: Deploy image to Amazon EKS
+    #   run: |
+    #     kubectl apply -f eks/aws-auth.yaml
+    #     kubectl apply -f eks/deployment.yaml
+    #     kubectl apply -f eks/service.yaml
+    #     kubectl apply -f eks/issuer.yaml
+    #     kubectl apply -f eks/ingress.yaml
