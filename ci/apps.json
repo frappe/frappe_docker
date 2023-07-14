@@ -1,0 +1,18 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext.git",
+    "branch": "version-14"
+  },
+  {
+    "url": "https://github.com/frappe/payments.git",
+    "branch": "version-14"
+  },
+  {
+    "url": "https://github.com/frappe/helpdesk.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/hrms.git",
+    "branch": "version-14"
+  }
+]
