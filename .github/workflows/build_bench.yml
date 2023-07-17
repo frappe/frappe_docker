@@ -34,6 +34,9 @@ jobs:
       - name: Set Environment Variables
         run: cat example.env | grep -o '^[^#]*' >> "$GITHUB_ENV"
 
+      - name: Get Bench Latest Version
+        run: echo "LATEST_BENCH_RELEASE=$(curl -s 'https://api.github.com/repos/frappe/bench/releases/latest' | jq -r '.tag_name')" >> "$GITHUB_ENV"
+
       - name: Build and test
         uses: docker/bake-action@v3.1.0
         with:
