@@ -32,6 +32,10 @@ variable "BENCH_REPO" {
     default = "https://github.com/frappe/bench"
 }
 
+variable "LATEST_BENCH_RELEASE" {
+    default = "latest"
+}
+
 # Bench image
 
 target "bench" {
@@ -40,7 +44,7 @@ target "bench" {
     }
     context = "images/bench"
     target = "bench"
-    tags = ["frappe/bench:latest"]
+    tags = ["frappe/bench:${LATEST_BENCH_RELEASE}"]
 }
 
 target "bench-test" {
