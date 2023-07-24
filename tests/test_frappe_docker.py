@@ -39,7 +39,7 @@ def assets_cb(text: str):
 
 
 @pytest.mark.parametrize(
-    ("url", "callback"), (("/", index_cb), ("/api/method/version", api_cb))
+    ("url", "callback"), (("/", index_cb), ("/api/method/ping", api_cb))
 )
 def test_endpoints(url: str, callback: Any, frappe_site: str):
     check_url_content(
