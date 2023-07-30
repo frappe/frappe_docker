@@ -150,17 +150,17 @@ sitename MUST end with .localhost for trying deployments locally.
 for example:
 
 ```shell
-bench new-site mysite.localhost --no-mariadb-socket
+bench new-site development.localhost --no-mariadb-socket
 ```
 
 The same command can be run non-interactively as well:
 
 ```shell
-bench new-site mysite.localhost --mariadb-root-password 123 --admin-password admin --no-mariadb-socket
+bench new-site development.localhost --mariadb-root-password 123 --admin-password admin --no-mariadb-socket
 ```
 
 The command will ask the MariaDB root password. The default root password is `123`.
-This will create a new site and a `mysite.localhost` directory under `frappe-bench/sites`.
+This will create a new site and a `development.localhost` directory under `frappe-bench/sites`.
 The option `--no-mariadb-socket` will configure site's database credentials to work with docker.
 You may need to configure your system /etc/hosts if you're on Linux, Mac, or its Windows equivalent.
 
@@ -186,8 +186,8 @@ Note: If PostgreSQL is not required, the postgresql service / container can be s
 To develop a new app, the last step will be setting the site into developer mode. Documentation is available at [this link](https://frappe.io/docs/user/en/guides/app-development/how-enable-developer-mode-in-frappe).
 
 ```shell
-bench --site mysite.localhost set-config developer_mode 1
-bench --site mysite.localhost clear-cache
+bench --site development.localhost set-config developer_mode 1
+bench --site development.localhost clear-cache
 ```
 
 ### Install an app
@@ -201,21 +201,21 @@ To install custom app
 ```shell
 # --branch is optional, use it to point to branch on custom app repository
 bench get-app --branch version-12 https://github.com/myusername/myapp
-bench --site mysite.localhost install-app myapp
+bench --site development.localhost install-app myapp
 ```
 
 At the time of this writing, the Payments app has been factored out of the Version 14 ERPNext app and is now a separate app. ERPNext will not install it.
 
 ```shell
 bench get-app --branch version-14 --resolve-deps erpnext
-bench --site mysite.localhost install-app erpnext
+bench --site development.localhost install-app erpnext
 ```
 
 To install ERPNext (from the version-13 branch):
 
 ```shell
 bench get-app --branch version-13 erpnext
-bench --site mysite.localhost install-app erpnext
+bench --site development.localhost install-app erpnext
 ```
 
 Note: Both frappe and erpnext must be on branch with same name. e.g. version-14
@@ -229,7 +229,7 @@ bench start
 ```
 
 You can now login with user `Administrator` and the password you choose when creating the site.
-Your website will now be accessible at location [mysite.localhost:8000](http://mysite.localhost:8000)
+Your website will now be accessible at location [development.localhost:8000](http://development.localhost:8000)
 Note: To start bench with debugger refer section for debugging.
 
 ### Setup bench / new site using script
@@ -312,7 +312,7 @@ For advance vscode configuration in the devcontainer, change the config files in
 You can launch a simple interactive shell console in the terminal with:
 
 ```shell
-bench --site mysite.localhost console
+bench --site development.localhost console
 ```
 
 More likely, you may want to launch VSCode interactive console based on Jupyter kernel.
@@ -327,12 +327,12 @@ The first step is installing and updating the required software. Usually the fra
 
 Then, run the command `Python: Show Python interactive window` from the VSCode command palette.
 
-Replace `mysite.localhost` with your site and run the following code in a Jupyter cell:
+Replace `development.localhost` with your site and run the following code in a Jupyter cell:
 
 ```python
 import frappe
 
-frappe.init(site='mysite.localhost', sites_path='/workspace/development/frappe-bench/sites')
+frappe.init(site='development.localhost', sites_path='/workspace/development/frappe-bench/sites')
 frappe.connect()
 frappe.local.lang = frappe.db.get_default('lang')
 frappe.db.connect()
