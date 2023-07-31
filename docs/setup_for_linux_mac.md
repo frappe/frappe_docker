@@ -239,7 +239,7 @@ volumes:
 step3: run the docker
 
 ```
-docker-compose -f ./pwd.yaml up
+docker-compose -f ./pwd.yml up
 ```
 
 ---
