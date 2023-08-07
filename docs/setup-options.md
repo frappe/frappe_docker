@@ -17,7 +17,7 @@ Copy the example docker environment file to `.env`:
 cp example.env .env
 ```
 
-Note: To know more about environment variable [read here](./images-and-compose-files.md#configuration). Set the necessary variables in the `.env` file.
+Note: To know more about environment variable [read here](./environment-variables.md). Set the necessary variables in the `.env` file.
 
 ## Generate docker-compose.yml for variety of setups
 
