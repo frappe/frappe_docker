@@ -36,13 +36,6 @@ EXIT;
 
 Note: For MariaDB 10.4 and above use `mysql.global_priv` instead of `mysql.user`.
 
-### Letsencrypt companion not working
-
-- Nginx Letsencrypt Companion needs to be setup before starting ERPNext services.
-- Are domain names in `SITES` variable correct?
-- Is DNS record configured? `A Name` record needs to point to Public IP of server.
-- Try Restarting containers.
-
 ### docker-compose does not recognize variables from `.env` file
 
 If you are using old version of `docker-compose` the .env file needs to be located in directory from where the docker-compose command is executed. There may also be difference in official `docker-compose` and the one packaged by distro. Use `--env-file=.env` if available to explicitly specify the path to file.
@@ -50,6 +43,5 @@ If you are using old version of `docker-compose` the .env file needs to be locat
 ### Windows Based Installation
 
 - Set environment variable `COMPOSE_CONVERT_WINDOWS_PATHS` e.g. `set COMPOSE_CONVERT_WINDOWS_PATHS=1`
-- While using docker machine, port-forward the port 80 of VM to port 80 of host machine
+- While using docker machine, port-forward the ports of VM to ports of host machine. (ports 8080/8000/9000)
 - Name all the sites ending with `.localhost`. and access it via browser locally. e.g. `http://site1.localhost`
-- related issue comment https://github.com/frappe/frappe_docker/issues/448#issuecomment-851723912
