@@ -239,6 +239,10 @@ volumes:
 step3: run the docker
 
 ```
+cd frappe_docker
+```
+
+```
 docker-compose -f ./pwd.yml up
 ```
 
