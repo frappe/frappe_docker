@@ -91,7 +91,7 @@ To setup frappe framework version 13 bench set `PYENV_VERSION` environment varia
 
 ```shell
 nvm use v14
-PYENV_VERSION=3.9.9 bench init --skip-redis-config-generation --frappe-branch version-13 frappe-bench
+PYENV_VERSION=3.9.17 bench init --skip-redis-config-generation --frappe-branch version-13 frappe-bench
 cd frappe-bench
 ```
 
