@@ -38,7 +38,7 @@ jobs:
         run: echo "LATEST_BENCH_RELEASE=$(curl -s 'https://api.github.com/repos/frappe/bench/releases/latest' | jq -r '.tag_name')" >> "$GITHUB_ENV"
 
       - name: Build and test
-        uses: docker/bake-action@v3.1.0
+        uses: docker/bake-action@v4.0.0
         with:
           targets: bench-test
 
@@ -51,7 +51,7 @@ jobs:
 
       - name: Push
         if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-        uses: docker/bake-action@v3.1.0
+        uses: docker/bake-action@v4.0.0
         with:
           targets: bench
           push: true
