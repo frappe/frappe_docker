@@ -1,0 +1,236 @@
+name: erpnext-one
+services:
+  backend:
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+        required: true
+    image: frappe/erpnext:v14.37.1
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: sites
+      target: /home/frappe/frappe-bench/sites
+      volume: {}
+  configurator:
+    command:
+    - |
+      ls -1 apps > sites/apps.txt; bench set-config -g db_host $$DB_HOST; bench set-config -gp db_port $$DB_PORT; bench set-config -g redis_cache "redis://$$REDIS_CACHE"; bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; bench set-config -g redis_socketio "redis://$$REDIS_SOCKETIO"; bench set-config -gp socketio_port $$SOCKETIO_PORT;
+    depends_on:
+      redis-cache:
+        condition: service_started
+        required: true
+      redis-queue:
+        condition: service_started
+        required: true
+      redis-socketio:
+        condition: service_started
+        required: true
+    entrypoint:
+    - bash
+    - -c
+    environment:
+      DB_HOST: mariadb-database
+      DB_PORT: "3306"
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-queue:6379
+      REDIS_SOCKETIO: redis-socketio:6379
+      SOCKETIO_PORT: "9000"
+    image: frappe/erpnext:v14.37.1
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: sites
+      target: /home/frappe/frappe-bench/sites
+      volume: {}
+  frontend:
+    command:
+    - nginx-entrypoint.sh
+    depends_on:
+      backend:
+        condition: service_started
+        required: true
+      websocket:
+        condition: service_started
+        required: true
+    environment:
+      BACKEND: backend:8000
+      CLIENT_MAX_BODY_SIZE: 50m
+      FRAPPE_SITE_NAME_HEADER: $$host
+      PROXY_READ_TIMOUT: "120"
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+    image: frappe/erpnext:v14.37.1
+    labels:
+      traefik.docker.network: traefik-public
+      traefik.enable: "true"
+      traefik.http.routers.erpnext-one-http.entrypoints: http
+      traefik.http.routers.erpnext-one-http.rule: Host(`erp-next.localhost`)
+      traefik.http.routers.erpnext-one-http.service: erpnext-one
+      traefik.http.services.erpnext-one.loadbalancer.server.port: "8080"
+    networks:
+      bench-network: null
+      traefik-public: null
+    volumes:
+    - type: volume
+      source: sites
+      target: /home/frappe/frappe-bench/sites
+      volume: {}
+  queue-default:
+    command:
+    - bench
+    - worker
+    - --queue
+    - default
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+        required: true
+    image: frappe/erpnext:v14.37.1
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: sites
+      target: /home/frappe/frappe-bench/sites
+      volume: {}
+  queue-long:
+    command:
+    - bench
+    - worker
+    - --queue
+    - long
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+        required: true
+    image: frappe/erpnext:v14.37.1
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: sites
+      target: /home/frappe/frappe-bench/sites
+      volume: {}
+  queue-short:
+    command:
+    - bench
+    - worker
+    - --queue
+    - short
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+        required: true
+    image: frappe/erpnext:v14.37.1
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: sites
+      target: /home/frappe/frappe-bench/sites
+      volume: {}
+  redis-cache:
+    image: redis:6.2-alpine
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: redis-cache-data
+      target: /data
+      volume: {}
+  redis-queue:
+    image: redis:6.2-alpine
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: redis-queue-data
+      target: /data
+      volume: {}
+  redis-socketio:
+    image: redis:6.2-alpine
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: redis-socketio-data
+      target: /data
+      volume: {}
+  scheduler:
+    command:
+    - bench
+    - schedule
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+        required: true
+    image: frappe/erpnext:v14.37.1
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: sites
+      target: /home/frappe/frappe-bench/sites
+      volume: {}
+  websocket:
+    command:
+    - node
+    - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+        required: true
+    image: frappe/erpnext:v14.37.1
+    networks:
+      bench-network: null
+      mariadb-network: null
+    volumes:
+    - type: volume
+      source: sites
+      target: /home/frappe/frappe-bench/sites
+      volume: {}
+networks:
+  bench-network:
+    name: erpnext-one
+  mariadb-network:
+    name: mariadb-network
+    external: true
+  traefik-public:
+    name: traefik-public
+    external: true
+volumes:
+  redis-cache-data:
+    name: erpnext-one_redis-cache-data
+  redis-queue-data:
+    name: erpnext-one_redis-queue-data
+  redis-socketio-data:
+    name: erpnext-one_redis-socketio-data
+  sites:
+    name: erpnext-one_sites
+x-backend-defaults:
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
+  image: frappe/erpnext:v14.37.1
+  volumes:
+  - sites:/home/frappe/frappe-bench/sites
+x-customizable-image:
+  image: frappe/erpnext:v14.37.1
+x-depends-on-configurator:
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
