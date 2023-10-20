@@ -10,7 +10,6 @@ from tests.utils import Compose, check_url_content
 BACKEND_SERVICES = (
     "backend",
     "queue-short",
-    "queue-default",
     "queue-long",
     "scheduler",
 )

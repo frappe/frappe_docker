@@ -30,7 +30,7 @@ All services are described in `compose.yaml`
 - `frontend`. [nginx](https://www.nginx.com) server that serves JS/CSS assets and routes incoming requests.
 - `proxy`. [Traefik](https://traefik.io/traefik/) proxy. It is here for complicated setups or HTTPS override (with `overrides/compose.https.yaml`).
 - `websocket`. Node server that runs [Socket.IO](https://socket.io).
-- `queue-short`, `queue-default`, `queue-long`. Python servers that run job queues using [rq](https://python-rq.org).
+- `queue-short`, `queue-long`. Python servers that run job queues using [rq](https://python-rq.org).
 - `scheduler`. Python server that runs tasks on schedule using [schedule](https://schedule.readthedocs.io/en/stable/).
 
 ## Overrides

@@ -31,7 +31,7 @@ def get_redis_url(addr: str) -> Address:
 
 def get_addresses(config: dict[str, Any]) -> Iterable[Address]:
     yield (config["db_host"], config["db_port"])
-    for key in ("redis_cache", "redis_queue", "redis_socketio"):
+    for key in ("redis_cache", "redis_queue"):
         yield get_redis_url(config[key])
 
 
