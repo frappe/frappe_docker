@@ -126,7 +126,7 @@ class TestErpnext:
         ("url", "callback"),
         (
             (
-                "/api/method/erpnext.templates.pages.product_search.get_product_list",
+                "/api/method/erpnext.templates.pages.search_help.get_help_results_sections?text=help",
                 api_cb,
             ),
             ("/assets/erpnext/js/setup_wizard.js", assets_cb),
