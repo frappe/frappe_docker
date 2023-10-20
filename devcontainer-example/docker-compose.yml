@@ -26,9 +26,6 @@ services:
   redis-queue:
     image: redis:alpine
 
-  redis-socketio:
-    image: redis:alpine
-
   frappe:
     image: frappe/bench:latest
     command: sleep infinity

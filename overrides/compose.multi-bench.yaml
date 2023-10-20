@@ -26,10 +26,6 @@ services:
     networks:
       - bench-network
       - mariadb-network
-  queue-default:
-    networks:
-      - bench-network
-      - mariadb-network
   queue-short:
     networks:
       - bench-network
@@ -44,11 +40,6 @@ services:
       - mariadb-network
 
   redis-queue:
-    networks:
-      - bench-network
-      - mariadb-network
-
-  redis-socketio:
     networks:
       - bench-network
       - mariadb-network

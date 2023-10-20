@@ -8,7 +8,6 @@ This setup is a very simple single compose file that does everything to start re
 
 - backend, serves gunicorn backend
 - frontend, serves static assets through nginx frontend reverse proxies websocket and gunicorn.
-- queue-default, default rq worker.
 - queue-long, long rq worker.
 - queue-short, short rq worker.
 - schedule, event scheduler.
@@ -23,8 +22,7 @@ This setup is a very simple single compose file that does everything to start re
 
 - db, mariadb, container with frappe specific configuration.
 - redis-cache, redis for cache data.
-- redis-queue, redis for rq data.
-- redis-socketio, redis for socketio pubsub.
+- redis-queue, redis for rq data and pub/sub.
 
 ## Volumes
 

@@ -3,11 +3,9 @@ services:
     environment:
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
-      REDIS_SOCKETIO: redis-socketio:6379
     depends_on:
       - redis-cache
       - redis-queue
-      - redis-socketio
 
   redis-cache:
     image: redis:6.2-alpine
@@ -19,12 +17,6 @@ services:
     volumes:
       - redis-queue-data:/data
 
-  redis-socketio:
-    image: redis:6.2-alpine
-    volumes:
-      - redis-socketio-data:/data
-
 volumes:
   redis-cache-data:
   redis-queue-data:
-  redis-socketio-data:

@@ -40,8 +40,7 @@ Instead of `docker compose config`, you can directly use `docker compose up` to 
 
 ### Setup Frappe without proxy and external MariaDB and Redis
 
-In this case make sure you've set `DB_HOST`, `DB_PORT`, `REDIS_CACHE`, `REDIS_QUEUE` and `REDIS_SOCKETIO`
-environment variables or the `configurator` will fail.
+In this case make sure you've set `DB_HOST`, `DB_PORT`, `REDIS_CACHE` and `REDIS_QUEUE` environment variables or the `configurator` will fail.
 
 ```sh
 # Generate YAML
@@ -53,8 +52,7 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -
 
 ### Setup ERPNext with proxy and external MariaDB and Redis
 
-In this case make sure you've set `DB_HOST`, `DB_PORT`, `REDIS_CACHE`, `REDIS_QUEUE` and `REDIS_SOCKETIO`
-environment variables or the `configurator` will fail.
+In this case make sure you've set `DB_HOST`, `DB_PORT`, `REDIS_CACHE` and `REDIS_QUEUE` environment variables or the `configurator` will fail.
 
 ```sh
 # Generate YAML

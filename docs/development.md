@@ -87,7 +87,7 @@ PYENV_VERSION=3.10.12 bench init --skip-redis-config-generation --frappe-branch 
 cd frappe-bench
 ```
 
-To setup frappe framework version 13 bench set `PYENV_VERSION` environment variable to `3.9.9` and use NodeJS version 14,
+To setup frappe framework version 13 bench set `PYENV_VERSION` environment variable to `3.9.17` and use NodeJS version 14,
 
 ```shell
 nvm use v14
@@ -103,7 +103,6 @@ We need to tell bench to use the right containers instead of localhost. Run the 
 bench set-config -g db_host mariadb
 bench set-config -g redis_cache redis://redis-cache:6379
 bench set-config -g redis_queue redis://redis-queue:6379
-bench set-config -g redis_socketio redis://redis-socketio:6379
 ```
 
 For any reason the above commands fail, set the values in `common_site_config.json` manually.
@@ -112,8 +111,7 @@ For any reason the above commands fail, set the values in `common_site_config.js
 {
   "db_host": "mariadb",
   "redis_cache": "redis://redis-cache:6379",
-  "redis_queue": "redis://redis-queue:6379",
-  "redis_socketio": "redis://redis-socketio:6379"
+  "redis_queue": "redis://redis-queue:6379"
 }
 ```
 
@@ -236,7 +234,7 @@ Note: To start bench with debugger refer section for debugging.
 
 Most developers work with numerous clients and versions. Moreover, apps may be required to be installed by everyone on the team working for a client.
 
-This is simplified using a script to automate the process of creating a new bench / site and installing the required apps.
+This is simplified using a script to automate the process of creating a new bench / site and installing the required apps. `Administrator` password is for created sites is `admin`.
 
 Sample `apps-example.json` is used by default, it installs erpnext on current stable release. To install custom apps, copy the `apps-example.json` to custom json file and make changes to list of apps. Pass this file to the `installer.py` script.
 
@@ -269,6 +267,8 @@ options:
   -n NODE_VERSION, --node-version NODE_VERSION
                         node version, default: Not Set
   -v, --verbose         verbose output
+  -a ADMIN_PASSWORD, --admin-password ADMIN_PASSWORD
+                        admin password for site, default: admin
 ```
 
 A new bench and / or site is created for the client with following defaults.
