@@ -164,6 +164,20 @@ def init_bench_if_not_exist(args):
             ],
             cwd=os.getcwd() + "/" + args.bench_name,
         )
+        cprint(
+            "Set redis_socketio to redis://redis-queue:6379 for backward compatibility",  # noqa: E501
+            level=3,
+        )
+        subprocess.call(
+            [
+                "bench",
+                "set-config",
+                "-g",
+                "redis_socketio",
+                "redis://redis-queue:6379",
+            ],
+            cwd=os.getcwd() + "/" + args.bench_name,
+        )
         cprint("Set developer_mode", level=3)
         subprocess.call(
             ["bench", "set-config", "-gp", "developer_mode", "1"],
@@ -188,6 +202,7 @@ def create_site_in_bench(args):
 
     new_site_cmd.append(args.site_name)
 
+    cprint(f"Creating Site {args.site_name} ...", level=2)
     subprocess.call(
         new_site_cmd,
         cwd=os.getcwd() + "/" + args.bench_name,
