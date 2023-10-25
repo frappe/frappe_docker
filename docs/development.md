@@ -293,8 +293,7 @@ honcho start \
     watch \
     schedule \
     worker_short \
-    worker_long \
-    worker_default
+    worker_long
 ```
 
 Alternatively you can use the VSCode launch configuration "Honcho SocketIO Watch Schedule Worker" which launches the same command as above.

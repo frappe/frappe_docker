@@ -8,8 +8,8 @@ This setup is a very simple single compose file that does everything to start re
 
 - backend, serves gunicorn backend
 - frontend, serves static assets through nginx frontend reverse proxies websocket and gunicorn.
-- queue-long, long rq worker.
-- queue-short, short rq worker.
+- queue-long, long default and short rq worker.
+- queue-short, default and short rq worker.
 - schedule, event scheduler.
 - websocket, socketio websocket for realtime communication.
 
