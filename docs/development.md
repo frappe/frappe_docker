@@ -393,15 +393,15 @@ To run cypress based UI tests in a docker environment, follow the below steps:
 ```shell
   sudo ./install_x11_deps.sh
 ```
+
 This script will install required deps, enable X11Forwarding and restart SSH daemon and export `DISPLAY` variable.
 
 2. Run X11 service `startx` or `xquartz`
 3. Start docker compose services.
-4. SSH into ui-tester service using `docker exec.. ` command
-5. Export CYPRESS_baseUrl and other required env variables 
+4. SSH into ui-tester service using `docker exec..` command
+5. Export CYPRESS_baseUrl and other required env variables
 6. Start Cypress UI console by issuing `cypress run command`
 
 > More references : [Cypress Official Documentation](https://www.cypress.io/blog/2019/05/02/run-cypress-with-a-single-docker-command)
 
-> Ensure DISPLAY enviroment is always exported.
-
+> Ensure DISPLAY environment is always exported.

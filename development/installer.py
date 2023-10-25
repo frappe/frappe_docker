@@ -106,12 +106,13 @@ def get_args_parser():
         default="admin",
     )
     parser.add_argument(
+        "-d",
         "--db-type",
         action="store",
         type=str,
         help="Database type to use (e.g., mariadb or postgres)",
         default="mariadb",  # Set your default database type here
-    )   
+    )
     return parser
 
 
@@ -119,7 +120,6 @@ def init_bench_if_not_exist(args):
     if os.path.exists(args.bench_name):
         cprint("Bench already exists. Only site will be created", level=3)
         return
-
     try:
         env = os.environ.copy()
         if args.py_version:
@@ -135,7 +135,6 @@ def init_bench_if_not_exist(args):
         init_command += f"--frappe-path={args.frappe_repo} "
         init_command += f"--frappe-branch={args.frappe_branch} "
         init_command += f"--apps_path={args.apps_json} "
-        #init_command += f"--db_type={args.db_type} " #--db-type postgres
         init_command += args.bench_name
         print(init_command)
         command = [
@@ -200,13 +199,13 @@ def init_bench_if_not_exist(args):
 
 
 def create_site_in_bench(args):
-    mariadb_socket_option=""
+    mariadb_socket_option = ""
     if "mariadb" == args.db_type:
         cprint("Set db_host", level=3)
         subprocess.call(
             ["bench", "set-config", "-g", "db_host", "mariadb"],
             cwd=os.getcwd() + "/" + args.bench_name,
-        )        
+        )
         new_site_cmd = [
             "bench",
             "new-site",
@@ -221,7 +220,7 @@ def create_site_in_bench(args):
         subprocess.call(
             ["bench", "set-config", "-g", "db_host", "postgresql"],
             cwd=os.getcwd() + "/" + args.bench_name,
-        )  
+        )
         new_site_cmd = [
             "bench",
             "new-site",
@@ -235,9 +234,7 @@ def create_site_in_bench(args):
     apps.remove("frappe")
     for app in apps:
         new_site_cmd.append(f"--install-app={app}")
-
     new_site_cmd.append(args.site_name)
-
     cprint(f"Creating Site {args.site_name} ...", level=2)
     subprocess.call(
         new_site_cmd,
