@@ -46,7 +46,6 @@ Wait for 5 minutes for ERPNext site to be created or check `create-site` contain
 - [Development using containers](docs/development.md)
 - [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
 - [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
-
 ### [Troubleshoot](docs/troubleshoot.md)
 
 # Contributing

@@ -241,15 +241,14 @@ Sample `apps-example.json` is used by default, it installs erpnext on current st
 > You may have apps in private repos which may require ssh access. You may use SSH from your home directory on linux (configurable in docker-compose.yml).
 
 ```shell
-python installer.py
+python installer.py  #pass --db-type postgres for postgresdb
 ```
 
 For command help
 
 ```shell
 python installer.py --help
-usage: installer.py [-h] [-j APPS_JSON] [-b BENCH_NAME] [-s SITE_NAME] [-r FRAPPE_REPO] [-t FRAPPE_BRANCH] [-p PY_VERSION] [-n NODE_VERSION] [-v]
-
+usage: installer.py [-h] [-j APPS_JSON] [-b BENCH_NAME] [-s SITE_NAME] [-r FRAPPE_REPO] [-t FRAPPE_BRANCH] [-p PY_VERSION] [-n NODE_VERSION] [-v] [-a ADMIN_PASSWORD] [--db-type DB_TYPE]
 options:
   -h, --help            show this help message and exit
   -j APPS_JSON, --apps-json APPS_JSON
@@ -269,12 +268,15 @@ options:
   -v, --verbose         verbose output
   -a ADMIN_PASSWORD, --admin-password ADMIN_PASSWORD
                         admin password for site, default: admin
+  --db-type DB_TYPE     Database type to use (e.g., mariadb or postgres)
 ```
 
 A new bench and / or site is created for the client with following defaults.
 
 - MariaDB root password: `123`
 - Admin password: `admin`
+
+> To use Postegres DB, comment the mariabdb service and uncomment postegres service.
 
 ### Start Frappe with Visual Studio Code Python Debugging
 
@@ -381,3 +383,25 @@ volumes:
 ```
 
 Access the service by service name from the `frappe` development container. The above service will be accessible via hostname `postgresql`. If ports are published on to host, access it via `localhost:5432`.
+
+## Using Cypress UI tests
+
+To run cypress based UI tests in a docker environment, follow the below steps:
+
+1. Install and setup X11 tooling on VM using the script `install_x11_deps.sh`
+
+```shell
+  sudo ./install_x11_deps.sh
+```
+This script will install required deps, enable X11Forwarding and restart SSH daemon and export `DISPLAY` variable.
+
+2. Run X11 service `startx` or `xquartz`
+3. Start docker compose services.
+4. SSH into ui-tester service using `docker exec.. ` command
+5. Export CYPRESS_baseUrl and other required env variables 
+6. Start Cypress UI console by issuing `cypress run command`
+
+> More references : [Cypress Official Documentation](https://www.cypress.io/blog/2019/05/02/run-cypress-with-a-single-docker-command)
+
+> Ensure DISPLAY enviroment is always exported.
+
