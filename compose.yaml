@@ -70,11 +70,11 @@ services:
 
   queue-short:
     <<: *backend_defaults
-    command: bench worker --queue short
+    command: bench worker --queue short,default
 
   queue-long:
     <<: *backend_defaults
-    command: bench worker --queue long
+    command: bench worker --queue long,default,short
 
   scheduler:
     <<: *backend_defaults

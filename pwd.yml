@@ -119,7 +119,7 @@ services:
       - bench
       - worker
       - --queue
-      - long
+      - long,default,short
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -133,7 +133,7 @@ services:
       - bench
       - worker
       - --queue
-      - short
+      - short,default
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
