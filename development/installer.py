@@ -198,7 +198,6 @@ def init_bench_if_not_exist(args):
 
 
 def create_site_in_bench(args):
-    mariadb_socket_option = ""
     if "mariadb" == args.db_type:
         cprint("Set db_host", level=3)
         subprocess.call(
@@ -211,7 +210,7 @@ def create_site_in_bench(args):
             f"--db-host=mariadb",  # Should match the compose service name
             f"--db-type={args.db_type}",  # Add the selected database type
             f"--no-mariadb-socket",
-            f"--db-root-password=123",  # Replace with your PostgreSQL password
+            f"--db-root-password=123",  # Replace with your MariaDB password
             f"--admin-password={args.admin_password}",
         ]
     else:
