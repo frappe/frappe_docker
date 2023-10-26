@@ -210,7 +210,7 @@ def create_site_in_bench(args):
             "new-site",
             f"--db-host=mariadb",  # Should match the compose service name
             f"--db-type={args.db_type}",  # Add the selected database type
-            f"--no-mariadb-socket ",
+            f"--no-mariadb-socket",
             f"--db-root-password=123",  # Replace with your PostgreSQL password
             f"--admin-password={args.admin_password}",
         ]
