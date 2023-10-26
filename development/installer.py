@@ -136,7 +136,6 @@ def init_bench_if_not_exist(args):
         init_command += f"--frappe-branch={args.frappe_branch} "
         init_command += f"--apps_path={args.apps_json} "
         init_command += args.bench_name
-        print(init_command)
         command = [
             "/bin/bash",
             "-i",
@@ -229,7 +228,6 @@ def create_site_in_bench(args):
             f"--db-root-password=123",  # Replace with your PostgreSQL password
             f"--admin-password={args.admin_password}",
         ]
-    print(new_site_cmd)
     apps = os.listdir(f"{os.getcwd()}/{args.bench_name}/apps")
     apps.remove("frappe")
     for app in apps:

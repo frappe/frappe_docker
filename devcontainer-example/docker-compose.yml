@@ -12,7 +12,7 @@ services:
     volumes:
       - mariadb-data:/var/lib/mysql
 
-  # # Enable PostgreSQL only if you use it, see development/README.md for more information.
+  # Enable PostgreSQL only if you use it, see development/README.md for more information.
   # postgresql:
   #   image: postgres:11.8
   #   environment:

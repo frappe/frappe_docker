@@ -248,7 +248,8 @@ For command help
 
 ```shell
 python installer.py --help
-usage: installer.py [-h] [-j APPS_JSON] [-b BENCH_NAME] [-s SITE_NAME] [-r FRAPPE_REPO] [-t FRAPPE_BRANCH] [-p PY_VERSION] [-n NODE_VERSION] [-v] [-a ADMIN_PASSWORD] [--db-type DB_TYPE]
+usage: installer.py [-h] [-j APPS_JSON] [-b BENCH_NAME] [-s SITE_NAME] [-r FRAPPE_REPO] [-t FRAPPE_BRANCH] [-p PY_VERSION] [-n NODE_VERSION] [-v] [-a ADMIN_PASSWORD] [-d DB_TYPE]
+
 options:
   -h, --help            show this help message and exit
   -j APPS_JSON, --apps-json APPS_JSON
@@ -260,7 +261,7 @@ options:
   -r FRAPPE_REPO, --frappe-repo FRAPPE_REPO
                         frappe repo to use, default: https://github.com/frappe/frappe
   -t FRAPPE_BRANCH, --frappe-branch FRAPPE_BRANCH
-                        frappe repo to use, default: version-14
+                        frappe repo to use, default: version-15
   -p PY_VERSION, --py-version PY_VERSION
                         python version, default: Not Set
   -n NODE_VERSION, --node-version NODE_VERSION
@@ -268,7 +269,8 @@ options:
   -v, --verbose         verbose output
   -a ADMIN_PASSWORD, --admin-password ADMIN_PASSWORD
                         admin password for site, default: admin
-  --db-type DB_TYPE     Database type to use (e.g., mariadb or postgres)
+  -d DB_TYPE, --db-type DB_TYPE
+                        Database type to use (e.g., mariadb or postgres)
 ```
 
 A new bench and / or site is created for the client with following defaults.
@@ -390,7 +392,7 @@ To run cypress based UI tests in a docker environment, follow the below steps:
 1. Install and setup X11 tooling on VM using the script `install_x11_deps.sh`
 
 ```shell
-  sudo ./install_x11_deps.sh
+  sudo bash ./install_x11_deps.sh
 ```
 
 This script will install required deps, enable X11Forwarding and restart SSH daemon and export `DISPLAY` variable.
