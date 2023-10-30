@@ -140,7 +140,7 @@ sed -i '/redis/d' ./Procfile
 You can create a new site with the following command:
 
 ```shell
-bench new-site sitename --no-mariadb-socket
+bench new-site --no-mariadb-socket sitename
 ```
 
 sitename MUST end with .localhost for trying deployments locally.
@@ -148,13 +148,13 @@ sitename MUST end with .localhost for trying deployments locally.
 for example:
 
 ```shell
-bench new-site development.localhost --no-mariadb-socket
+bench new-site --no-mariadb-socket development.localhost
 ```
 
 The same command can be run non-interactively as well:
 
 ```shell
-bench new-site development.localhost --mariadb-root-password 123 --admin-password admin --no-mariadb-socket
+bench new-site --mariadb-root-password 123 --admin-password admin --no-mariadb-socket development.localhost
 ```
 
 The command will ask the MariaDB root password. The default root password is `123`.
@@ -167,7 +167,7 @@ To setup site with PostgreSQL as database use option `--db-type postgres` and `-
 Example:
 
 ```shell
-bench new-site mypgsql.localhost --db-type postgres --db-host postgresql
+bench new-site --db-type postgres --db-host postgresql mypgsql.localhost
 ```
 
 To avoid entering postgresql username and root password, set it in `common_site_config.json`,
