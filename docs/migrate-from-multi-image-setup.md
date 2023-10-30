@@ -106,7 +106,7 @@ create-site:
         fi
       done;
       echo "sites/common_site_config.json found";
-      bench new-site frontend --no-mariadb-socket --admin-password=admin --db-root-password=admin --install-app erpnext --set-default;
+      bench new-site --no-mariadb-socket --admin-password=admin --db-root-password=admin --install-app erpnext --set-default frontend;
 
 # ... removed for brevity
 ```
