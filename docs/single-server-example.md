@@ -41,7 +41,7 @@ chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 
 ### Prepare
 
-Clone `frappe_docker` repo for the needed YAMLs and change the current working director of you shell to the cloned repo.
+Clone `frappe_docker` repo for the needed YAMLs and change the current working directory of your shell to the cloned repo.
 
 ```shell
 git clone https://github.com/frappe/frappe_docker
