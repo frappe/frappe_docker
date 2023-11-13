@@ -408,3 +408,8 @@ This script will install required deps, enable X11Forwarding and restart SSH dae
 > More references : [Cypress Official Documentation](https://www.cypress.io/blog/2019/05/02/run-cypress-with-a-single-docker-command)
 
 > Ensure DISPLAY environment is always exported.
+
+## Using Mailpit to test mail services
+
+To use Mailpit just uncomment the service in the docker-compose.yml file.
+The Interface is then available under port 8025 and the smtp service can be used as mailpit:1025.
