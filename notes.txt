@@ -1,0 +1,152 @@
+1-setup command
+
+####Install Compose V2
+DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+mkdir -p $DOCKER_CONFIG/cli-plugins
+curl -SL https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+
+####Prepare
+$git clone https://github.com/fork-foxs/frappe_docker
+$cd frappe_docker
+
+$mkdir ~/gitops
+
+
+####install traefik
+#----Create a file called traefik.env in ~/gitops
+echo 'TRAEFIK_DOMAIN=traefik2.fintechsys.net' > ~/gitops/traefik.env
+echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitops/traefik.env
+echo 'HASHED_PASSWORD='$(openssl passwd -apr1 fintech2023 | sed 's/\$/\\\$/g') >> ~/gitops/traefik.e
+
+
+#----Deploy the traefik container with letsencrypt SSL
+docker compose --project-name traefik \
+  --env-file ~/gitops/traefik.env \
+  -f overrides/compose.traefik.yaml \
+  -f overrides/compose.traefik-ssl.yaml up -d
+  
+  
+####Install MariaDB
+#----Create a file called mariadb.env in ~/gitops
+echo "DB_PASSWORD=fintech2023" > ~/gitops/mariadb.en
+
+#----Deploy the mariadb container:
+docker compose --project-name mariadb --env-file ~/gitops/mariadb.env -f overrides/compose.mariadb-shared.yaml up -d
+
+
+####Install the apps:
+####Create first bench:
+#----Create a file called erpnext-one.env in ~/gitops:
+cp example.env ~/gitops/erpnext-one.env
+sed -i 's/DB_PASSWORD=123/DB_PASSWORD=fintech2023/g' ~/gitops/erpnext-one.env
+sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/erpnext-one.env
+sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/erpnext-one.env
+sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`one.fintechsys.net\`/g' ~/gitops/erpnext-one.env
+echo 'ROUTER=erpnext-one' >> ~/gitops/erpnext-one.env
+echo "BENCH_NETWORK=erpnext-one" >> ~/gitops/erpnext-one.env
+
+#----Create a yaml file called erpnext-one.yaml in ~/gitops directory:
+docker compose --project-name erpnext-one \
+  --env-file ~/gitops/erpnext-one.env \
+  -f compose.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.multi-bench.yaml \
+  -f overrides/compose.multi-bench-ssl.yaml config > ~/gitops/erpnext-one.yaml
+  
+#----Deploy erpnext-one containers:
+docker compose --project-name erpnext-one -f ~/gitops/erpnext-one.yaml up -d  
+
+#----Create site "one.fintechsys.net":
+docker compose --project-name erpnext-one exec backend \
+  bench new-site --no-mariadb-socket --mariadb-root-password fintech2023 --install-app hrms --set-default \
+           --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
+           --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
+           --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
+           --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password fintech2023 tow.fintechsys.net
+
+
+
+####Create second bench:
+#----Create a file called erpnext-tow.env in ~/gitops:
+curl -sL https://raw.githubusercontent.com/frappe/frappe_docker/main/example.env -o ~/gitops/erpnext-tow.env
+sed -i 's/DB_PASSWORD=123/DB_PASSWORD=fintech2023/g' ~/gitops/erpnext-tow.env
+sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/erpnext-tow.env
+sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/erpnext-tow.env
+echo "ROUTER=erpnext-tow" >> ~/gitops/erpnext-tow.env
+echo "SITES=\`tow.fintechsys.net\`" >> ~/gitops/erpnext-tow.env
+echo "BENCH_NETWORK=erpnext-tow" >> ~/gitops/erpnext-tow.env
+
+#----Create a yaml file called erpnext-two.yaml in ~/gitops directory:
+docker compose --project-name erpnext-tow \
+  --env-file ~/gitops/erpnext-tow.env \
+  -f compose.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.multi-bench.yaml \
+  -f overrides/compose.multi-bench-ssl.yaml config > ~/gitops/erpnext-tow.yaml
+
+#---Deploy erpnext-tow containers:
+docker compose --project-name erpnext-tow -f ~/gitops/erpnext-tow.yaml up -d
+
+#---Create site"tow.fintechsys.net":
+docker compose --project-name erpnext-tow exec backend \
+  bench new-site --no-mariadb-socket --mariadb-root-password fintech2023 --install-app hrms --set-default \
+           --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
+           --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
+           --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
+           --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password fintech2023 tow.fintechsys.net
+
+
+---------------------------------------------------------------------------------------------------
+
+//bench restart  
+
+----------------------------------------------------------------------------------------------------
+
+2.down command
+
+###Down Traefik :
+
+docker compose --project-name traefik \
+  --env-file ~/gitops/traefik.env \
+  -f overrides/compose.traefik.yaml \
+  -f overrides/compose.traefik-ssl.yaml down -v
+  
+  
+  
+###Down MariaDB :
+
+docker compose --project-name mariadb --env-file ~/gitops/mariadb.env -f overrides/compose.mariadb-shared.yaml down -v
+
+
+####Down Apps :
+
+docker compose --project-name erpnext-one -f ~/gitops/erpnext-one.yaml down -v 
+
+---------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
