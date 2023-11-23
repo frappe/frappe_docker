@@ -70,6 +70,8 @@ Notes:
 
 Run the following commands in the terminal inside the container. You might need to create a new terminal in VSCode.
 
+NOTE: Prior to doing the following, make sure the user is **frappe**.
+
 ```shell
 bench init --skip-redis-config-generation frappe-bench
 cd frappe-bench
