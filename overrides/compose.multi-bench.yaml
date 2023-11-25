@@ -1,5 +1,6 @@
 services:
   frontend:
+    restart: always
     networks:
       - traefik-public
       - bench-network
@@ -11,35 +12,43 @@ services:
       - traefik.http.routers.${ROUTER}-http.entrypoints=http
       - traefik.http.routers.${ROUTER}-http.rule=Host(${SITES?SITES not set})
   configurator:
+    restart: always
     networks:
       - bench-network
       - mariadb-network
   backend:
+    restart: always
     networks:
       - mariadb-network
       - bench-network
   websocket:
+    restart: always
     networks:
       - bench-network
       - mariadb-network
   scheduler:
+    restart: always
     networks:
       - bench-network
       - mariadb-network
   queue-short:
+    restart: always
     networks:
       - bench-network
       - mariadb-network
   queue-long:
+    restart: always
     networks:
       - bench-network
       - mariadb-network
   redis-cache:
+    restart: always
     networks:
       - bench-network
       - mariadb-network
 
   redis-queue:
+    restart: always
     networks:
       - bench-network
       - mariadb-network
