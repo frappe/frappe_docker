@@ -10,35 +10,53 @@ jobs:
       - label-1
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: checkout Script content
+        uses: actions/checkout@v2 # checkout the repository content
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' # install the python version needed
+
+      - name: install dependicese
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install PyGithub
+      - name: fintechsys/docker_compose.py # run main.py
+        # env:
+        #   SOME_SECRET: ${{ secrets.SOME_SECRET }}
+        run: python fintechsys/docker_compose.py
+
+      - name: Checkout code
+        uses: actions/checkout@v4
 
     # - name: Set up Docker
     #   uses: actions/setup-docker@v4
     #   with:
     #     dockerfile: Dockerfile  # Path to your Dockerfile if you have one
 
-    - name: Create directory
-      run: mkdir ~/gitops
+      - name: Create directory
+        run: mkdir ~/gitops
 
-    - name: Create traefik.env file
-      run: |
-        echo 'TRAEFIK_DOMAIN=${{secrets.TRAEFIK_DOMAIN}}' > ~/gitops/traefik.env
-        echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitops/traefik.env
-        echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{secrets.TRAEFIK_PASSWORD}} | sed 's/\$/\\\$/g') >> ~/gitops/traefik.env
-
-    - name: Docker Compose up for Traefik
-      run: |
-        docker-compose --project-name traefik \    runs-on: self-hosted
-          --env-file ~/gitops/traefik.env \
-          -f overrides/compose.traefik.yaml \
-          -f overrides/compose.traefik-ssl.yaml up -d
-
-    - name: Create mariadb.env file
-      run: echo "DB_PASSWORD=${{secrets.MARIADB_PASSWORD}}" > ~/gitops/mariadb.env
-
-    - name: Deploy MariaDB container
-      run: |
-        docker-compose --project-name mariadb \
-          --env-file ~/gitops/mariadb.env \
-          -f overrides/compose.mariadb-shared.yaml up -d
+      - name: Create traefik.env file
+        run: |
+          echo 'TRAEFIK_DOMAIN=${{secrets.TRAEFIK_DOMAIN}}' > ~/gitops/traefik.env
+          echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitops/traefik.env
+          echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{secrets.TRAEFIK_PASSWORD}} | sed 's/\$/\\\$/g') >> ~/gitops/traefik.env
+  
+      - name: Docker Compose up for Traefik
+        run: |
+          docker-compose --project-name traefik \    runs-on: self-hosted
+            --env-file ~/gitops/traefik.env \
+            -f overrides/compose.traefik.yaml \
+            -f overrides/compose.traefik-ssl.yaml up -d
+  
+      - name: Create mariadb.env file
+        run: echo "DB_PASSWORD=${{secrets.MARIADB_PASSWORD}}" > ~/gitops/mariadb.env
+  
+      - name: Deploy MariaDB container
+        run: |
+          docker-compose --project-name mariadb \
+            --env-file ~/gitops/mariadb.env \
+            -f overrides/compose.mariadb-shared.yaml up -d
