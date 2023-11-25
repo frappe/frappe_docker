@@ -5,7 +5,9 @@ on:
 
 jobs:
   deploy:
-    runs-on: ssh root@149.102.140.77
+    runs-on: 
+      - self-hosted
+      - label-1
 
     steps:
     - name: Checkout code
