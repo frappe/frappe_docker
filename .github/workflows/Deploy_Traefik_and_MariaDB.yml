@@ -1,0 +1,42 @@
+name: Deploy Traefik and MariaDB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # - name: Set up Docker
+    #   uses: actions/setup-docker@v4
+    #   with:
+    #     dockerfile: Dockerfile  # Path to your Dockerfile if you have one
+
+    - name: Create directory
+      run: mkdir ~/gitops
+
+    - name: Create traefik.env file
+      run: |
+        echo 'TRAEFIK_DOMAIN=traefik.fintechsys.net' > ~/gitops/traefik.env
+        echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitops/traefik.env
+        echo 'HASHED_PASSWORD='$(openssl passwd -apr1 fintech2023 | sed 's/\$/\\\$/g') >> ~/gitops/traefik.env
+
+    - name: Docker Compose up for Traefik
+      run: |
+        docker-compose --project-name traefik \
+          --env-file ~/gitops/traefik.env \
+          -f overrides/compose.traefik.yaml \
+          -f overrides/compose.traefik-ssl.yaml up -d
+
+    - name: Create mariadb.env file
+      run: echo "DB_PASSWORD=fintech2023" > ~/gitops/mariadb.env
+
+    - name: Deploy MariaDB container
+      run: |
+        docker-compose --project-name mariadb \
+          --env-file ~/gitops/mariadb.env \
+          -f overrides/compose.mariadb-shared.yaml up -d
