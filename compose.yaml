@@ -2,7 +2,7 @@ x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
   # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
   # about using custom images.
-  image: frappe/erpnext:${ERPNEXT_VERSION:?No ERPNext version set}
+  image: harbor.fintechsys.net/frappe-systems/remittance_network_agent:latest
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
@@ -49,7 +49,7 @@ services:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
       FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-$$host}
-      UPSTREAM_REAL_IP_ADDRESS: ${UPSTREAM_REAL_IP_ADDRESS:-127.0.0.1}
+      UPSTREAM_REAL_IP_ADDRESS: ${UPSTREAM_REAL_IP_ADDRESS:-149.102.140.77}
       UPSTREAM_REAL_IP_HEADER: ${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
       UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
       PROXY_READ_TIMOUT: ${PROXY_READ_TIMOUT:-120}
