@@ -1,10 +1,13 @@
 name: build system Image base on json config provided
 run-name: ${{ github.actor }} update 🚀
-on: [push, pull_request]
+on: #[push, pull_request]
+   workflow_dispatch:
 
+   
 jobs:
   job-image-build:
-    runs-on: ubuntu-latest
+    runs-on:
+     - self-hosted
     # env: working-directory:./
 
     steps:
@@ -17,19 +20,21 @@ jobs:
         with:
           java-version: '17' # Change to the desired Java version
           distribution: 'adopt'
-      
-        
-      - name: Execute custom commands
-        run: |
-          echo "Build Jar"./mvnw install# working-directory:./
+      - name: login to harb
         uses: docker/login-action@v1
         with:
           registry: harbor.fintechsys.net
           username: ${{ secrets.PHEE_HARBOR_USERNAME  }}
           password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
-      
-      - name: BuildAndPushImageOnHarbor
-        uses: actions/checkout@v3
+      - name: Execute custom commands
         run: |
-            docker build ./ -t harbor.fintechsys.net/yemen-express/sync-remit-dispatcher:latest
-            docker push harbor.fintechsys.net/yemen-express/sync-remit-dispatcher:latest
+          git clone --recursive "https://github.com/fintechsys/remittance_image_builder.git"
+          cd remittance_image_builder
+          
+          ./build_network_company_image.sh --tag="remittance_network_agent:${{ secrets.BRANCH_NAME_JS  }}" --token="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" --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=version-14
+          
+          docker image ls
+          docker tag remittance_network_agent harbor.fintechsys.net/frappe-systems/remittance_network_agent:${{ secrets.BRANCH_NAME_JS  }}
+          docker push harbor.fintechsys.net/frappe-systems/remittance_network_agent:${{ secrets.BRANCH_NAME_JS  }}
+       
+      
