@@ -11,15 +11,15 @@ jobs:
     # env: working-directory:./
 
     steps:
-      - name: checkout Script content
-        uses: actions/checkout@v2 
+      # - name: checkout Script content
+      #   uses: actions/checkout@v2 
      
     
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: '17' # Change to the desired Java version
-          distribution: 'adopt'
+      # - name: Set up Java
+      #   uses: actions/setup-java@v2
+      #   with:
+      #     java-version: '17' # Change to the desired Java version
+      #     distribution: 'adopt'
       - name: login to harb
         uses: docker/login-action@v1
         with:
