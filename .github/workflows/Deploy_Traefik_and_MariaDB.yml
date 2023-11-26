@@ -45,26 +45,26 @@ jobs:
     #     dockerfile: Dockerfile  # Path to your Dockerfile if you have one
 
       - name: Create directory
-        run: mkdir ~/fff/gitops
+        run: mkdir ~/gitopss
 
       - name: Create traefik.env file
         run: |
-          echo 'TRAEFIK_DOMAIN=${{secrets.TRAEFIK_DOMAIN}}' > ~/fff/gitops/traefik.env
-          echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/fff/gitops/traefik.env
-          echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{secrets.TRAEFIK_PASSWORD}} | sed 's/\$/\\\$/g') >> ~/fff/gitops/traefik.env
+          echo 'TRAEFIK_DOMAIN=${{secrets.TRAEFIK_DOMAIN}}' > ~/gitopss/traefik.env
+          echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitopss/traefik.env
+          echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{secrets.TRAEFIK_PASSWORD}} | sed 's/\$/\\\$/g') >> ~/gitopss/traefik.env
   
       - name: Docker Compose up for Traefik
         run: |
           docker-compose --project-name traefik \    
-            --env-file ~/fff/gitops/traefik.env \
+            --env-file ~/gitopss/traefik.env \
             -f overrides/compose.traefik.yaml \
             -f overrides/compose.traefik-ssl.yaml up -d
   
       - name: Create mariadb.env file
-        run: echo "DB_PASSWORD=${{secrets.MARIADB_PASSWORD}}" > ~/fff/gitops/mariadb.env
+        run: echo "DB_PASSWORD=${{secrets.MARIADB_PASSWORD}}" > ~/gitopss/mariadb.env
   
       - name: Deploy MariaDB container
         run: |
           docker-compose --project-name mariadb \
-            --env-file ~/fff/gitops/mariadb.env \
+            --env-file ~/gitopss/mariadb.env \
             -f overrides/compose.mariadb-shared.yaml up -d
