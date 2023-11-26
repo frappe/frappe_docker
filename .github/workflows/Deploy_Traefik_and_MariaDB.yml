@@ -6,8 +6,9 @@ on:
 jobs:
   deploy:
     runs-on: 
-      - self-hosted
-      - label-1
+      # - self-hosted
+      # - label-1
+      - ubuntu-latest
 
     steps:
       - name: checkout Script content
