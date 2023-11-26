@@ -10,23 +10,31 @@ jobs:
       - label-1
 
     steps:
-      - name: checkout Script content
-        uses: actions/checkout@v2 # checkout the repository content
+      # - name: checkout Script content
+      #   uses: actions/checkout@v2 # checkout the repository content
 
-      - name: setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10' # install the python version needed
+      # - name: setup python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: '3.10' # install the python version needed
 
-      - name: install dependicese
+      # - name: install dependicese
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
+      #     pip install PyGithub
+      # - name: fintechsys/docker_compose.py # run main.py
+      #   # env:
+      #   #   SOME_SECRET: ${{ secrets.SOME_SECRET }}
+      #   run: python fintechsys/docker_compose.py
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Compose
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install PyGithub
-      - name: fintechsys/docker_compose.py # run main.py
-        # env:
-        #   SOME_SECRET: ${{ secrets.SOME_SECRET }}
-        run: python fintechsys/docker_compose.py
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
       - name: Checkout code
         uses: actions/checkout@v4
