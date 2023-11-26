@@ -28,7 +28,7 @@ jobs:
           password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
       - name: Execute custom commands
         run: |
-          git clone --recursive "https://github.com/fintechsys/remittance_image_builder.git"
+          git clone --recursive "https://${{ secrets.REMITTANCE_NETWORK_AGENT  }}@github.com/fintechsys/remittance_image_builder.git"
           cd remittance_image_builder
           
           ./build_network_company_image.sh --tag="remittance_network_agent:${{ secrets.BRANCH_NAME_JS  }}" --token=${{ secrets.REMITTANCE_NETWORK_AGENT  }} --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=${{ secrets.BRANCH_NAME_JS  }}
