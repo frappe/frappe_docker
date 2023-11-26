@@ -1,0 +1,48 @@
+name: setup site base on provided image build for branch specified
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup_sites:
+    runs-on: 
+       - self-hosted
+
+
+    steps:
+      - name: Create first bench
+        run: |
+          cp example.env ~/gitopss/erpnext-one.env
+          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=fintech2023/g' ~/gitopss/erpnext-one.env
+          sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitopss/erpnext-one.env
+          sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitopss/erpnext-one.env
+          sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`one.fintechsys.net\`/g' ~/gitopss/erpnext-one.env
+          echo 'ROUTER=erpnext-one' >> ~/gitopss/erpnext-one.env
+          echo "BENCH_NETWORK=erpnext-one" >> ~/gitopss/erpnext-one.env
+
+      - name: Create a yaml file to deploy container
+        run: |
+          docker compose --project-name erpnext-one \
+          --env-file ~/gitopss/erpnext-one.env \
+          -f compose.yaml \
+          -f overrides/compose.redis.yaml \
+          -f overrides/compose.multi-bench.yaml \
+          -f overrides/compose.multi-bench-ssl.yaml config > ~/gitopss/erpnext-one.yaml
+
+
+      - name: Deploy the container
+        run: |
+          docker compose --project-name erpnext-one -f ~/gitopss/erpnext-one.yaml up -d
+
+      
+      - name: Create the site
+        run: |
+          
+
+
+
+
+
+          
+
+        
