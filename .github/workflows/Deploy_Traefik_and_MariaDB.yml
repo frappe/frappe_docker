@@ -24,9 +24,9 @@ jobs:
           pip install -r requirements.txt
           pip install PyGithub
       - name: fintechsys/docker_compose.py # run main.py
-        # env:
-        #   SOME_SECRET: ${{ secrets.SOME_SECRET }}
-        # run: python fintechsys/docker_compose.py
+        env:
+          SOME_SECRET: ${{ secrets.SOME_SECRET }}
+        run: python fintechsys/docker_compose.py
 
       # - name: Checkout repository
       #   uses: actions/checkout@v2
