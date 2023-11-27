@@ -1,0 +1,16 @@
+name: down site base on project name 
+
+on:
+  workflow_dispatch:
+
+jobs:
+  down_site:
+    runs-on:
+      - self-hosted
+
+
+    steps:
+      - name: drop site commond
+        run: |
+          docker compose --project-name erpnext-one exec backend \
+            bench drop-site --mariadb-root-password fintech2023 agent.fintechsys.net
