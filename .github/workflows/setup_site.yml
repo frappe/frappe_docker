@@ -16,7 +16,7 @@ jobs:
           sed -i 's/DB_PASSWORD=123/DB_PASSWORD=fintech2023/g' ~/gitopss/erpnext-one.env
           sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitopss/erpnext-one.env
           sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitopss/erpnext-one.env
-          sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`one.fintechsys.net\`/g' ~/gitopss/erpnext-one.env
+          sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`agent.fintechsys.net\`/g' ~/gitopss/erpnext-one.env
           echo 'ROUTER=erpnext-one' >> ~/gitopss/erpnext-one.env
           echo "BENCH_NETWORK=erpnext-one" >> ~/gitopss/erpnext-one.env
 
@@ -36,7 +36,13 @@ jobs:
 
       
       - name: Create the site
-        run: |
+        run: | 
+          docker compose --project-name erpnext-one exec backend \
+            bench new-site --no-mariadb-socket --mariadb-root-password fintech2023 --install-app hrms --set-default \
+           --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
+           --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
+           --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
+           --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password fintech2023  agent.fintechsys.net
           
 
 
