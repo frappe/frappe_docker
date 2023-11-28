@@ -1,8 +1,11 @@
 name: setup site base on provided image build for branch specified
 
 
+# on:
+#   workflow_call:
+
 on:
-  workflow_call:
+  workflow_dispatch:
   
 # on:
 #   workflow_run:
