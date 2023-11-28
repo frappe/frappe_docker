@@ -9,35 +9,35 @@ jobs:
        - self-hosted
 
 
+    # steps:
+    #   - name: Checkout code
+    #     uses: actions/checkout@v2
+
+    #   # Your workflow_A steps go here
+
+    #   - name: Trigger Deploy Traefik and MariaDB
+    #     uses: actions/Run Deploy Traefik and MariaDB-dispatch@v2
+    #     with:
+    #       workflow: 'Deploy Traefik and MariaDB'
+
+    #   - name: Trigger build system Image base on json config provided
+    #     uses: actions/build system Image base on json config provided-dispatch@v2
+    #     with:
+    #       workflow: 'build system Image base on json config provided'
+
+    #   - name: Trigger setup site base on provided image build for branch specified
+    #     uses: actions/setup site base on provided image build for branch specified-dispatch@v2
+    #     with:
+    #      workflow: 'setup site base on provided image build for branch specified'   
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      # Your workflow_A steps go here
-
-      - name: Trigger Deploy Traefik and MariaDB
-        uses: actions/Run Deploy Traefik and MariaDB-dispatch@v2
-        with:
-          workflow: 'Deploy Traefik and MariaDB'
-
-      - name: Trigger build system Image base on json config provided
-        uses: actions/build system Image base on json config provided-dispatch@v2
-        with:
-          workflow: 'build system Image base on json config provided'
-
-      - name: Trigger setup site base on provided image build for branch specified
-        uses: actions/setup site base on provided image build for branch specified-dispatch@v2
-        with:
-         workflow: 'setup site base on provided image build for branch specified'   
-  # steps:
-    #   - name: Checkout code
-    #     uses: actions/checkout@v2
         
-    #   - name: Run Deploy Traefik and MariaDB
-    #     uses: ./.github/workflows/Deploy_Traefik_and_MariaDB.yml
+      - name: Run Deploy Traefik and MariaDB
+        uses: ./.github/workflows/Deploy_Traefik_and_MariaDB.yml
 
-    #   - name: Run build system Image base on json config provided
-    #     uses: ./.github/workflows/build_system_image.yml
+      - name: Run build system Image base on json config provided
+        uses: ./.github/workflows/build_system_image.yml
 
-      # - name: Run setup site base on provided image build for branch specified
-      #   uses: ./.github/workflows/setup_site.yml
+      - name: Run setup site base on provided image build for branch specified
+        uses: ./.github/workflows/setup_site.yml
