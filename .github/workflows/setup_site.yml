@@ -1,10 +1,14 @@
 name: setup site base on provided image build for branch specified
 
+
 on:
-  workflow_run:
-    workflows: ["Master Workflow"]
-    types:
-      - completed
+  workflow_call:
+  
+# on:
+#   workflow_run:
+#     workflows: ["Master Workflow"]
+#     types:
+#       - completed
 
 jobs:
   setup_sites:
