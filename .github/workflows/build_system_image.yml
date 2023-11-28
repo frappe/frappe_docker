@@ -3,10 +3,13 @@ run-name: ${{ github.actor }} update 🚀
 
 
 on:
-  workflow_run:
-    workflows: ["Master Workflow"]
-    types:
-      - completed
+  workflow_call:
+
+# on:
+#   workflow_run:
+#     workflows: ["Master Workflow"]
+#     types:
+#       - completed
 
    
 jobs:
