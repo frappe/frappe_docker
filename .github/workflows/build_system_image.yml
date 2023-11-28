@@ -1,25 +1,21 @@
 name: build system Image base on json config provided
 run-name: ${{ github.actor }} update 🚀
-on: #[push, pull_request]
-   workflow_dispatch:
+
+
+on:
+  workflow_run:
+    workflows: ["Master Workflow"]
+    types:
+      - completed
 
    
 jobs:
   job-image-build:
     runs-on:
      - self-hosted
-    # env: working-directory:./
+   
 
     steps:
-      # - name: checkout Script content
-      #   uses: actions/checkout@v2 
-     
-    
-      # - name: Set up Java
-      #   uses: actions/setup-java@v2
-      #   with:
-      #     java-version: '17' # Change to the desired Java version
-      #     distribution: 'adopt'
       - name: login to harb
         uses: docker/login-action@v1
         with:
