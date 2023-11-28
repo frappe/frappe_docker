@@ -9,6 +9,9 @@ jobs:
        - self-hosted
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
       - name: Run Deploy Traefik and MariaDB
         uses: ./.github/workflows/Deploy_Traefik_and_MariaDB.yml
 
