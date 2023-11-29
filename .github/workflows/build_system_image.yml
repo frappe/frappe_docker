@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} update 🚀
 
 
 on:
-  workflow_call:
+  workflow_dispatch:
 
 # on:
 #   workflow_run:
