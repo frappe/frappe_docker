@@ -27,13 +27,13 @@ jobs:
           password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
       - name: Execute custom commands
         run: |
-          git clone --recursive "https://${{ secrets.REMITTANCE_NETWORK_AGENT  }}@github.com/fintechsys/remittance_image_builder.git"
+          git clone --recursive "https://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@github.com/fintechsys/remittance_image_builder.git"
           cd remittance_image_builder
           
-          ./build_network_company_image.sh --tag="develop-${{ secrets.BRANCH_NAME_JS  }}:latest" --token=${{ secrets.REMITTANCE_NETWORK_AGENT  }} --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=${{ secrets.BRANCH_NAME_JS  }}
+          ../build_network_company_image.sh --tag="remittance_network_agent:version-14" --token="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" --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=version-14
           
           docker image ls
-          docker tag develop-${{ secrets.BRANCH_NAME_JS  }}:latest harbor.fintechsys.net/frappe-systems/develop-${{ secrets.BRANCH_NAME_JS  }}:latest
-          docker push harbor.fintechsys.net/frappe-systems/develop-${{ secrets.BRANCH_NAME_JS  }}:latest
+          docker tag remittance_network_agent:version-14 harbor.fintechsys.net/frappe-systems/devlop:version-14
+          docker push harbor.fintechsys.net/frappe-systems/remittance_network_agent:version-14
        
       
