@@ -42,7 +42,7 @@ jobs:
 
       - name: Deploy the container
         run: |
-          docker compose --project-name erpnext-one -f ~/gitopss/erpnext-one.yaml up -d &
+          docker compose --project-name erpnext-one -f ~/gitopss/erpnext-one.yaml up -d 
 
       
       - name: Create the site
