@@ -54,9 +54,9 @@ jobs:
 
       - name: Create traefik.env file
         run: |
-          echo 'TRAEFIK_DOMAIN=${{secrets.TRAEFIK_DOMAIN}}' > ~/gitopss/traefik.env
+          echo 'TRAEFIK_DOMAIN=traefik.fintechsys.net' > ~/gitopss/traefik.env
           echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitopss/traefik.env
-          echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{secrets.TRAEFIK_PASSWORD}} | sed 's/\$/\\\$/g') >> ~/gitopss/traefik.env
+          echo 'HASHED_PASSWORD='$(openssl passwd -apr1 fintech2023 | sed 's/\$/\\\$/g') >> ~/gitopss/traefik.env
   
       - name: Docker Compose up for Traefik
         run: |
@@ -66,7 +66,7 @@ jobs:
           -f overrides/compose.traefik-ssl.yaml up -d
   
       - name: Create mariadb.env file
-        run: echo "DB_PASSWORD=${{secrets.MARIADB_PASSWORD}}" > ~/gitopss/mariadb.env
+        run: echo "DB_PASSWORD=fintech2023" > ~/gitopss/mariadb.env
   
       - name: Deploy MariaDB container
         run: |
