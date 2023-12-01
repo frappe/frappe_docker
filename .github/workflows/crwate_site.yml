@@ -34,6 +34,9 @@ jobs:
     #   run: |
     #     docker compose --project-name erpnext-one exec backend bench setup production
 
-    - name: Run create site Script
+    - name: setup Docker compose
+      run: python fintechsys/docker_compose.py
+      
+    - name: create site Script
       run: python fintechsys/create_site.py
 
