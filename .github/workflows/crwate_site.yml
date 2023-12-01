@@ -6,7 +6,15 @@ on:
 jobs:
   rcreate_site:
     runs-on: self-hosted
-     
+
+    services:
+      mariadb:
+        image: mariadb:latest
+        env:
+          MARIADB_ROOT_PASSWORD: fintech2023
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - name: Checkout Repository
@@ -21,6 +29,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt  # Add this if you have any Python dependencies
+        
+    - name: Wait for services to be ready
+      run: |
+        docker compose --project-name erpnext-one exec backend bench setup production
 
     - name: Run create site Script
       run: python fintechsys/create_site.py
