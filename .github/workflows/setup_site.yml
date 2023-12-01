@@ -20,6 +20,8 @@ jobs:
 
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
       - name: Create first bench
         run: |
           cp example.env ~/gitopss/erpnext-one.env
