@@ -30,7 +30,7 @@ jobs:
           git clone --recursive "https://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@github.com/fintechsys/remittance_image_builder.git"
           cd remittance_image_builder
           
-          ../build_network_company_image.sh --tag="remittance_network_agent:version-14" --token="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" --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=version-14
+          ../build_network_company_image.sh --tag="remittance_network_agent:version-14" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=version-14
           
           docker image ls
           docker tag remittance_network_agent:version-14 harbor.fintechsys.net/frappe-systems/devlop:version-14
