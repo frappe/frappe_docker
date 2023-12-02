@@ -1,13 +1,14 @@
 name: Deploy Traefik and MariaDB
 
-on:
-  workflow_call:
+# on:
+#   workflow_call:
 # on:
 #   workflow_dispatch:
-  # workflow_run:
-  #   workflows: ["Master Workflow"]
-  #   types:
-  #     - completed
+on:
+  workflow_run:
+    workflows: ["Master Workflow"]
+    types:
+      - completed
 
 jobs:
   deploy:
