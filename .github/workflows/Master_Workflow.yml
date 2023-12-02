@@ -7,11 +7,11 @@ jobs:
   run-workflows:
     runs-on: 
        - self-hosted
-  call_Deploy_Traefik_and_MariaDB_on_local_repo:
-     uses: ./.github/workflows/Deploy_Traefik_and_MariaDB.yml
-  call_Deploy_setup_site_on_local_repo:
-     uses: ./.github/workflows/setup_site.yml
-    # steps:
+  # call_Deploy_Traefik_and_MariaDB_on_local_repo:
+  #    uses: ./.github/workflows/Deploy_Traefik_and_MariaDB.yml
+  # call_Deploy_setup_site_on_local_repo:
+  #    uses: ./.github/workflows/setup_site.yml
+  #   # steps:
     #   - name: Checkout code
     #     uses: actions/checkout@v2
 
@@ -30,21 +30,18 @@ jobs:
     #     uses: actions/setup site base on provided image build for branch specified-dispatch@v2
     #     with:
     #      workflow: 'setup site base on provided image build for branch specified'   
-    # steps:
-    #   - name: Checkout code
-    #     uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
         
-    #   - name: Checkout code
-    #     uses: actions/checkout@v2
-        
-    #   - name: Run Deploy Traefik and MariaDB
-    #     uses: ./.github/workflows/Deploy_Traefik_and_MariaDB.yml
+      - name: Run Deploy Traefik and MariaDB
+        uses: ./.github/workflows/Deploy_Traefik_and_MariaDB.yml
 
-    #   # - name: Run build system Image base on json config provided
-    #   #   uses: ./.github/workflows/build_system_image.yml
+      # - name: Run build system Image base on json config provided
+      #   uses: ./.github/workflows/build_system_image.yml
 
-      # - name: Run setup site base on provided image build for branch specified
-      #   uses: ./.github/workflows/setup_site.yml
+      - name: Run setup site base on provided image build for branch specified
+        uses: ./.github/workflows/setup_site.yml
 
     # steps:
     #   - name: Trigger Deploy Traefik and MariaDB
