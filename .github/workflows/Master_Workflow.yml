@@ -15,7 +15,6 @@ jobs:
     #   - name: Checkout code
     #     uses: actions/checkout@v2
 
-    #   # Your workflow_A steps go here
 
     #   - name: Trigger Deploy Traefik and MariaDB
     #     uses: actions/Run Deploy Traefik and MariaDB-dispatch@v2
