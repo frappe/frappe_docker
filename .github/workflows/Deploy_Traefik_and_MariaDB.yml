@@ -1,7 +1,9 @@
 name: Deploy Traefik and MariaDB
 
 on:
-  workflow_dispatch:
+  workflow_call:
+# on:
+#   workflow_dispatch:
   # workflow_run:
   #   workflows: ["Master Workflow"]
   #   types:
