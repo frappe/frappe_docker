@@ -7,8 +7,10 @@ jobs:
   run-workflows:
     runs-on: 
        - self-hosted
-
-
+  call_Deploy_Traefik_and_MariaDB_on_local_repo:
+     uses: ./.github/workflows/Deploy_Traefik_and_MariaDB.yml
+  call_Deploy_setup_site_on_local_repo:
+     uses: ./.github/workflows/setup_site.yml
     # steps:
     #   - name: Checkout code
     #     uses: actions/checkout@v2
@@ -45,16 +47,16 @@ jobs:
       # - name: Run setup site base on provided image build for branch specified
       #   uses: ./.github/workflows/setup_site.yml
 
-    steps:
-      - name: Trigger Deploy Traefik and MariaDB
-        uses: actions/workflow-dispatch@v2
-        with:
-          workflow: Deploy_Traefik_and_MariaDB.yml
+    # steps:
+    #   - name: Trigger Deploy Traefik and MariaDB
+    #     uses: actions/workflow-dispatch@v2
+    #     with:
+    #       workflow: Deploy_Traefik_and_MariaDB.yml
           
-      - name: Trigger setup site base on provided image build for branch specified
-        uses: actions/workflow-dispatch@v2
-        with:
-          workflow: setup_site.yml
+    #   - name: Trigger setup site base on provided image build for branch specified
+    #     uses: actions/workflow-dispatch@v2
+    #     with:
+    #       workflow: setup_site.yml
 
 
       
