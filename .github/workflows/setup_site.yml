@@ -47,14 +47,14 @@ jobs:
           docker compose --project-name erpnext-one -f ~/gitopss/erpnext-one.yaml up -d 
 
       
-      # - name: Create the site
-      #   run: | 
-      #     docker compose --project-name erpnext-one exec -T backend \
-      #       bench new-site --no-mariadb-socket --mariadb-root-password fintech2023 --install-app hrms --set-default \
-      #                --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
-      #                --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
-      #                --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
-      #                --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password fintech2023  agent.fintechsys.net
+      - name: Create the site
+        run: | 
+          docker compose --project-name erpnext-one exec -T backend \
+            bench new-site --no-mariadb-socket --mariadb-root-password fintech2023 --install-app hrms --set-default \
+                     --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
+                     --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
+                     --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
+                     --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password fintech2023  agent.fintechsys.net
           
 
 
