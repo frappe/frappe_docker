@@ -14,7 +14,26 @@ on:
 #       - completed
 
 jobs:
-  setup_sites:
+ which_branch:
+    runs-on: ubuntu-latest
+    steps:
+      # extract branch name
+      - name: Extract branch name
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      # extract branch name on pull request
+      - name: Print branch name
+        if: github.event_name == 'pull_request'
+        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
+
+      # print branch name
+      - name: Get branch name
+        run: echo 'The branch name is' $BRANCH_NAME
+
+ setup_sites:
     runs-on: 
        - self-hosted
 
@@ -24,6 +43,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Create first bench
         run: |
+          echo 'The branch name is' $BRANCH_NAME
           cp example.env ~/gitopss/erpnext-one.env
           sed -i 's/DB_PASSWORD=123/DB_PASSWORD=fintech2023/g' ~/gitopss/erpnext-one.env
           sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitopss/erpnext-one.env
