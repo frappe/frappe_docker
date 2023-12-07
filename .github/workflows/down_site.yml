@@ -10,11 +10,13 @@ on:
 jobs:
   down_site:
     runs-on:
-      - self-hosted
+      # - self-hosted
+      - ubuntu-latest
+
 
 
     steps:
       - name: drop site commond
         run: |
-          docker compose --project-name erpnext-one exec -T backend \
-            bench drop-site --mariadb-root-password fintech2023 agent.fintechsys.net
+          docker compose --project-name ${{ vars.BRANCH_NAME }} exec -T backend \
+            bench drop-site --mariadb-root-password ${{ vars.MARIADB_PASSWORD }} ${{ vars.SITE_NAME }}
