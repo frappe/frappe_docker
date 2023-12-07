@@ -52,4 +52,4 @@ If you are using old version of `docker-compose` the .env file needs to be locat
   - containers
   - images
   - volumes
-- Install afresh
+- Install a fresh
