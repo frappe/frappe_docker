@@ -6,7 +6,7 @@ on:
 #   workflow_dispatch:
   pull_request:
     types: [opened, reopened]
-    branches: [master]
+    branches: [main]
 
 # on:
 #   workflow_run:
@@ -18,7 +18,8 @@ on:
 jobs:
   job-image-build:
     runs-on:
-     - self-hosted
+     # - self-hosted
+     - ubuntu-latest
    
 
     steps:
@@ -36,11 +37,11 @@ jobs:
           git clone --recursive "https://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@github.com/fintechsys/remittance_image_builder.git"
           cd remittance_image_builder
           
-          ../build_network_company_image.sh --tag="remittance_network_agent:version-14" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=version-14
+          ../build_network_company_image.sh --tag="remittance_network_agent/${{ vars.BRANCH_NAME }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=latest
           
           docker image ls
-          docker tag remittance_network_agent:version-14 harbor.fintechsys.net/frappe-systems/devlop:version-14
-          docker push harbor.fintechsys.net/frappe-systems/remittance_network_agent:version-14
+          docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
+        # docker push harbor.fintechsys.net/frappe-systems/remittance_network_agent/${{ vars.BRANCH_NAME }}:latest
        
       #Creat Bench and sites
       
@@ -48,16 +49,16 @@ jobs:
         run: |
           echo 'The branch name is' $BRANCH_NAME
           cp example.env ~/gitopss/erpnext-one.env
-          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=fintech2023/g' ~/gitopss/erpnext-one.env
+          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitopss/erpnext-one.env
           sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitopss/erpnext-one.env
           sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitopss/erpnext-one.env
           sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`agent.fintechsys.net\`/g' ~/gitopss/erpnext-one.env
           echo 'ROUTER=erpnext-one' >> ~/gitopss/erpnext-one.env
-          echo "BENCH_NETWORK=erpnext-one" >> ~/gitopss/erpnext-one.env
+          echo "BENCH_NETWORK=${{ vars.BRANCH_NAME }}" >> ~/gitopss/erpnext-one.env
 
       - name: Create a yaml file to deploy container
         run: |
-          docker compose --project-name erpnext-one \
+          docker compose --project-name ${{ vars.BRANCH_NAME }} \
           --env-file ~/gitopss/erpnext-one.env \
           -f compose.yaml \
           -f overrides/compose.redis.yaml \
@@ -67,15 +68,15 @@ jobs:
 
       - name: Deploy the container
         run: |
-          docker compose --project-name erpnext-one -f ~/gitopss/erpnext-one.yaml up -d 
+          docker compose --project-name ${{ vars.BRANCH_NAME }} -f ~/gitopss/erpnext-one.yaml up -d 
 
       
       - name: Create the site
         run: | 
-          docker compose --project-name erpnext-one exec -T backend \
-            bench new-site --no-mariadb-socket --mariadb-root-password fintech2023 --install-app hrms --set-default \
+          docker compose --project-name ${{ vars.BRANCH_NAME }} exec -T backend \
+            bench new-site --no-mariadb-socket --mariadb-root-password ${{ vars.MARIADB_PASSWORD }} --install-app hrms --set-default \
                  --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
                  --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
                  --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
-                 --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password fintech2023  agent.fintechsys.net
+                 --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password ${{ vars.MARIADB_PASSWORD }}  agent.fintechsys.net
       
