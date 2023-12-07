@@ -52,7 +52,7 @@ jobs:
           sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitopss/erpnext-one.env
           sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitopss/erpnext-one.env
           sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitopss/erpnext-one.env
-          sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`agent.fintechsys.net\`/g' ~/gitopss/erpnext-one.env
+          sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`${{ vars.SITE_NAME }}\`/g' ~/gitopss/erpnext-one.env
           echo 'ROUTER=erpnext-one' >> ~/gitopss/erpnext-one.env
           echo "BENCH_NETWORK=${{ vars.BRANCH_NAME }}" >> ~/gitopss/erpnext-one.env
 
@@ -78,5 +78,5 @@ jobs:
                  --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
                  --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
                  --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
-                 --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password ${{ vars.MARIADB_PASSWORD }}  agent.fintechsys.net
+                 --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password ${{ vars.MARIADB_PASSWORD }}  ${{ vars.SITE_NAME }}
       
