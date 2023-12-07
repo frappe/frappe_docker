@@ -7,6 +7,8 @@ on:
   pull_request:
     types: [opened, reopened]
     branches: [main]
+  workflow_call:
+    
 
 # on:
 #   workflow_run:
