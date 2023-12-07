@@ -1,7 +1,11 @@
 name: down site base on project name 
 
+# on:
+#   workflow_dispatch:
 on:
-  workflow_dispatch:
+  pull_request:
+    types:
+      - closed
 
 jobs:
   down_site:
