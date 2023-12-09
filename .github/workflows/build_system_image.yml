@@ -28,10 +28,20 @@ jobs:
   job-image-build: 
     runs-on:
      - self-hosted
-  
+    strategy:
+      matrix:
+        template-repo: ['fork-foxs/remittance_image_builder']
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+        with:
+          repository: ${{ matrix.remittance_image_builder }}
+          path: .github/workflows
+      - name: Run reusable template from another repo
+        run: |
+          cd .github/workflows
+          gh workflow run Reusable_build_image.yml
+
         # with:
           # repository: malnozili/remittance_image_builder
           # token: ${{ secrets.GITHUB_TOKEN }}
@@ -45,8 +55,6 @@ jobs:
         
       - name: build image
         run: |
-          git clone  https://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@github.com/malnozili/remittance_image_builder.git
-          cd remittance_image_builder
           ../build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=${{ github.event.pull_request.head.ref }}
           
         # docker image ls
