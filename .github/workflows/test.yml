@@ -1,14 +1,11 @@
-name: test
+name: starter workflow
 
 on:
   workflow_dispatch:
 
 jobs:
-#   job-image-build: 
-#     runs-on:
-#      - self-hosted
   call_workflow_using_branch:
-     uses: fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
+    uses: fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
 
 
      
