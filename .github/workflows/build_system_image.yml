@@ -4,10 +4,10 @@ name: build system Image base on json config provided
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   types: [opened, reopened]
-  #   branches: [main]
-  # workflow_call:
+  pull_request:
+    types: [opened, reopened]
+    branches: [main]
+  workflow_call:
     
 
 # on:
@@ -27,9 +27,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-        with:
-          repository: malnozili/remittance_image_builder
-          token: ${{ secrets.GITHUB_TOKEN }}
+        # with:
+          # repository: malnozili/remittance_image_builder
+          # token: ${{ secrets.GITHUB_TOKEN }}
         
       - name: login to harb
         uses: docker/login-action@v1
@@ -42,7 +42,7 @@ jobs:
           git clone  https://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@github.com/malnozili/remittance_image_builder.git
           cd remittance_image_builder
           
-          ../build_network_company_image.sh --tag="remittance_network_agent/${{ vars.BRANCH_NAME }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=latest
+          ../build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=${{ github.event.pull_request.head.ref }}
           
         # docker image ls
         # docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
@@ -52,36 +52,35 @@ jobs:
       
       - name: Create first bench
         run: |
-          echo 'The branch name is' $BRANCH_NAME
-          cp example.env ~/gitopss/erpnext-one.env
-          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitopss/erpnext-one.env
-          sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitopss/erpnext-one.env
-          sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitopss/erpnext-one.env
-          sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`${{ vars.SITE_NAME }}\`/g' ~/gitopss/erpnext-one.env
-          echo 'ROUTER=erpnext-one' >> ~/gitopss/erpnext-one.env
-          echo "BENCH_NETWORK=${{ vars.BRANCH_NAME }}" >> ~/gitopss/erpnext-one.env
+          cp example.env ~/gitops/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`${{ github.event.pull_request.head.ref }}\`/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+          echo 'ROUTER=${{ github.event.pull_request.head.ref }}' >> ~/gitops/erpnext-one.env
+          echo "BENCH_NETWORK=${{ github.event.pull_request.head.ref }}" >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
 
       - name: Create a yaml file to deploy container
         run: |
-          docker compose --project-name ${{ vars.BRANCH_NAME }} \
-          --env-file ~/gitopss/erpnext-one.env \
+          docker-compose --project-name ${{ vars.BRANCH_NAME }} \
+          --env-file ~/gitops/${{ github.event.pull_request.head.ref }}.env \
           -f compose.yaml \
           -f overrides/compose.redis.yaml \
           -f overrides/compose.multi-bench.yaml \
-          -f overrides/compose.multi-bench-ssl.yaml config > ~/gitopss/erpnext-one.yaml
+          -f overrides/compose.multi-bench-ssl.yaml config > ~/gitops/${{ github.event.pull_request.head.ref }}.yaml
 
 
       - name: Deploy the container
         run: |
-          docker compose --project-name ${{ vars.BRANCH_NAME }} -f ~/gitopss/erpnext-one.yaml up -d 
+          docker-compose --project-name ${{ vars.BRANCH_NAME }} -f ~/gitops/${{ github.event.pull_request.head.ref }}.yaml up -d 
 
       
       - name: Create the site
         run: | 
-          docker compose --project-name ${{ vars.BRANCH_NAME }} exec -T backend \
+          docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
             bench new-site --no-mariadb-socket --mariadb-root-password ${{ vars.MARIADB_PASSWORD }} --install-app hrms --set-default \
                  --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
                  --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
                  --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
-                 --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password ${{ vars.MARIADB_PASSWORD }}  ${{ vars.SITE_NAME }}
+                 --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password ${{ vars.MARIADB_PASSWORD }}  ${{ github.event.pull_request.head.ref }}
       
