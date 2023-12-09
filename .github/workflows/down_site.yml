@@ -11,13 +11,15 @@ on:
 jobs:
   down_site:
     runs-on:
-      # - self-hosted
-      - ubuntu-latest
+      - self-hosted
+      # - ubuntu-latest
 
 
 
     steps:
       - name: drop site commond
         run: |
-          docker compose --project-name ${{ vars.BRANCH_NAME }} exec -T backend \
-            bench drop-site --mariadb-root-password ${{ vars.MARIADB_PASSWORD }} ${{ vars.SITE_NAME }}
+          ${{ github.event.pull_request.head.ref }}
+        
+          # docker compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
+          #   bench drop-site --mariadb-root-password ${{ vars.MARIADB_PASSWORD }} ${{ github.event.pull_request.head.ref }}
