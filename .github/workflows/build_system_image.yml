@@ -36,10 +36,10 @@ jobs:
           password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
       - name: Execute custom commands
         run: |
-          git clone --recursive "https://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@github.com/malnozili/remittance_image_builder.git"
+          git clone --recursive "https://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@github.com/malnozili/remittance_image_builder.git"
           cd remittance_image_builder
           
-          ../build_network_company_image.sh --tag="remittance_network_agent/${{ vars.BRANCH_NAME }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=latest
+          ../build_network_company_image.sh --tag="remittance_network_agent/${{ vars.BRANCH_NAME }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=latest
           
         # docker image ls
         # docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
