@@ -8,7 +8,7 @@ jobs:
 #     runs-on:
 #      - self-hosted
   call_workflow_using_branch:
-     uses: ./.github/workflows/Reusable_build_image.yml
+     uses: fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
 
 
      
