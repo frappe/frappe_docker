@@ -1,8 +1,8 @@
 name: down site base on project name 
 
-# on:
-#   workflow_dispatch:
 on:
+  workflow_dispatch:
+# on:
   pull_request:
     types:
       - closed
