@@ -56,7 +56,7 @@ jobs:
         
       - name: build image
         run: |
-          git clone https://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@github.com/malnozili/remittance_image_builder.git
+          git clone https://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@github.com/malnozili/remittance_image_builder.git
           cd remittance_image_builder
           ../build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=${{ github.event.pull_request.head.ref }}
           
