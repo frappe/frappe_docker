@@ -1,5 +1,5 @@
 name: build system Image base on json config provided
-# run-name: ${{ github.actor }} update 🚀
+
 
 
 on:
