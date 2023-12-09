@@ -11,7 +11,7 @@ on:
     
 
 # on:
-#   workflow_run:
+  # workflow_run:
 #     workflows: ["Master Workflow"]
 #     types:
 #       - completed
@@ -20,8 +20,8 @@ on:
 jobs:
   job-image-build:
     runs-on:
-     # - self-hosted
-     - ubuntu-latest
+     - self-hosted
+     # - ubuntu-latest
    
 
     steps:
