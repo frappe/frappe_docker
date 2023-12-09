@@ -19,8 +19,8 @@ jobs:
       # - ubuntu-latest
 
     steps:
-      - name: checkout Script content
-        uses: actions/checkout@v2 # checkout the repository content
+      # - name: checkout Script content
+      #   uses: actions/checkout@v2 # checkout the repository content
 ## if the docker not install then using this script 
       # - name: setup python
       #   uses: actions/setup-python@v4
