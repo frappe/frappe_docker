@@ -5,7 +5,7 @@ on:
 
 jobs:
   call_workflow_using_branch:
-    uses: fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
+    uses: fal7w/fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
 
 
      
