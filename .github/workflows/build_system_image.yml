@@ -19,12 +19,12 @@ on:
    
 jobs:
 
-  # self-hosted:
-  #   runs-on:
-  #    - self-hosted
+  # # self-hosted:
+  # runs-on:
+  #  - self-hosted
      # - ubuntu-latest
-  call_workflow_using_branch:
-    uses: fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
+  # call_workflow_using_branch:
+  #   uses: fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
   job-image-build: 
     runs-on:
      - self-hosted
@@ -45,7 +45,9 @@ jobs:
         
       - name: build image
         run: |
-          ../build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=${{ github.event.pull_request.head.ref }}
+          git clone  https://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@github.com/malnozili/remittance_image_builder.git
+          cd remittance_image_builder
+          ../build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=${{ github.event.pull_request.head.ref }}
           
         # docker image ls
         # docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
