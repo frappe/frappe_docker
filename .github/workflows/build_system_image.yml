@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
       - name: Execute custom commands
         run: |
-          git clone  https://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@github.com/malnozili/remittance_image_builder.git
+          git clone  https://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@github.com/malnozili/remittance_image_builder.git
           cd remittance_image_builder
           
           ../build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=${{ github.event.pull_request.head.ref }}
