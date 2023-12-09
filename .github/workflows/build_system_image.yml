@@ -19,15 +19,16 @@ on:
    
 jobs:
 
-  self-hosted:
-    runs-on:
-     - self-hosted
+  # self-hosted:
+  #   runs-on:
+  #    - self-hosted
      # - ubuntu-latest
   call_workflow_using_branch:
     uses: fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
   job-image-build: 
     runs-on:
      - self-hosted
+  
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
