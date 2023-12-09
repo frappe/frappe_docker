@@ -18,12 +18,12 @@ on:
 
    
 jobs:
+  call_workflow_using_branch:
+    uses: malnozili/emittance_image_builder/.github/workflows/Reusable_build_image.yml@master
   job-image-build:
     runs-on:
      - self-hosted
      # - ubuntu-latest
-   
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -31,15 +31,12 @@ jobs:
           # repository: malnozili/remittance_image_builder
           # token: ${{ secrets.GITHUB_TOKEN }}
         
-      - name: login to harb
-        uses: docker/login-action@v1
-        with:
-          registry: harbor.fintechsys.net
-          username: ${{ secrets.PHEE_HARBOR_USERNAME  }}
-          password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
-        
-      - name: clone image from reusable workflow
-        uses: malnozili/emittance_image_builder/.github/workflows/Reusable_build_image.yml@master
+      # - name: login to harb
+      #   uses: docker/login-action@v1
+      #   with:
+      #     registry: harbor.fintechsys.net
+      #     username: ${{ secrets.PHEE_HARBOR_USERNAME  }}
+      #     password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
         
       - name: build image
         run: |
