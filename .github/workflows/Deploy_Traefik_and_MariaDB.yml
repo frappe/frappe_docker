@@ -48,8 +48,8 @@ jobs:
       # - name: Checkout code
       #   uses: actions/checkout@v4
 
-    # - name: Set up Docker
-    #   uses: actions/setup-docker@v4
+      - name: Set up Docker
+        uses: actions/setup-docker@v4
     #   with:
     #     dockerfile: Dockerfile  # Path to your Dockerfile if you have one
 
