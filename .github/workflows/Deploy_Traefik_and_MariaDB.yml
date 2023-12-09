@@ -64,7 +64,7 @@ jobs:
   
       - name: Docker Compose up for Traefik
         run: |
-         docker compose --project-name traefik \
+         docker-compose --project-name traefik \
           --env-file ~/gitopss/traefik.env \
           -f overrides/compose.traefik.yaml \
           -f overrides/compose.traefik-ssl.yaml up -d
@@ -74,4 +74,4 @@ jobs:
   
       - name: Deploy MariaDB container
         run: |
-         docker compose --project-name mariadb --env-file ~/gitopss/mariadb.env -f overrides/compose.mariadb-shared.yaml up -d
+         docker-compose --project-name mariadb --env-file ~/gitopss/mariadb.env -f overrides/compose.mariadb-shared.yaml up -d
