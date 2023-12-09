@@ -41,8 +41,8 @@ jobs:
           
           ../build_network_company_image.sh --tag="remittance_network_agent/${{ vars.BRANCH_NAME }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=latest
           
-          docker image ls
-          docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
+        # docker image ls
+        # docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
         # docker push harbor.fintechsys.net/frappe-systems/remittance_network_agent/${{ vars.BRANCH_NAME }}:latest
        
       #Creat Bench and sites
