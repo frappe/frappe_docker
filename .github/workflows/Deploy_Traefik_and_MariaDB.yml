@@ -60,7 +60,7 @@ jobs:
         run: |
           echo 'TRAEFIK_DOMAIN=${{ vars.TRAEFIK_DOMAIN }}' > ~/gitopss/traefik.env
           echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitopss/traefik.env
-          echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{ vars.TRAEFIK_PAAWORD }} | sed 's/\$/\\\$/g') >> ~/gitopss/traefik.env
+          echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{ vars.TRAEFIK_PASSWORD }} | sed 's/\$/\\\$/g') >> ~/gitopss/traefik.env
   
       - name: Docker Compose up for Traefik
         run: |
