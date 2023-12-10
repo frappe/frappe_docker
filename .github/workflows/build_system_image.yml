@@ -56,8 +56,8 @@ jobs:
       # - name: Debug Event
         # run: echo "Event payload: ${{ toJson(github.event) }}"
         
-      # - name: Use the head branch
-      #   run: echo "The head branch is ${{ github.event.pull_request.head.ref }}"
+      - name: Use the head branch
+        run: echo "The head branch is ${{ github.event.pull_request.head.ref }}"
       - name: build image
         run: |
           rm -rf remittance_image_builder
