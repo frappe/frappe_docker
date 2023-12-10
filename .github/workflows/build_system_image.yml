@@ -3,7 +3,7 @@ name: build system Image base on json config provided
 
 
 on:
-  workflow_dispatch:
+  # workflow_dispatch:
   pull_request:
     types: [opened, reopened]
     branches: [main]
