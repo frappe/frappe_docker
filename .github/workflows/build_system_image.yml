@@ -56,15 +56,16 @@ jobs:
       # - name: Debug Event
         # run: echo "Event payload: ${{ toJson(github.event) }}"
         
-      - name: Use the head branch
-        run: echo "The head branch is ${{ github.event.pull_request.head.ref }}"
+      # - name: Use the head branch
+      #   run: echo "The head branch is ${{ github.event.pull_request.head.ref }}"
+      # - name: build image
+      #   run: |
+      #     rm -rf remittance_image_builder
       - name: build image
+       
+        # git clone git@github.com:fork-foxs/remittance_image_builder.git
+        # cd remittance_image_builder
         run: |
-          rm -rf remittance_image_builder
-      - name: build image
-        run: |
-          git clone git@github.com:fork-foxs/remittance_image_builder.git
-          cd remittance_image_builder
           ./build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=${{ github.event.pull_request.head.ref }}
           
         # docker image ls
