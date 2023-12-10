@@ -9,5 +9,6 @@ jobs:
     steps:
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.8.0
-        with:
-          target: 'https://erp.fintechsys.net/'
+        # with:
+        #   target: 'https://erp.fintechsys.net/'
+#dfdfdfdgdvdvrg
