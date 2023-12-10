@@ -53,6 +53,8 @@ jobs:
       #     registry: harbor.fintechsys.net
       #     username: ${{ secrets.PHEE_HARBOR_USERNAME  }}
       #     password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
+      - name: Use the head branch
+        run: echo "The head branch is ${{ github.event.pull_request.head.ref }}"
       - name: build image
         run: |
           rm -rf remittance_image_builder
