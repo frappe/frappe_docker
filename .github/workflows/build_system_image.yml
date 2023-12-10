@@ -58,9 +58,9 @@ jobs:
         
       # - name: Use the head branch
       #   run: echo "The head branch is ${{ github.event.pull_request.head.ref }}"
-      # - name: build image
-      #   run: |
-      #     rm -rf remittance_image_builder
+      - name: build image
+        run: |
+          rm -rf remittance_image_builder
       - name: build image
         run: |
           git clone git@github.com:fork-foxs/remittance_image_builder.git
