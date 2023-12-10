@@ -53,9 +53,6 @@ jobs:
       #     registry: harbor.fintechsys.net
       #     username: ${{ secrets.PHEE_HARBOR_USERNAME  }}
       #     password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
-      - name: build image
-        run: |
-          rm -rf remittance_image_builder
           
       - name: build image
         run: |
