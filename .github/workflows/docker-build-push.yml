@@ -40,10 +40,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           driver-opts: network=host
 
@@ -56,14 +56,14 @@ jobs:
           echo "NODE_VERSION=${{ inputs.node_version }}" >> "$GITHUB_ENV"
 
       - name: Build
-        uses: docker/bake-action@v3.1.0
+        uses: docker/bake-action@v4.1.0
         with:
           push: true
         env:
           REGISTRY_USER: localhost:5000/frappe
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
@@ -77,13 +77,13 @@ jobs:
 
       - name: Login
         if: ${{ inputs.push }}
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push
         if: ${{ inputs.push }}
-        uses: docker/bake-action@v3.1.0
+        uses: docker/bake-action@v4.1.0
         with:
           push: true

@@ -72,8 +72,8 @@ def get_args_parser():
         "--frappe-branch",
         action="store",
         type=str,
-        help="frappe repo to use, default: version-14",  # noqa: E501
-        default="version-14",
+        help="frappe repo to use, default: version-15",  # noqa: E501
+        default="version-15",
     )
     parser.add_argument(
         "-p",
@@ -97,6 +97,22 @@ def get_args_parser():
         action="store_true",
         help="verbose output",  # noqa: E501
     )
+    parser.add_argument(
+        "-a",
+        "--admin-password",
+        action="store",
+        type=str,
+        help="admin password for site, default: admin",  # noqa: E501
+        default="admin",
+    )
+    parser.add_argument(
+        "-d",
+        "--db-type",
+        action="store",
+        type=str,
+        help="Database type to use (e.g., mariadb or postgres)",
+        default="mariadb",  # Set your default database type here
+    )
     return parser
 
 
@@ -104,7 +120,6 @@ def init_bench_if_not_exist(args):
     if os.path.exists(args.bench_name):
         cprint("Bench already exists. Only site will be created", level=3)
         return
-
     try:
         env = os.environ.copy()
         if args.py_version:
@@ -129,11 +144,14 @@ def init_bench_if_not_exist(args):
         ]
         subprocess.call(command, env=env, cwd=os.getcwd())
         cprint("Configuring Bench ...", level=2)
-        cprint("Set db_host to mariadb", level=3)
-        subprocess.call(
-            ["bench", "set-config", "-g", "db_host", "mariadb"],
-            cwd=os.getcwd() + "/" + args.bench_name,
-        )
+        cprint("Set db_host", level=3)
+        if args.db_type:
+            cprint(f"Setting db_type to {args.db_type}", level=3)
+            subprocess.call(
+                ["bench", "set-config", "-g", "db_type", args.db_type],
+                cwd=os.path.join(os.getcwd(), args.bench_name),
+            )
+
         cprint("Set redis_cache to redis://redis-cache:6379", level=3)
         subprocess.call(
             [
@@ -156,14 +174,17 @@ def init_bench_if_not_exist(args):
             ],
             cwd=os.getcwd() + "/" + args.bench_name,
         )
-        cprint("Set redis_socketio to redis://redis-socketio:6379", level=3)
+        cprint(
+            "Set redis_socketio to redis://redis-queue:6379 for backward compatibility",  # noqa: E501
+            level=3,
+        )
         subprocess.call(
             [
                 "bench",
                 "set-config",
                 "-g",
                 "redis_socketio",
-                "redis://redis-socketio:6379",
+                "redis://redis-queue:6379",
             ],
             cwd=os.getcwd() + "/" + args.bench_name,
         )
@@ -177,20 +198,41 @@ def init_bench_if_not_exist(args):
 
 
 def create_site_in_bench(args):
-    new_site_cmd = [
-        "bench",
-        "new-site",
-        "--no-mariadb-socket",
-        "--mariadb-root-password=123",
-        "--admin-password=admin",
-    ]
+    if "mariadb" == args.db_type:
+        cprint("Set db_host", level=3)
+        subprocess.call(
+            ["bench", "set-config", "-g", "db_host", "mariadb"],
+            cwd=os.getcwd() + "/" + args.bench_name,
+        )
+        new_site_cmd = [
+            "bench",
+            "new-site",
+            f"--db-host=mariadb",  # Should match the compose service name
+            f"--db-type={args.db_type}",  # Add the selected database type
+            f"--no-mariadb-socket",
+            f"--db-root-password=123",  # Replace with your MariaDB password
+            f"--admin-password={args.admin_password}",
+        ]
+    else:
+        cprint("Set db_host", level=3)
+        subprocess.call(
+            ["bench", "set-config", "-g", "db_host", "postgresql"],
+            cwd=os.getcwd() + "/" + args.bench_name,
+        )
+        new_site_cmd = [
+            "bench",
+            "new-site",
+            f"--db-host=postgresql",  # Should match the compose service name
+            f"--db-type={args.db_type}",  # Add the selected database type
+            f"--db-root-password=123",  # Replace with your PostgreSQL password
+            f"--admin-password={args.admin_password}",
+        ]
     apps = os.listdir(f"{os.getcwd()}/{args.bench_name}/apps")
     apps.remove("frappe")
     for app in apps:
         new_site_cmd.append(f"--install-app={app}")
-
     new_site_cmd.append(args.site_name)
-
+    cprint(f"Creating Site {args.site_name} ...", level=2)
     subprocess.call(
         new_site_cmd,
         cwd=os.getcwd() + "/" + args.bench_name,

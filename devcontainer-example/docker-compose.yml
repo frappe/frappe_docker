@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   mariadb:
-    image: mariadb:10.6
+    image: docker.io/mariadb:10.6
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -20,17 +20,29 @@ services:
   #   volumes:
   #     - postgresql-data:/var/lib/postgresql/data
 
+  # Enable Mailpit if you need to test outgoing mail services
+  # See https://mailpit.axllent.org/
+  #  mailpit:
+  #    image: axllent/mailpit
+  #    volumes:
+  #      - mailpit-data:/data
+  #    ports:
+  #      - 8025:8025
+  #      - 1025:1025
+  #    environment:
+  #      MP_MAX_MESSAGES: 5000
+  #      MP_DATA_FILE: /data/mailpit.db
+  #      MP_SMTP_AUTH_ACCEPT_ANY: 1
+  #      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
   redis-cache:
-    image: redis:alpine
+    image: docker.io/redis:alpine
 
   redis-queue:
-    image: redis:alpine
-
-  redis-socketio:
-    image: redis:alpine
+    image: docker.io/redis:alpine
 
   frappe:
-    image: frappe/bench:latest
+    image: docker.io/frappe/bench:latest
     command: sleep infinity
     environment:
       - SHELL=/bin/bash
@@ -42,7 +54,34 @@ services:
     ports:
       - 8000-8005:8000-8005
       - 9000-9005:9000-9005
-
+  # enable the below service if you need Cypress UI Tests to be executed
+  # Before enabling ensure install_x11_deps.sh has been executed and display variable is exported.
+  # Run install_x11_deps.sh again if DISPLAY is not set
+  # ui-tester:
+  #   # pass custom command to start Cypress otherwise it will use the entrypoint
+  #   # specified in the Cypress Docker image.
+  #   # also pass "--project <folder>" so that when Cypress opens
+  #   # it can find file "cypress.json" and show integration specs
+  #   # https://on.cypress.io/command-line#cypress-open
+  #   entrypoint: 'sleep infinity'
+  #   image: "docker.io/cypress/included:latest"
+  #   environment:
+  #     - SHELL=/bin/bash
+  #     # get the IP address of the host machine and allow X11 to accept
+  #     # incoming connections from that IP address
+  #     #   IP=$(ipconfig getifaddr en0) or mac or \
+  #     #   IP=$($(hostname -I | awk '{print $1}') )  for Ubuntu
+  #     #   /usr/X11/bin/xhost + $IP
+  #     # then pass the environment variable DISPLAY to show Cypress GUI on the host system
+  #     #   DISPLAY=$IP:0
+  #     - DISPLAY
+  #   volumes:
+  #     # for Cypress to communicate with the X11 server pass this socket file
+  #     # in addition to any other mapped volumes
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #     - ..:/workspace:z,cached
+  #   network_mode: "host"
 volumes:
   mariadb-data:
-  postgresql-data:
+  #postgresql-data:
+  #mailpit-data:

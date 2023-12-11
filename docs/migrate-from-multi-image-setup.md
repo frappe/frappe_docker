@@ -62,14 +62,12 @@ configurator:
       bench set-config -gp db_port $$DB_PORT;
       bench set-config -g redis_cache "redis://$$REDIS_CACHE";
       bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-      bench set-config -g redis_socketio "redis://$$REDIS_SOCKETIO";
       bench set-config -gp socketio_port $$SOCKETIO_PORT;
   environment:
     DB_HOST: db
     DB_PORT: "3306"
     REDIS_CACHE: redis-cache:6379
     REDIS_QUEUE: redis-queue:6379
-    REDIS_SOCKETIO: redis-socketio:6379
     SOCKETIO_PORT: "9000"
 # ... removed for brevity
 ```
@@ -95,7 +93,6 @@ create-site:
       wait-for-it -t 120 db:3306;
       wait-for-it -t 120 redis-cache:6379;
       wait-for-it -t 120 redis-queue:6379;
-      wait-for-it -t 120 redis-socketio:6379;
       export start=`date +%s`;
       until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
         [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
@@ -109,7 +106,7 @@ create-site:
         fi
       done;
       echo "sites/common_site_config.json found";
-      bench new-site frontend --no-mariadb-socket --admin-password=admin --db-root-password=admin --install-app erpnext --set-default;
+      bench new-site --no-mariadb-socket --admin-password=admin --db-root-password=admin --install-app erpnext --set-default frontend;
 
 # ... removed for brevity
 ```

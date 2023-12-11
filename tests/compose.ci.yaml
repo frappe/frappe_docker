@@ -14,9 +14,6 @@ services:
   queue-short:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
 
-  queue-default:
-    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
-
   queue-long:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
 

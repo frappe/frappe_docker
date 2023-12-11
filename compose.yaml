@@ -20,6 +20,7 @@ services:
     entrypoint:
       - bash
       - -c
+    # add redis_socketio for backward compatibility
     command:
       - >
         ls -1 apps > sites/apps.txt;
@@ -27,14 +28,13 @@ services:
         bench set-config -gp db_port $$DB_PORT;
         bench set-config -g redis_cache "redis://$$REDIS_CACHE";
         bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -g redis_socketio "redis://$$REDIS_SOCKETIO";
+        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       REDIS_CACHE: ${REDIS_CACHE}
       REDIS_QUEUE: ${REDIS_QUEUE}
-      REDIS_SOCKETIO: ${REDIS_SOCKETIO}
       SOCKETIO_PORT: 9000
     depends_on: {}
 
@@ -70,15 +70,11 @@ services:
 
   queue-short:
     <<: *backend_defaults
-    command: bench worker --queue short
-
-  queue-default:
-    <<: *backend_defaults
-    command: bench worker --queue default
+    command: bench worker --queue short,default
 
   queue-long:
     <<: *backend_defaults
-    command: bench worker --queue long
+    command: bench worker --queue long,default,short
 
   scheduler:
     <<: *backend_defaults

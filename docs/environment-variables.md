@@ -39,11 +39,7 @@ Hostname for redis server to store cache. Set only if external service for redis
 
 ### `REDIS_QUEUE`
 
-Hostname for redis server to store queue data. Set only if external service for redis is used.
-
-### `REDIS_SOCKETIO`
-
-Hostname for redis server to store socketio data. Set only if external service for redis is used.
+Hostname for redis server to store queue data and socketio. Set only if external service for redis is used.
 
 ### `ERPNEXT_VERSION`
 

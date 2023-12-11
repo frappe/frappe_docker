@@ -41,7 +41,7 @@ chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 
 ### Prepare
 
-Clone `frappe_docker` repo for the needed YAMLs and change the current working director of you shell to the cloned repo.
+Clone `frappe_docker` repo for the needed YAMLs and change the current working directory of your shell to the cloned repo.
 
 ```shell
 git clone https://github.com/frappe/frappe_docker
@@ -175,7 +175,7 @@ Create sites `one.example.com` and `two.example.com`:
 ```shell
 # one.example.com
 docker compose --project-name erpnext-one exec backend \
-  bench new-site one.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit one.example.com
 ```
 
 You can stop here and have a single bench single site setup complete. Continue to add one more site to the current bench.
@@ -183,7 +183,7 @@ You can stop here and have a single bench single site setup complete. Continue t
 ```shell
 # two.example.com
 docker compose --project-name erpnext-one exec backend \
-  bench new-site two.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit two.example.com
 ```
 
 #### Create second bench
@@ -234,10 +234,10 @@ Create sites `three.example.com` and `four.example.com`:
 ```shell
 # three.example.com
 docker compose --project-name erpnext-two exec backend \
-  bench new-site three.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit three.example.com
 # four.example.com
 docker compose --project-name erpnext-two exec backend \
-  bench new-site four.example.com --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit
+  bench new-site --no-mariadb-socket --mariadb-root-password changeit --install-app erpnext --admin-password changeit four.example.com
 ```
 
 #### Create custom domain to existing site

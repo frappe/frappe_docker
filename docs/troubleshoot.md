@@ -45,3 +45,11 @@ If you are using old version of `docker-compose` the .env file needs to be locat
 - Set environment variable `COMPOSE_CONVERT_WINDOWS_PATHS` e.g. `set COMPOSE_CONVERT_WINDOWS_PATHS=1`
 - While using docker machine, port-forward the ports of VM to ports of host machine. (ports 8080/8000/9000)
 - Name all the sites ending with `.localhost`. and access it via browser locally. e.g. `http://site1.localhost`
+
+### Redo installation
+
+- If you have made changes and just want to start over again (abandoning all changes), remove all docker
+  - containers
+  - images
+  - volumes
+- Install a fresh
