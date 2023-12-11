@@ -90,7 +90,9 @@ cd frappe-bench
 ```
 
 To setup frappe framework version 13 bench set `PYENV_VERSION` environment variable to `3.9.17` and use NodeJS version 14,
-
+```
+pyenv install 3.9.17
+```
 ```shell
 nvm use v14
 PYENV_VERSION=3.9.17 bench init --skip-redis-config-generation --frappe-branch version-13 frappe-bench
