@@ -66,7 +66,7 @@ jobs:
         run: |
           git clone --recursive git@github.com:fork-foxs/remittance_image_builder.git
           cd remittance_image_builder
-          ./build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://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@github.com/fintechsys/frappe.git" --frappe-branch=version-14 --fintech-branch=${{ github.event.pull_request.head.ref }}
+          ./build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="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" --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=version-14 
         # docker image ls
         # docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
         # docker push harbor.fintechsys.net/frappe-systems/remittance_network_agent/${{ vars.BRANCH_NAME }}:latest
