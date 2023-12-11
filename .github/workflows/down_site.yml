@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: drop site commond
         run: |
-          docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec  backend \
-          bench drop-site --mariadb-root-password ${{ vars.MARIADB_PASSWORD }} ${{ github.event.pull_request.head.ref }}
+          docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
+              bench drop-site --mariadb-root-password ${{ vars.MARIADB_PASSWORD }} ${{ github.event.pull_request.head.ref }}
         
       
