@@ -54,7 +54,9 @@ jobs:
     #     dockerfile: Dockerfile  # Path to your Dockerfile if you have one
 
       - name: Create directory
-        run: mkdir ~/gitops
+        run: |
+          rm -r ~/gitops
+          mkdir ~/gitops
 
       - name: Create traefik.env file
         run: |
@@ -74,4 +76,4 @@ jobs:
   
       - name: Deploy MariaDB container
         run: |
-         docker-compose --project-name mariadb --env-file ~/gitopss/mariadb.env -f overrides/compose.mariadb-shared.yaml up -d
+         docker-compose --project-name mariadb --env-file ~/gitops/mariadb.env -f overrides/compose.mariadb-shared.yaml up -d
