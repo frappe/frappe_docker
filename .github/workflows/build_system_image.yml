@@ -81,7 +81,7 @@ jobs:
           sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/SITES=`${{ github.event.pull_request.head.ref }}`/SITES=\`${{ github.event.pull_request.head.ref }}\`/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          echo 'ROUTER=${{ github.event.pull_request.head.ref }}' >> ~/gitops/erpnext-one.env
+          echo 'ROUTER=${{ github.event.pull_request.head.ref }}' >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
           echo "BENCH_NETWORK=${{ github.event.pull_request.head.ref }}" >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
 
       - name: Create a yaml file to deploy container
