@@ -58,15 +58,15 @@ jobs:
         
       # - name: Use the head branch
       #   run: echo "The head branch is ${{ github.event.pull_request.head.ref }}"
-      - name: build image
-        run: |
-          rm -rf remittance_image_builder
-      - name: build image
-        # working-directory: /root/actions-runner
-        run: |
-          git clone --recursive git@github.com:fork-foxs/remittance_image_builder.git
-          cd remittance_image_builder
-            ./build_network_company_image.sh --tag="remittance_network_agent/devloper:latest" --token="${{ secrets.TOCKEN }}" --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=version-14 --fintech-branch=develop 
+      # - name: build image
+      #   run: |
+      #     rm -rf remittance_image_builder
+      # - name: build image
+      #   # working-directory: /root/actions-runner
+      #   run: |
+      #     git clone --recursive git@github.com:fork-foxs/remittance_image_builder.git
+      #     cd remittance_image_builder
+      #       ./build_network_company_image.sh --tag="remittance_network_agent/devloper:latest" --token="${{ secrets.TOCKEN }}" --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=version-14 --fintech-branch=develop 
 
         # docker image ls
         # docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
