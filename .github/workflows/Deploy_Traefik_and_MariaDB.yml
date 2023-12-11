@@ -54,7 +54,7 @@ jobs:
     #     dockerfile: Dockerfile  # Path to your Dockerfile if you have one
 
       - name: Create directory
-        run: mkdir ~/gitopss
+        run: mkdir ~/gitops
 
       - name: Create traefik.env file
         run: |
