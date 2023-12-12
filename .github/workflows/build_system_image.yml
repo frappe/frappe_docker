@@ -87,7 +87,7 @@ jobs:
 
       - name: Create a yaml file to deploy container
         run: |
-          docker-compose --project-name ${{ vars.BRANCH_NAME }} \
+          docker-compose --project-name ${{ github.event.pull_request.head.ref }} \
           --env-file ~/gitops/${{ github.event.pull_request.head.ref }}.env \
           -f compose.yaml \
           -f overrides/compose.redis.yaml \
