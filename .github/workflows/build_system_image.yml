@@ -65,7 +65,7 @@ jobs:
       - name: build image
         # working-directory: /root/actions-runner
         run: |
-          git clone --recursive https://${{ secrets._GITHUB_TOKEN }}@github.com/fork-foxs/frappe_docker.git
+          git clone --recursive git@github.com:fork-foxs/frappe_docker.git
           cd remittance_image_builder
        # ./build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="${{ secrets.TOCKEN }}" --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=version-14
         # docker image ls
