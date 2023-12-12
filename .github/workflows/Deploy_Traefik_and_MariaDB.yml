@@ -55,7 +55,6 @@ jobs:
 
       - name: Create directory
         run: |
-          rm -r ~/gitops
           mkdir ~/gitops
 
       # - name: Create traefik.env file
