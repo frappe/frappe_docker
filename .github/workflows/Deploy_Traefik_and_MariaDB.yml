@@ -58,18 +58,18 @@ jobs:
           rm -r ~/gitops
           mkdir ~/gitops
 
-      - name: Create traefik.env file
-        run: |
-          echo 'TRAEFIK_DOMAIN=${{ vars.TRAEFIK_DOMAIN }}' > ~/gitops/traefik.env
-          echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitops/traefik.env
-          echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{ vars.TRAEFIK_PASSWORD }} | sed 's/\$/\\\$/g') >> ~/gitops/traefik.env
+      # - name: Create traefik.env file
+      #   run: |
+      #     echo 'TRAEFIK_DOMAIN=${{ vars.TRAEFIK_DOMAIN }}' > ~/gitops/traefik.env
+      #     echo 'EMAIL=f.alfalahi@fintechsys.net' >> ~/gitops/traefik.env
+      #     echo 'HASHED_PASSWORD='$(openssl passwd -apr1 ${{ vars.TRAEFIK_PASSWORD }} | sed 's/\$/\\\$/g') >> ~/gitops/traefik.env
   
-      - name: Docker Compose up for Traefik
-        run: |
-         docker-compose --project-name traefik \
-          --env-file ~/gitops/traefik.env \
-          -f overrides/compose.traefik.yaml \
-          -f overrides/compose.traefik-ssl.yaml up -d
+      # - name: Docker Compose up for Traefik
+      #   run: |
+      #    docker-compose --project-name traefik \
+      #     --env-file ~/gitops/traefik.env \
+      #     -f overrides/compose.traefik.yaml \
+      #     -f overrides/compose.traefik-ssl.yaml up -d
   
       - name: Create mariadb.env file
         run: echo "DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}" > ~/gitops/mariadb.env
