@@ -61,6 +61,7 @@ jobs:
       - name: build image
         run: |
           rm -rf remittance_image_builder
+          rm -rf frappe_docker 
       - name: build image
         # working-directory: /root/actions-runner
         run: |
