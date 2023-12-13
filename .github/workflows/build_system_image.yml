@@ -73,11 +73,11 @@ jobs:
         # docker push harbor.fintechsys.net/frappe-systems/remittance_network_agent/${{ vars.BRANCH_NAME }}:latest
        
       #Creat Bench and sites
-      
+      # sed -i 's/ERPNEXT_VERSION=/ERPNEXT_VERSION=${{ github.event.pull_request.head.ref }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env    
+        
       - name: Create first bench
         run: |
           cp example.env ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          sed -i 's/ERPNEXT_VERSION=/ERPNEXT_VERSION=${{ github.event.pull_request.head.ref }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env    
           sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
