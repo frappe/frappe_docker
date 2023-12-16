@@ -15,6 +15,9 @@ jobs:
      - self-hosted
      # - ubuntu-latest
     steps:
+      - name: checkout Script content
+        uses: actions/checkout@v2
+        
       - name: Create directory
         run: |
           mkdir ~/gitops
