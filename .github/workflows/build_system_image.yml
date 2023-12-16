@@ -43,14 +43,14 @@ jobs:
           -f pwd.yml config > ~/gitops/${{ github.event.pull_request.head.ref }}.yaml
 
 
-      # - name: Deploy the container
-      #   run: |
-      #     docker-compose --project-name ${{ github.event.pull_request.head.ref }} -f ~/gitops/${{ github.event.pull_request.head.ref }}.yaml up -d 
+      - name: Deploy the container
+        run: |
+          docker-compose --project-name ${{ github.event.pull_request.head.ref }} -f ~/gitops/${{ github.event.pull_request.head.ref }}.yaml up -d 
 
-      # - name: Create the site
-      #   run: | 
-      #     docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
-      #       bench new-site --no-mariadb-socket --admin-password=${{ vars.MARIADB_PASSWORD }} --db-root-password=${{ vars.MARIADB_PASSWORD }} --install-app erpnext --set-default ${{ github.event.pull_request.head.ref }}
+      - name: Create the site
+        run: | 
+          docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
+            bench new-site --no-mariadb-socket --admin-password=${{ vars.MARIADB_PASSWORD }} --db-root-password=${{ vars.MARIADB_PASSWORD }} --install-app erpnext --set-default ${{ github.event.pull_request.head.ref }}
 
         
       # - name: Create the site
