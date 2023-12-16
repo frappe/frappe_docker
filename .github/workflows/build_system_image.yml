@@ -46,7 +46,8 @@ jobs:
           cp example.env ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/FRAPPE_SITE_NAME_HEADER=/FRAPPE_SITE_NAME_HEADER=${{ github.event.pull_request.head.ref }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
           echo "PORTS=$port1" >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          sed -i 's/DBPASSWORD=/DP=DBPASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+        # sed -i 's/DBPASSWORD=/DP=DBPASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
         # sed -i 's/PORTS=/PORTS= $port1 /g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
         # sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
         # sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
@@ -59,19 +60,18 @@ jobs:
         run: |
           docker-compose --project-name ${{ github.event.pull_request.head.ref }} \
           --env-file ~/gitops/${{ github.event.pull_request.head.ref }}.env \
-          -f pwd.yml up -d 
-       # config > ~/gitops/${{ github.event.pull_request.head.ref }}.yaml
+          -f pwd.yml  config > ~/gitops/${{ github.event.pull_request.head.ref }}.yaml
 
 
       # - name: Deploy the container
       #   run: |
-      #     docker-compose --project-name ${{ github.event.pull_request.head.ref }} -f pwd.yml up -d 
+      #     docker-compose --project-name ${{ github.event.pull_request.head.ref }} -f ~/gitops/${{ github.event.pull_request.head.ref }}.yaml up -d 
 
       
-      - name: Create the site
-        run: | 
-          docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
-            bench new-site --no-mariadb-socket --db-root-password=${{ vars.MARIADB_PASSWORD }} --db-root-password=${{ vars.MARIADB_PASSWORD }} --install-app erpnext --set-default ${{ github.event.pull_request.head.ref }}
+      # - name: Create the site
+      #   run: | 
+      #     docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
+      #       bench new-site --no-mariadb-socket --db-root-password=${{ vars.MARIADB_PASSWORD }} --db-root-password=${{ vars.MARIADB_PASSWORD }} --install-app erpnext --set-default ${{ github.event.pull_request.head.ref }}
         # bench new-site --no-mariadb-socket --db-root-password ${{ vars.MARIADB_PASSWORD }} --install-app hrms --set-default \
         #      --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
         #      --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
