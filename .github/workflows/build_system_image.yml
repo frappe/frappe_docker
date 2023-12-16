@@ -65,7 +65,7 @@ jobs:
 
       - name: Deploy the container
         run: |
-          docker-compose --project-name ${{ github.event.pull_request.head.ref }} -f ~/gitops/${{ github.event.pull_request.head.ref }}.yaml up -d 
+          docker-compose --project-name ${{ github.event.pull_request.head.ref }} -f pwd.yml up -d 
 
       
       - name: Create the site
