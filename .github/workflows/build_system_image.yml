@@ -49,8 +49,8 @@ jobs:
 
       - name: Create the site
         run: | 
-          docker-compose --project-name fintechsys exec backend \
-            bench new-site --no-mariadb-socket --admin-password=fintech2023 --db-root-password=fintech2023 --install-app erpnext --set-default fintechsys
+          docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec backend \
+            bench new-site --no-mariadb-socket --admin-password=${{ vars.MARIADB_PASSWORD }} --db-root-password=${{ vars.MARIADB_PASSWORD }} --install-app erpnext --set-default ${{ github.event.pull_request.head.ref }}
         
           # docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
           #   bench new-site --no-mariadb-socket --admin-password=${{ vars.MARIADB_PASSWORD }} --db-root-password=${{ vars.MARIADB_PASSWORD }} --install-app erpnext --set-default ${{ github.event.pull_request.head.ref }}
