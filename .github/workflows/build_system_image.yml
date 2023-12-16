@@ -67,9 +67,10 @@ jobs:
       - name: Create the site
         run: | 
           docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec -T backend \
-            bench new-site --no-mariadb-socket --db-root-password ${{ vars.MARIADB_PASSWORD }} --install-app hrms --set-default \
-                 --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
-                 --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
-                 --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
-                 --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password ${{ vars.MARIADB_PASSWORD }} --set-default ${{ github.event.pull_request.head.ref }}
+            bench new-site --no-mariadb-socket --db-root-password=${{ vars.MARIADB_PASSWORD }} --db-root-password=${{ vars.MARIADB_PASSWORD }} --install-app erpnext --set-default ${{ github.event.pull_request.head.ref }}
+        # bench new-site --no-mariadb-socket --db-root-password ${{ vars.MARIADB_PASSWORD }} --install-app hrms --set-default \
+        #      --install-app rule_management --install-app remittance_base --install-app remittance --install-app bulk_remittance --install-app remittance_stellar_integration \
+        #      --install-app client_account_management  --install-app teller_for_erpnext --install-app teller_for_agent \
+        #      --install-app remittance_agent_service --install-app payment_management --install-app bank_services --install-app remittance_customize \
+        #      --install-app remittance_network_manager --install-app erpnext_theme --install-app remittance_website --admin-password ${{ vars.MARIADB_PASSWORD }} --set-default ${{ github.event.pull_request.head.ref }}
       
