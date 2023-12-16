@@ -41,6 +41,7 @@ jobs:
           echo "Random Port 1: $port1"
       - name: Create first bench
         run: |
+          echo "Random Port 1: $port1"
           cp example.env ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/FRAPPE_SITE_NAME_HEADER=/FRAPPE_SITE_NAME_HEADER=${{ github.event.pull_request.head.ref }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/PORTS=/PORTS= $port1 /g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
