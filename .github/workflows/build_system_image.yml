@@ -8,91 +8,53 @@ on:
     types: [opened, reopened]
     branches: [main]
   
-    
-
-# on:
-  # workflow_run:
-#     workflows: ["Master Workflow"]
-#     types:
-#       - completed
-
-   
 jobs:
 
-  # # self-hosted:
-  # runs-on:
-  #  - self-hosted
-     # - ubuntu-latest
-  # call_workflow_using_branch:
-  #   uses: fork-foxs/remittance_image_builder/.github/workflows/Reusable_build_image.yml@master
   job-image-build: 
     runs-on:
      - self-hosted
      # - ubuntu-latest
-    # strategy:
-    #   matrix:
-    #     template-repo: ['fork-foxs/remittance_image_builder']
     steps:
        # - name: Checkout Repository
        #   uses: actions/checkout@v2
-      #   with:
-      #     repository: ${{ matrix.remittance_image_builder }}
-      #     path: .github/workflows
-      # - name: Run reusable template from another repo
-      #   run: |
-      #     cd .github/workflows
-      #     gh workflow run Reusable_build_image.yml
-
-        # with:
-          # repository: malnozili/remittance_image_builder
-          # token: ${{ secrets.GITHUB_TOKEN }}
-        
-      # - name: login to harb
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: harbor.fintechsys.net
-      #     username: ${{ secrets.PHEE_HARBOR_USERNAME  }}
-      #     password: ${{ secrets.PHEE_HARBOR_PASSWORD }}
-      # - name: Debug Event
-        # run: echo "Event payload: ${{ toJson(github.event) }}"
-        
-      # - name: Use the head branch
-      #   run: echo "The head branch is ${{ github.event.pull_request.head.ref }}"
       - name: build image
         run: |
           rm -rf remittance_image_builder
       - name: build image
-        # working-directory: /root/actions-runner
         run: |
           git clone --recursive https://${{ secrets._GITHUB_TOKEN }}@github.com/malnozili/remittance_image_builder.git 
            cd remittance_image_builder
            ./build_network_company_image.sh --tag="remittance_network_agent/${{ github.event.pull_request.head.ref }}:latest" --token="${{ secrets.TOCKEN }}" --frappe-path="https://github.com/fintechsys/frappe.git" --frappe-branch=version-14 --fintech-branch=develop 
-
         # docker image ls
         # docker tag remittance_network_agent/${{ vars.BRANCH_NAME }}:latest harbor.fintechsys.net/frappe-systems/${{ vars.BRANCH_NAME }}:latest
         # docker push harbor.fintechsys.net/frappe-systems/remittance_network_agent/${{ vars.BRANCH_NAME }}:latest
-       
       #Creat Bench and sites
       # sed -i 's/ERPNEXT_VERSION=/ERPNEXT_VERSION=${{ github.event.pull_request.head.ref }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env    
+
+
+      - name: Generate Random Ports
+        run: |
+          # Generate random ports between 1024 and 65535
+          port1=$((RANDOM%64311+1024))
+        # echo "Random Port 1: $port1"
         
       - name: Create first bench
         run: |
           cp example.env ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          sed -i 's/SITES=`${{ github.event.pull_request.head.ref }}`/SITES=\`${{ github.event.pull_request.head.ref }}\`/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          echo 'ROUTER=${{ github.event.pull_request.head.ref }}' >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          echo "BENCH_NETWORK=${{ github.event.pull_request.head.ref }}" >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/FRAPPE_SITE_NAME_HEADER=/FRAPPE_SITE_NAME_HEADER=${{ github.event.pull_request.head.ref }}/g' ~/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/PORTS=/PORTS=$port1/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+        # sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+        # sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+        # sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+        # sed -i 's/SITES=`${{ github.event.pull_request.head.ref }}`/SITES=\`${{ github.event.pull_request.head.ref }}\`/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+        # echo 'ROUTER=${{ github.event.pull_request.head.ref }}' >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
+        # echo "BENCH_NETWORK=${{ github.event.pull_request.head.ref }}" >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
 
       - name: Create a yaml file to deploy container
         run: |
           docker-compose --project-name ${{ github.event.pull_request.head.ref }} \
           --env-file ~/gitops/${{ github.event.pull_request.head.ref }}.env \
-          -f compose.yaml \
-          -f overrides/compose.redis.yaml \
-          -f overrides/compose.multi-bench.yaml \
-          -f overrides/compose.multi-bench-ssl.yaml config > ~/gitops/${{ github.event.pull_request.head.ref }}.yaml
+          -f pwd.yml config > ~/gitops/${{ github.event.pull_request.head.ref }}.yaml
 
 
       - name: Deploy the container
