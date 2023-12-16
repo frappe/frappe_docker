@@ -108,7 +108,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - " ${DB_PORT}:8080"
+      - "${PORTS}:8080"
 
   queue-long:
     image: harbor.fintechsys.net/frappe-systems/remittance_network_agent:latest
