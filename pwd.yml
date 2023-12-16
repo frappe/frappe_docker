@@ -67,7 +67,7 @@ services:
           fi
         done;
         echo "sites/common_site_config.json found";
-      # bench new-site --no-mariadb-socket --admin-password=${PASSWORD} --db-root-password=${PASSWORD} --install-app erpnext --set-default ${FRAPPE_SITE_NAME_HEADER};
+         bench new-site --no-mariadb-socket --admin-password=${DBPASSWORD} --db-root-password=${DBPASSWORD} --install-app erpnext --set-default ${FRAPPE_SITE_NAME_HEADER};
 
   db:
     image: mariadb:10.6
