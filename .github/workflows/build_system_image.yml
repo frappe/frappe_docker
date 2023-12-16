@@ -39,11 +39,11 @@ jobs:
           # Generate random ports between 1024 and 65535
           port1=$((RANDOM%64311+1024))
         # echo "Random Port 1: $port1"
-          #sed -i 's/PORTS=/PORTS=$port1/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
       - name: Create first bench
         run: |
           cp example.env ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/FRAPPE_SITE_NAME_HEADER=/FRAPPE_SITE_NAME_HEADER=${{ github.event.pull_request.head.ref }}/g' ~/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/PORTS=/PORTS=$port1/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/DBPASSWORD=/DP=DBPASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
         # sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
         # sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
