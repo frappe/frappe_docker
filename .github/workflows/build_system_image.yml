@@ -37,7 +37,7 @@ jobs:
         run: |
           docker-compose --project-name ${{ github.event.pull_request.head.ref }} \
           --env-file ~/gitops/${{ github.event.pull_request.head.ref }}.env \
-          -f fintechsys/compose.yaml config > ~/gitops/${{ github.event.pull_request.head.ref }}.yaml
+          -f pwd.yml config > ~/gitops/${{ github.event.pull_request.head.ref }}.yaml
 
 
       # - name: Deploy the container
