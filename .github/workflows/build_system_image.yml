@@ -25,7 +25,7 @@ jobs:
         run: |
           cp example.env ~/gitops/${{ github.event.pull_request.head.ref }}.env
           sed -i 's/FRAPPE_SITE_NAME_HEADER=/FRAPPE_SITE_NAME_HEADER=${{ github.event.pull_request.head.ref }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
-          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
+          sed -i 's/DB_PASSWORD=/DB_PASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
           echo "PORTS= $((8081 + RANDOM % 919))" >> ~/gitops/${{ github.event.pull_request.head.ref }}.env
           echo PORTS= $((8081 + RANDOM % 919))
         # sed -i 's/DBPASSWORD=/DP=DBPASSWORD=${{ vars.MARIADB_PASSWORD }}/g' ~/gitops/${{ github.event.pull_request.head.ref }}.env
