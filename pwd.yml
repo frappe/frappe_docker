@@ -67,12 +67,12 @@ services:
           fi
         done;
         echo "sites/common_site_config.json found";
-    # bench new-site --no-mariadb-socket --admin-password=${DB_PASSWORD} --db-root-password=${DB_PASSWORD} --install-app erpnext --set-default ${FRAPPE_SITE_NAME_HEADER};
+    # bench new-site --no-mariadb-socket --admin-password=${DBPASSWORD} --db-root-password=${DBPASSWORD} --install-app erpnext --set-default ${FRAPPE_SITE_NAME_HEADER};
 
   db:
     image: mariadb:10.6
     healthcheck:
-      test: mysqladmin ping -h localhost --password=${DB_PASSWORD}
+      test: mysqladmin ping -h localhost --password=${DBPASSWORD}
       interval: 1s
       retries: 15
     deploy:
@@ -84,7 +84,7 @@ services:
       - --skip-character-set-client-handshake
       - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DBPASSWORD}
     volumes:
       - db-data:/var/lib/mysql
 
