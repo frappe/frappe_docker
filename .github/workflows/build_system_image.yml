@@ -18,9 +18,9 @@ jobs:
       - name: checkout Script content
         uses: actions/checkout@v2
         
-      - name: Create directory
-        run: |
-          mkdir ~/gitops
+      # - name: Create directory
+      #   run: |
+      #     mkdir ~/gitops
       - name: Create first bench
         run: |
           cp example.env ~/gitops/${{ github.event.pull_request.head.ref }}.env
