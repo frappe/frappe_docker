@@ -47,7 +47,7 @@ jobs:
       - name: Deploy the container
         run: |
           docker-compose --project-name ${{ github.event.pull_request.head.ref }} -f ~/gitops/${{ github.event.pull_request.head.ref }}.yaml up -d 
-
+          sleep 60
       - name: Create the site
         run: | 
           docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec backend \
