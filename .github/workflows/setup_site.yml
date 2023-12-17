@@ -1,70 +1,77 @@
 name: setup site base on provided image build for branch specified
 
-
-# on:
-#   workflow_call:
-
 on:
-  workflow_dispatch:
+  # workflow_dispatch:
+  pull_request:
+    types: [ reopened]
+    branches: [main]
   
-# on:
-#   workflow_run:
-#     workflows: ["Master Workflow"]
-#     types:
-#       - completed
-
 jobs:
- which_branch:
-    runs-on: ubuntu-latest
-    steps:
-      # extract branch name
-      - name: Extract branch name
-        if: github.event_name != 'pull_request'
-        shell: bash
-        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
 
-      # extract branch name on pull request
-      - name: Print branch name
-        if: github.event_name == 'pull_request'
-        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
+  job-image-build: 
+    runs-on:
+     - self-hosted
+ #    steps:
+ #      # extract branch name
+ #      - name: Extract branch name
+ #        if: github.event_name != 'pull_request'
+ #        shell: bash
+ #        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+ #        id: extract_branch
 
-      # print branch name
-      - name: Get branch name
-        run: echo 'The branch name is' $BRANCH_NAME
+ #      # extract branch name on pull request
+ #      - name: Print branch name
+ #        if: github.event_name == 'pull_request'
+ #        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
 
- setup_sites:
-    runs-on: 
-       - self-hosted
+ #      # print branch name
+ #      - name: Get branch name
+ #        run: echo 'The branch name is' $BRANCH_NAME
+
+ # setup_sites:
+ #    runs-on: 
+ #       - self-hosted
 
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
-      - name: Create first bench
-        run: |
-          echo 'The branch name is' $BRANCH_NAME
-          cp example.env ~/gitopss/erpnext-one.env
-          sed -i 's/DB_PASSWORD=123/DB_PASSWORD=fintech2023/g' ~/gitopss/erpnext-one.env
-          sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitopss/erpnext-one.env
-          sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitopss/erpnext-one.env
-          sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`agent.fintechsys.net\`/g' ~/gitopss/erpnext-one.env
-          echo 'ROUTER=erpnext-one' >> ~/gitopss/erpnext-one.env
-          echo "BENCH_NETWORK=erpnext-one" >> ~/gitopss/erpnext-one.env
-
-      - name: Create a yaml file to deploy container
-        run: |
-          docker compose --project-name erpnext-one \
-          --env-file ~/gitopss/erpnext-one.env \
-          -f compose.yaml \
-          -f overrides/compose.redis.yaml \
-          -f overrides/compose.multi-bench.yaml \
-          -f overrides/compose.multi-bench-ssl.yaml config > ~/gitopss/erpnext-one.yaml
+        uses: actions/checkout@v2  
 
 
-      - name: Deploy the container
-        run: |
-          docker compose --project-name erpnext-one -f ~/gitopss/erpnext-one.yaml up -d 
+      - name: Create the site
+        run: | 
+          docker-compose --project-name ${{ github.event.pull_request.head.ref }} exec backend \
+            bench new-site --no-mariadb-socket --admin-password=${{ vars.MARIADB_PASSWORD }} --db-root-password=${{ vars.MARIADB_PASSWORD }} --install-app erpnext --set-default ${{ github.event.pull_request.head.ref }}
+        
+
+
+
+
+        
+      # - name: Create first bench
+      #   run: |
+      #     echo 'The branch name is' $BRANCH_NAME
+      #     cp example.env ~/gitopss/erpnext-one.env
+      #     sed -i 's/DB_PASSWORD=123/DB_PASSWORD=fintech2023/g' ~/gitopss/erpnext-one.env
+      #     sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitopss/erpnext-one.env
+      #     sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitopss/erpnext-one.env
+      #     sed -i 's/SITES=`erp.fintechsys.net`/SITES=\`agent.fintechsys.net\`/g' ~/gitopss/erpnext-one.env
+      #     echo 'ROUTER=erpnext-one' >> ~/gitopss/erpnext-one.env
+      #     echo "BENCH_NETWORK=erpnext-one" >> ~/gitopss/erpnext-one.env
+
+      # - name: Create a yaml file to deploy container
+      #   run: |
+      #     docker compose --project-name erpnext-one \
+      #     --env-file ~/gitopss/erpnext-one.env \
+      #     -f compose.yaml \
+      #     -f overrides/compose.redis.yaml \
+      #     -f overrides/compose.multi-bench.yaml \
+      #     -f overrides/compose.multi-bench-ssl.yaml config > ~/gitopss/erpnext-one.yaml
+
+
+      # - name: Deploy the container
+      #   run: |
+      #     docker compose --project-name erpnext-one -f ~/gitopss/erpnext-one.yaml up -d 
 
       
       - name: Create the site
