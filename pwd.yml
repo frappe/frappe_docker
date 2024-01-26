@@ -90,6 +90,8 @@ services:
 
   frontend:
     image: frappe/erpnext:v15.10.6
+    depends_on:
+      - websocket
     deploy:
       restart_policy:
         condition: on-failure
