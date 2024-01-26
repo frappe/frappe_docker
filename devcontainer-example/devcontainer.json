@@ -5,11 +5,11 @@
   "settings": {
     "terminal.integrated.profiles.linux": {
       "frappe bash": {
-        "path": "/bin/bash"
-      }
+        "path": "/bin/bash",
+      },
     },
     "terminal.integrated.defaultProfile.linux": "frappe bash",
-    "debug.node.autoAttach": "disabled"
+    "debug.node.autoAttach": "disabled",
   },
   "dockerComposeFile": "./docker-compose.yml",
   "service": "frappe",
@@ -20,6 +20,6 @@
     "ms-vscode.live-server",
     "grapecity.gc-excelviewer",
     "mtxr.sqltools",
-    "visualstudioexptteam.vscodeintellicode"
-  ]
+    "visualstudioexptteam.vscodeintellicode",
+  ],
 }
