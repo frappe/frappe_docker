@@ -82,6 +82,8 @@ EMAIL=admin@example.com
 HASHED_PASSWORD=$apr1$K.4gp7RT$tj9R2jHh0D4Gb5o5fIAzm/
 ```
 
+If Container does not deploy put the HASHED_PASSWORD in ''.
+
 Deploy the traefik container with letsencrypt SSL
 
 ```shell
@@ -91,7 +93,7 @@ docker compose --project-name traefik \
   -f overrides/compose.traefik-ssl.yaml up -d
 ```
 
-This will make the traefik dashboard available on `traefik.example.com` and all certificates will reside in `/data/traefik/certificates` on host filesystem.
+This will make the traefik dashboard available on `traefik.example.com` and all certificates will reside in the Docker volume `cert-data`.
 
 For LAN setup deploy the traefik container without overriding `overrides/compose.traefik-ssl.yaml`.
 
