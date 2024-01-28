@@ -26,7 +26,7 @@ RUN useradd -ms /bin/bash frappe \
     gpg \
     # MariaDB
     mariadb-client \
-    less \ 
+    less \
     # Postgres
     libpq-dev \
     postgresql-client \
