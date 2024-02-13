@@ -38,6 +38,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/zapal-tech/erp:latest
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: 'DOTENV_KEY=${{ secrets.DOTENV_KEY }}'
