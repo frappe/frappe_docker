@@ -22,18 +22,19 @@ services:
 
   # Enable Mailpit if you need to test outgoing mail services
   # See https://mailpit.axllent.org/
-  #  mailpit:
-  #    image: axllent/mailpit
-  #    volumes:
-  #      - mailpit-data:/data
-  #    ports:
-  #      - 8025:8025
-  #      - 1025:1025
-  #    environment:
-  #      MP_MAX_MESSAGES: 5000
-  #      MP_DATA_FILE: /data/mailpit.db
-  #      MP_SMTP_AUTH_ACCEPT_ANY: 1
-  #      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  mailpit:
+    image: axllent/mailpit
+    volumes:
+      - mailpit-data:/data
+    ports:
+      - 8025:8025
+      - 1025:1025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATA_FILE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
   redis-cache:
     image: docker.io/redis:alpine
@@ -49,11 +50,12 @@ services:
     volumes:
       - ..:/workspace:cached
       # Enable if you require git cloning
-      # - ${HOME}/.ssh:/home/frappe/.ssh
+      - ${HOME}/.ssh:/home/frappe/.ssh
     working_dir: /workspace/development
     ports:
       - 8000-8005:8000-8005
       - 9000-9005:9000-9005
+
   # enable the below service if you need Cypress UI Tests to be executed
   # Before enabling ensure install_x11_deps.sh has been executed and display variable is exported.
   # Run install_x11_deps.sh again if DISPLAY is not set
@@ -81,7 +83,8 @@ services:
   #     - /tmp/.X11-unix:/tmp/.X11-unix
   #     - ..:/workspace:z,cached
   #   network_mode: "host"
+  
 volumes:
   mariadb-data:
   #postgresql-data:
-  #mailpit-data:
+  mailpit-data:

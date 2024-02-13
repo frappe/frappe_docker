@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11
 import argparse
 import os
 import subprocess
@@ -40,8 +40,8 @@ def get_args_parser():
         "--apps-json",
         action="store",
         type=str,
-        help="Path to apps.json, default: apps-example.json",
-        default="apps-example.json",
+        help="Path to apps.json, default: apps.json",
+        default="apps.json",
     )  # noqa: E501
     parser.add_argument(
         "-b",
@@ -64,8 +64,8 @@ def get_args_parser():
         "--frappe-repo",
         action="store",
         type=str,
-        help="frappe repo to use, default: https://github.com/frappe/frappe",  # noqa: E501
-        default="https://github.com/frappe/frappe",
+        help="frappe repo to use, default: https://github.com/zapal-tech/erp-frappe",  # noqa: E501
+        default="https://github.com/zapal-tech/erp-frappe",
     )
     parser.add_argument(
         "-t",

@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://github.com/zapal-tech/erp-erpnext.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/zapal-tech/erp-hrms.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/zapal-tech/erp-insights.git",
+    "branch": "develop"
+  }
+]

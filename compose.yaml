@@ -1,8 +1,5 @@
 x-customizable-image: &customizable_image
-  # By default the image used only contains the `frappe` and `erpnext` apps.
-  # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
-  # about using custom images.
-  image: frappe/erpnext:${ERPNEXT_VERSION:?No ERPNext version set}
+  image: zapal-tech/erp:latest
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
@@ -12,7 +9,7 @@ x-depends-on-configurator: &depends_on_configurator
 x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
-    - sites:/home/frappe/frappe-bench/sites
+    - ./sites:/home/frappe/frappe-bench/sites
 
 services:
   configurator:
@@ -55,7 +52,7 @@ services:
       PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
       CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
+      - ./sites:/home/frappe/frappe-bench/sites
     depends_on:
       - backend
       - websocket
@@ -66,7 +63,7 @@ services:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
+      - ./sites:/home/frappe/frappe-bench/sites
 
   queue-short:
     <<: *backend_defaults
@@ -79,7 +76,3 @@ services:
   scheduler:
     <<: *backend_defaults
     command: bench schedule
-
-# ERPNext requires local assets access (Frappe does not)
-volumes:
-  sites:

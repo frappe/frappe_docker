@@ -1,7 +1,5 @@
 FROM debian:bookworm-slim as bench
 
-LABEL author=frappé
-
 ARG GIT_REPO=https://github.com/frappe/bench.git
 ARG GIT_BRANCH=v5.x
 

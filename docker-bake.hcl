@@ -1,8 +1,5 @@
-# Docker Buildx Bake build definition file
-# Reference: https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md
-
 variable "REGISTRY_USER" {
-    default = "frappe"
+    default = "zapal-tech"
 }
 
 variable PYTHON_VERSION {
@@ -13,19 +10,27 @@ variable NODE_VERSION {
 }
 
 variable "FRAPPE_VERSION" {
-    default = "develop"
+    default = "version-15"
 }
 
 variable "ERPNEXT_VERSION" {
-    default = "develop"
+    default = "version-15"
+}
+
+variable "HRMS_VERSION" {
+    default = "version-15"
 }
 
 variable "FRAPPE_REPO" {
-    default = "https://github.com/frappe/frappe"
+    default = "https://github.com/zapal-tech/erp-frappe"
 }
 
 variable "ERPNEXT_REPO" {
-    default = "https://github.com/frappe/erpnext"
+    default = "https://github.com/zapal-tech/erp-erpnext"
+}
+
+variable "HRMS_REPO" {
+    default = "https://github.com/zapal-tech/erp-hrms"
 }
 
 variable "BENCH_REPO" {
@@ -44,10 +49,7 @@ target "bench" {
     }
     context = "images/bench"
     target = "bench"
-    tags = [
-        "frappe/bench:${LATEST_BENCH_RELEASE}",
-        "frappe/bench:latest",
-    ]
+    tags = ["frappe/bench:${LATEST_BENCH_RELEASE}", "frappe/bench:latest"]
 }
 
 target "bench-test" {
@@ -59,35 +61,34 @@ target "bench-test" {
 # Base for all other targets
 
 group "default" {
-    targets = ["erpnext"]
+    targets = ["erp"]
 }
 
 function "tag" {
     params = [repo, version]
-    result = [
-      # If `version` param is develop (development build) then use tag `latest`
-      "${version}" == "develop" ? "${REGISTRY_USER}/${repo}:latest" : "${REGISTRY_USER}/${repo}:${version}",
-      # Make short tag for major version if possible. For example, from v13.16.0 make v13.
-      can(regex("(v[0-9]+)[.]", "${version}")) ? "${REGISTRY_USER}/${repo}:${regex("(v[0-9]+)[.]", "${version}")[0]}" : "",
-    ]
+    result = ["${REGISTRY_USER}/${repo}:latest", "${REGISTRY_USER}/${repo}:${version}"]
 }
 
 target "default-args" {
     args = {
         FRAPPE_PATH = "${FRAPPE_REPO}"
-        ERPNEXT_PATH = "${ERPNEXT_REPO}"
+        ERPNEXT_REPO = "${ERPNEXT_REPO}"
+        HRMS_REPO = "${HRMS_REPO}"
+        INSIGHTS_REPO = "${INSIGHTS_REPO}"
         BENCH_REPO = "${BENCH_REPO}"
         FRAPPE_BRANCH = "${FRAPPE_VERSION}"
         ERPNEXT_BRANCH = "${ERPNEXT_VERSION}"
+        HRMS_BRANCH = "${HRMS_VERSION}"
+        INSIGHTS_BRANCH = "${INSIGHTS_VERSION}"
         PYTHON_VERSION = "${PYTHON_VERSION}"
         NODE_VERSION = "${NODE_VERSION}"
     }
 }
 
-target "erpnext" {
+target "erp" {
     inherits = ["default-args"]
     context = "."
     dockerfile = "images/production/Containerfile"
-    target = "erpnext"
-    tags = tag("erpnext", "${ERPNEXT_VERSION}")
+    target = "erp"
+    tags = tag("erp", "${ERPNEXT_VERSION}")
 }
