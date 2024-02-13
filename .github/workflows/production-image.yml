@@ -31,15 +31,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Bake
+      - name: Bake and push
         uses: docker/bake-action@v4
         with:
+          push: true
           targets: default
           no-cache: true
-
-      - name: Push
-        uses: docker/push-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: latest
