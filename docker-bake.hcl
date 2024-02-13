@@ -74,7 +74,7 @@ group "default" {
 
 function "tag" {
     params = [repo, version]
-    result = ["${REGISTRY_USER}/${repo}:latest", "${REGISTRY_USER}/${repo}:${version}"]
+    result = ["ghcr.io/${REGISTRY_USER}/${repo}:latest", "ghcr.io/${REGISTRY_USER}/${repo}:${version}"]
 }
 
 target "default-args" {
