@@ -108,7 +108,7 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal-tech/erp:latest
+    image: ghcr.io/zapal-tech/erp:latest
     networks:
       default: null
     volumes:
