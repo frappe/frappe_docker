@@ -8,6 +8,9 @@ ARG NODE_VERSION=18.18.2
 ENV NVM_DIR=/home/zapal/.nvm
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
+COPY resources/nginx-template.conf /templates/nginx/erp.conf.template
+COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
+
 RUN useradd -ms /bin/bash zapal \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -64,10 +67,9 @@ RUN useradd -ms /bin/bash zapal \
     && chown -R zapal:zapal /etc/nginx/nginx.conf \
     && chown -R zapal:zapal /var/log/nginx \
     && chown -R zapal:zapal /var/lib/nginx \
-    && chown -R zapal:zapal /run/nginx.pid
-
-COPY resources/nginx-template.conf /templates/nginx/erp.conf.template
-COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
+    && chown -R zapal:zapal /run/nginx.pid \
+    && chmod 755 /usr/local/bin/nginx-entrypoint.sh \
+    && chmod 644 /templates/nginx/erp.conf.template
 
 FROM base AS builder
 
@@ -113,13 +115,17 @@ RUN bench init \
   --no-backups \
   --skip-redis-config-generation \
   --verbose \
-  /home/zapal/frappe-bench && \
-  cd /home/zapal/frappe-bench && \
-  bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
-  bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO} && \
-  bench get-app --branch=${INSIGHTS_BRANCH} --resolve-deps insights ${INSIGHTS_REPO} && \
-  echo "{}" > sites/common_site_config.json && \
-  find apps -mindepth 1 -path "*/.git" | xargs rm -fr
+  /home/zapal/frappe-bench
+
+WORKDIR /home/zapal/frappe-bench
+
+RUN bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO}
+RUN bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO}
+# RUN bench get-app --branch=${INSIGHTS_BRANCH} --resolve-deps insights ${INSIGHTS_REPO}
+
+RUN echo "frappe\nhrms\nerpnext" > sites/apps.txt
+RUN echo "{}" > sites/common_site_config.json
+RUN find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
 FROM base as erp
 

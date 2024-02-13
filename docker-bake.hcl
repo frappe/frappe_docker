@@ -21,6 +21,10 @@ variable "HRMS_VERSION" {
     default = "version-15"
 }
 
+variable "INSIGHTS_VERSION" {
+    default = "develop"
+}
+
 variable "FRAPPE_REPO" {
     default = "https://github.com/zapal-tech/erp-frappe"
 }
@@ -31,6 +35,10 @@ variable "ERPNEXT_REPO" {
 
 variable "HRMS_REPO" {
     default = "https://github.com/zapal-tech/erp-hrms"
+}
+
+variable "INSIGHTS_REPO" {
+    default = "https://github.com/zapal-tech/erp-insights"
 }
 
 variable "BENCH_REPO" {

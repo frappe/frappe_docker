@@ -2,12 +2,12 @@
 
 # Set variables that do not exist
 if [[ -z "$BACKEND" ]]; then
-  echo "BACKEND defaulting to 0.0.0.0:8900"
-  export BACKEND=0.0.0.0:8900
+  echo "BACKEND defaulting to 0.0.0.0:8000"
+  export BACKEND=0.0.0.0:8000
 fi
 if [[ -z "$SOCKETIO" ]]; then
-  echo "SOCKETIO defaulting to 0.0.0.0:8910"
-  export SOCKETIO=0.0.0.0:8910
+  echo "SOCKETIO defaulting to 0.0.0.0:9000"
+  export SOCKETIO=0.0.0.0:9000
 fi
 if [[ -z "$UPSTREAM_REAL_IP_ADDRESS" ]]; then
   echo "UPSTREAM_REAL_IP_ADDRESS defaulting to 127.0.0.1"
