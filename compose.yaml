@@ -9,9 +9,7 @@ x-depends-on-configurator: &depends_on_configurator
 x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
-    - ./data/sites:/home/zapal/frappe-bench/sites
-    - ./data/sites-assets:/home/zapal/frappe-bench/sites/assets
-    - ./data/logs:/home/zapal/frappe-bench/logs
+    - erp-bench:/home/zapal/frappe-bench
 
 services:
   configurator:
@@ -80,4 +78,4 @@ services:
     command: bench schedule
 
 volumes:
-  sites:
+  erp-bench:
