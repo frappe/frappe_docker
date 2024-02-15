@@ -10,8 +10,18 @@ services:
       default: null
     volumes:
       - type: bind
-        source: ./data
-        target: /home/zapal/frappe-bench
+        source: ./data/sites
+        target: /home/zapal/frappe-bench/sites
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/sites-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/logs
+        target: /home/zapal/frappe-bench/logs
         bind:
           create_host_path: true
   configurator:
@@ -42,8 +52,18 @@ services:
       default: null
     volumes:
       - type: bind
-        source: ./data
-        target: /home/zapal/frappe-bench
+        source: ./data/sites
+        target: /home/zapal/frappe-bench/sites
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/sites-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/logs
+        target: /home/zapal/frappe-bench/logs
         bind:
           create_host_path: true
   db:
@@ -111,8 +131,18 @@ services:
       default: null
     volumes:
       - type: bind
-        source: ./data
-        target: /home/zapal/frappe-bench
+        source: ./data/sites
+        target: /home/zapal/frappe-bench/sites
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/sites-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/logs
+        target: /home/zapal/frappe-bench/logs
         bind:
           create_host_path: true
   queue-short:
@@ -130,8 +160,18 @@ services:
       default: null
     volumes:
       - type: bind
-        source: ./data
-        target: /home/zapal/frappe-bench
+        source: ./data/sites
+        target: /home/zapal/frappe-bench/sites
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/sites-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/logs
+        target: /home/zapal/frappe-bench/logs
         bind:
           create_host_path: true
   redis-cache:
@@ -165,8 +205,18 @@ services:
       default: null
     volumes:
       - type: bind
-        source: ./data
-        target: /home/zapal/frappe-bench
+        source: ./data/sites
+        target: /home/zapal/frappe-bench/sites
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/sites-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./data/logs
+        target: /home/zapal/frappe-bench/logs
         bind:
           create_host_path: true
   websocket:
@@ -202,7 +252,9 @@ x-backend-defaults:
       condition: service_completed_successfully
   image: ghcr.io/zapal-tech/erp:latest
   volumes:
-    - ./data:/home/zapal/frappe-bench
+    - ./data/sites:/home/zapal/frappe-bench/sites
+    - ./data/sites-assets:/home/zapal/frappe-bench/sites/assets
+    - ./data/logs:/home/zapal/frappe-bench/logs
 x-customizable-image:
   image: ghcr.io/zapal-tech/erp:latest
 x-depends-on-configurator:
