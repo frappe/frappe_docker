@@ -5,14 +5,15 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/zapal-tech/erp:latest
+    image: zapal-tech/erp:latest
     networks:
       default: null
     volumes:
-      - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
-        volume: {}
+      - type: bind
+        source: ./data
+        target: /home/zapal/frappe-bench
+        bind:
+          create_host_path: true
   configurator:
     command:
       - |
@@ -36,14 +37,15 @@ services:
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
       SOCKETIO_PORT: "9000"
-    image: ghcr.io/zapal-tech/erp:latest
+    image: zapal-tech/erp:latest
     networks:
       default: null
     volumes:
-      - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
-        volume: {}
+      - type: bind
+        source: ./data
+        target: /home/zapal/frappe-bench
+        bind:
+          create_host_path: true
   db:
     command:
       - --character-set-server=utf8mb4
@@ -85,19 +87,15 @@ services:
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"
-    image: ghcr.io/zapal-tech/erp:latest
+    image: zapal-tech/erp:latest
     networks:
       default: null
-    ports:
-      - mode: ingress
-        target: 8080
-        published: "8080"
-        protocol: tcp
     volumes:
-      - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
-        volume: {}
+      - type: bind
+        source: ./data
+        target: /home/zapal/frappe-bench
+        bind:
+          create_host_path: true
   queue-long:
     command:
       - bench
@@ -108,14 +106,15 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/zapal-tech/erp:latest
+    image: zapal-tech/erp:latest
     networks:
       default: null
     volumes:
-      - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
-        volume: {}
+      - type: bind
+        source: ./data
+        target: /home/zapal/frappe-bench
+        bind:
+          create_host_path: true
   queue-short:
     command:
       - bench
@@ -126,14 +125,15 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/zapal-tech/erp:latest
+    image: zapal-tech/erp:latest
     networks:
       default: null
     volumes:
-      - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
-        volume: {}
+      - type: bind
+        source: ./data
+        target: /home/zapal/frappe-bench
+        bind:
+          create_host_path: true
   redis-cache:
     image: redis:6.2-alpine
     networks:
@@ -160,14 +160,15 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/zapal-tech/erp:latest
+    image: zapal-tech/erp:latest
     networks:
       default: null
     volumes:
-      - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
-        volume: {}
+      - type: bind
+        source: ./data
+        target: /home/zapal/frappe-bench
+        bind:
+          create_host_path: true
   websocket:
     command:
       - node
@@ -176,14 +177,15 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/zapal-tech/erp:latest
+    image: zapal-tech/erp:latest
     networks:
       default: null
     volumes:
-      - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
-        volume: {}
+      - type: bind
+        source: ./data
+        target: /home/zapal/frappe-bench
+        bind:
+          create_host_path: true
 networks:
   default:
     name: erp_default
@@ -194,17 +196,15 @@ volumes:
     name: erp_redis-cache-data
   redis-queue-data:
     name: erp_redis-queue-data
-  sites:
-    name: erp_sites
 x-backend-defaults:
   depends_on:
     configurator:
       condition: service_completed_successfully
-  image: ghcr.io/zapal-tech/erp:latest
+  image: zapal-tech/erp:latest
   volumes:
-    - sites:/home/zapal/frappe-bench/sites
+    - ./data:/home/zapal/frappe-bench
 x-customizable-image:
-  image: ghcr.io/zapal-tech/erp:latest
+  image: zapal-tech/erp:latest
 x-depends-on-configurator:
   depends_on:
     configurator:
