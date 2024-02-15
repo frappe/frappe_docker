@@ -126,7 +126,7 @@ RUN bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO}
 RUN echo "frappe\nhrms\nerpnext" > sites/apps.txt
 RUN echo "{}" > sites/common_site_config.json
 # DO NOT REMOVE .git FOLDERS
-# RUN find apps -mindepth 1 -path "*/.git" | xargs git remote rm upstream
+RUN find apps -mindepth 1 -path "*/.git" | xargs git remote rm upstream
 
 FROM base as erp
 
@@ -136,7 +136,11 @@ COPY --from=builder --chown=zapal:zapal /home/zapal/frappe-bench /home/zapal/fra
 
 WORKDIR /home/zapal/frappe-bench
 
-VOLUME ["/home/zapal/frappe-bench"]
+VOLUME [ \
+  "/home/zapal/frappe-bench/sites", \
+  "/home/zapal/frappe-bench/sites/assets", \
+  "/home/zapal/frappe-bench/logs" \
+]
 
 CMD [ \
   "/home/zapal/frappe-bench/env/bin/gunicorn", \
