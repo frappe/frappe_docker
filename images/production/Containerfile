@@ -125,7 +125,8 @@ RUN bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO}
 
 RUN echo "frappe\nhrms\nerpnext" > sites/apps.txt
 RUN echo "{}" > sites/common_site_config.json
-RUN find apps -mindepth 1 -path "*/.git" | xargs rm -fr
+# DO NOT REMOVE .git FOLDERS
+# RUN find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
 FROM base as erp
 
