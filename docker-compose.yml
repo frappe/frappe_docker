@@ -9,21 +9,10 @@ services:
     networks:
       default: null
     volumes:
-      - type: bind
-        source: ./data/sites
-        target: /home/zapal/frappe-bench/sites
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/sites-assets
-        target: /home/zapal/frappe-bench/sites/assets
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/logs
-        target: /home/zapal/frappe-bench/logs
-        bind:
-          create_host_path: true
+      - type: volume
+        source: erp-bench
+        target: /home/zapal/frappe-bench
+        volume: {}
   configurator:
     command:
       - |
@@ -51,21 +40,10 @@ services:
     networks:
       default: null
     volumes:
-      - type: bind
-        source: ./data/sites
-        target: /home/zapal/frappe-bench/sites
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/sites-assets
-        target: /home/zapal/frappe-bench/sites/assets
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/logs
-        target: /home/zapal/frappe-bench/logs
-        bind:
-          create_host_path: true
+      - type: volume
+        source: erp-bench
+        target: /home/zapal/frappe-bench
+        volume: {}
   db:
     command:
       - --character-set-server=utf8mb4
@@ -112,7 +90,7 @@ services:
       default: null
     volumes:
       - type: bind
-        source: ./data
+        source: /home/bohdan-kucheriavyi/Documents/Repositories/Zapal/erp/data
         target: /home/zapal/frappe-bench
         bind:
           create_host_path: true
@@ -130,21 +108,10 @@ services:
     networks:
       default: null
     volumes:
-      - type: bind
-        source: ./data/sites
-        target: /home/zapal/frappe-bench/sites
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/sites-assets
-        target: /home/zapal/frappe-bench/sites/assets
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/logs
-        target: /home/zapal/frappe-bench/logs
-        bind:
-          create_host_path: true
+      - type: volume
+        source: erp-bench
+        target: /home/zapal/frappe-bench
+        volume: {}
   queue-short:
     command:
       - bench
@@ -159,21 +126,10 @@ services:
     networks:
       default: null
     volumes:
-      - type: bind
-        source: ./data/sites
-        target: /home/zapal/frappe-bench/sites
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/sites-assets
-        target: /home/zapal/frappe-bench/sites/assets
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/logs
-        target: /home/zapal/frappe-bench/logs
-        bind:
-          create_host_path: true
+      - type: volume
+        source: erp-bench
+        target: /home/zapal/frappe-bench
+        volume: {}
   redis-cache:
     image: redis:6.2-alpine
     networks:
@@ -204,21 +160,10 @@ services:
     networks:
       default: null
     volumes:
-      - type: bind
-        source: ./data/sites
-        target: /home/zapal/frappe-bench/sites
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/sites-assets
-        target: /home/zapal/frappe-bench/sites/assets
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ./data/logs
-        target: /home/zapal/frappe-bench/logs
-        bind:
-          create_host_path: true
+      - type: volume
+        source: erp-bench
+        target: /home/zapal/frappe-bench
+        volume: {}
   websocket:
     command:
       - node
@@ -232,7 +177,7 @@ services:
       default: null
     volumes:
       - type: bind
-        source: ./data
+        source: /home/bohdan-kucheriavyi/Documents/Repositories/Zapal/erp/data
         target: /home/zapal/frappe-bench
         bind:
           create_host_path: true
@@ -242,6 +187,8 @@ networks:
 volumes:
   db-data:
     name: erp_db-data
+  erp-bench:
+    name: erp_erp-bench
   redis-cache-data:
     name: erp_redis-cache-data
   redis-queue-data:
@@ -252,9 +199,7 @@ x-backend-defaults:
       condition: service_completed_successfully
   image: ghcr.io/zapal-tech/erp:latest
   volumes:
-    - ./data/sites:/home/zapal/frappe-bench/sites
-    - ./data/sites-assets:/home/zapal/frappe-bench/sites/assets
-    - ./data/logs:/home/zapal/frappe-bench/logs
+    - erp-bench:/home/zapal/frappe-bench
 x-customizable-image:
   image: ghcr.io/zapal-tech/erp:latest
 x-depends-on-configurator:
