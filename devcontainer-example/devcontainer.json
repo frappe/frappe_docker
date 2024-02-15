@@ -1,10 +1,6 @@
 {
   "name": "Frappe Bench",
-  "forwardPorts": [
-    8000,
-    9000,
-    6787
-  ],
+  "forwardPorts": [8000, 9000, 6787],
   "remoteUser": "frappe",
   "customizations": {
     "vscode": {
