@@ -5,7 +5,7 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal-tech/erp:latest
+    image: zapal/erp:latest
     networks:
       default: null
     volumes:
@@ -44,7 +44,7 @@ services:
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
       SOCKETIO_PORT: "9000"
-    image: zapal-tech/erp:latest
+    image: zapal/erp:latest
     networks:
       default: null
     volumes:
@@ -101,7 +101,7 @@ services:
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"
-    image: zapal-tech/erp:latest
+    image: zapal/erp:latest
     networks:
       default: null
     ports:
@@ -124,7 +124,7 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal-tech/erp:latest
+    image: zapal/erp:latest
     networks:
       default: null
     volumes:
@@ -150,7 +150,7 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal-tech/erp:latest
+    image: zapal/erp:latest
     networks:
       default: null
     volumes:
@@ -192,7 +192,7 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal-tech/erp:latest
+    image: zapal/erp:latest
     networks:
       default: null
     volumes:
@@ -216,7 +216,7 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal-tech/erp:latest
+    image: zapal/erp:latest
     networks:
       default: null
     volumes:
@@ -244,13 +244,13 @@ x-backend-defaults:
   depends_on:
     configurator:
       condition: service_completed_successfully
-  image: zapal-tech/erp:latest
+  image: zapal/erp:latest
   volumes:
     - erp-sites:/home/zapal/frappe-bench/sites
     - erp-assets:/home/zapal/frappe-bench/sites/assets
     - erp-logs:/home/zapal/frappe-bench/logs
 x-customizable-image:
-  image: zapal-tech/erp:latest
+  image: zapal/erp:latest
 x-depends-on-configurator:
   depends_on:
     configurator:
