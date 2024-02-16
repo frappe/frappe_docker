@@ -143,7 +143,7 @@ COPY /usr/local/bin/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
 
 WORKDIR /home/zapal/frappe-bench
 
-VOLUME ["/home/zapal/frappe-bench"]
+VOLUME ["/home/zapal/frappe-bench/sites", "/home/zapal/frappe-bench/sites/assets", "/home/zapal/frappe-bench/logs"]
 
 CMD [ \
   "/home/zapal/frappe-bench/env/bin/gunicorn", \

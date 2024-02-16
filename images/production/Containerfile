@@ -135,7 +135,7 @@ COPY --from=builder --chown=zapal:zapal /home/zapal/frappe-bench /home/zapal/fra
 
 WORKDIR /home/zapal/frappe-bench
 
-VOLUME ["/home/zapal/frappe-bench"]
+VOLUME ["/home/zapal/frappe-bench/sites", "/home/zapal/frappe-bench/sites/assets", "/home/zapal/frappe-bench/logs"]
 
 CMD [ \
   "/home/zapal/frappe-bench/env/bin/gunicorn", \

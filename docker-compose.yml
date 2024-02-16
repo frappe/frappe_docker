@@ -10,8 +10,16 @@ services:
       default: null
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/zapal/frappe-bench
+        source: erp-sites
+        target: /home/zapal/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: erp-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        volume: {}
+      - type: volume
+        source: erp-logs
+        target: /home/zapal/frappe-bench/logs
         volume: {}
   configurator:
     command:
@@ -41,8 +49,16 @@ services:
       default: null
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/zapal/frappe-bench
+        source: erp-sites
+        target: /home/zapal/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: erp-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        volume: {}
+      - type: volume
+        source: erp-logs
+        target: /home/zapal/frappe-bench/logs
         volume: {}
   db:
     command:
@@ -88,12 +104,16 @@ services:
     image: zapal/erp:latest
     networks:
       default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
     volumes:
-      - type: bind
-        source: /home/bohdan-kucheriavyi/Documents/Repositories/Zapal/erp/data
-        target: /home/zapal/frappe-bench
-        bind:
-          create_host_path: true
+      - type: volume
+        source: erp-sites
+        target: /home/zapal/frappe-bench/sites
+        volume: {}
   queue-long:
     command:
       - bench
@@ -109,8 +129,16 @@ services:
       default: null
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/zapal/frappe-bench
+        source: erp-sites
+        target: /home/zapal/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: erp-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        volume: {}
+      - type: volume
+        source: erp-logs
+        target: /home/zapal/frappe-bench/logs
         volume: {}
   queue-short:
     command:
@@ -127,8 +155,16 @@ services:
       default: null
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/zapal/frappe-bench
+        source: erp-sites
+        target: /home/zapal/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: erp-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        volume: {}
+      - type: volume
+        source: erp-logs
+        target: /home/zapal/frappe-bench/logs
         volume: {}
   redis-cache:
     image: redis:6.2-alpine
@@ -161,8 +197,16 @@ services:
       default: null
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/zapal/frappe-bench
+        source: erp-sites
+        target: /home/zapal/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: erp-assets
+        target: /home/zapal/frappe-bench/sites/assets
+        volume: {}
+      - type: volume
+        source: erp-logs
+        target: /home/zapal/frappe-bench/logs
         volume: {}
   websocket:
     command:
@@ -176,19 +220,22 @@ services:
     networks:
       default: null
     volumes:
-      - type: bind
-        source: /home/bohdan-kucheriavyi/Documents/Repositories/Zapal/erp/data
-        target: /home/zapal/frappe-bench
-        bind:
-          create_host_path: true
+      - type: volume
+        source: erp-sites
+        target: /home/zapal/frappe-bench/sites
+        volume: {}
 networks:
   default:
     name: erp_default
 volumes:
   db-data:
     name: erp_db-data
-  erp-bench:
-    name: erp_erp-bench
+  erp-assets:
+    name: erp_erp-assets
+  erp-logs:
+    name: erp_erp-logs
+  erp-sites:
+    name: erp_erp-sites
   redis-cache-data:
     name: erp_redis-cache-data
   redis-queue-data:
@@ -199,7 +246,9 @@ x-backend-defaults:
       condition: service_completed_successfully
   image: zapal/erp:latest
   volumes:
-    - erp-bench:/home/zapal/frappe-bench
+    - erp-sites:/home/zapal/frappe-bench/sites
+    - erp-assets:/home/zapal/frappe-bench/sites/assets
+    - erp-logs:/home/zapal/frappe-bench/logs
 x-customizable-image:
   image: zapal/erp:latest
 x-depends-on-configurator:
