@@ -10,8 +10,8 @@ services:
       default: null
     volumes:
       - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
+        source: erp-bench
+        target: /home/zapal/frappe-bench
         volume: {}
   configurator:
     command:
@@ -41,8 +41,8 @@ services:
       default: null
     volumes:
       - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
+        source: erp-bench
+        target: /home/zapal/frappe-bench
         volume: {}
   db:
     command:
@@ -95,8 +95,8 @@ services:
         protocol: tcp
     volumes:
       - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
+        source: erp-bench
+        target: /home/zapal/frappe-bench
         volume: {}
   queue-long:
     command:
@@ -113,8 +113,8 @@ services:
       default: null
     volumes:
       - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
+        source: erp-bench
+        target: /home/zapal/frappe-bench
         volume: {}
   queue-short:
     command:
@@ -131,8 +131,8 @@ services:
       default: null
     volumes:
       - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
+        source: erp-bench
+        target: /home/zapal/frappe-bench
         volume: {}
   redis-cache:
     image: redis:6.2-alpine
@@ -165,8 +165,8 @@ services:
       default: null
     volumes:
       - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
+        source: erp-bench
+        target: /home/zapal/frappe-bench
         volume: {}
   websocket:
     command:
@@ -181,8 +181,8 @@ services:
       default: null
     volumes:
       - type: volume
-        source: sites
-        target: /home/zapal/frappe-bench/sites
+        source: erp-bench
+        target: /home/zapal/frappe-bench
         volume: {}
 networks:
   default:
@@ -190,19 +190,19 @@ networks:
 volumes:
   db-data:
     name: erp_db-data
+  erp-bench:
+    name: erp_erp-bench
   redis-cache-data:
     name: erp_redis-cache-data
   redis-queue-data:
     name: erp_redis-queue-data
-  sites:
-    name: erp_sites
 x-backend-defaults:
   depends_on:
     configurator:
       condition: service_completed_successfully
   image: zapal/erp:latest
   volumes:
-    - sites:/home/zapal/frappe-bench/sites
+    - erp-bench:/home/zapal/frappe-bench
 x-customizable-image:
   image: zapal/erp:latest
 x-depends-on-configurator:
