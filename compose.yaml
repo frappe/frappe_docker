@@ -1,5 +1,5 @@
 x-customizable-image: &customizable_image
-  image: zapal/erp:latest
+  image: zapal-tech/erp:latest
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
@@ -9,7 +9,9 @@ x-depends-on-configurator: &depends_on_configurator
 x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
-    - erp-bench:/home/zapal/frappe-bench
+    - erp-sites:/home/zapal/frappe-bench/sites
+    - erp-assets:/home/zapal/frappe-bench/sites/assets
+    - erp-logs:/home/zapal/frappe-bench/logs
 
 services:
   configurator:
@@ -52,7 +54,7 @@ services:
       PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
       CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
     volumes:
-      - ./data:/home/zapal/frappe-bench
+      - erp-sites:/home/zapal/frappe-bench/sites
     depends_on:
       - backend
       - websocket
@@ -63,7 +65,7 @@ services:
       - node
       - /home/zapal/frappe-bench/apps/frappe/socketio.js
     volumes:
-      - ./data:/home/zapal/frappe-bench
+      - erp-sites:/home/zapal/frappe-bench/sites
 
   queue-short:
     <<: *backend_defaults
@@ -78,4 +80,6 @@ services:
     command: bench schedule
 
 volumes:
-  erp-bench:
+  erp-sites:
+  erp-assets:
+  erp-logs:
