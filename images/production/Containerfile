@@ -119,9 +119,9 @@ RUN bench init \
 
 WORKDIR /home/zapal/frappe-bench
 
-RUN bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO}
-RUN bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO}
-# RUN bench get-app --branch=${INSIGHTS_BRANCH} --resolve-deps insights ${INSIGHTS_REPO}
+RUN cd /home/zapal/frappe-bench && bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO}
+RUN cd /home/zapal/frappe-bench && bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO}
+# RUN cd /home/zapal/frappe-bench && bench get-app --branch=${INSIGHTS_BRANCH} --resolve-deps insights ${INSIGHTS_REPO}
 
 RUN echo "frappe\nhrms\nerpnext" > sites/apps.txt
 RUN echo "{}" > sites/common_site_config.json
