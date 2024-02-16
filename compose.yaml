@@ -1,5 +1,5 @@
 x-customizable-image: &customizable_image
-  image: ghcr.io/zapal-tech/erp:latest
+  image: zapal/erp:latest
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
