@@ -10,9 +10,6 @@ cd frappe_docker
 `apps.json` needs to be passed in as build arg environment variable.
 
 ```shell
-
-set env variable APPS_JSON using following shell command
-
 export APPS_JSON='[
   {
     "url": "https://github.com/frappe/erpnext",
@@ -27,8 +24,6 @@ export APPS_JSON='[
     "branch": "main"
   }
 ]'
-
-set env variable APPS_JSON_BASE64 using following shell command
 
 export APPS_JSON_BASE64=$(echo ${APPS_JSON} | base64 -w 0)
 ```
