@@ -110,6 +110,7 @@ ARG FRAPPE_PATH=https://github.com/frappe/frappe
 RUN export APP_INSTALL_ARGS="" && \
   if [ -n "${APPS_JSON_BASE64}" ]; then \
     export APP_INSTALL_ARGS="--apps_path=/opt/frappe/apps.json"; \
+    cat /opt/frappe/apps.json | jq -r '.[] | "bench get-app --branch " + .branch + " --dev --ignore-apps-file " + .url' | sh; \
   fi && \
   bench init ${APP_INSTALL_ARGS}\
     --frappe-branch=${FRAPPE_BRANCH} \
