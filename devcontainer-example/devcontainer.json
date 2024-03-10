@@ -26,7 +26,6 @@
   "service": "frappe",
   "workspaceFolder": "/workspace/development",
   "shutdownAction": "stopCompose",
-  "postStartCommand": "sudo service ssh start",
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/frappe/.ssh,type=bind,consistency=cached"
   ]
