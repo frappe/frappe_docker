@@ -20,10 +20,11 @@ export APPS_JSON='[
     "branch": "version-15"
   },
   {
-    "url": "https://user:password@git.example.com/project/repository.git",
+    "url": "https://{{ PAT }}@git.example.com/project/repository.git",
     "branch": "main"
   }
 ]'
+
 export APPS_JSON_BASE64=$(echo ${APPS_JSON} | base64 -w 0)
 ```
 
@@ -35,7 +36,7 @@ export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
 
 Note:
 
-- `url` needs to be http(s) git url with token/auth in case of private repo.
+- `url` needs to be http(s) git url with personal access tokens without username eg:- http://{{PAT}}@github.com/project/repository.git in case of private repo.
 - add dependencies manually in `apps.json` e.g. add `payments` if you are installing `erpnext`
 - use fork repo or branch for ERPNext in case you need to use your fork or test a PR.
 
