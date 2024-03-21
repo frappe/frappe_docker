@@ -19,6 +19,7 @@ RUN useradd -ms /bin/bash frappe \
     vim \
     nginx \
     gettext-base \
+    file \
     # weasyprint dependencies
     libpango-1.0-0 \
     libharfbuzz0b \
