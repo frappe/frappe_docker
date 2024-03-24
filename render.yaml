@@ -41,4 +41,148 @@ services:
     includeDockerConfig: false
     diskSizeMB: 256
 
-# Add definitions for other services similarly...
+  - type: web
+    name: create-site
+    env: []
+    startCommand: []
+    envVars:
+      - key: DB_HOST
+        value: db
+      - key: DB_PORT
+        value: "3306"
+      - key: REDIS_CACHE
+        value: redis-cache:6379
+      - key: REDIS_QUEUE
+        value: redis-queue:6379
+      - key: SOCKETIO_PORT
+        value: "9000"
+    healthCheckPath: /
+    healthCheckPort: 8000
+    httpPort: 8000
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+    buildPath: ""
+    useDockerBuildKit: false
+    includeDockerConfig: false
+    diskSizeMB: 256
+
+  - type: web
+    name: frontend
+    env: []
+    startCommand: []
+    envVars:
+      - key: BACKEND
+        value: backend:8000
+      - key: FRAPPE_SITE_NAME_HEADER
+        value: frontend
+      - key: SOCKETIO
+        value: websocket:9000
+      - key: UPSTREAM_REAL_IP_ADDRESS
+        value: 127.0.0.1
+      - key: UPSTREAM_REAL_IP_HEADER
+        value: X-Forwarded-For
+      - key: UPSTREAM_REAL_IP_RECURSIVE
+        value: "off"
+      - key: PROXY_READ_TIMEOUT
+        value: "120"
+      - key: CLIENT_MAX_BODY_SIZE
+        value: "50m"
+    healthCheckPath: /
+    healthCheckPort: 8080
+    httpPort: 8080
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+    buildPath: ""
+    useDockerBuildKit: false
+    includeDockerConfig: false
+    diskSizeMB: 256
+
+  - type: web
+    name: queue-long
+    env: []
+    startCommand: []
+    envVars: []
+    healthCheckPath: /
+    healthCheckPort: 8000
+    httpPort: 8000
+    dockerfilePath: ""
+    buildCommand: ""
+    buildPath: ""
+    useDockerBuildKit: false
+    includeDockerConfig: false
+    diskSizeMB: 256
+
+  - type: web
+    name: queue-short
+    env: []
+    startCommand: []
+    envVars: []
+    healthCheckPath: /
+    healthCheckPort: 8000
+    httpPort: 8000
+    dockerfilePath: ""
+    buildCommand: ""
+    buildPath: ""
+    useDockerBuildKit: false
+    includeDockerConfig: false
+    diskSizeMB: 256
+
+  - type: web
+    name: redis-queue
+    env: []
+    startCommand: []
+    envVars: []
+    healthCheckPath: /
+    healthCheckPort: 6379
+    httpPort: 6379
+    dockerfilePath: ""
+    buildCommand: ""
+    buildPath: ""
+    useDockerBuildKit: false
+    includeDockerConfig: false
+    diskSizeMB: 256
+
+  - type: web
+    name: redis-cache
+    env: []
+    startCommand: []
+    envVars: []
+    healthCheckPath: /
+    healthCheckPort: 6379
+    httpPort: 6379
+    dockerfilePath: ""
+    buildCommand: ""
+    buildPath: ""
+    useDockerBuildKit: false
+    includeDockerConfig: false
+    diskSizeMB: 256
+
+  - type: web
+    name: scheduler
+    env: []
+    startCommand: []
+    envVars: []
+    healthCheckPath: /
+    healthCheckPort: 8000
+    httpPort: 8000
+    dockerfilePath: ""
+    buildCommand: ""
+    buildPath: ""
+    useDockerBuildKit: false
+    includeDockerConfig: false
+    diskSizeMB: 256
+
+  - type: web
+    name: websocket
+    env: []
+    startCommand: []
+    envVars: []
+    healthCheckPath: /
+    healthCheckPort: 9000
+    httpPort: 9000
+    dockerfilePath: ""
+    buildCommand: ""
+    buildPath: ""
+    useDockerBuildKit: false
+    includeDockerConfig: false
+    diskSizeMB: 256
