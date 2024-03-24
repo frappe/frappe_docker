@@ -1,25 +1,16 @@
 services:
   - type: web
     name: backend
-    env: []
-    startCommand: []
     envVars:
       - key: MYSQL_ROOT_PASSWORD
         value: admin
     healthCheckPath: /
-    healthCheckPort: 8000
-    httpPort: 8000
+    runtime: docker
     dockerfilePath: Dockerfile
     buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
 
   - type: web
     name: configurator
-    env: []
-    startCommand: []
     envVars:
       - key: DB_HOST
         value: db
@@ -32,19 +23,12 @@ services:
       - key: SOCKETIO_PORT
         value: "9000"
     healthCheckPath: /
-    healthCheckPort: 8000
-    httpPort: 8000
+    runtime: docker
     dockerfilePath: Dockerfile
     buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
 
   - type: web
     name: create-site
-    env: []
-    startCommand: []
     envVars:
       - key: DB_HOST
         value: db
@@ -57,19 +41,12 @@ services:
       - key: SOCKETIO_PORT
         value: "9000"
     healthCheckPath: /
-    healthCheckPort: 8000
-    httpPort: 8000
+    runtime: docker
     dockerfilePath: Dockerfile
     buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
 
   - type: web
     name: frontend
-    env: []
-    startCommand: []
     envVars:
       - key: BACKEND
         value: backend:8000
@@ -88,101 +65,54 @@ services:
       - key: CLIENT_MAX_BODY_SIZE
         value: "50m"
     healthCheckPath: /
-    healthCheckPort: 8080
-    httpPort: 8080
+    runtime: docker
     dockerfilePath: Dockerfile
     buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
 
   - type: web
     name: queue-long
-    env: []
-    startCommand: []
     envVars: []
+    runtime: docker
     healthCheckPath: /
-    healthCheckPort: 8000
-    httpPort: 8000
     dockerfilePath: ""
     buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
 
   - type: web
     name: queue-short
-    env: []
-    startCommand: []
     envVars: []
+    runtime: docker
     healthCheckPath: /
-    healthCheckPort: 8000
-    httpPort: 8000
     dockerfilePath: ""
     buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
 
   - type: web
     name: redis-queue
-    env: []
-    startCommand: []
     envVars: []
+    runtime: docker
     healthCheckPath: /
-    healthCheckPort: 6379
-    httpPort: 6379
     dockerfilePath: ""
     buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
 
   - type: web
     name: redis-cache
-    env: []
-    startCommand: []
     envVars: []
+    runtime: docker
     healthCheckPath: /
-    healthCheckPort: 6379
-    httpPort: 6379
     dockerfilePath: ""
-    buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
+    buildCommand: ""   
 
   - type: web
     name: scheduler
-    env: []
-    startCommand: []
     envVars: []
+    runtime: docker
     healthCheckPath: /
-    healthCheckPort: 8000
-    httpPort: 8000
     dockerfilePath: ""
-    buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
+    buildCommand: "" 
 
   - type: web
     name: websocket
-    env: []
-    startCommand: []
     envVars: []
+    runtime: docker
     healthCheckPath: /
-    healthCheckPort: 9000
-    httpPort: 9000
     dockerfilePath: ""
     buildCommand: ""
-    buildPath: ""
-    useDockerBuildKit: false
-    includeDockerConfig: false
-    diskSizeMB: 256
