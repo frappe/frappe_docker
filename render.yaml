@@ -1,0 +1,118 @@
+services:
+  - type: web
+    name: backend
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        value: admin
+    healthCheckPath: /
+    runtime: docker
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+
+  - type: web
+    name: configurator
+    envVars:
+      - key: DB_HOST
+        value: db
+      - key: DB_PORT
+        value: "3306"
+      - key: REDIS_CACHE
+        value: redis-cache:6379
+      - key: REDIS_QUEUE
+        value: redis-queue:6379
+      - key: SOCKETIO_PORT
+        value: "9000"
+    healthCheckPath: /
+    runtime: docker
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+
+  - type: web
+    name: create-site
+    envVars:
+      - key: DB_HOST
+        value: db
+      - key: DB_PORT
+        value: "3306"
+      - key: REDIS_CACHE
+        value: redis-cache:6379
+      - key: REDIS_QUEUE
+        value: redis-queue:6379
+      - key: SOCKETIO_PORT
+        value: "9000"
+    healthCheckPath: /
+    runtime: docker
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+
+  - type: web
+    name: frontend
+    envVars:
+      - key: BACKEND
+        value: backend:8000
+      - key: FRAPPE_SITE_NAME_HEADER
+        value: frontend
+      - key: SOCKETIO
+        value: websocket:9000
+      - key: UPSTREAM_REAL_IP_ADDRESS
+        value: 127.0.0.1
+      - key: UPSTREAM_REAL_IP_HEADER
+        value: X-Forwarded-For
+      - key: UPSTREAM_REAL_IP_RECURSIVE
+        value: "off"
+      - key: PROXY_READ_TIMEOUT
+        value: "120"
+      - key: CLIENT_MAX_BODY_SIZE
+        value: "50m"
+    healthCheckPath: /
+    runtime: docker
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+
+  - type: web
+    name: queue-long
+    envVars: []
+    runtime: docker
+    healthCheckPath: /
+    dockerfilePath: ""
+    buildCommand: ""
+
+  - type: web
+    name: queue-short
+    envVars: []
+    runtime: docker
+    healthCheckPath: /
+    dockerfilePath: ""
+    buildCommand: ""
+
+  - type: web
+    name: redis-queue
+    envVars: []
+    runtime: docker
+    healthCheckPath: /
+    dockerfilePath: ""
+    buildCommand: ""
+
+  - type: web
+    name: redis-cache
+    envVars: []
+    runtime: docker
+    healthCheckPath: /
+    dockerfilePath: ""
+    buildCommand: ""   
+
+  - type: web
+    name: scheduler
+    envVars: []
+    runtime: docker
+    healthCheckPath: /
+    dockerfilePath: ""
+    buildCommand: "" 
+
+  - type: web
+    name: websocket
+    envVars: []
+    runtime: docker
+    healthCheckPath: /
+    dockerfilePath: ""
+    buildCommand: ""
