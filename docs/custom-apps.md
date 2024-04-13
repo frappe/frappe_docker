@@ -43,11 +43,7 @@ Note:
 ### Build Image
 
 ```shell
-buildah build \
-  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-  --build-arg=FRAPPE_BRANCH=version-15 \
-  --build-arg=PYTHON_VERSION=3.11.6 \
-  --build-arg=NODE_VERSION=18.18.2 \
+docker build \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
   --tag=ghcr.io/user/repo/custom:1.0.0 \
   --file=images/custom/Containerfile .
@@ -55,12 +51,23 @@ buildah build \
 
 Note:
 
-- Use `docker` instead of `buildah` as per your setup.
-- `FRAPPE_PATH` and `FRAPPE_BRANCH` build args are optional and can be overridden in case of fork/branch or test a PR.
+- Use `buildah` instead of `docker` as per your setup.
 - Make sure `APPS_JSON_BASE64` variable has correct base64 encoded JSON string. It is consumed as build arg, base64 encoding ensures it to be friendly with environment variables. Use `jq empty apps.json` to validate `apps.json` file.
 - Make sure the `--tag` is valid image name that will be pushed to registry. See section [below](#use-images) for remarks about its use.
-- Change `--build-arg` as per version of Python, NodeJS, Frappe Framework repo and branch
 - `.git` directories for all apps are removed from the image.
+
+Customize these optional `--build-arg`s to use a different Frappe Framework repo and branch, or version of Python and NodeJS:
+
+```shell
+docker build \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=version-15 \
+  --build-arg=PYTHON_VERSION=3.11.9 \
+  --build-arg=NODE_VERSION=18.20.2 \
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --tag=ghcr.io/user/repo/custom:1.0.0 \
+  --file=images/custom/Containerfile .
+```
 
 ### Push image to use in yaml files
 
@@ -87,10 +94,6 @@ podman run --rm -it \
   gcr.io/kaniko-project/executor:latest \
   --dockerfile=images/custom/Containerfile \
   --context=git://github.com/frappe/frappe_docker \
-  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-  --build-arg=FRAPPE_BRANCH=version-14 \
-  --build-arg=PYTHON_VERSION=3.10.12 \
-  --build-arg=NODE_VERSION=16.20.1 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
   --cache=true \
   --destination=ghcr.io/user/repo/custom:1.0.0 \
