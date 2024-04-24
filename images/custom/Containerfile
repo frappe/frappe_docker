@@ -37,6 +37,12 @@ RUN useradd -ms /bin/bash frappe \
     # For healthcheck
     wait-for-it \
     jq \
+    #for building arm64 binaries
+    libcairo2-dev\
+    libpango1.0-dev\
+    libjpeg-dev\
+    libgif-dev\
+    librsvg2-dev\
     # NodeJS
     && mkdir -p ${NVM_DIR} \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
