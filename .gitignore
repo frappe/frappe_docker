@@ -28,3 +28,7 @@ venv
 
 # NodeJS
 node_modules
+
+#sudhegan frappe_docker git ignore
+README.md
+.github/workflows/
