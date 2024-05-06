@@ -57,7 +57,7 @@ After the extensions are installed, you can:
 
 - Open frappe_docker folder in VS Code.
   - `code .`
-- Launch the command, from Command Palette (Ctrl + Shift + P) `Remote-Containers: Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
+- Launch the command, from Command Palette (Ctrl + Shift + P) `Dev Containers: Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
 
 Notes:
 
