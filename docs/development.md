@@ -41,23 +41,23 @@ cp -R development/vscode-example development/.vscode
 
 ## Use VSCode Remote Containers extension
 
-For most people getting started with Frappe development, the best solution is to use [VSCode Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+For most people getting started with Frappe development, the best solution is to use [VSCode Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 
 Before opening the folder in container, determine the database that you want to use. The default is MariaDB.
 If you want to use PostgreSQL instead, edit `.devcontainer/docker-compose.yml` and uncomment the section for `postgresql` service, and you may also want to comment `mariadb` as well.
 
 VSCode should automatically inquire you to install the required extensions, that can also be installed manually as follows:
 
-- Install Remote - Containers for VSCode
+- Install Dev Containers for VSCode
   - through command line `code --install-extension ms-vscode-remote.remote-containers`
-  - clicking on the Install button in the Vistual Studio Marketplace: [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+  - clicking on the Install button in the Vistual Studio Marketplace: [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
   - View: Extensions command in VSCode (Windows: Ctrl+Shift+X; macOS: Cmd+Shift+X) then search for extension `ms-vscode-remote.remote-containers`
 
 After the extensions are installed, you can:
 
 - Open frappe_docker folder in VS Code.
   - `code .`
-- Launch the command, from Command Palette (Ctrl + Shift + P) `Remote-Containers: Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
+- Launch the command, from Command Palette (Ctrl + Shift + P) `Dev Containers: Reopen in Container`. You can also click in the bottom left corner to access the remote container menu.
 
 Notes:
 
