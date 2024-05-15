@@ -9,8 +9,8 @@ To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-c
 After that, clone this repo:
 
 ```sh
-git clone https://github.com/frappe/frappe_docker
-cd frappe_docker
+git clone https://github.com/cronos-capital/RAFNAV-Docker.git
+cd RAFNAV-Docker
 ```
 
 ### Try in Play With Docker
