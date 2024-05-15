@@ -48,16 +48,16 @@ def get_args_parser():
         "--bench-name",
         action="store",
         type=str,
-        help="Bench directory name, default: frappe-bench",
-        default="frappe-bench",
+        help="Bench directory name, default: rafnav_dev",
+        default="rafnav_dev",
     )  # noqa: E501
     parser.add_argument(
         "-s",
         "--site-name",
         action="store",
         type=str,
-        help="Site name, should end with .localhost, default: development.localhost",  # noqa: E501
-        default="development.localhost",
+        help="Site name, should end with .localhost, default: rafnav.localhost",  # noqa: E501
+        default="rafnav.localhost",
     )
     parser.add_argument(
         "-r",
@@ -80,16 +80,16 @@ def get_args_parser():
         "--py-version",
         action="store",
         type=str,
-        help="python version, default: Not Set",  # noqa: E501
-        default=None,
+        help="python version, default: 3.12.3",  # noqa: E501
+        default="3.12.3",
     )
     parser.add_argument(
         "-n",
         "--node-version",
         action="store",
         type=str,
-        help="node version, default: Not Set",  # noqa: E501
-        default=None,
+        help="node version, default: 20.13.1",  # noqa: E501
+        default="20.13.1",
     )
     parser.add_argument(
         "-v",

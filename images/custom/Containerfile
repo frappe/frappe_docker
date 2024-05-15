@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.11.6
+ARG PYTHON_VERSION=3.12.3
 ARG DEBIAN_BASE=bookworm
 FROM python:${PYTHON_VERSION}-slim-${DEBIAN_BASE} AS base
 
@@ -44,7 +44,7 @@ RUN useradd -ms /bin/bash frappe \
     && nvm install ${NODE_VERSION} \
     && nvm use v${NODE_VERSION} \
     && npm install -g yarn \
-    && nvm alias default v${NODE_VERSION} \
+    && nvm install --lts \
     && rm -rf ${NVM_DIR}/.cache \
     && echo 'export NVM_DIR="/home/frappe/.nvm"' >>/home/frappe/.bashrc \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >>/home/frappe/.bashrc \
@@ -71,6 +71,15 @@ RUN useradd -ms /bin/bash frappe \
     && chown -R frappe:frappe /run/nginx.pid \
     && chmod 755 /usr/local/bin/nginx-entrypoint.sh \
     && chmod 644 /templates/nginx/frappe.conf.template
+
+# Install homebrew and wget
+RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
+    && brew install wget
+
+# Add aliases
+RUN touch $HOME/.bash_aliases \
+    && echo "alias py='python'" >> $HOME/.bash_aliases \
+    && echo "alias frap-install='py installer.py'" >> $HOME/.bash_aliases
 
 FROM base AS builder
 

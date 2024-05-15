@@ -97,7 +97,7 @@ WORKDIR /home/frappe
 
 # Install Python via pyenv
 ENV PYTHON_VERSION_V14=3.10.13
-ENV PYTHON_VERSION=3.11.6
+ENV PYTHON_VERSION=3.12.3
 ENV PYENV_ROOT /home/frappe/.pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
@@ -122,26 +122,35 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
     && echo "export PATH=/home/frappe/.local/bin:\$PATH" >>/home/frappe/.bashrc \
     && echo "export BENCH_DEVELOPER=1" >>/home/frappe/.bashrc
 
+# Install homebrew and wget
+RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
+    &&  (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/frappe/.profile \
+    && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" \
+    && brew install gcc \
+    && brew install wget
+
+# Add aliases
+RUN touch $HOME/.bash_aliases \
+    && echo "alias py='python'" >> $HOME/.bash_aliases \
+    && echo "alias frap-install='py installer.py'" >> $HOME/.bash_aliases
+
 # Install Node via nvm
-ENV NODE_VERSION_14=16.20.2
-ENV NODE_VERSION=18.18.2
+ENV NODE_VERSION_STABLE=16.20.2
+ENV NODE_VERSION=20.13.1
 ENV NVM_DIR /home/frappe/.nvm
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
 RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
     && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${NODE_VERSION_14} \
-    && nvm use v${NODE_VERSION_14} \
+    && nvm install ${NODE_VERSION_STABLE} \
+    && nvm use v${NODE_VERSION_STABLE} \
     && npm install -g yarn \
-    && nvm install ${NODE_VERSION} \
-    && nvm use v${NODE_VERSION} \
+    && nvm install v${NODE_VERSION} \
     && npm install -g yarn \
-    && nvm alias default v${NODE_VERSION} \
     && rm -rf ${NVM_DIR}/.cache \
     && echo 'export NVM_DIR="/home/frappe/.nvm"' >>~/.bashrc \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc \
     && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> ~/.bashrc
-
 
 EXPOSE 8000-8005 9000-9005 6787
 
