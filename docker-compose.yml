@@ -1,0 +1,175 @@
+version: '3.8'
+
+services:
+  backend:
+    restart: unless-stopped
+    depends_on:
+      - configurator
+    image: onesrv/frappe_crm:${CRM_VERSION}
+    networks:
+      default: null
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+  configurator:
+    command:
+      - |
+        ls -1 apps > sites/apps.txt; bench set-config -g db_host $$DB_HOST; bench set-config -gp db_port $$DB_PORT; bench set-config -g redis_cache "redis://$$REDIS_CACHE"; bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"; bench set-config -gp socketio_port $$SOCKETIO_PORT;
+    depends_on:
+      - redis-cache
+#      - redis-queue
+    entrypoint:
+      - bash
+      - -c
+    environment:
+      DB_HOST: "database"
+      DB_PORT: "3306"
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-cache:6379
+      SOCKETIO_PORT: "9000"
+    image: onesrv/frappe_crm:${CRM_VERSION}
+    networks:
+      default: null
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+  database:
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+    container_name: mariadb-database
+    environment:
+      MYSQL_ROOT_PASSWORD: 0SDSC9I1ocbfZGj2Bk9jLpk0Y2KC7Upc0Rz43Pg1oc
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h localhost --password=0SDSC9I1ocbfZGj2Bk9jLpk0Y2KC7Upc0Rz43Pg1oc
+      interval: 1s
+      retries: 90
+    image: mariadb:10.6
+    networks:
+      default: null
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/mysql
+        volume: {}
+  frontend:
+    restart: unless-stopped
+    command:
+      - nginx-entrypoint.sh
+  
+    labels:
+        - traefik.http.routers.frappe-crm-http.rule=Host(`crm.example.com`,`crm.example.com`)
+        - traefik.http.routers.frappe-crm-http.entrypoints=http
+        - traefik.http.routers.frappe-crm-http.middlewares=https-redirect
+      
+        - traefik.http.routers.frappe-crm.rule=Host(`crm.example.com`,`crm.example.com`)
+        - traefik.http.routers.frappe-crm.tls
+        #get real ip from cloudflare
+        - traefik.http.routers.frappe-crm.middlewares=cfwarp
+        - traefik.http.services.frappe-crm-service.loadbalancer.server.port=8080
+        - traefik.http.middlewares.frappe-crm.headers.customrequestheaders.Host=frontend
+        - traefik.http.routers.frappe-crm.middlewares=frappe-crm
+        - traefik.enable=true
+    depends_on:
+      - backend
+      - websocket
+    environment:
+      BACKEND: "backend:8000"
+      CLIENT_MAX_BODY_SIZE: 50m
+      FRAPPE_SITE_NAME_HEADER: $$host
+      PROXY_READ_TIMEOUT: "120"
+      SOCKETIO: "websocket:9000"
+#      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+#      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+#      UPSTREAM_REAL_IP_RECURSIVE: "off"
+    image: onesrv/frappe_crm:${CRM_VERSION}
+    networks:
+      default: null
+      traefik-public: null
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+  queue-long:
+    restart: unless-stopped
+    command:
+      - bench
+      - worker
+      - --queue
+      - long,default,short
+    depends_on:
+      - configurator
+    image: onesrv/frappe_crm:${CRM_VERSION}
+    networks:
+      default: null
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+  queue-short:
+    restart: unless-stopped
+    command:
+      - bench
+      - worker
+      - --queue
+      - short,default
+    depends_on:
+      - configurator
+    image: onesrv/frappe_crm:${CRM_VERSION}
+    networks:
+      default: null
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+  redis-cache:
+    restart: unless-stopped
+    image: redis:6.2-alpine
+    networks:
+      default: null
+#  redis-queue:
+#    restart: unless-stopped
+#    image: redis:6.2-alpine
+#    networks:
+#      default: null
+  scheduler:
+    restart: unless-stopped
+    command:
+      - bench
+      - schedule
+    depends_on:
+      - configurator
+    image: onesrv/frappe_crm:${CRM_VERSION}
+    networks:
+      default: null
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+  websocket:
+    restart: unless-stopped
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    depends_on:
+      - configurator
+    image: onesrv/frappe_crm:${CRM_VERSION}
+    networks:
+      default: null
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+networks:
+  default:
+    name: frappe-network
+  traefik-public:
+    external: true
+    
+volumes:
+  db-data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/data/frappecrm/db'
+  sites:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/data/frappecrm/sites'
+
