@@ -53,16 +53,10 @@ You have two option for starting the docker container for development:
 
 ### Manually start the container
 
-1. Start the containers with docker-compose.
+1. Run the following script
 
 ```sh
-docker-compose -f .devcontainer/docker-compose.yml up -d
-```
-
-2. Execute (open) the working directory of the container.
-
-```sh
-docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer-frappe-1 bash
+sudo ./run-container.sh
 ```
 
 > Note: Your **terminal** is now open in the development workspace. However, the VsCode **window** is not.
