@@ -81,6 +81,12 @@ cd rafnav_bench
 
 ## Documentation
 
+### Credentials
+MariaDB Root Password: 123
+> Unless changed in the docker or docker-compose file
+First site's Administrator password: admin
+> Unless changed in the docker or docker-compose file
+
 ### [Production](#production)
 
 - [List of containers](docs/list-of-containers.md)
