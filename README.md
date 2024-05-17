@@ -81,7 +81,7 @@ cd rafnav_bench
 
 ## Documentation
 
-### Credentials
+### Default Credentials
 MariaDB Root Password: 123
 > Unless changed in the docker or docker-compose file
 
@@ -104,5 +104,6 @@ First site's Administrator password: admin
 
 ### [Development](#development)
 
+- [Container Aliases for easier development](docs/container-aliases.md)
 - [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
 - [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)

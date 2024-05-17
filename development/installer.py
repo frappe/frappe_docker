@@ -49,7 +49,7 @@ def get_args_parser():
         action="store",
         type=str,
         help="Bench directory name, default: rafnav_dev",
-        default="rafnav_dev",
+        default="rafnav_bench",
     )  # noqa: E501
     parser.add_argument(
         "-s",
