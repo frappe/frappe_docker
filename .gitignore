@@ -5,7 +5,6 @@
 sites
 
 development/*
-!development/*/apps
 !development/README.md
 !development/installer.py
 !development/apps-example.json
