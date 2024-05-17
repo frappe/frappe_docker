@@ -1,54 +1,91 @@
 # Getting Started
 
-**!! You need to be connected to WSL before proceeding**
+## !! You need to be connected to WSL before proceeding
+
+### Other Pre-requisites
 
 To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-compose](https://docs.docker.com/compose/), and [git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git) setup in WSL. For Docker basics and best practices refer to Docker's [documentation](http://docs.docker.com).
 After that, clone this repo:
 
 ## Introduction
-You will be working in the ```./development``` folder a.k.a. workspace. Follow the steps below to set up the workspace.
+
+You will be working in the ```./development``` folder a.k.a. a dev workspace. Follow the steps below to set up the workspace.
 
 ## Workspace Setup
 
-1. Clone Repo into your working directory
+1. Clone the Repo into your working directory
+
 ```sh
 git clone https://github.com/cronos-capital/RAFNAV-Docker.git
 cd RAFNAV-Docker
 ```
+
 2. Create the devcontainer and VsCode configuration from the templates provided
+
 ```sh
 cp -R devcontainer-example .devcontainer
 cp -R development/vscode-example development/.vscode
 ```
 
-## Build the Image
+## Build the Docker Image
 
 Run the following command in your working directory
+
 ```sh
 docker build -t rafnav_bench:latest ./images/bench
 ```
 
+> You may change the tag to the relevant naming convention.
+
 ## Container Initialization
+
+You have two option for starting the docker container for development:
+
+1. Opening the folder in VS as a docker container.
+2. Manually starting the container in the terminal.
+
+### Reopen folder in dev container
+
 1. Open the command pallet with *ctrl + shift + p*  or  *View->Command Pallet*
 
 2. Run the command ```dev containers: rebuild and reopen in container```
 3. Wait for the container to warm up...
 
-# Starting Development
+## Starting Development
 
 1. Run the installer
-```sh
-frap-install
-```
+
+  ```sh
+  frap-install
+  ```
+
 **Note: For additional args and configs run ```frap-install --help``` first.**
 
 2. cd into rafnav's development bench
+
 ```sh
 cd rafnav_bench
 ```
+
 3. Now you are able to start development on RAFNAV with all the dependencies and correct environment set up.
 
-# Documentation
+### Manually start the container
+
+1. Start the containers with docker-compose.
+
+```sh
+docker-compose -f .devcontainer/docker-compose.yml up -d
+```
+
+2. Execute (open) the working directory of the container.
+
+```sh
+docker exec -e "TERM=xterm-256color" -w /workspace/development -it devcontainer-frappe-1 bash
+```
+
+> Note: Your **terminal** is now open in the development workspace. However, the VsCode **window** is not.
+
+## Documentation
 
 ### [Production](#production)
 
@@ -62,7 +99,6 @@ cd rafnav_bench
 - [Port Based Multi Tenancy](docs/port-based-multi-tenancy.md)
 - [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
 - [running on linux/mac](docs/setup_for_linux_mac.md)
-
 
 ### [Development](#development)
 
