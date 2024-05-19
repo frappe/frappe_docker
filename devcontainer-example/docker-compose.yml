@@ -42,7 +42,7 @@ services:
     image: docker.io/redis:alpine
 
   frappe:
-    image: docker.io/frappe/bench:latest
+    image: rafnav_bench:latest
     command: sleep infinity
     environment:
       - SHELL=/bin/bash

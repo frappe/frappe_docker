@@ -130,11 +130,11 @@ RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/instal
     && brew install wget
 
 # Add aliases
-RUN touch $HOME/.bash_aliases \
-    && echo "alias py='python'" >> $HOME/.bash_aliases \
-    && echo "alias frap-install='py installer.py'" >> $HOME/.bash_aliases \
-    && echo "alias install-rafnav='bench install-app erpnext documentation lending filing matter_management lrms raf_finance'" >> $HOME/.bash_aliases \
-    && echo "alias start-dev='cd rafnav_bench'" >> $HOME/.bash_aliases
+RUN touch ~/.bash_aliases \
+    && echo 'alias py="python"' >> ~/.bash_aliases \
+    && echo 'alias frap-install="py installer.py"'>> ~/.bash_aliases \
+    && echo 'alias install-rafnav="bench install-app erpnext documentation lending filing matter_management lrms raf_finance"' >> ~/.bash_aliases \
+    && echo 'alias start-dev="cd rafnav_bench"' >> ~/.bash_aliases
 
 
 # Install Node via nvm
