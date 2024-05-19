@@ -32,7 +32,7 @@ cp -R development/vscode-example development/.vscode
 Run the following command in your working directory
 
 ```sh
-docker build -t rafnav_bench:latest ./images/bench
+docker build -t rafnav_bench:latest ./images/rafnav_bench
 ```
 
 > You may change the tag to the relevant naming convention.
