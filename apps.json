@@ -3,4 +3,16 @@
     "url": "https://github.com/frappe/crm",
     "branch": "main"
   },
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/helpdesk",
+    "branch": "main"
+  },
+  {
+    "url":"https://github.com/Grynn-GmbH/Swiss-E-invoicing-ERPNext",
+    "branch":"master"
+  }
 ]
