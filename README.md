@@ -46,10 +46,10 @@ You have two option for starting the docker container for development:
 
 ### Reopen folder in dev container
 
-1. Open the command pallet with *ctrl + shift + p*  or  *View->Command Pallet*
-
-2. Run the command ```dev containers: rebuild and reopen in container```
-3. Wait for the container to warm up...
+1. Open VsCode in the RAFNAV-Docker folder.
+2. Open the command pallet with *ctrl + shift + p*  or  *View->Command Pallet*
+3. Run the command ```dev containers: Reopen in container```
+4. Wait for the container to warm up...
 
 ### Manually start the container
 
