@@ -35,7 +35,7 @@ Run the following command in your working directory
 docker build -t rafnav_bench:latest ./images/rafnav_bench
 ```
 
-> You may change the tag to the relevant naming convention.
+> You may change the tag to the relevant naming convention. However, you need to change the image used for development in the correct docker-compose file: ./.devcontainer/docker-compose.yml
 
 ## Container Initialization
 

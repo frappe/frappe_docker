@@ -42,6 +42,7 @@ services:
     image: docker.io/redis:alpine
 
   frappe:
+    # *Update the correct image here to be used for the rafnav_bench
     image: rafnav_bench:latest
     command: sleep infinity
     environment:
