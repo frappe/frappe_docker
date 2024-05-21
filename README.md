@@ -107,5 +107,6 @@ First site's Administrator password: admin
 
 - [Docker Image Development](docs/Docker-Image-Development.md)
 - [Container Aliases for easier development](docs/container-aliases.md)
+- [Multi-tenancy Setup in Development (Developing on multiple site)](docs/multi-tenancy.md)
 - [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
 - [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
