@@ -39,12 +39,12 @@ docker build -t rafnav_bench:latest ./images/rafnav_bench
 
 ## Container Initialization
 
-You have two option for starting the docker container for development:
+You have two options to start the docker container for development:
 
 1. Opening the folder in VS as a docker container.
 2. Manually starting the container in the terminal.
 
-### Reopen folder in dev container
+### Reopen the folder in the dev container
 
 1. Open VsCode in the RAFNAV-Docker folder.
 2. Open the command pallet with *ctrl + shift + p*  or  *View->Command Pallet*
@@ -97,13 +97,13 @@ docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TER
 
 **Note: For additional args and configs run ```frap-install --help``` first.**
 
-2. cd into rafnav's development bench
+2. cd into Rafnav's development bench
 
 ```sh
 cd rafnav_bench
 ```
 
-3. Now you are able to start development on RAFNAV with all the dependencies and correct environment set up.
+3. Now you are able to start development on RAFNAV with all the dependencies and the correct environment set-up.
 
 ## Documentation
 
