@@ -64,7 +64,13 @@ docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TER
 
 ## Starting Development
 
-### Default Install
+### GitHub Login (SSH)
+
+[Follow this guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+
+### RAFNAV Installation
+
+#### Default Install
 
 1. Run the installer
 
@@ -72,13 +78,13 @@ docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TER
   frap-install
   ```
 
-### Development Branch Install
+#### Development Branch Apps Install
 
 ```sh
   frap-install -j apps-development.json
 ```
 
-### Prod Install
+#### Prod Apps Install
 
  ```sh
   frap-install -j apps-prod.json
