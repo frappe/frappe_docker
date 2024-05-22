@@ -64,11 +64,26 @@ docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TER
 
 ## Starting Development
 
+### Default Install
+
 1. Run the installer
 
   ```sh
   frap-install
   ```
+
+### Development Branch Install
+
+```sh
+  frap-install -j apps-development.json
+```
+
+### Prod Install
+
+ ```sh
+  frap-install -j apps-prod.json
+  ```
+
 
 **Note: For additional args and configs run ```frap-install --help``` first.**
 
