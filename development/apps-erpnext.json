@@ -18,5 +18,9 @@
   {
     "url": "https://github.com/The-Commit-Company/Raven.git",
     "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/lending.gitt",
+    "branch": "version-15"
   }
 ]
