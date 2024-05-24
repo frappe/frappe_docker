@@ -10,6 +10,7 @@ development/*
 !development/apps-example.json
 !development/apps-development.json
 !development/apps-prod.json
+!development/apps-erpnext.json
 !development/vscode-example/
 
 # Pycharm

@@ -1,0 +1,22 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/builder.git",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/frappe/gameplan.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/insights.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/The-Commit-Company/Raven.git",
+    "branch": "main"
+  }
+]
