@@ -8,19 +8,19 @@
     "branch": "develop"
   },
   {
-    "url": "https://github.com/frappe/gameplan.git",
-    "branch": "main"
-  },
-  {
-    "url": "https://github.com/frappe/insights.git",
-    "branch": "main"
-  },
-  {
     "url": "https://github.com/The-Commit-Company/Raven.git",
     "branch": "main"
   },
   {
-    "url": "https://github.com/frappe/lending.gitt",
-    "branch": "version-15"
+    "url": "https://github.com/NagariaHussain/tldraw_whiteboard.git",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/kid1194/frappe_alerts.git",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/frappe/lending.git",
+    "branch": "develop"
   }
 ]
