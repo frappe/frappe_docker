@@ -22,6 +22,15 @@ pipeline {
                 }
             }
         }
+        stage('Debug: List Directory Contents') {
+            steps {
+                script {
+                    sh 'ls -la'
+                    sh 'ls -la ./images'
+                    sh 'ls -la ./images/production'
+                }
+            }
+        }
         stage('Build Image') {
             steps {
                 script {
