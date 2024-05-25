@@ -6,7 +6,7 @@ pipeline {
         RELEASE_VERSION = readFile('version').trim()
         IMAGE_REPO = "${IMAGE_NAME}:${RELEASE_VERSION}"
         PLATFORM = 'linux/amd64,linux/arm64'
-        DOCKERFILE_PATH = 'images/production/Containerfile'
+        DOCKERFILE_PATH = './images/production/Containerfile'
     }
     stages {
         stage('Login to image Repository') {
