@@ -6,7 +6,7 @@ pipeline {
         RELEASE_VERSION = readFile('version').trim()
         IMAGE_REPO = "${IMAGE_NAME}:${RELEASE_VERSION}"
         PLATFORM = 'linux/amd64,linux/arm64'
-        DOCKERFILE_PATH = './images/production/Containerfile'
+        DOCKERFILE_PATH = './images/production'
     }
     stages {
         stage('Login to image Repository') {
@@ -22,19 +22,10 @@ pipeline {
                 }
             }
         }
-        stage('Debug: List Directory Contents') {
-            steps {
-                script {
-                    sh 'ls -la'
-                    sh 'ls -la ./images'
-                    sh 'ls -la ./images/production'
-                }
-            }
-        }
         stage('Build Image') {
             steps {
                 script {
-                    sh "docker buildx build --platform $PLATFORM --cache-from type=local,src=$IMAGE_REPO --cache-to type=local,dest=/tmp/.buildx-cache --push --tag $IMAGE_REPO $DOCKERFILE_PATH"
+                    sh "docker buildx build --platform $PLATFORM --cache-from type=local,src=$IMAGE_REPO --cache-to type=local,dest=/tmp/.buildx-cache --push --tag $IMAGE_REPO -f $DOCKERFILE_PATH ."
                 }
             }
         }
