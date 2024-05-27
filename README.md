@@ -78,25 +78,25 @@ docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TER
 #### Default Install
 
   ```sh
-  frap-install
+  frap-install -v
   ```
 
 #### ERPNext with add-on apps
 
 ```sh
-  frap-install -j apps-erpnext.json
+  frap-install -j apps-erpnext.json -v
 ```
 
 #### Development Branch Apps Install
 
 ```sh
-  frap-install -j apps-development.json
+  frap-install -j apps-development.json -v
 ```
 
 #### Prod Apps Install
 
  ```sh
-  frap-install -j apps-prod.json
+  frap-install -j apps-prod.json -v
   ```
 
 
