@@ -17,10 +17,10 @@
   },
   {
     "url": "https://github.com/kid1194/frappe_alerts.git",
-    "branch": "develop"
+    "branch": "main"
   },
   {
     "url": "https://github.com/frappe/lending.git",
-    "branch": "develop"
+    "branch": "version-15"
   }
 ]
