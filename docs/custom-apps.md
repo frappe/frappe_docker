@@ -107,19 +107,17 @@ In the [compose.yaml](../compose.yaml), you can set the image name and tag throu
 
 ```yaml
 x-customizable-image: &customizable_image
-  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${ERPNEXT_VERSION:-${CUSTOM_TAG:?No ERPNext version or tag set}}
+  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-${ERPNEXT_VERSION:?No ERPNext version or tag set}}
   pull_policy: ${PULL_POLICY:-always}
 ```
 
 The environment variables can be set in the shell or in the .env file as [setup-options.md](setup-options.md) describes.
 
 - `CUSTOM_IMAGE`: The name of your custom image. Defaults to `frappe/erpnext` if not set.
-- `CUSTOM_TAG`: The tag for your custom image. Must be set if `CUSTOM_IMAGE` is used. 
-- `PULL_POLICY`: The Docker pull policy. Defaults to `always`. Recommended set to `never` for custom images, so prevent `docker` from trying to download the image when it has been built locally.
+- `CUSTOM_TAG`: The tag for your custom image. Must be set if `CUSTOM_IMAGE` is used. Defaults to the value of `ERPNEXT_VERSION` if not set.
+- `PULL_POLICY`: The Docker pull policy. Defaults to `always`. Recommended set to `never` for local images, so prevent `docker` from trying to download the image when it has been built locally.
 - `HTTP_PUBLISH_PORT`: The port to publish trough no SSL channel. Default depending on deployment, it may be `80` if SSL activated or `8080` if not.
 - `HTTPS_PUBLISH_PORT`: The secure port to publish using SSL. Default is `443`.
-
-> **Note**: As `CUSTOM_TAG` environment variable is intended to be used for a custom image, it is required to comment out the `ERPNEXT_VERSION` environment variable in the .env file.
 
 Make sure image name is correct to be pushed to registry. After the images are pushed, you can pull them to servers to be deployed. If the registry is private, additional auth is needed.
 
@@ -128,10 +126,8 @@ Make sure image name is correct to be pushed to registry. After the images are p
 If you built an image with the tag `ghcr.io/user/repo/custom:1.0.0`, you would set the environment variables as follows:
 
 ```bash
-# Comment out ERPNEXT_VERSION in .env
 export CUSTOM_IMAGE='ghcr.io/user/repo/custom'
 export CUSTOM_TAG='1.0.0'
-export PULL_POLICY='never'
 docker compose -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
