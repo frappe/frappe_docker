@@ -35,7 +35,7 @@ services:
       # Enable the Dashboard and API
       - --api
     ports:
-      - 80:80
+      - ${HTTP_PUBLISH_PORT:-80}:80
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
