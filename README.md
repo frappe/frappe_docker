@@ -59,6 +59,15 @@ You have two options to start the docker container for development:
 docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TERM=xterm-256color\" -w /workspace/development -it devcontainer-frappe-1 bash
 
 ```
+#### Easier container start command
+
+Run the following script to install a command to start the default RAFNAV container easily.
+
+```sh
+echo "alias run-rafnav='cd ~/Documents/RAFNAV-Docker && sudo ./run-container.sh'" >> ~/.bash_aliases
+```
+
+Now you can run ```run-rafnav``` anywhere in your WSL terminal to start the development container.
 
 > Note: Your **terminal** is now open in the development workspace. However, the VsCode **window** is not.
 
