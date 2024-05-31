@@ -64,7 +64,7 @@ docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TER
 Run the following script to install a command to start the default RAFNAV container easily.
 
 ```sh
-echo "alias run-rafnav='cd ~/Documents/RAFNAV-Docker && sudo ./run-container.sh'" >> ~/.bash_aliases
+echo "alias run-rafnav='cd ~/Documents/RAFNAV-Docker && docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TERM=xterm-256color\" -w /workspace/development -it devcontainer-frappe-1 bash'" >> ~/.bash_aliases
 ```
 
 Now you can run ```run-rafnav``` anywhere in your WSL terminal to start the development container.
