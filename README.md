@@ -116,6 +116,13 @@ Now you can run ```run-rafnav``` anywhere in your WSL terminal to start the deve
 ```sh
 cd rafnav_bench
 ```
+> Run the following script to add an alias for navigating to the RAFNAV bench.
+
+```sh
+echo "alias go-rafnav_bench='cd ~/Documents/RAFNAV-Docker/development/rafnav_bench'" >> ~/.bash_aliases
+```
+
+Now you can use ```go-rafnav_bench``` anywhere in linux to navigate to RAFNAV's bench directory.
 
 3. Now you are able to start development on RAFNAV with all the dependencies and the correct environment set-up.
 
