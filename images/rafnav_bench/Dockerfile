@@ -127,7 +127,7 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
 RUN touch ~/.bash_aliases \
     && echo 'alias py="python"' >> ~/.bash_aliases \
     && echo 'alias frap-install="py installer.py"'>> ~/.bash_aliases \
-    && echo 'alias install-rafnav="bench install-app erpnext documentation lending filing matter_management lrms raf_finance"' >> ~/.bash_aliases \
+    && echo 'alias install-rafnav="bench install-app erpnext documentation lending filing matter_management lrms raf_finance rafnav_core"' >> ~/.bash_aliases \
     && echo 'alias start-dev="cd /workspace/development/rafnav_bench && bench start"' >> ~/.bash_aliases
 
 

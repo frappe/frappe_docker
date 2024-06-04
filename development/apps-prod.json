@@ -26,5 +26,9 @@
   {
     "url": "https://github.com/cronos-capital/LRMS.git",
     "branch": "main"
+  },
+  {
+    "url": "https://github.com/cronos-capital/rafnav_core.git",
+    "branch": "main"
   }
 ]
