@@ -122,11 +122,6 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
     && echo "export PATH=/home/frappe/.local/bin:\$PATH" >>/home/frappe/.bashrc \
     && echo "export BENCH_DEVELOPER=1" >>/home/frappe/.bashrc
 
-# Setup GitHub Credential Manager
-RUN wget "https://github.com/git-ecosystem/git-credential-manager/releases/download/v2.5.0/gcm-linux_amd64.2.5.0.deb" -O /tmp/gcmcore.deb \
-    && sudo dpkg -i /tmp/gcmcore.deb \
-    && git-credential-manager configure
-
 
 # Add aliases
 RUN touch ~/.bash_aliases \
