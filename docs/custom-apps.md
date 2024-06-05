@@ -103,6 +103,7 @@ podman run --rm -it \
 More about [kaniko](https://github.com/GoogleContainerTools/kaniko)
 
 ### Use Images
+
 In the [compose.yaml](../compose.yaml), you can set the image name and tag through environment variables, making it easier to customize.
 
 ```yaml
@@ -116,7 +117,7 @@ The environment variables can be set in the shell or in the .env file as [setup-
 - `CUSTOM_IMAGE`: The name of your custom image. Defaults to `frappe/erpnext` if not set.
 - `CUSTOM_TAG`: The tag for your custom image. Must be set if `CUSTOM_IMAGE` is used. Defaults to the value of `ERPNEXT_VERSION` if not set.
 - `PULL_POLICY`: The Docker pull policy. Defaults to `always`. Recommended set to `never` for local images, so prevent `docker` from trying to download the image when it has been built locally.
-- `HTTP_PUBLISH_PORT`: The port to publish trough no SSL channel. Default depending on deployment, it may be `80` if SSL activated or `8080` if not.
+- `HTTP_PUBLISH_PORT`: The port to publish through no SSL channel. Default depending on deployment, it may be `80` if SSL activated or `8080` if not.
 - `HTTPS_PUBLISH_PORT`: The secure port to publish using SSL. Default is `443`.
 
 Make sure image name is correct to be pushed to registry. After the images are pushed, you can pull them to servers to be deployed. If the registry is private, additional auth is needed.
@@ -131,6 +132,6 @@ export CUSTOM_TAG='1.0.0'
 docker compose -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
-  -f overrides/compose.htts.yaml \
+  -f overrides/compose.https.yaml \
   config > ~/gitops/docker-compose.yaml
 ```
