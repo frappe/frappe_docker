@@ -104,14 +104,34 @@ More about [kaniko](https://github.com/GoogleContainerTools/kaniko)
 
 ### Use Images
 
-On the [compose.yaml](../compose.yaml) replace the image reference to the `tag` you used when you built it. Then, if you used a tag like `custom_erpnext:staging` the `x-customizable-image` section will look like this:
+In the [compose.yaml](../compose.yaml), you can set the image name and tag through environment variables, making it easier to customize.
 
-```
+```yaml
 x-customizable-image: &customizable_image
-  image: custom_erpnext:staging
-  pull_policy: never
+  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-${ERPNEXT_VERSION:?No ERPNext version or tag set}}
+  pull_policy: ${PULL_POLICY:-always}
 ```
 
-The `pull_policy` above is optional and prevents `docker` to try to download the image when that one has been built locally.
+The environment variables can be set in the shell or in the .env file as [setup-options.md](setup-options.md) describes.
+
+- `CUSTOM_IMAGE`: The name of your custom image. Defaults to `frappe/erpnext` if not set.
+- `CUSTOM_TAG`: The tag for your custom image. Must be set if `CUSTOM_IMAGE` is used. Defaults to the value of `ERPNEXT_VERSION` if not set.
+- `PULL_POLICY`: The Docker pull policy. Defaults to `always`. Recommended set to `never` for local images, so prevent `docker` from trying to download the image when it has been built locally.
+- `HTTP_PUBLISH_PORT`: The port to publish through no SSL channel. Default depending on deployment, it may be `80` if SSL activated or `8080` if not.
+- `HTTPS_PUBLISH_PORT`: The secure port to publish using SSL. Default is `443`.
 
 Make sure image name is correct to be pushed to registry. After the images are pushed, you can pull them to servers to be deployed. If the registry is private, additional auth is needed.
+
+#### Example
+
+If you built an image with the tag `ghcr.io/user/repo/custom:1.0.0`, you would set the environment variables as follows:
+
+```bash
+export CUSTOM_IMAGE='ghcr.io/user/repo/custom'
+export CUSTOM_TAG='1.0.0'
+docker compose -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.https.yaml \
+  config > ~/gitops/docker-compose.yaml
+```
