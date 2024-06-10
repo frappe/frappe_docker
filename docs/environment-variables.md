@@ -43,7 +43,7 @@ Hostname for redis server to store queue data and socketio. Set only if external
 
 ### `ERPNEXT_VERSION`
 
-ERPNext [release](https://github.com/frappe/frappe/releases). This variable is required if you use ERPNext override.
+ERPNext [release](https://github.com/frappe/erpnext/releases). This variable is required if you use ERPNext override.
 
 ### `LETSENCRYPT_EMAIL`
 
