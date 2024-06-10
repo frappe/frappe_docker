@@ -6,20 +6,33 @@ Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https:
 # Getting Started
 
 To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-compose](https://docs.docker.com/compose/), and [git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git) setup on your machine. For Docker basics and best practices refer to Docker's [documentation](http://docs.docker.com).
-After that, clone this repo:
+
+Once completed, chose one of the following two sections for next steps.
+
+### Try in Play With Docker
+
+To play in an already set up sandbox, in your browser, click the button below:
+
+<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
+  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
+</a>
+
+### Try on your Dev environment
+
+First clone the repo:
 
 ```sh
 git clone https://github.com/frappe/frappe_docker
 cd frappe_docker
 ```
 
-### Try in Play With Docker
+Then run: `docker compose -f pwd.yml -d`
 
-<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
-  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
-</a>
+## Final steps
 
 Wait for 5 minutes for ERPNext site to be created or check `create-site` container logs before opening browser on port 8080. (username: `Administrator`, password: `admin`)
+
+If you ran in a Dev Docker environment, to view container logs: `docker compose -f pwd.yml -d`. Don't worry about some of the initial error messages, some services take a while to become ready, and then they go away.
 
 # Documentation
 
