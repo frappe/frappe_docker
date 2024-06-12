@@ -76,7 +76,12 @@ NOTE: Prior to doing the following, make sure the user is **frappe**.
 bench init --skip-redis-config-generation frappe-bench
 cd frappe-bench
 ```
-NOTE: If this step throws errors, you may need to update your code to ensure it is compatible with Docker architecture. This could be a common issue for macOS. In your Frapper Docker docker-compose.yml file, update mariadb (line 3), redis (line 39 and 43) and frappe (line 47) to include 'platform: linux/amd64'
+**# Note: If you encounter errors during the initialization process, it may be due to compatibility issues with Docker architecture, especially on macOS.
+
+# To address potential compatibility issues on macOS, update the docker-compose.yml file as follows:
+# - Update the 'mariadb' service (line 3) to include 'platform: linux/amd64'.
+# - Update the 'redis' service (lines 39 and 43) to include 'platform: linux/amd64'.
+# - Update the 'frappe' service (line 47) to include 'platform: linux/amd64'.**
 
 To setup frappe framework version 14 bench set `PYENV_VERSION` environment variable to `3.10.5` (default) and use NodeJS version 16 (default),
 
