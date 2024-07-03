@@ -115,7 +115,7 @@ RUN bench init \
   echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
-FROM base as erpnext
+FROM base AS erpnext
 
 USER frappe
 
