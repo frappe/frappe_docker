@@ -7,8 +7,7 @@ docker buildx build \
   --build-arg=PYTHON_VERSION=3.11.9 \
   --build-arg=NODE_VERSION=18.20.2 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
-  --tag=onesrv/erpnext_de_crm:15.24.0 \
+  --tag=onesrv/erpnext_de_crm:15.29.0 \
   --file=images/custom/Containerfile .
-
 
 
