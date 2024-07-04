@@ -12,6 +12,14 @@
     "branch": "main"
   },
   {
+    "url":"https://github.com/alyf-de/erpnext_germany",
+    "branch":"version-15"
+  },
+  {
+    "url":"https://github.com/alyf-de/banking",
+    "branch":"version-15"
+  },
+  {
     "url":"https://github.com/Grynn-GmbH/Swiss-E-invoicing-ERPNext",
     "branch":"master"
   }
