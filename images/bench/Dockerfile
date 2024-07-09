@@ -98,8 +98,8 @@ WORKDIR /home/frappe
 # Install Python via pyenv
 ENV PYTHON_VERSION_V14=3.10.13
 ENV PYTHON_VERSION=3.11.6
-ENV PYENV_ROOT /home/frappe/.pyenv
-ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+ENV PYENV_ROOT=/home/frappe/.pyenv
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 # From https://github.com/pyenv/pyenv#basic-github-checkout
 RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
@@ -114,7 +114,7 @@ RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
 
 # Clone and install bench in the local user home directory
 # For development, bench source is located in ~/.bench
-ENV PATH /home/frappe/.local/bin:$PATH
+ENV PATH=/home/frappe/.local/bin:$PATH
 # Skip editable-bench warning
 # https://github.com/frappe/bench/commit/20560c97c4246b2480d7358c722bc9ad13606138
 RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
@@ -125,8 +125,8 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
 # Install Node via nvm
 ENV NODE_VERSION_14=16.20.2
 ENV NODE_VERSION=18.18.2
-ENV NVM_DIR /home/frappe/.nvm
-ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
+ENV NVM_DIR=/home/frappe/.nvm
+ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
 RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
     && . ${NVM_DIR}/nvm.sh \
