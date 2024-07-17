@@ -20,7 +20,7 @@ export APPS_JSON='[
     "branch": "version-15"
   },
   {
-    "url": "https://{{ PAT }}@git.example.com/project/repository.git",
+    "url": "https://github.com/safvanhuzain/qoala_erpnext_docker.git",
     "branch": "main"
   }
 ]'
