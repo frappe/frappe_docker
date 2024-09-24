@@ -8,7 +8,7 @@ services:
       - traefik.http.routers.frontend-http.rule=Host(${SITES:?List of sites not set})
 
   proxy:
-    image: traefik:2.5
+    image: traefik:v2.11
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
