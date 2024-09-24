@@ -1,5 +1,3 @@
-version: "3.3"
-
 services:
   database:
     container_name: mariadb-database
