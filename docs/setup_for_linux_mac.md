@@ -91,7 +91,7 @@ services:
     healthcheck:
       test: mysqladmin ping -h localhost --password=admin
       interval: 1s
-      retries: 15
+      retries: 20
     deploy:
       restart_policy:
         condition: on-failure
