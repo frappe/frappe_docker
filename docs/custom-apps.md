@@ -34,6 +34,18 @@ You can also generate base64 string from json file:
 export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
 ```
 
+Test the Previous Step: Decode the Base64-encoded Environment Variable
+
+To verify the previous step, decode the APPS_JSON_BASE64 environment variable (which is Base64-encoded) into a JSON file. Follow the steps below:
+
+1. Use the following command to decode and save the output into a JSON file named apps-test-output.json:
+
+```shell
+echo -n ${APPS_JSON_BASE64} | base64 -d > apps-test-output.json
+```
+
+2. Open the apps-test-output.json file to review the JSON output and ensure that the content is correct.
+
 Note:
 
 - `url` needs to be http(s) git url with personal access tokens without username eg:- http://{{PAT}}@github.com/project/repository.git in case of private repo.
