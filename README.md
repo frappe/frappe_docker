@@ -36,6 +36,8 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 # Documentation
 
+### [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
+
 ### [Production](#production)
 
 - [List of containers](docs/list-of-containers.md)
