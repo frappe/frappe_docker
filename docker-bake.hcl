@@ -59,7 +59,7 @@ target "bench-test" {
 # Base for all other targets
 
 group "default" {
-    targets = ["erpnext"]
+    targets = ["erpnext", "base", "build"]
 }
 
 function "tag" {
