@@ -69,6 +69,8 @@ function "tag" {
       "${version}" == "develop" ? "${REGISTRY_USER}/${repo}:latest" : "${REGISTRY_USER}/${repo}:${version}",
       # Make short tag for major version if possible. For example, from v13.16.0 make v13.
       can(regex("(v[0-9]+)[.]", "${version}")) ? "${REGISTRY_USER}/${repo}:${regex("(v[0-9]+)[.]", "${version}")[0]}" : "",
+      # Make short tag for major version if possible. For example, from v13.16.0 make version-13.
+      can(regex("(v[0-9]+)[.]", "${version}")) ? "${REGISTRY_USER}/${repo}:version-${regex("([0-9]+)[.]", "${version}")[0]}" : "",
     ]
 }
 
