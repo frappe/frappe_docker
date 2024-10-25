@@ -91,3 +91,19 @@ target "erpnext" {
     target = "erpnext"
     tags = tag("erpnext", "${ERPNEXT_VERSION}")
 }
+
+target "base" {
+    inherits = ["default-args"]
+    context = "."
+    dockerfile = "images/production/Containerfile"
+    target = "base"
+    tags = tag("base", "${FRAPPE_VERSION}")
+}
+
+target "build" {
+    inherits = ["default-args"]
+    context = "."
+    dockerfile = "images/production/Containerfile"
+    target = "build"
+    tags = tag("build", "${FRAPPE_VERSION}")
+}
