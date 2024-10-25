@@ -70,7 +70,7 @@ RUN useradd -ms /bin/bash frappe \
 COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
 
-FROM base AS builder
+FROM base AS build
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -97,6 +97,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 USER frappe
+
+FROM build AS builder
 
 ARG FRAPPE_BRANCH=version-15
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
