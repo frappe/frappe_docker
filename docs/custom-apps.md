@@ -1,16 +1,11 @@
-### Clone frappe_docker and switch directory
+### Load custom apps through apps.json file
 
-```shell
-git clone https://github.com/frappe/frappe_docker
-cd frappe_docker
-```
+Base64 encoded string of `apps.json` file needs to be passed in as build arg environment variable.
 
-### Load custom apps through json
+Create following `apps.json` file:
 
-`apps.json` needs to be passed in as build arg environment variable.
-
-```shell
-export APPS_JSON='[
+```json
+[
   {
     "url": "https://github.com/frappe/erpnext",
     "branch": "version-15"
@@ -23,12 +18,16 @@ export APPS_JSON='[
     "url": "https://{{ PAT }}@git.example.com/project/repository.git",
     "branch": "main"
   }
-]'
-
-export APPS_JSON_BASE64=$(echo ${APPS_JSON} | base64 -w 0)
+]
 ```
 
-You can also generate base64 string from json file:
+Note:
+
+- `url` needs to be http(s) git url with personal access tokens without username eg:- `http://{{PAT}}@github.com/project/repository.git` in case of private repo.
+- Add dependencies manually in `apps.json` e.g. add `erpnext` if you are installing `hrms`.
+- Use fork repo or branch for ERPNext in case you need to use your fork or test a PR.
+
+Generate base64 string from json file:
 
 ```shell
 export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
@@ -36,7 +35,7 @@ export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
 
 Test the Previous Step: Decode the Base64-encoded Environment Variable
 
-To verify the previous step, decode the APPS_JSON_BASE64 environment variable (which is Base64-encoded) into a JSON file. Follow the steps below:
+To verify the previous step, decode the `APPS_JSON_BASE64` environment variable (which is Base64-encoded) into a JSON file. Follow the steps below:
 
 1. Use the following command to decode and save the output into a JSON file named apps-test-output.json:
 
@@ -46,29 +45,48 @@ echo -n ${APPS_JSON_BASE64} | base64 -d > apps-test-output.json
 
 2. Open the apps-test-output.json file to review the JSON output and ensure that the content is correct.
 
-Note:
-
-- `url` needs to be http(s) git url with personal access tokens without username eg:- http://{{PAT}}@github.com/project/repository.git in case of private repo.
-- add dependencies manually in `apps.json` e.g. add `payments` if you are installing `erpnext`
-- use fork repo or branch for ERPNext in case you need to use your fork or test a PR.
-
-### Build Image
+### Clone frappe_docker and switch directory
 
 ```shell
-docker build \
-  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
-  --tag=ghcr.io/user/repo/custom:1.0.0 \
-  --file=images/custom/Containerfile .
+git clone https://github.com/frappe/frappe_docker
+cd frappe_docker
 ```
 
-Note:
+### Configure build
 
-- Use `buildah` instead of `docker` as per your setup.
+Common build args.
+
+- `FRAPPE_PATH`, customize the source repo for frappe framework. Defaults to `https://github.com/frappe/frappe`
+- `FRAPPE_BRANCH`, customize the source repo branch for frappe framework. Defaults to `version-15`.
+- `APPS_JSON_BASE64`, correct base64 encoded JSON string generated from `apps.json` file.
+
+Notes
+
+- Use `buildah` or `docker` as per your setup.
 - Make sure `APPS_JSON_BASE64` variable has correct base64 encoded JSON string. It is consumed as build arg, base64 encoding ensures it to be friendly with environment variables. Use `jq empty apps.json` to validate `apps.json` file.
 - Make sure the `--tag` is valid image name that will be pushed to registry. See section [below](#use-images) for remarks about its use.
 - `.git` directories for all apps are removed from the image.
 
-Customize these optional `--build-arg`s to use a different Frappe Framework repo and branch, or version of Python and NodeJS:
+### Quick build image
+
+This method uses pre-built `frappe/base:${FRAPPE_BRANCH}` and `frappe/build:${FRAPPE_BRANCH}` image layers which come with required Python and NodeJS runtime. It speeds up the build time.
+
+It uses `images/layered/Containerfile`.
+
+```shell
+docker build \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=version-15 \
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --tag=ghcr.io/user/repo/custom:1.0.0 \
+  --file=images/layered/Containerfile .
+```
+
+### Custom build image
+
+This method builds the base and build layer every time, it allows to customize Python and NodeJS runtime versions. It takes more time to build.
+
+It uses `images/custom/Containerfile`.
 
 ```shell
 docker build \
@@ -81,38 +99,27 @@ docker build \
   --file=images/custom/Containerfile .
 ```
 
+Custom build args,
+
+- `PYTHON_VERSION`, use the specified python version for base image. Default is `3.11.6`.
+- `NODE_VERSION`, use the specified nodejs version, Default `18.18.2`.
+- `DEBIAN_BASE` use the base Debian version, defaults to `bookworm`.
+- `WKHTMLTOPDF_VERSION`, use the specified qt patched `wkhtmltopdf` version. Default is `0.12.6.1-3`.
+- `WKHTMLTOPDF_DISTRO`, use the specified distro for debian package. Default is `bookworm`.
+
 ### Push image to use in yaml files
 
 Login to `docker` or `buildah`
 
 ```shell
-buildah login
+docker login
 ```
 
 Push image
 
 ```shell
-buildah push ghcr.io/user/repo/custom:1.0.0
+docker push ghcr.io/user/repo/custom:1.0.0
 ```
-
-### Use Kaniko
-
-Following executor args are required. Example runs locally in docker container.
-You can run it part of CI/CD or part of your cluster.
-
-```shell
-podman run --rm -it \
-  -v "$HOME"/.docker/config.json:/kaniko/.docker/config.json \
-  gcr.io/kaniko-project/executor:latest \
-  --dockerfile=images/custom/Containerfile \
-  --context=git://github.com/frappe/frappe_docker \
-  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
-  --cache=true \
-  --destination=ghcr.io/user/repo/custom:1.0.0 \
-  --destination=ghcr.io/user/repo/custom:latest
-```
-
-More about [kaniko](https://github.com/GoogleContainerTools/kaniko)
 
 ### Use Images
 
