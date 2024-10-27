@@ -69,7 +69,7 @@ Notes
 
 ### Quick build image
 
-This method uses pre-built `frappe/base:${FRAPPE_BRANCH}` and `frappe/build:${FRAPPE_BRANCH}`  image layers which come with required Python and NodeJS runtime. It speeds up the build time.
+This method uses pre-built `frappe/base:${FRAPPE_BRANCH}` and `frappe/build:${FRAPPE_BRANCH}` image layers which come with required Python and NodeJS runtime. It speeds up the build time.
 
 It uses `images/layered/Containerfile`.
 
