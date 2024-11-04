@@ -4,9 +4,16 @@
 
 ### Fixing MariaDB issues after rebuilding the container
 
-For any reason after rebuilding the container if you are not be able to access MariaDB correctly with the previous configuration. Follow these instructions.
+For any reason after rebuilding the container if you are not be able to access MariaDB correctly (i.e. `Access denied for user [...]`) with the previous configuration. Follow these instructions.
 
-The parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
+First test for network issues. Manually connect to the database through the `backend` container:
+```
+docker exec -it frappe_docker-backend-1 bash
+mysql -uroot -padmin -hdb
+```
+Replace `root` with the database root user name, `admin` with the root password, and `db` with the service name specified in the docker-compose `.yml` configuration file. If the connection to the database is successful, then the network configuration is correct and you can proceed to the next step. Otherwise, modify the docker-compose `.yml` configuration file, in the `configurator` service's `environment` section, to use the container names (`frappe_docker-db-1`, `frappe_docker-redis-cache-1`, `frappe_docker-redis-queue-1` or as otherwise shown with `docker ps`) instead of the service names and rebuild the containers.
+
+Then, the parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user. 
 
 This step has to be repeated for all sites available under the current bench.
 Example shows the queries to be executed for site `localhost`
@@ -22,19 +29,29 @@ and take note of the parameters `db_name` and `db_password`.
 Enter MariaDB Interactive shell:
 
 ```shell
-mysql -uroot -p123 -hmariadb
+mysql -uroot -padmin -hdb
 ```
 
-Execute following queries replacing `db_name` and `db_password` with the values found in site_config.json.
+The parameter `'db_name'@'%'` must not be duplicated. Verify that it is unique with the command:
+```
+SELECT User, Host FROM mysql.user;
+```
+
+Delete duplicated entries, if found, with the following:
+```
+DROP USER 'db_name'@'host';
+```
+
+Modify permissions by executing following queries replacing `db_name` and `db_password` with the values found in site_config.json.
 
 ```sql
-UPDATE mysql.user SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
+UPDATE mysql.global_priv SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
 SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
-GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%'; FLUSH PRIVILEGES;
+GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%' IDENTIFIED BY 'db_password' WITH GRANT OPTION; FLUSH PRIVILEGES;
 EXIT;
 ```
 
-Note: For MariaDB 10.4 and above use `mysql.global_priv` instead of `mysql.user`.
+Note: For MariaDB 10.3 and older use `mysql.user` instead of `mysql.global_priv`.
 
 ### docker-compose does not recognize variables from `.env` file
 
