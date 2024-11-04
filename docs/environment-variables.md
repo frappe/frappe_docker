@@ -15,7 +15,7 @@ To bypass `nginx-entrypoint.sh`, mount desired `/etc/nginx/conf.d/default.conf` 
 
 ## Configuration
 
-We use environment variables to configure our setup. docker-compose uses variables from `.env` file. To get started, copy `example.env` to `.env`.
+We use environment variables to configure our setup. docker-compose uses variables from the `environment:` section of the services defined within and the`.env` file, if present. Variables defined in the `.env` file are referenced via `${VARIABLE_NAME}` within the docker-compose `.yml` file. `example.env` contains a non-exhaustive list of possible configuration variables. To get started, copy `example.env` to `.env`.
 
 ### `FRAPPE_VERSION`
 
@@ -27,7 +27,7 @@ Password for MariaDB (or Postgres) database.
 
 ### `DB_HOST`
 
-Hostname for MariaDB (or Postgres) database. Set only if external service for database is used.
+Hostname for MariaDB (or Postgres) database. Set only if external service for database is used or the container can not be reached by its service name (db) by other containers.
 
 ### `DB_PORT`
 
@@ -35,11 +35,11 @@ Port for MariaDB (3306) or Postgres (5432) database. Set only if external servic
 
 ### `REDIS_CACHE`
 
-Hostname for redis server to store cache. Set only if external service for redis is used.
+Hostname for redis server to store cache. Set only if external service for redis is used or the container can not be reached by its service name (redis-cache) by other containers.
 
 ### `REDIS_QUEUE`
 
-Hostname for redis server to store queue data and socketio. Set only if external service for redis is used.
+Hostname for redis server to store queue data and socketio. Set only if external service for redis is used or the container can not be reached by its service name (redis-queue) by other containers.
 
 ### `ERPNEXT_VERSION`
 
