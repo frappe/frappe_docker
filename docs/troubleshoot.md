@@ -7,13 +7,15 @@
 For any reason after rebuilding the container if you are not be able to access MariaDB correctly (i.e. `Access denied for user [...]`) with the previous configuration. Follow these instructions.
 
 First test for network issues. Manually connect to the database through the `backend` container:
+
 ```
 docker exec -it frappe_docker-backend-1 bash
 mysql -uroot -padmin -hdb
 ```
+
 Replace `root` with the database root user name, `admin` with the root password, and `db` with the service name specified in the docker-compose `.yml` configuration file. If the connection to the database is successful, then the network configuration is correct and you can proceed to the next step. Otherwise, modify the docker-compose `.yml` configuration file, in the `configurator` service's `environment` section, to use the container names (`frappe_docker-db-1`, `frappe_docker-redis-cache-1`, `frappe_docker-redis-queue-1` or as otherwise shown with `docker ps`) instead of the service names and rebuild the containers.
 
-Then, the parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user. 
+Then, the parameter `'db_name'@'%'` needs to be set in MariaDB and permission to the site database suitably assigned to the user.
 
 This step has to be repeated for all sites available under the current bench.
 Example shows the queries to be executed for site `localhost`
@@ -33,11 +35,13 @@ mysql -uroot -padmin -hdb
 ```
 
 The parameter `'db_name'@'%'` must not be duplicated. Verify that it is unique with the command:
+
 ```
 SELECT User, Host FROM mysql.user;
 ```
 
 Delete duplicated entries, if found, with the following:
+
 ```
 DROP USER 'db_name'@'host';
 ```
