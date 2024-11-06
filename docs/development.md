@@ -238,7 +238,7 @@ Note: To start bench with debugger refer section for debugging.
 
 Most developers work with numerous clients and versions. Moreover, apps may be required to be installed by everyone on the team working for a client.
 
-This is simplified using a script to automate the process of creating a new bench / site and installing the required apps. `Administrator` password is for created sites is `admin`.
+This is simplified using a script to automate the process of creating a new bench / site and installing the required apps. The `Administrator` password for created sites is `admin`.
 
 Sample `apps-example.json` is used by default, it installs erpnext on current stable release. To install custom apps, copy the `apps-example.json` to custom json file and make changes to list of apps. Pass this file to the `installer.py` script.
 
