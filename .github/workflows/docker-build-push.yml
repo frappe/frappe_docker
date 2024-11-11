@@ -37,9 +37,6 @@ jobs:
         image: registry:2
         ports:
           - 5000:5000
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
 
     steps:
       - name: Checkout
@@ -49,7 +46,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver-opts: network=host
-          platforms: linux/${{ matrix.arch }}
 
       - name: Get latest versions
         run: python3 ./.github/scripts/get_latest_tags.py --repo ${{ inputs.repo }} --version ${{ inputs.version }}
