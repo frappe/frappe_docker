@@ -65,6 +65,8 @@ group "default" {
 function "tag" {
     params = [repo, version]
     result = [
+      # Push frappe or erpnext branch as tag
+      "${REGISTRY_USER}/${repo}:${version}",
       # If `version` param is develop (development build) then use tag `latest`
       "${version}" == "develop" ? "${REGISTRY_USER}/${repo}:latest" : "${REGISTRY_USER}/${repo}:${version}",
       # Make short tag for major version if possible. For example, from v13.16.0 make v13.
@@ -107,5 +109,5 @@ target "build" {
     context = "."
     dockerfile = "images/production/Containerfile"
     target = "build"
-    tags = tag("build", "${FRAPPE_VERSION}")
+    tags = tag("build", "${ERPNEXT_VERSION}")
 }
