@@ -7,16 +7,16 @@ Create following `apps.json` file:
 ```json
 [
   {
-    "url": "https://github.com/frappe/erpnext",
-    "branch": "version-15"
+      "url": "https://github.com/frappe/insights",
+      "branch": "develop"
   },
   {
-    "url": "https://github.com/frappe/payments",
-    "branch": "version-15"
+      "url": "https://github.com/frappe/builder",
+      "branch": "develop"
   },
   {
-    "url": "https://{{ PAT }}@git.example.com/project/repository.git",
-    "branch": "main"
+      "url": "https://github.com/frappe/crm",
+      "branch": "develop"
   }
 ]
 ```
@@ -30,7 +30,7 @@ Note:
 Generate base64 string from json file:
 
 ```shell
-export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
+export APPS_JSON_BASE64=$(base64 -i apps.json)
 ```
 
 Test the Previous Step: Decode the Base64-encoded Environment Variable
@@ -89,13 +89,13 @@ This method builds the base and build layer every time, it allows to customize P
 It uses `images/custom/Containerfile`.
 
 ```shell
-docker build \
+docker build \                              
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-  --build-arg=FRAPPE_BRANCH=version-15 \
-  --build-arg=PYTHON_VERSION=3.11.9 \
-  --build-arg=NODE_VERSION=18.20.2 \
+  --build-arg=FRAPPE_BRANCH=develop \
+  --build-arg=PYTHON_VERSION=3.12.3 \
+  --build-arg=NODE_VERSION=20.9.0 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
-  --tag=ghcr.io/user/repo/custom:1.0.0 \
+  --tag=admin365/frappe_essentials:1.0.0 \
   --file=images/custom/Containerfile .
 ```
 
