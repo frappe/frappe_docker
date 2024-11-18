@@ -2,7 +2,7 @@
 
 There are 3 images that you can find in `/images` directory:
 
-- `bench`. It is used for development. [Learn more how to start development](../development/README.md).
+- `bench`. It is used for development. [Learn more how to start development](development.md).
 - `production`.
   - Multi-purpose Python backend. Runs [Werkzeug server](https://werkzeug.palletsprojects.com/en/2.0.x/) with [gunicorn](https://gunicorn.org), queues (via `bench worker`), or schedule (via `bench schedule`).
   - Contains JS and CSS assets and routes incoming requests using [nginx](https://www.nginx.com).
