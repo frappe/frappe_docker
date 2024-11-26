@@ -28,6 +28,18 @@ cd frappe_docker
 
 Then run: `docker compose -f pwd.yml up -d`
 
+### To run on ARM64 architecture follow this instructions
+After cloning the repo run this command to build multi-architecture images specifically for ARM64.
+
+`docker buildx bake --no-cache --set *.platform=linux/arm64`
+
+and then
+
+- add `platform: linux/arm64` to all services in the pwd.yaml
+- replace the current specified versions of erpnext image on `pwd.yml` with `:latest`
+
+Then run: `docker compose -f pwd.yml up -d`
+
 ## Final steps
 
 Wait for 5 minutes for ERPNext site to be created or check `create-site` container logs before opening browser on port 8080. (username: `Administrator`, password: `admin`)
