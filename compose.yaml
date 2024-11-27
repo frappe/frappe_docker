@@ -1,5 +1,9 @@
 x-customizable-image: &customizable_image
-  image: zapal/erp:latest
+  # By default the image used only contains the `frappe` and `erpnext` apps.
+  # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
+  # about using custom images.
+  image: ${CUSTOM_IMAGE:-zapal/erp}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+  pull_policy: ${PULL_POLICY:-always}
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
@@ -14,6 +18,7 @@ x-backend-defaults: &backend_defaults
 services:
   configurator:
     <<: *backend_defaults
+    platform: linux/amd64
     entrypoint:
       - bash
       - -c
@@ -28,18 +33,20 @@ services:
         bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
     environment:
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      REDIS_CACHE: ${REDIS_CACHE}
-      REDIS_QUEUE: ${REDIS_QUEUE}
+      DB_HOST: ${DB_HOST:-}
+      DB_PORT: ${DB_PORT:-}
+      REDIS_CACHE: ${REDIS_CACHE:-}
+      REDIS_QUEUE: ${REDIS_QUEUE:-}
       SOCKETIO_PORT: 9000
     depends_on: {}
 
   backend:
     <<: *backend_defaults
+    platform: linux/amd64
 
   frontend:
     <<: *customizable_image
+    platform: linux/amd64
     command:
       - nginx-entrypoint.sh
     environment:
@@ -59,6 +66,7 @@ services:
 
   websocket:
     <<: [*depends_on_configurator, *customizable_image]
+    platform: linux/amd64
     command:
       - node
       - /home/zapal/frappe-bench/apps/frappe/socketio.js
@@ -67,14 +75,17 @@ services:
 
   queue-short:
     <<: *backend_defaults
+    platform: linux/amd64
     command: bench worker --queue short,default
 
   queue-long:
     <<: *backend_defaults
+    platform: linux/amd64
     command: bench worker --queue long,default,short
 
   scheduler:
     <<: *backend_defaults
+    platform: linux/amd64
     command: bench schedule
 
 volumes:

@@ -8,7 +8,7 @@ services:
     healthcheck:
       test: mysqladmin ping -h localhost --password=${DB_PASSWORD:-changeit}
       interval: 1s
-      retries: 15
+      retries: 20
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci

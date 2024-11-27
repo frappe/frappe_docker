@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   traefik:
-    image: "traefik:v2.6"
+    image: "traefik:v2.11"
     restart: unless-stopped
     labels:
       # Enable Traefik for this service, to make it available in the public network
@@ -35,7 +35,7 @@ services:
       # Enable the Dashboard and API
       - --api
     ports:
-      - 80:80
+      - ${HTTP_PUBLISH_PORT:-80}:80
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:

@@ -8,7 +8,7 @@ services:
       - traefik.http.routers.frontend-http.rule=Host(${SITES:?List of sites not set})
 
   proxy:
-    image: traefik:2.5
+    image: traefik:v2.11
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
@@ -21,8 +21,8 @@ services:
       - --certificatesResolvers.main-resolver.acme.email=${LETSENCRYPT_EMAIL:?No Let's Encrypt email set}
       - --certificatesResolvers.main-resolver.acme.storage=/letsencrypt/acme.json
     ports:
-      - 80:80
-      - 443:443
+      - ${HTTP_PUBLISH_PORT:-80}:80
+      - ${HTTPS_PUBLISH_PORT:-443}:443
     volumes:
       - cert-data:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
