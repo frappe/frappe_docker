@@ -22,7 +22,7 @@ variable "HRMS_VERSION" {
 }
 
 variable "INSIGHTS_VERSION" {
-    default = "develop"
+    default = "version-3"
 }
 
 variable "FRAPPE_REPO" {
