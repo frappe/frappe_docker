@@ -7,13 +7,13 @@ services:
       - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
 
   proxy:
-    image: traefik:2.5
+    image: traefik:v2.11
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
     ports:
-      - 80:80
+      - ${HTTP_PUBLISH_PORT:-80}:80
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     userns_mode: host
