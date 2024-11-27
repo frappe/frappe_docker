@@ -69,7 +69,7 @@ target "bench-test" {
 # Base for all other targets
 
 group "default" {
-    targets = ["erp", "base", "build"]
+    targets = ["erpnext", "base", "build"]
 }
 
 function "tag" {
@@ -102,11 +102,11 @@ target "default-args" {
     }
 }
 
-target "erp" {
+target "erpnext" {
     inherits = ["default-args"]
     context = "."
     dockerfile = "images/production/Containerfile"
-    target = "erp"
+    target = "erpnext"
     tags = tag("erp", "${ERPNEXT_VERSION}")
 }
 
