@@ -120,7 +120,6 @@ RUN bench init \
   --verbose \
   /home/zapal/frappe-bench && \
   cd /home/zapal/frappe-bench && \
-  bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
   echo "frappe\nhrms\nerpnext" > sites/apps.txt && \
   echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr
