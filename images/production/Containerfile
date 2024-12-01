@@ -98,7 +98,7 @@ RUN apt-get update \
 
 USER frappe
 
-FROM build AS erpnext
+FROM build AS builder
 
 ARG FRAPPE_BRANCH=version-15
 ARG FRAPPE_PATH=https://github.com/zapal-tech/erp-frappe
@@ -118,22 +118,25 @@ RUN bench init \
   --no-backups \
   --skip-redis-config-generation \
   --verbose \
-  /home/frappe/frappe-bench && \
-  cd /home/frappe/frappe-bench && \
-  bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
-  bench get-app --branch=${CRM_BRANCH} --resolve-deps crm ${CRM_REPO} && \
-  bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO} && \
-  bench get-app --branch=${INSIGHTS_BRANCH} --resolve-deps insights ${INSIGHTS_REPO} && \
-  echo "{}" > sites/common_site_config.json && \
+  /home/frappe/frappe-bench
+
+WORKDIR /home/frappe/frappe-bench
+
+RUN bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO}
+RUN bench get-app --branch=${CRM_BRANCH} --resolve-deps crm ${CRM_REPO}
+RUN bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO}
+RUN bench get-app --branch=${INSIGHTS_BRANCH} --resolve-deps insights ${INSIGHTS_REPO}
+
+RUN echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
-# FROM base AS erpnext
+FROM base AS erpnext
 
 USER frappe
 
 RUN echo "echo \"Commands restricted in production container, Read FAQ before you proceed: https://frappe.fyi/ctr-faq\"" >> ~/.bashrc
-RUN chown -R frappe:frappe /home/frappe/frappe-bench
-# COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
+
+COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
 
 WORKDIR /home/frappe/frappe-bench
 
