@@ -17,3 +17,5 @@ venv
 
 # NodeJS
 node_modules
+
+docker-compose.yaml
