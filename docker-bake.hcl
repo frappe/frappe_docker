@@ -110,7 +110,6 @@ target "default-args" {
         PYTHON_VERSION = "${PYTHON_VERSION}"
         NODE_VERSION = "${NODE_VERSION}"
     }
-    platforms = ["linux/amd64", "linux/arm64"]
 }
 
 target "erpnext" {
