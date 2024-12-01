@@ -98,7 +98,7 @@ RUN apt-get update \
 
 USER frappe
 
-FROM build AS builder
+FROM build AS erpnext
 
 ARG FRAPPE_BRANCH=version-15
 ARG FRAPPE_PATH=https://github.com/zapal-tech/erp-frappe
