@@ -47,6 +47,6 @@ envsubst '${BACKEND}
   ${FRAPPE_SITE_NAME_HEADER}
   ${PROXY_READ_TIMEOUT}
 	${CLIENT_MAX_BODY_SIZE}' \
-  </templates/nginx/erp.conf.template >/etc/nginx/conf.d/erp.conf
+  </templates/nginx/frappe.conf.template >/etc/nginx/conf.d/frappe.conf
 
 nginx -g 'daemon off;'

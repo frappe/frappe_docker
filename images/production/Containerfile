@@ -5,13 +5,10 @@ FROM python:${PYTHON_VERSION}-slim-${DEBIAN_BASE} AS base
 ARG WKHTMLTOPDF_VERSION=0.12.6.1-3
 ARG WKHTMLTOPDF_DISTRO=bookworm
 ARG NODE_VERSION=18.18.2
-ENV NVM_DIR=/home/zapal/.nvm
+ENV NVM_DIR=/home/frappe/.nvm
 ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
-COPY resources/nginx-template.conf /templates/nginx/erp.conf.template
-COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
-
-RUN useradd -ms /bin/bash zapal \
+RUN useradd -ms /bin/bash frappe \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
     curl \
@@ -32,8 +29,8 @@ RUN useradd -ms /bin/bash zapal \
     mariadb-client \
     less \
     # Postgres
-    # libpq-dev \
-    # postgresql-client \
+    libpq-dev \
+    postgresql-client \
     # For healthcheck
     wait-for-it \
     jq \
@@ -46,9 +43,9 @@ RUN useradd -ms /bin/bash zapal \
     && npm install -g yarn \
     && nvm alias default v${NODE_VERSION} \
     && rm -rf ${NVM_DIR}/.cache \
-    && echo 'export NVM_DIR="/home/zapal/.nvm"' >>/home/zapal/.bashrc \
-    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >>/home/zapal/.bashrc \
-    && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >>/home/zapal/.bashrc \
+    && echo 'export NVM_DIR="/home/frappe/.nvm"' >>/home/frappe/.bashrc \
+    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >>/home/frappe/.bashrc \
+    && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >>/home/frappe/.bashrc \
     # Install wkhtmltopdf with patched qt
     && if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
     && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
@@ -64,13 +61,14 @@ RUN useradd -ms /bin/bash zapal \
     && sed -i '/user www-data/d' /etc/nginx/nginx.conf \
     && ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log \
     && touch /run/nginx.pid \
-    && chown -R zapal:zapal /etc/nginx/conf.d \
-    && chown -R zapal:zapal /etc/nginx/nginx.conf \
-    && chown -R zapal:zapal /var/log/nginx \
-    && chown -R zapal:zapal /var/lib/nginx \
-    && chown -R zapal:zapal /run/nginx.pid \
-    && chmod 755 /usr/local/bin/nginx-entrypoint.sh \
-    && chmod 644 /templates/nginx/erp.conf.template
+    && chown -R frappe:frappe /etc/nginx/conf.d \
+    && chown -R frappe:frappe /etc/nginx/nginx.conf \
+    && chown -R frappe:frappe /var/log/nginx \
+    && chown -R frappe:frappe /var/lib/nginx \
+    && chown -R frappe:frappe /run/nginx.pid
+
+COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
+COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
 
 FROM base AS build
 
@@ -98,7 +96,7 @@ RUN apt-get update \
     libbz2-dev \
     && rm -rf /var/lib/apt/lists/*
 
-USER zapal
+USER frappe
 
 FROM build AS builder
 
@@ -106,6 +104,8 @@ ARG FRAPPE_BRANCH=version-15
 ARG FRAPPE_PATH=https://github.com/zapal-tech/erp-frappe
 ARG ERPNEXT_REPO=https://github.com/zapal-tech/erp-erpnext
 ARG ERPNEXT_BRANCH=version-15
+ARG CRM_REPO=https://github.com/zapal-tech/erp-crm
+ARG CRM_BRANCH=develop
 ARG HRMS_REPO=https://github.com/zapal-tech/erp-hrms
 ARG HRMS_BRANCH=version-15
 ARG INSIGHTS_REPO=https://github.com/zapal-tech/erp-insights
@@ -118,35 +118,34 @@ RUN bench init \
   --no-backups \
   --skip-redis-config-generation \
   --verbose \
-  /home/zapal/frappe-bench && \
-  cd /home/zapal/frappe-bench && \
-  echo "frappe\nhrms\nerpnext" > sites/apps.txt && \
-  echo '{"socketio_port": 9000}' > sites/common_site_config.json && \
+  /home/frappe/frappe-bench && \
+  cd /home/frappe/frappe-bench && \
+  bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
+  bench get-app --branch=${CRM_BRANCH} --resolve-deps crm ${CRM_REPO} && \
+  bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO} && \
+  bench get-app --branch=${INSIGHTS_BRANCH} --resolve-deps insights ${INSIGHTS_REPO} && \
+  echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
-FROM builder AS erpnext
+FROM base AS erpnext
 
-USER zapal
-
-RUN cd /home/zapal/frappe-bench && bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO}
-RUN cd /home/zapal/frappe-bench && bench get-app --branch=${HRMS_BRANCH} --resolve-deps hrms ${HRMS_REPO}
-RUN cd /home/zapal/frappe-bench && bench get-app --branch=${INSIGHTS_BRANCH} --resolve-deps insights ${INSIGHTS_REPO}
+USER frappe
 
 RUN echo "echo \"Commands restricted in production container, Read FAQ before you proceed: https://frappe.fyi/ctr-faq\"" >> ~/.bashrc
 
-COPY --from=builder --chown=zapal:zapal /home/zapal/frappe-bench /home/zapal/frappe-bench
+COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
 
-WORKDIR /home/zapal/frappe-bench
+WORKDIR /home/frappe/frappe-bench
 
 VOLUME [ \
-  "/home/zapal/frappe-bench/sites", \
-  "/home/zapal/frappe-bench/sites/assets", \
-  "/home/zapal/frappe-bench/logs" \
+  "/home/frappe/frappe-bench/sites", \
+  "/home/frappe/frappe-bench/sites/assets", \
+  "/home/frappe/frappe-bench/logs" \
 ]
 
 CMD [ \
-  "/home/zapal/frappe-bench/env/bin/gunicorn", \
-  "--chdir=/home/zapal/frappe-bench/sites", \
+  "/home/frappe/frappe-bench/env/bin/gunicorn", \
+  "--chdir=/home/frappe/frappe-bench/sites", \
   "--bind=0.0.0.0:8000", \
   "--threads=4", \
   "--workers=2", \

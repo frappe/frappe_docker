@@ -19,24 +19,14 @@ services:
     command:
       - |
         ls -1 apps > sites/apps.txt; bench set-config -g db_host $$DB_HOST; bench set-config -gp db_port $$DB_PORT; bench set-config -g redis_cache "redis://$$REDIS_CACHE"; bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"; bench set-config -gp socketio_port $$SOCKETIO_PORT;
-    depends_on:
-      db:
-        condition: service_healthy
-        required: true
-      redis-cache:
-        condition: service_started
-        required: true
-      redis-queue:
-        condition: service_started
-        required: true
     entrypoint:
       - bash
       - -c
     environment:
-      DB_HOST: db
-      DB_PORT: "3306"
-      REDIS_CACHE: redis-cache:6379
-      REDIS_QUEUE: redis-queue:6379
+      DB_HOST: ""
+      DB_PORT: ""
+      REDIS_CACHE: ""
+      REDIS_QUEUE: ""
       SOCKETIO_PORT: "9000"
     image: zapal/erp:v15.12.2
     networks:
@@ -47,28 +37,6 @@ services:
       - type: volume
         source: erp-bench
         target: /home/frappe/frappe-bench
-        volume: {}
-  db:
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed
-    environment:
-      MYSQL_ROOT_PASSWORD: "123"
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - mysqladmin ping -h localhost --password=123
-      interval: 1s
-      retries: 20
-    image: mariadb:10.6
-    networks:
-      default: null
-    volumes:
-      - type: volume
-        source: db-data
-        target: /var/lib/mysql
         volume: {}
   frontend:
     command:
@@ -144,24 +112,6 @@ services:
         source: erp-bench
         target: /home/frappe/frappe-bench
         volume: {}
-  redis-cache:
-    image: redis:6.2-alpine
-    networks:
-      default: null
-    volumes:
-      - type: volume
-        source: redis-cache-data
-        target: /data
-        volume: {}
-  redis-queue:
-    image: redis:6.2-alpine
-    networks:
-      default: null
-    volumes:
-      - type: volume
-        source: redis-queue-data
-        target: /data
-        volume: {}
   scheduler:
     command:
       - bench
@@ -202,14 +152,8 @@ networks:
   default:
     name: erp_default
 volumes:
-  db-data:
-    name: erp_db-data
   erp-bench:
     name: erp_erp-bench
-  redis-cache-data:
-    name: erp_redis-cache-data
-  redis-queue-data:
-    name: erp_redis-queue-data
 x-backend-defaults:
   depends_on:
     configurator:

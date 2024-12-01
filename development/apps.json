@@ -8,7 +8,11 @@
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/zapal-tech/erp-insights.git",
+    "url": "https://github.com/zapal-tech/erp-crm.git",
     "branch": "develop"
+  },
+  {
+    "url": "https://github.com/zapal-tech/erp-insights.git",
+    "branch": "version-3"
   }
 ]

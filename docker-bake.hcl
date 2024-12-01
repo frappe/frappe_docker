@@ -21,6 +21,10 @@ variable "HRMS_VERSION" {
     default = "version-15"
 }
 
+variable "CRM_VERSION" {
+    default = "develop"
+}
+
 variable "INSIGHTS_VERSION" {
     default = "version-3"
 }
@@ -39,6 +43,10 @@ variable "HRMS_REPO" {
 
 variable "INSIGHTS_REPO" {
     default = "https://github.com/zapal-tech/erp-insights"
+}
+
+variable "CRM_REPO" {
+    default = "https://github.com/zapal-tech/erp-crm"
 }
 
 variable "BENCH_REPO" {
@@ -92,14 +100,17 @@ target "default-args" {
         ERPNEXT_REPO = "${ERPNEXT_REPO}"
         HRMS_REPO = "${HRMS_REPO}"
         INSIGHTS_REPO = "${INSIGHTS_REPO}"
+        CRM_REPO = "${CRM_REPO}"
         BENCH_REPO = "${BENCH_REPO}"
         FRAPPE_BRANCH = "${FRAPPE_VERSION}"
         ERPNEXT_BRANCH = "${ERPNEXT_VERSION}"
         HRMS_BRANCH = "${HRMS_VERSION}"
         INSIGHTS_BRANCH = "${INSIGHTS_VERSION}"
+        CRM_BRANCH = "${CRM_VERSION}"
         PYTHON_VERSION = "${PYTHON_VERSION}"
         NODE_VERSION = "${NODE_VERSION}"
     }
+    platforms = ["linux/amd64", "linux/arm64"]
 }
 
 target "erpnext" {
