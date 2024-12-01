@@ -13,7 +13,7 @@ x-depends-on-configurator: &depends_on_configurator
 x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
-    - erp-bench:/home/zapal/frappe-bench
+    - erp-bench:/home/frappe/frappe-bench
 
 services:
   configurator:
@@ -59,7 +59,7 @@ services:
       PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
       CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
     volumes:
-      - erp-bench:/home/zapal/frappe-bench
+      - erp-bench:/home/frappe/frappe-bench
     depends_on:
       - backend
       - websocket
@@ -69,9 +69,9 @@ services:
     platform: linux/amd64
     command:
       - node
-      - /home/zapal/frappe-bench/apps/frappe/socketio.js
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
-      - erp-bench:/home/zapal/frappe-bench
+      - erp-bench:/home/frappe/frappe-bench
 
   queue-short:
     <<: *backend_defaults
