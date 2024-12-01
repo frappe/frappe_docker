@@ -13,7 +13,8 @@ x-depends-on-configurator: &depends_on_configurator
 x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
-    - erp-bench:/home/frappe/frappe-bench
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
 
 services:
   configurator:
@@ -57,9 +58,9 @@ services:
       UPSTREAM_REAL_IP_HEADER: ${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
       UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
       PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
-      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
+      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-100m}
     volumes:
-      - erp-bench:/home/frappe/frappe-bench
+      - sites:/home/frappe/frappe-bench/sites
     depends_on:
       - backend
       - websocket
@@ -71,7 +72,7 @@ services:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
-      - erp-bench:/home/frappe/frappe-bench
+      - sites:/home/frappe/frappe-bench/sites
 
   queue-short:
     <<: *backend_defaults
@@ -89,4 +90,5 @@ services:
     command: bench schedule
 
 volumes:
-  erp-bench:
+  sites:
+  logs:

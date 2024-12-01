@@ -1,0 +1,5 @@
+volumes:
+  sites:
+    external: true
+  logs:
+    external: true

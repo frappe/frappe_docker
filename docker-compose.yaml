@@ -5,70 +5,46 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal/erp:v15.12.2
+    image: zapal/erp:version-15
     networks:
       default: null
     platform: linux/amd64
     pull_policy: always
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/frappe/frappe-bench
+        source: sites
+        target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: logs
+        target: /home/frappe/frappe-bench/logs
         volume: {}
   configurator:
     command:
       - |
         ls -1 apps > sites/apps.txt; bench set-config -g db_host $$DB_HOST; bench set-config -gp db_port $$DB_PORT; bench set-config -g redis_cache "redis://$$REDIS_CACHE"; bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"; bench set-config -gp socketio_port $$SOCKETIO_PORT;
-    depends_on:
-      db:
-        condition: service_healthy
-        required: true
-      redis-cache:
-        condition: service_started
-        required: true
-      redis-queue:
-        condition: service_started
-        required: true
     entrypoint:
       - bash
       - -c
     environment:
-      DB_HOST: db
-      DB_PORT: "3306"
-      REDIS_CACHE: redis-cache:6379
-      REDIS_QUEUE: redis-queue:6379
+      DB_HOST: ""
+      DB_PORT: ""
+      REDIS_CACHE: ""
+      REDIS_QUEUE: ""
       SOCKETIO_PORT: "9000"
-    image: zapal/erp:v15.12.2
+    image: zapal/erp:version-15
     networks:
       default: null
     platform: linux/amd64
     pull_policy: always
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/frappe/frappe-bench
+        source: sites
+        target: /home/frappe/frappe-bench/sites
         volume: {}
-  db:
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed
-    environment:
-      MYSQL_ROOT_PASSWORD: "123"
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - mysqladmin ping -h localhost --password=123
-      interval: 1s
-      retries: 20
-    image: mariadb:10.6
-    networks:
-      default: null
-    volumes:
       - type: volume
-        source: db-data
-        target: /var/lib/mysql
+        source: logs
+        target: /home/frappe/frappe-bench/logs
         volume: {}
   frontend:
     command:
@@ -82,14 +58,14 @@ services:
         required: true
     environment:
       BACKEND: backend:8000
-      CLIENT_MAX_BODY_SIZE: 50m
+      CLIENT_MAX_BODY_SIZE: 100m
       FRAPPE_SITE_NAME_HEADER: $$host
       PROXY_READ_TIMEOUT: "120"
       SOCKETIO: websocket:9000
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"
-    image: zapal/erp:v15.12.2
+    image: zapal/erp:version-15
     networks:
       default: null
     platform: linux/amd64
@@ -101,8 +77,8 @@ services:
     pull_policy: always
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/frappe/frappe-bench
+        source: sites
+        target: /home/frappe/frappe-bench/sites
         volume: {}
   queue-long:
     command:
@@ -114,15 +90,19 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal/erp:v15.12.2
+    image: zapal/erp:version-15
     networks:
       default: null
     platform: linux/amd64
     pull_policy: always
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/frappe/frappe-bench
+        source: sites
+        target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: logs
+        target: /home/frappe/frappe-bench/logs
         volume: {}
   queue-short:
     command:
@@ -134,33 +114,19 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal/erp:v15.12.2
+    image: zapal/erp:version-15
     networks:
       default: null
     platform: linux/amd64
     pull_policy: always
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/frappe/frappe-bench
+        source: sites
+        target: /home/frappe/frappe-bench/sites
         volume: {}
-  redis-cache:
-    image: redis:6.2-alpine
-    networks:
-      default: null
-    volumes:
       - type: volume
-        source: redis-cache-data
-        target: /data
-        volume: {}
-  redis-queue:
-    image: redis:6.2-alpine
-    networks:
-      default: null
-    volumes:
-      - type: volume
-        source: redis-queue-data
-        target: /data
+        source: logs
+        target: /home/frappe/frappe-bench/logs
         volume: {}
   scheduler:
     command:
@@ -170,15 +136,19 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal/erp:v15.12.2
+    image: zapal/erp:version-15
     networks:
       default: null
     platform: linux/amd64
     pull_policy: always
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/frappe/frappe-bench
+        source: sites
+        target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: logs
+        target: /home/frappe/frappe-bench/logs
         volume: {}
   websocket:
     command:
@@ -188,38 +158,37 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: zapal/erp:v15.12.2
+    image: zapal/erp:version-15
     networks:
       default: null
     platform: linux/amd64
     pull_policy: always
     volumes:
       - type: volume
-        source: erp-bench
-        target: /home/frappe/frappe-bench
+        source: sites
+        target: /home/frappe/frappe-bench/sites
         volume: {}
 networks:
   default:
     name: erp_default
 volumes:
-  db-data:
-    name: erp_db-data
-  erp-bench:
-    name: erp_erp-bench
-  redis-cache-data:
-    name: erp_redis-cache-data
-  redis-queue-data:
-    name: erp_redis-queue-data
+  logs:
+    name: logs
+    external: true
+  sites:
+    name: sites
+    external: true
 x-backend-defaults:
   depends_on:
     configurator:
       condition: service_completed_successfully
-  image: zapal/erp:v15.12.2
+  image: zapal/erp:version-15
   pull_policy: always
   volumes:
-    - erp-bench:/home/frappe/frappe-bench
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
 x-customizable-image:
-  image: zapal/erp:v15.12.2
+  image: zapal/erp:version-15
   pull_policy: always
 x-depends-on-configurator:
   depends_on:
