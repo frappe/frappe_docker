@@ -70,6 +70,8 @@ RUN useradd -ms /bin/bash frappe \
 COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
 
+RUN chmod 755 /usr/local/bin/nginx-entrypoint.sh && chmod 644 /templates/nginx/frappe.conf.template
+
 FROM base AS build
 
 RUN apt-get update \
