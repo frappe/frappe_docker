@@ -71,8 +71,8 @@ def frappe_site(compose: Compose):
     site_name = "tests.localhost"
     compose.bench(
         "new-site",
-        "--no-mariadb-socket",
-        "--mariadb-root-password",
+        "--mariadb-user-host-login-scope=%",
+        "--db-root-password",
         "123",
         "--admin-password",
         "admin",
@@ -96,8 +96,8 @@ def erpnext_site(compose: Compose):
     site_name = "test-erpnext-site.localhost"
     args = [
         "new-site",
-        "--no-mariadb-socket",
-        "--mariadb-root-password",
+        "--mariadb-user-host-login-scope=%",
+        "--db-root-password",
         "123",
         "--admin-password",
         "admin",
