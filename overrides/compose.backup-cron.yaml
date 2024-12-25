@@ -1,5 +1,5 @@
 services:
-  ofelia:
+  cron:
     image: mcuadros/ofelia:latest
     depends_on:
       - scheduler
@@ -12,3 +12,4 @@ services:
       ofelia.enabled: "true"
       ofelia.job-exec.datecron.schedule: "${BACKUP_CRONSTRING:-@every 6h}"
       ofelia.job-exec.datecron.command: "bench --site all backup"
+      ofelia.job-exec.datecron.user: "frappe"
