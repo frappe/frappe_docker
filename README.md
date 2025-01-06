@@ -63,6 +63,7 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 - [Port Based Multi Tenancy](docs/port-based-multi-tenancy.md)
 - [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
 - [running on linux/mac](docs/setup_for_linux_mac.md)
+- [TLS for local deployment](docs/tls-for-local-deployment.md)
 
 ### [Custom Images](#custom-images)
 
