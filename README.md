@@ -67,6 +67,7 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 ### [Custom Images](#custom-images)
 
 - [Custom Apps](docs/custom-apps.md)
+- [Custom Apps with podman](docs/custom-apps-podman.md)
 - [Build Version 10 Images](docs/build-version-10-images.md)
 
 ### [Development](#development)
