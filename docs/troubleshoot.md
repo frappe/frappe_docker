@@ -49,6 +49,9 @@ DROP USER 'db_name'@'host';
 Modify permissions by executing following queries replacing `db_name` and `db_password` with the values found in site_config.json.
 
 ```sql
+-- if there is no user created already first try to created it using the next command
+-- CREATE USER 'db_name'@'%' IDENTIFIED BY 'your_password';
+-- skip the upgrade command below if you use the create command above
 UPDATE mysql.global_priv SET Host = '%' where User = 'db_name'; FLUSH PRIVILEGES;
 SET PASSWORD FOR 'db_name'@'%' = PASSWORD('db_password'); FLUSH PRIVILEGES;
 GRANT ALL PRIVILEGES ON `db_name`.* TO 'db_name'@'%' IDENTIFIED BY 'db_password' WITH GRANT OPTION; FLUSH PRIVILEGES;
