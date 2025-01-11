@@ -40,6 +40,7 @@ jobs:
       - name: Build and test
         uses: docker/bake-action@v6.0.0
         with:
+          source: .
           targets: bench-test
 
       - name: Login
