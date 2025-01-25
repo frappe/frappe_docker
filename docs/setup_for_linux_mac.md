@@ -175,8 +175,6 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-    volumes:
-      - redis-cache-data:/data
 
   scheduler:
     image: frappe/erpnext:v15
@@ -207,7 +205,6 @@ services:
 volumes:
   db-data:
   redis-queue-data:
-  redis-cache-data:
   sites:
   logs:
 ```
