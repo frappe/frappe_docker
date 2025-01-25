@@ -2,7 +2,7 @@
 
 Base64 encoded string of `apps.json` file needs to be passed in as build arg environment variable.
 
-Create following `apps.json` file:
+Create the following `apps.json` file:
 
 ```json
 [
@@ -23,7 +23,7 @@ Create following `apps.json` file:
 
 Note:
 
-- `url` needs to be http(s) git url with personal access tokens without username eg:- `http://{{PAT}}@github.com/project/repository.git` in case of private repo.
+- The `url` needs to be http(s) git url with personal access tokens without username eg:- `http://{{PAT}}@github.com/project/repository.git` in case of private repo.
 - Add dependencies manually in `apps.json` e.g. add `erpnext` if you are installing `hrms`.
 - Use fork repo or branch for ERPNext in case you need to use your fork or test a PR.
 
@@ -139,7 +139,7 @@ The environment variables can be set in the shell or in the .env file as [setup-
 - `HTTP_PUBLISH_PORT`: The port to publish through no SSL channel. Default depending on deployment, it may be `80` if SSL activated or `8080` if not.
 - `HTTPS_PUBLISH_PORT`: The secure port to publish using SSL. Default is `443`.
 
-Make sure image name is correct to be pushed to registry. After the images are pushed, you can pull them to servers to be deployed. If the registry is private, additional auth is needed.
+Make sure the image name is correct before pushing to the registry. After the images are pushed, you can pull them to servers to be deployed. If the registry is private, additional auth is needed.
 
 #### Example
 
