@@ -2,7 +2,7 @@ services:
   traefik:
     labels:
       # https-redirect middleware to redirect HTTP to HTTPS
-      # It can be re-used by other stacks in other Docker Compose files
+      # It can be reused by other stacks in other Docker Compose files
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # traefik-http to use the middleware to redirect to https
