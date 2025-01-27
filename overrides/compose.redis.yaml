@@ -9,8 +9,6 @@ services:
 
   redis-cache:
     image: redis:6.2-alpine
-    volumes:
-      - redis-cache-data:/data
 
   redis-queue:
     image: redis:6.2-alpine
@@ -18,5 +16,4 @@ services:
       - redis-queue-data:/data
 
 volumes:
-  redis-cache-data:
   redis-queue-data:
