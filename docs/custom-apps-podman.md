@@ -88,6 +88,29 @@ Podman (the POD MANager) is a tool for managing containers and images, volumes m
     - `bench new-site myerp.net --mariadb-root-password 123456 --admin-password 123123`
     - `bench --site myerp.net install-app erpnext`
 
+## Autostart pod
+
+- Systemd is the best option on autostart pods when the system boots. Create a unit file in either `/etc/systemd/system` [for root user] or `~/.config/systemd/user` [for non-root user]
+
+  ```ruby
+    [Unit]
+    Description=Podman system daemon service
+    After=network-online.target
+
+    [Service]
+    #User=
+    #Group=
+    Type=oneshot
+    ExecStart=podman pod start POD_NAME
+
+
+    [Install]
+    WantedBy=default.target
+
+  ```
+
+  **Note:** Replace POD_NAME with a created pod name while creating a pod. This is a basic systemd unit file to autostart pod, but multiple options can be used, refer to the man page for [systemd](https://man7.org/linux/man-pages/man1/init.1.html). For better management of containers, [Quadlet](https://docs.podman.io/en/v4.4/markdown/podman-systemd.unit.5.html) is the best option for ease of updating and tracing issues on each container.
+
 ## Troubleshoot
 
 - If there is a network issue while building the image, you need to remove caches and restart again
