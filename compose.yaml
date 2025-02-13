@@ -40,7 +40,7 @@ services:
       REDIS_QUEUE: ${REDIS_QUEUE:-}
       SOCKETIO_PORT: 9000
     depends_on: {}
-    restart: no
+    restart: on-failure
 
   backend:
     <<: *backend_defaults
