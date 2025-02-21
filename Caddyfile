@@ -1,0 +1,6 @@
+www.dev.com, erp.dev.com {
+    tls ./certs/_wildcard.dev.com.pem ./certs/_wildcard.dev.com-key.pem
+    reverse_proxy localhost:8080
+    encode gzip
+	log
+}

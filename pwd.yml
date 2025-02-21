@@ -3,6 +3,7 @@ version: "3"
 services:
   backend:
     image: frappe/erpnext:v15.53.0
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -19,6 +20,7 @@ services:
 
   configurator:
     image: frappe/erpnext:v15.53.0
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -48,6 +50,7 @@ services:
 
   create-site:
     image: frappe/erpnext:v15.53.0
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -103,6 +106,7 @@ services:
 
   frontend:
     image: frappe/erpnext:v15.53.0
+    platform: linux/amd64
     networks:
       - frappe_network
     depends_on:
@@ -129,6 +133,7 @@ services:
 
   queue-long:
     image: frappe/erpnext:v15.53.0
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -145,6 +150,7 @@ services:
 
   queue-short:
     image: frappe/erpnext:v15.53.0
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -179,6 +185,7 @@ services:
 
   scheduler:
     image: frappe/erpnext:v15.53.0
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -193,6 +200,7 @@ services:
 
   websocket:
     image: frappe/erpnext:v15.53.0
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
