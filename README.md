@@ -22,8 +22,8 @@ To play in an already set up sandbox, in your browser, click the button below:
 First clone the repo:
 
 ```sh
-git clone https://github.com/frappe/frappe_docker
-cd frappe_docker
+git clone https://github.com/Edunova-ERP/edunova-core
+cd edunova-core
 ```
 
 Then run: `docker compose -f pwd.yml up -d`
