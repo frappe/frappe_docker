@@ -27,6 +27,8 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
+        additional_dependencies:
+          - prettier@3.5.2
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
