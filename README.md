@@ -36,7 +36,7 @@ After cloning the repo run this command to build multi-architecture images speci
 
 and then
 
-- add `platform: linux/arm64` to all services in the pwd.yaml
+- add `platform: linux/arm64` to all services in the `pwd.yml`
 - replace the current specified versions of erpnext image on `pwd.yml` with `:latest`
 
 Then run: `docker compose -f pwd.yml up -d`
