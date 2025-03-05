@@ -4,6 +4,7 @@ x-customizable-image: &customizable_image
   # about using custom images.
   image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
   pull_policy: ${PULL_POLICY:-always}
+  restart: ${RESTART_POLICY:-unless-stopped}
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
@@ -39,6 +40,7 @@ services:
       REDIS_QUEUE: ${REDIS_QUEUE:-}
       SOCKETIO_PORT: 9000
     depends_on: {}
+    restart: on-failure
 
   backend:
     <<: *backend_defaults
