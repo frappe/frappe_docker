@@ -44,6 +44,7 @@ RUN apt-get update \
     liblcms2-dev \
     libldap2-dev \
     libmariadb-dev \
+    pkg-config \
     libsasl2-dev \
     libtiff5-dev \
     libwebp-dev \
