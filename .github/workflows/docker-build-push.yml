@@ -45,7 +45,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup QEMU for Test Builds
+        if: ${{ !inputs.push }}
+        uses: docker/setup-qemu-action@v3
+
       - name: Setup QEMU
+        if: ${{ inputs.push }}
         uses: docker/setup-qemu-action@v3
         with:
           image: tonistiigi/binfmt:latest
