@@ -1,0 +1,52 @@
+services:
+  backup:
+    image: frappe/erpnext:v15.54.4
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        # Install rclone if not already installed
+        if ! command -v rclone &> /dev/null; then
+          echo "Installing rclone..."
+          curl https://rclone.org/install.sh | bash
+        fi
+        
+        # Create a backup of all sites with files
+        echo "Creating backup..."
+        bench --site all backup --with-files
+        
+        # Configure rclone for Google Drive if not already configured
+        if [ ! -f /root/.config/rclone/rclone.conf ]; then
+          mkdir -p /root/.config/rclone/
+          echo "Creating rclone config from environment variables..."
+          cat > /root/.config/rclone/rclone.conf << EOF
+        [gdrive]
+        type = drive
+        token = ${RCLONE_GDRIVE_TOKEN}
+        team_drive = ${RCLONE_TEAM_DRIVE_ID}
+        root_folder_id = ${RCLONE_FOLDER_ID}
+        EOF
+        fi
+        
+        # Upload backups to Google Drive
+        echo "Uploading backups to Google Drive..."
+        TODAY=$(date +%Y-%m-%d)
+        for site_path in /home/frappe/frappe-bench/sites/*/; do
+          site=$(basename "$site_path")
+          if [ "$site" != "assets" ] && [ -d "${site_path}backup" ]; then
+            echo "Pushing backup for $site to Google Drive..."
+            rclone copy ${site_path}backup gdrive:ERPNext_Backups/$site/$TODAY/ --progress
+          fi
+        done
+        
+        # Cleanup old backups (keeping last 7 days)
+        echo "Cleaning up old local backups..."
+        find /home/frappe/frappe-bench/sites/*/backup -type f -mtime +7 -delete
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - rclone-config:/root/.config/rclone
+
+volumes:
+  sites:
+    external: true
+    name: frappe_docker_sites
+  rclone-config: 

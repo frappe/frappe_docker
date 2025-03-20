@@ -1,0 +1,34 @@
+services:
+  backup:
+    image: frappe/erpnext:v15.54.4
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        # Create a backup of all sites with files
+        bench --site all backup --with-files
+        
+        # Upload backups to S3
+        for site_path in /home/frappe/frappe-bench/sites/*/; do
+          site=$(basename "$site_path")
+          if [ -d "${site_path}backup" ]; then
+            echo "Pushing backup for $site to S3..."
+            cd "${site_path}backup"
+            # Use aws cli to sync backups to S3
+            aws s3 sync . s3://${S3_BUCKET}/${site}/$(date +%Y-%m-%d)/
+          fi
+        done
+        
+        # Cleanup old backups (keeping last 7 days)
+        find /home/frappe/frappe-bench/sites/*/backup -type f -mtime +7 -delete
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_DEFAULT_REGION=${S3_REGION}
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+
+volumes:
+  sites:
+    external: true
+    name: frappe_docker_sites 
