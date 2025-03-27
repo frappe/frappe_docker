@@ -1,0 +1,70 @@
+name: Build and Push Custom Frappe Docker Image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout frappe_docker repository
+      uses: actions/checkout@v3
+      with:
+        repository: frappe/frappe_docker
+
+    - name: Create apps.json
+      run: |
+        cat <<EOF > apps.json
+        [
+          {
+            "url": "https://github.com/frappe/erpnext",
+            "branch": "version-15"
+          },
+          {
+            "url": "https://github.com/frappe/hrms",
+            "branch": "version-15"
+          },
+          {
+            "url": "https://github.com/frappe/helpdesk",
+            "branch": "develop"
+          }
+          {
+            "url": "https://github.com/resilient-tech/india-compliance",
+            "branch": "version-15"
+          }
+        ]
+        EOF
+
+    - name: Check apps.json syntax
+      run: jq empty apps.json
+
+    - name: Generate APPS_JSON_BASE64
+      run: |
+        export APPS_JSON_BASE64=$(base64 -w 0 apps.json)
+        echo "APPS_JSON_BASE64=$APPS_JSON_BASE64" >> $GITHUB_ENV
+
+    - name: Install podman
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y podman
+
+    - name: Build custom image
+      run: |
+        podman build \
+          --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+          --build-arg=FRAPPE_BRANCH=version-15 \
+          --build-arg=APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }} \
+          --tag=ghcr.io/${{ github.repository }}/custom:15 \
+          --file=images/layered/Containerfile .
+
+    - name: Podman login to ghcr.io
+      run: |
+        podman login ghcr.io -u ${{ github.actor }} -p ${{ secrets.USER_TOKEN }}
+
+    - name: Push image to ghcr.io
+      run: |
+        podman push ghcr.io/${{ github.repository }}/custom:15
+
+    - name: podman images list
+      run: podman images
