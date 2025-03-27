@@ -96,16 +96,13 @@ USER frappe
 WORKDIR /home/frappe
 
 # Install Python via pyenv
-ENV PYTHON_VERSION_V14=3.10.13
 ENV PYTHON_VERSION=3.12.3
 ENV PYENV_ROOT /home/frappe/.pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 # From https://github.com/pyenv/pyenv#basic-github-checkout
 RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
-    && pyenv install $PYTHON_VERSION_V14 \
     && pyenv install $PYTHON_VERSION \
-    && PYENV_VERSION=$PYTHON_VERSION_V14 pip install --no-cache-dir virtualenv \
     && PYENV_VERSION=$PYTHON_VERSION pip install --no-cache-dir virtualenv \
     && pyenv global $PYTHON_VERSION $PYTHON_VERSION_v14 \
     && sed -Ei -e '/^([^#]|$)/ {a export PYENV_ROOT="/home/frappe/.pyenv" a export PATH="$PYENV_ROOT/bin:$PATH" a ' -e ':a' -e '$!{n;ba};}' ~/.profile \
@@ -127,23 +124,20 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
 RUN touch ~/.bash_aliases \
     && echo 'alias py="python"' >> ~/.bash_aliases \
     && echo 'alias frap-install="py installer.py"'>> ~/.bash_aliases \
-    && echo 'alias install-rafnav="bench install-app erpnext documentation lending filing matter_management lrms raf_finance rafnav_core"' >> ~/.bash_aliases \
+    && echo 'alias install-rafnav="bench install-app documentation filing matter_management raf_finance rafnav_core"' >> ~/.bash_aliases \
     && echo 'alias install-site-rafnav="bench new-site rafnav.localhost && bench use rafnav.localhost && install-rafnav"' >> ~/.bash_aliases \
-    && echo 'alias start-dev="cd /workspace/development/rafnav_bench && bench start"' >> ~/.bash_aliases
+    && echo 'alias start-dev="cd /workspace/development/rafnav_bench && bench start && cd apps/matter_management/rafnav_ui && yarn dev"' >> ~/.bash_aliases
 
 
 # Install Node via nvm
-ENV NODE_VERSION_STABLE=16.20.2
-ENV NODE_VERSION=20.13.1
+ENV NODE_VERSION=22.14.0
 ENV NVM_DIR /home/frappe/.nvm
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
 RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
     && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${NODE_VERSION_STABLE} \
-    && nvm use v${NODE_VERSION_STABLE} \
-    && npm install -g yarn \
-    && nvm install v${NODE_VERSION} \
+    && nvm install ${NODE_VERSION} \
+    && nvm use v${NODE_VERSION} \
     && npm install -g yarn \
     && rm -rf ${NVM_DIR}/.cache \
     && echo 'export NVM_DIR="/home/frappe/.nvm"' >>~/.bashrc \
