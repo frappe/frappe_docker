@@ -1,6 +1,12 @@
 # Environment Variables
 .env
 
+# Custom Apps
+# Custom apps should be set when the image is built
+apps.json
+apps-test-output.json
+
+
 # mounted volume
 sites
 
