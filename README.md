@@ -75,7 +75,7 @@ Now you can run ```run-rafnav``` anywhere in your WSL terminal to start the deve
 
 ### GitHub Login (SSH)
 
-> Make sure you're setting it up for Linux
+> Make sure you're setting it up for WSL or Linux
 
 1. [Check for any existing SSH Key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/checking-for-existing-ssh-keys)
 2. [Generate an SSH Key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
@@ -83,6 +83,11 @@ Now you can run ```run-rafnav``` anywhere in your WSL terminal to start the deve
 4. [Test your connection](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/testing-your-ssh-connection)
 
 ### RAFNAV Installation
+
+**‼️ If you're installing on Linux, run the following command first:**
+```sh
+chown frappe:frappe /workspace/development/
+```
 
 #### Default Install
 
