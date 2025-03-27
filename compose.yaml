@@ -2,7 +2,8 @@ x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
   # about using custom images.
   #TODO Replace Image with Custom Image for production. See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
-  image: frappe/erpnext:${ERPNEXT_VERSION:?No ERPNext version set}
+  image: rafnav/rafnav_bench:1.0
+  pull_policy: ${PULL_POLICY:-always}
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
