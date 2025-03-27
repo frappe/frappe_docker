@@ -1,13 +1,5 @@
 [
   {
-    "url": "https://github.com/cronos-capital/LMS.git",
-    "branch": "development"
-  },
-  {
-    "url": "https://github.com/cronos-capital/RAFNAV_ERP.git",
-    "branch": "development"
-  },
-  {
     "url": "https://github.com/cronos-capital/raf_finance.git",
     "branch": "development"
   },
@@ -21,10 +13,6 @@
   },
   {
     "url": "https://github.com/cronos-capital/filing.git",
-    "branch": "development"
-  },
-  {
-    "url": "https://github.com/cronos-capital/LRMS.git",
     "branch": "development"
   },
   {
