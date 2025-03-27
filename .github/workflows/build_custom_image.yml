@@ -28,7 +28,7 @@ jobs:
           {
             "url": "https://github.com/frappe/helpdesk",
             "branch": "develop"
-          }
+          },
           {
             "url": "https://github.com/resilient-tech/india-compliance",
             "branch": "version-15"
@@ -37,7 +37,9 @@ jobs:
         EOF
 
     - name: Check apps.json syntax
-      run: jq empty apps.json
+      run: |
+        cat apps.json
+        jq empty apps.json
 
     - name: Generate APPS_JSON_BASE64
       run: |
@@ -60,7 +62,7 @@ jobs:
 
     - name: Podman login to ghcr.io
       run: |
-        podman login ghcr.io -u ${{ github.actor }} -p ${{ secrets.USER_TOKEN }}
+        podman login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
 
     - name: Push image to ghcr.io
       run: |
