@@ -141,6 +141,59 @@ First site's Administrator password: admin
 
 > Unless changed in the docker or docker-compose file
 
+## Deployment
+### Apps List
+1. Specify a list of apps in a JSON file called 'apps.json'
+```json
+[
+  {
+    "url": "https://{{PAT}}@github.com/cronos-capital/rafnav_core.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://{{PAT}}@github.com/cronos-capital/matter_management.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://{{PAT}}@github.com/cronos-capital/raf_finance.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://{{PAT}}@github.com/cronos-capital/filing.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://{{PAT}}@github.com/cronos-capital/documentation.git",
+    "branch": "main"
+  }
+]
+```
+>Note: {{PAT}} replace with your personal access token from GitHub
+
+2. Generate a Base 64 shell variable of the apps list. This will be passed as a build argument for the docker image later
+```sh
+export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
+```
+
+### Image Build
+Build the production version of the image using
+```sh 
+docker build --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 -t rafnav/rafnav_bench:[version] --file=images/production/Containerfile .
+```
+> Remeber to replace [version] with the correct version number
+
+### Publish Image
+Publish the newly built docker image to docker hub using your PAT from Docker Hub
+1. Log in to Docker
+```sh
+docker login -u [username]
+```
+2. At the password prompt, paste your PAT
+3. Push the image using the following command:
+```sh
+docker push rafnav/rafnav_bench:[version]
+```
+
 ### [Production](#production)
 
 - [List of containers](docs/list-of-containers.md)
