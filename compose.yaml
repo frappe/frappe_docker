@@ -32,6 +32,7 @@ services:
         bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
         bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
+        bench build --production;
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
