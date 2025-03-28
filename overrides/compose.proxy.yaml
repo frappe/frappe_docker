@@ -7,7 +7,7 @@ services:
       - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
 
   proxy:
-    image: traefik:v2.11
+    image: traefik:v3.3.4
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false

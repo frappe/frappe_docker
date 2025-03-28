@@ -15,24 +15,32 @@ x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
     - sites:/home/frappe/frappe-bench/sites
+  deploy:
+    resources:
+      limits:
+        cpus: '0.5'
+        memory: '512M'
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8000"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
 
 services:
   configurator:
     <<: *backend_defaults
     platform: linux/amd64
-    entrypoint:
-      - bash
-      - -c
-    # add redis_socketio for backward compatibility
+    entrypoint: ["/bin/bash", "-c"]
     command:
-      - >
-        ls -1 apps > sites/apps.txt;
-        bench set-config -g db_host $$DB_HOST;
-        bench set-config -gp db_port $$DB_PORT;
-        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
-        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
-        bench set-config -gp socketio_port $$SOCKETIO_PORT;
+      - |
+        set -e
+        ls -1 apps > sites/apps.txt
+        bench set-config -g db_host $$DB_HOST
+        bench set-config -gp db_port $$DB_PORT
+        bench set-config -g redis_cache "redis://$$REDIS_CACHE"
+        bench set-config -g redis_queue "redis://$$REDIS_QUEUE"
+        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"
+        bench set-config -gp socketio_port $$SOCKETIO_PORT
     environment:
       DB_HOST: ${DB_HOST:-}
       DB_PORT: ${DB_PORT:-}
@@ -49,8 +57,7 @@ services:
   frontend:
     <<: *customizable_image
     platform: linux/amd64
-    command:
-      - nginx-entrypoint.sh
+    command: ["nginx-entrypoint.sh"]
     environment:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
@@ -65,15 +72,33 @@ services:
     depends_on:
       - backend
       - websocket
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '256M'
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   websocket:
     <<: [*depends_on_configurator, *customizable_image]
     platform: linux/amd64
-    command:
-      - node
-      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    command: ["node", "/home/frappe/frappe-bench/apps/frappe/socketio.js"]
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '256M'
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   queue-short:
     <<: *backend_defaults

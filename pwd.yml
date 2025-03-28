@@ -79,12 +79,30 @@ services:
         echo "sites/common_site_config.json found";
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --set-default frontend;
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: unless-stopped
+    ports:
+      - mode: ingress
+        target: 80
+        published: 8082
+        protocol: tcp
+    environment:
+      - PMA_HOSTS=db
+      - PMA_PORTS=3306
+      - UPLOAD_LIMIT=2000M
+    volumes:
+      - type: volume
+        source: phpmyadmin-data
+        target: /sessions
+        volume: {}
+
   db:
     image: mariadb:10.6
     networks:
       - frappe_network
     healthcheck:
-      test: mysqladmin ping -h localhost --password=admin
+      test: mysqladmin ping -h localhost --password=${MYSQL_ROOT_PASSWORD}
       interval: 1s
       retries: 20
     deploy:
@@ -96,44 +114,40 @@ services:
       - --skip-character-set-client-handshake
       - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
-      MYSQL_ROOT_PASSWORD: admin
-      MARIADB_ROOT_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
     volumes:
       - db-data:/var/lib/mysql
 
   frontend:
     image: frappe/erpnext:v15.55.2
+    restart: unless-stopped
     networks:
       - frappe_network
     depends_on:
       - websocket
-    deploy:
-      restart_policy:
-        condition: on-failure
     command:
       - nginx-entrypoint.sh
     environment:
       BACKEND: backend:8000
-      FRAPPE_SITE_NAME_HEADER: frontend
+      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-$$host}
       SOCKETIO: websocket:9000
-      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
-      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
-      UPSTREAM_REAL_IP_RECURSIVE: "off"
-      PROXY_READ_TIMEOUT: 120
-      CLIENT_MAX_BODY_SIZE: 50m
+      UPSTREAM_REAL_IP_ADDRESS: ${UPSTREAM_REAL_IP_ADDRESS:-127.0.0.1}
+      UPSTREAM_REAL_IP_HEADER: ${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
+      UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
+      PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
+      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - "8080:8080"
+      - "${HTTP_PUBLISH_PORT:-8080}:8080"
 
   queue-long:
     image: frappe/erpnext:v15.55.2
+    restart: unless-stopped
     networks:
       - frappe_network
-    deploy:
-      restart_policy:
-        condition: on-failure
     command:
       - bench
       - worker
@@ -145,11 +159,9 @@ services:
 
   queue-short:
     image: frappe/erpnext:v15.55.2
+    restart: unless-stopped
     networks:
       - frappe_network
-    deploy:
-      restart_policy:
-        condition: on-failure
     command:
       - bench
       - worker
@@ -161,29 +173,23 @@ services:
 
   redis-queue:
     image: redis:6.2-alpine
+    restart: unless-stopped
     networks:
       - frappe_network
-    deploy:
-      restart_policy:
-        condition: on-failure
     volumes:
       - redis-queue-data:/data
 
   redis-cache:
     image: redis:6.2-alpine
+    restart: unless-stopped
     networks:
       - frappe_network
-    deploy:
-      restart_policy:
-        condition: on-failure
 
   scheduler:
     image: frappe/erpnext:v15.55.2
+    restart: unless-stopped
     networks:
       - frappe_network
-    deploy:
-      restart_policy:
-        condition: on-failure
     command:
       - bench
       - schedule
@@ -193,11 +199,9 @@ services:
 
   websocket:
     image: frappe/erpnext:v15.55.2
+    restart: unless-stopped
     networks:
       - frappe_network
-    deploy:
-      restart_policy:
-        condition: on-failure
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js

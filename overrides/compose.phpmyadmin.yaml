@@ -1,0 +1,52 @@
+version: "3.3"
+
+services:
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.1
+    restart: unless-stopped
+    ports:
+      - mode: ingress
+        target: 80
+        published: "${PUBLISHED_PORT:-8081}"
+        protocol: tcp
+    environment:
+      - PMA_HOSTS=${PMA_HOSTS}
+      - PMA_PORTS=${PMA_PORTS}
+      - UPLOAD_LIMIT=2000M
+    labels:
+      traefik.docker.network: traefik-public
+      traefik.port: "{$PUBLISHED_PORT:-8081}"
+      traefik.enable: "true"
+      traefik.http.routers.phpmyadmin-http.entrypoints: http
+      traefik.http.routers.phpmyadmin-http.middlewares: https-redirect
+      traefik.http.routers.phpmyadmin-http.rule: Host(`${PMA_HOSTNAME}`)
+      traefik.http.routers.phpmyadmin-http.service: phpmyadmin
+      traefik.http.routers.phpmyadmin-https.entrypoints: https
+      traefik.http.routers.phpmyadmin-https.rule: Host(`${PMA_HOSTNAME}`)
+      traefik.http.routers.phpmyadmin-https.service: phpmyadmin
+      traefik.http.routers.phpmyadmin-https.tls: "true"
+      traefik.http.routers.phpmyadmin-https.tls.certresolver: le
+      traefik.http.services.phpmyadmin.loadbalancer.server.port: "80"
+    networks:
+      - phpmyadmin-network
+      - mariadb-network
+      - traefik-public
+    volumes:
+      - type: volume
+        source: phpmyadmin-data
+        target: /sessions
+        volume: {}
+
+networks:
+  phpmyadmin-network:
+    external: false
+  mariadb-network:
+    name: mariadb-network
+    external: true
+  traefik-public:
+    name: traefik-public
+    external: true
+
+volumes:
+  phpmyadmin-data:
+    name: phpmyadmin-data

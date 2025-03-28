@@ -1,0 +1,43 @@
+services:
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - mode: ingress
+        target: 8025
+        published: "${MAILHOG_PUBLISHED_PORT:-8025}"
+        protocol: tcp
+    labels:
+      traefik.docker.network: traefik-public
+      traefik.port: "{$MAILHOG_PUBLISHED_PORT:-8025}"
+      traefik.enable: "true"
+      traefik.http.routers.mailhog-http.entrypoints: http
+      traefik.http.routers.mailhog-http.middlewares: https-redirect
+      traefik.http.routers.mailhog-http.rule: Host(`${MAILHOG_HOSTNAME}`)
+      traefik.http.routers.mailhog-http.service: mailhog
+      traefik.http.routers.mailhog-https.entrypoints: https
+      traefik.http.routers.mailhog-https.rule: Host(`${MAILHOG_HOSTNAME}`)
+      traefik.http.routers.mailhog-https.service: mailhog
+      traefik.http.routers.mailhog-https.tls: "true"
+      traefik.http.routers.mailhog-https.tls.certresolver: le
+      traefik.http.services.mailhog.loadbalancer.server.port: "8025"
+    networks:
+      - mailhog-network
+      - traefik-public
+    volumes:
+      - type: volume
+        source: mailhog-data
+        target: /sessions
+        volume: {}
+
+networks:
+  mailhog-network:
+    name: mailhog-network
+    external: false
+  traefik-public:
+    name: traefik-public
+    external: true
+
+volumes:
+  mailhog-data:
+    name: mailhog-data
