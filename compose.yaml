@@ -4,6 +4,7 @@ x-customizable-image: &customizable_image
   #TODO Replace Image with Custom Image for production. See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
   image: rafnav/rafnav_bench:1.0
   pull_policy: ${PULL_POLICY:-always}
+  restart: ${RESTART_POLICY:-unless-stopped}
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
@@ -34,12 +35,13 @@ services:
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
         bench build --production;
     environment:
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      REDIS_CACHE: ${REDIS_CACHE}
-      REDIS_QUEUE: ${REDIS_QUEUE}
+      DB_HOST: ${DB_HOST:-}
+      DB_PORT: ${DB_PORT:-}
+      REDIS_CACHE: ${REDIS_CACHE:-}
+      REDIS_QUEUE: ${REDIS_QUEUE:-}
       SOCKETIO_PORT: 9000
     depends_on: {}
+    restart: on-failure
 
   backend:
     <<: *backend_defaults
