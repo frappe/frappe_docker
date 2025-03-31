@@ -59,6 +59,7 @@ You have two options to start the docker container for development:
 docker-compose -f .devcontainer/docker-compose.yml up -d && docker exec -e \"TERM=xterm-256color\" -w /workspace/development -it devcontainer-frappe-1 bash
 
 ```
+
 #### Easier container start command
 
 Run the following script to install a command to start the default RAFNAV container easily.
@@ -85,6 +86,7 @@ Now you can run ```run-rafnav``` anywhere in your WSL terminal to start the deve
 ### RAFNAV Installation
 
 **‼️ If you're installing on Linux, run the following command first:**
+
 ```sh
 chown frappe:frappe /workspace/development/
 ```
@@ -113,7 +115,6 @@ chown frappe:frappe /workspace/development/
   frap-install -j apps-prod.json -v
   ```
 
-
 **Note: For additional args and configs run ```frap-install --help``` first.**
 
 2. cd into Rafnav's development bench
@@ -121,6 +122,7 @@ chown frappe:frappe /workspace/development/
 ```sh
 cd rafnav_bench
 ```
+
 > Run the following script to add an alias for navigating to the RAFNAV bench.
 
 ```sh
@@ -134,6 +136,7 @@ Now you can use ```go-rafnav_bench``` anywhere in linux to navigate to RAFNAV's 
 ## Documentation
 
 ### Default Credentials
+
 MariaDB Root Password: 123
 > Unless changed in the docker or docker-compose file
 
@@ -142,8 +145,11 @@ First site's Administrator password: admin
 > Unless changed in the docker or docker-compose file
 
 ## Deployment
+
 ### Apps List
+
 1. Specify a list of apps in a JSON file called 'apps.json'
+
 ```json
 [
   {
@@ -168,31 +174,43 @@ First site's Administrator password: admin
   }
 ]
 ```
+
 >Note: {{PAT}} replace with your personal access token from GitHub
 
 2. Generate a Base 64 shell variable of the apps list. This will be passed as a build argument for the docker image later
+
 ```sh
 export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
 ```
 
 ### Image Build
+
 Build the production version of the image using
-```sh 
+
+```sh
 docker build --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 -t rafnav/rafnav_bench:[version] --file=images/production/Containerfile .
 ```
+
 > Remeber to replace [version] with the correct version number
 
 ### Publish Image
+
 Publish the newly built docker image to docker hub using your PAT from Docker Hub
+
 1. Log in to Docker
+
 ```sh
 docker login -u [username]
 ```
+
 2. At the password prompt, paste your PAT
 3. Push the image using the following command:
+
 ```sh
 docker push rafnav/rafnav_bench:[version]
 ```
+
+## Resources
 
 ### [Production](#production)
 
