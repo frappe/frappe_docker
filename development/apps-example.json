@@ -1,6 +1,8 @@
 [
   {
-    "url": "https://github.com/frappe/erpnext.git",
-    "branch": "version-15"
+ "erpnext": {
+        "repo": "https://github.com/CraftsmanGlazing/erpnext.git",
+        "branch": "develop"
+      }
   }
 ]
