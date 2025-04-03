@@ -149,54 +149,19 @@ docker login -u [username]
 docker push rafnav/rafnav_bench:prod
 ```
 
-## Common Issues
+## Common Operations
 
-### 1. Access denied for user [db user]@[host] (using password: YES)")
-
-1. Attach a shell to the mariadb container
+### New Site
 
 ```sh
-docker exec -it rafnav-db-1 bash
+bench new-site [site_name] --mariadb-user-host-login-scope='%' --admin-password [pwd] --verbose
 ```
 
-2. Log in as root user
+### Installing RAFNav
 
 ```sh
-mariadb -p
+bench --site [site_name] install-app rafnav_core matter_management filing documentation raf_finance
 ```
-
-At the prompt, enter the db root password that can be found in the compose or project env file
-
-3. In a new terminal exec into the backend container
-
-```sh
-docker exec -it rafnav-backend-1 bash
-```
-
-4. Show the db info from the site's config file
-
-```sh
-cat sites/[sitename]/site_config.json
-```
-
-5. Create the a new DB user
-
-```SQL
-CREATE USER [db_name]@[host] IDENTIFIED BY [db_password];
-```
-
-6. Grant all privilges to the correct db for the newly created user
-
-```sh
-GRANT ALL PRIVILEGES ON [db_name].* TO [db_name]@[host] IDENTIFIED BY [db_password];
-```
-
-> Keep the .* after the db_name
-
-host= IP address from the error message \
-db_name= DB name contained in the config file \
-db_password= Password from the config file
-
 
 ## Resources
 
