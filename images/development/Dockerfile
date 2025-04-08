@@ -126,8 +126,9 @@ RUN touch ~/.bash_aliases \
     && echo 'alias frap-install="py installer.py"'>> ~/.bash_aliases \
     && echo 'alias install-rafnav="bench install-app documentation filing matter_management raf_finance rafnav_core"' >> ~/.bash_aliases \
     && echo 'alias install-site-rafnav="bench new-site rafnav.localhost && bench use rafnav.localhost && install-rafnav"' >> ~/.bash_aliases \
-    && echo 'alias start-dev="cd /workspace/development/rafnav_bench && bench start && cd apps/matter_management/rafnav_ui && yarn dev"' >> ~/.bash_aliases \
-    && echo "alias go-rafnav_bench='cd ~/Documents/RAFNAV-Docker/development/rafnav_bench" >> ~/.bash_aliases
+    && echo 'alias start-bench="cd /workspace/development/rafnav_bench && bench start"' >> ~/.bash_aliases \
+    && echo 'alias start-ui="cd /workspace/development/rafnav_bench/apps/matter_management/rafnav_ui && yarn dev"' >> ~/.bash_aliases \
+    && echo 'alias go-rafnav_bench="cd ~/Documents/RAFNAV-Docker/development/rafnav_bench"' >> ~/.bash_aliases
 
 
 # Install Node via nvm
