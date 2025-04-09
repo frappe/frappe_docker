@@ -74,7 +74,8 @@ Each Frappe/ERPNext release triggers new stable images builds as well as bump to
 In case of new release of Debian. e.g. bullseye to bookworm. Change following files:
 
 - `images/erpnext/Containerfile` and `images/custom/Containerfile`: Change the files to use new debian release, make sure new python version tag that is available on new debian release image. e.g. 3.9.9 (bullseye) to 3.9.17 (bookworm) or 3.10.5 (bullseye) to 3.10.12 (bookworm). Make sure apt-get packages and wkhtmltopdf version are also upgraded accordingly.
-- `images/bench/Dockerfile`: Change the files to use new debian release. Make sure apt-get packages and wkhtmltopdf version are also upgraded accordingly.
+- `images/bench/Dockerfile`: Change the file to use new debian release. Make sure apt-get packages and wkhtmltopdf version are also upgraded accordingly.
+- `docker-bake.hcl`: Change the default Python and NodeJS versions in this file.
 
 Change following files on release of ERPNext
 
