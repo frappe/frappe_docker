@@ -62,5 +62,15 @@
       ],
       "postDebugTask": "Clean Honcho SocketIO Watch Schedule Worker"
     }
+  ],
+  "compounds": [
+    {
+      "name": "Honcho + Web debug",
+      "configurations": [
+        "Bench Web",
+        "Honcho SocketIO Watch Schedule Worker"
+      ],
+      "stopAll": true
+    }
   ]
 }
