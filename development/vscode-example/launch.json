@@ -17,7 +17,6 @@
         "--noreload",
         "--nothreading"
       ],
-      "pythonPath": "${workspaceFolder}/frappe-bench/env/bin/python",
       "cwd": "${workspaceFolder}/frappe-bench/sites",
       "env": {
         "DEV_SERVER": "1"
@@ -29,7 +28,6 @@
       "request": "launch",
       "program": "${workspaceFolder}/frappe-bench/apps/frappe/frappe/utils/bench_helper.py",
       "args": ["frappe", "worker", "--queue", "short"],
-      "pythonPath": "${workspaceFolder}/frappe-bench/env/bin/python",
       "cwd": "${workspaceFolder}/frappe-bench/sites",
       "env": {
         "DEV_SERVER": "1"
@@ -41,7 +39,6 @@
       "request": "launch",
       "program": "${workspaceFolder}/frappe-bench/apps/frappe/frappe/utils/bench_helper.py",
       "args": ["frappe", "worker", "--queue", "long"],
-      "pythonPath": "${workspaceFolder}/frappe-bench/env/bin/python",
       "cwd": "${workspaceFolder}/frappe-bench/sites",
       "env": {
         "DEV_SERVER": "1"
@@ -52,7 +49,6 @@
       "type": "python",
       "request": "launch",
       "program": "/home/frappe/.local/bin/honcho",
-      "pythonPath": "${workspaceFolder}/frappe-bench/env/bin/python",
       "cwd": "${workspaceFolder}/frappe-bench",
       "console": "internalConsole",
       "args": [
