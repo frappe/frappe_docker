@@ -59,7 +59,8 @@
         "worker_short",
         "worker_long",
         "worker_default"
-      ]
+      ],
+      "postDebugTask": "Clean Honcho SocketIO Watch Schedule Worker"
     }
   ]
 }
