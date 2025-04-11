@@ -66,10 +66,7 @@
   "compounds": [
     {
       "name": "Honcho + Web debug",
-      "configurations": [
-        "Bench Web",
-        "Honcho SocketIO Watch Schedule Worker"
-      ],
+      "configurations": ["Bench Web", "Honcho SocketIO Watch Schedule Worker"],
       "stopAll": true
     }
   ]
