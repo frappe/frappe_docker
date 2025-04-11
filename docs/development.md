@@ -221,6 +221,11 @@ bench --site development.localhost install-app erpnext
 ```
 
 Note: Both frappe and erpnext must be on branch with same name. e.g. version-14
+You can use the `switch-to-branch` command to align versions if you get an error about mismatching versions.
+
+```shell
+bench switch-to-branch version-xx
+```
 
 ### Start Frappe without debugging
 
