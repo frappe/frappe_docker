@@ -52,13 +52,7 @@
       "program": "/home/frappe/.local/bin/honcho",
       "cwd": "${workspaceFolder}/frappe-bench",
       "console": "internalConsole",
-      "args": [
-        "start",
-        "socketio",
-        "watch",
-        "schedule",
-        "worker"
-      ],
+      "args": ["start", "socketio", "watch", "schedule", "worker"],
       "postDebugTask": "Clean Honcho SocketIO Watch Schedule Worker"
     }
   ],
