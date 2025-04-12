@@ -48,6 +48,7 @@
       "name": "Honcho SocketIO Watch Schedule Worker",
       "type": "debugpy",
       "request": "launch",
+      "python": "/home/frappe/.pyenv/shims/python",
       "program": "/home/frappe/.local/bin/honcho",
       "cwd": "${workspaceFolder}/frappe-bench",
       "console": "internalConsole",
@@ -56,9 +57,7 @@
         "socketio",
         "watch",
         "schedule",
-        "worker_short",
-        "worker_long",
-        "worker_default"
+        "worker"
       ],
       "postDebugTask": "Clean Honcho SocketIO Watch Schedule Worker"
     }
