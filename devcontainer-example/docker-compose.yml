@@ -50,6 +50,7 @@ services:
     command: sleep infinity
     environment:
       - SHELL=/bin/bash
+      - WEB_CONCURRENCY=8
     volumes:
       - ..:/workspace:cached
       # Enable if you require git cloning
