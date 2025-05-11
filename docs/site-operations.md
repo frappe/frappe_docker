@@ -7,6 +7,7 @@
 Note:
 
 - Wait for the `db` service to start and `configurator` to exit before trying to create a new site. Usually this takes up to 10 seconds.
+- Also you have to pass `-p <project_name>` if `-p` passed previously eg. `docker-compose -p <project_name> exec (rest of the command)`.
 
 ```sh
 docker-compose exec backend bench new-site --mariadb-user-host-login-scope=% --db-root-password <db-password> --admin-password <admin-password> <site-name>
