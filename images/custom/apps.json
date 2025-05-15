@@ -1,0 +1,33 @@
+[
+    {
+        "url": "https://github.com/frappe/erpnext",
+        "branch": "version-15"
+    },
+    {
+        "url": "https://github.com/frappe/print_designer",
+        "branch": "develop"
+    },
+    {
+        "url": "https://github.com/frappe/payments",
+        "branch": "version-15"
+    },
+    {
+        "url": "https://github.com/frappe/webshop",
+        "branch": "version-15"
+    },
+    {
+        "url": "https://github.com/frappe/ecommerce_integrations",
+        "branch": "main"
+    },
+    {
+        "url": "https://github.com/frappe/hrms",
+        "branch": "version-15"
+    },
+    {
+        "url": "https://github.com/frappe/non_profit"
+    },
+    {
+        "url": "http://github.com/libracore/erpnextaustria",
+        "branch": "master"
+    }
+]
