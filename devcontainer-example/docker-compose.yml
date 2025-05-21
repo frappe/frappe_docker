@@ -1,40 +1,40 @@
-version: "3.7"
+version: '3.7'
 services:
-  mariadb:
-    image: docker.io/mariadb:10.6
-    platform: linux/amd64
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
-    environment:
-      MYSQL_ROOT_PASSWORD: 123
-    volumes:
-      - mariadb-data:/var/lib/mysql
+  # mariadb:
+  #   image: docker.io/mariadb:10.6
+  #   platform: linux/amd64
+  #   command:
+  #     - --character-set-server=utf8mb4
+  #     - --collation-server=utf8mb4_unicode_ci
+  #     - --skip-character-set-client-handshake
+  #     - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 123
+  #   volumes:
+  #     - mariadb-data:/var/lib/mysql
 
   # Enable PostgreSQL only if you use it, see development/README.md for more information.
-  # postgresql:
-  #   image: postgres:11.8
-  #   environment:
-  #     POSTGRES_PASSWORD: 123
-  #   volumes:
-  #     - postgresql-data:/var/lib/postgresql/data
-
+  postgresql:
+    image: postgres:11.8
+    environment:
+      POSTGRES_PASSWORD: 123
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+  # Uncomment the below lines to enable PostgreSQL
   # Enable Mailpit if you need to test outgoing mail services
   # See https://mailpit.axllent.org/
-  #  mailpit:
-  #    image: axllent/mailpit
-  #    volumes:
-  #      - mailpit-data:/data
-  #    ports:
-  #      - 8025:8025
-  #      - 1025:1025
-  #    environment:
-  #      MP_MAX_MESSAGES: 5000
-  #      MP_DATA_FILE: /data/mailpit.db
-  #      MP_SMTP_AUTH_ACCEPT_ANY: 1
-  #      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+  mailpit:
+    image: axllent/mailpit
+    volumes:
+      - mailpit-data:/data
+    ports:
+      - 8025:8025
+      - 1025:1025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATA_FILE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
   redis-cache:
     image: docker.io/redis:alpine
@@ -86,6 +86,6 @@ services:
   #     - ..:/workspace:z,cached
   #   network_mode: "host"
 volumes:
-  mariadb-data:
-  #postgresql-data:
-  #mailpit-data:
+  # mariadb-data:
+  postgresql-data:
+  mailpit-data:

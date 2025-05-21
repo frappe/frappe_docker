@@ -1,8 +1,8 @@
-version: "3"
+version: '3'
 
 services:
   backend:
-    image: frappe/erpnext:v15.61.1
+    image: frappe/erpnext:latest
     networks:
       - frappe_network
     deploy:
@@ -13,12 +13,12 @@ services:
       - logs:/home/frappe/frappe-bench/logs
     environment:
       DB_HOST: db
-      DB_PORT: "3306"
+      DB_PORT: '3306'
       MYSQL_ROOT_PASSWORD: admin
       MARIADB_ROOT_PASSWORD: admin
 
   configurator:
-    image: frappe/erpnext:v15.61.1
+    image: frappe/erpnext:latest
     networks:
       - frappe_network
     deploy:
@@ -38,16 +38,16 @@ services:
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
     environment:
       DB_HOST: db
-      DB_PORT: "3306"
+      DB_PORT: '3306'
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
-      SOCKETIO_PORT: "9000"
+      SOCKETIO_PORT: '9000'
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
   create-site:
-    image: frappe/erpnext:v15.61.1
+    image: frappe/erpnext:latest
     networks:
       - frappe_network
     deploy:
@@ -102,7 +102,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext:v15.61.1
+    image: frappe/erpnext:latest
     networks:
       - frappe_network
     depends_on:
@@ -118,17 +118,17 @@ services:
       SOCKETIO: websocket:9000
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
-      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      UPSTREAM_REAL_IP_RECURSIVE: 'off'
       PROXY_READ_TIMEOUT: 120
       CLIENT_MAX_BODY_SIZE: 50m
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - "8080:8080"
+      - '8080:8080'
 
   queue-long:
-    image: frappe/erpnext:v15.61.1
+    image: frappe/erpnext:latest
     networks:
       - frappe_network
     deploy:
@@ -144,7 +144,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   queue-short:
-    image: frappe/erpnext:v15.61.1
+    image: frappe/erpnext:latest
     networks:
       - frappe_network
     deploy:
@@ -178,7 +178,7 @@ services:
         condition: on-failure
 
   scheduler:
-    image: frappe/erpnext:v15.61.1
+    image: frappe/erpnext:latest
     networks:
       - frappe_network
     deploy:
@@ -192,7 +192,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   websocket:
-    image: frappe/erpnext:v15.61.1
+    image: frappe/erpnext:latest
     networks:
       - frappe_network
     deploy:

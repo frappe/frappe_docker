@@ -1,6 +1,10 @@
 {
   "name": "Frappe Bench",
-  "forwardPorts": [8000, 9000, 6787],
+  "forwardPorts": [
+    8000,
+    9000,
+    6787
+  ],
   "remoteUser": "frappe",
   "customizations": {
     "vscode": {
@@ -9,7 +13,10 @@
         "ms-vscode.live-server",
         "grapecity.gc-excelviewer",
         "mtxr.sqltools",
-        "visualstudioexptteam.vscodeintellicode"
+        "mtxr.sqltools-driver-pg",
+        "visualstudioexptteam.vscodeintellicode",
+        "ms-vscode-remote.remote-containers",
+        "vue.volar"
       ],
       "settings": {
         "terminal.integrated.profiles.linux": {
