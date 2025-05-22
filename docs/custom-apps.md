@@ -93,7 +93,7 @@ docker build \
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
   --build-arg=FRAPPE_BRANCH=version-15 \
   --build-arg=PYTHON_VERSION=3.11.9 \
-  --build-arg=NODE_VERSION=18.20.2 \
+  --build-arg=NODE_VERSION=20.19.2 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
   --tag=ghcr.io/user/repo/custom:1.0.0 \
   --file=images/custom/Containerfile .
@@ -102,7 +102,7 @@ docker build \
 Custom build args,
 
 - `PYTHON_VERSION`, use the specified python version for base image. Default is `3.11.6`.
-- `NODE_VERSION`, use the specified nodejs version, Default `18.18.2`.
+- `NODE_VERSION`, use the specified nodejs version, Default `20.19.2`.
 - `DEBIAN_BASE` use the base Debian version, defaults to `bookworm`.
 - `WKHTMLTOPDF_VERSION`, use the specified qt patched `wkhtmltopdf` version. Default is `0.12.6.1-3`.
 - `WKHTMLTOPDF_DISTRO`, use the specified distro for debian package. Default is `bookworm`.
