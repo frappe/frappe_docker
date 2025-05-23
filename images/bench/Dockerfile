@@ -125,7 +125,7 @@ RUN git clone ${GIT_REPO} --depth 1 -b ${GIT_BRANCH} .bench \
 
 # Install Node via nvm
 ENV NODE_VERSION_14=16.20.2
-ENV NODE_VERSION=18.18.2
+ENV NODE_VERSION=20.19.2
 ENV NVM_DIR=/home/frappe/.nvm
 ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
