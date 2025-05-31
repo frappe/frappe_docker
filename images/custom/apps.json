@@ -25,9 +25,5 @@
     },
     {
         "url": "https://github.com/frappe/non_profit"
-    },
-    {
-        "url": "http://github.com/libracore/erpnextaustria",
-        "branch": "master"
     }
 ]
