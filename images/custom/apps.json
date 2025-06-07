@@ -20,6 +20,10 @@
         "branch": "main"
     },
     {
+        "url": "https://github.com/dvdl16/woocommerce_fusion",
+        "branch": "version-15"
+    },
+    {
         "url": "https://github.com/frappe/hrms",
         "branch": "version-15"
     },
