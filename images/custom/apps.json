@@ -5,7 +5,7 @@
     },
     {
         "url": "https://github.com/frappe/print_designer",
-        "branch": "develop"
+        "branch": "main"
     },
     {
         "url": "https://github.com/frappe/payments",
@@ -29,9 +29,5 @@
     },
     {
         "url": "https://github.com/frappe/non_profit"
-    },
-    {
-        "url": "http://github.com/libracore/erpnextaustria",
-        "branch": "master"
     }
 ]
