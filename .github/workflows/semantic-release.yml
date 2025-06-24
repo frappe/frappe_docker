@@ -3,7 +3,7 @@ name: Semantic Release
 on:
   workflow_run:
     workflows:
-      - Lint
+      - Pre-commit
     types:
       - completed
 
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -33,19 +33,23 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Install conventional changelog
+        run: |
+          npm install --save-dev conventional-changelog-conventionalcommits
+
       - name: Generate release notes and version
         id: semantic_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           RELEASE_TAG=$(npx semantic-release | tee /dev/stderr | grep -oP '(?<=next release version is )[^ ]+')
-          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
 
       - name: Create release metadata files
         run: |
           # Determine FRAPPE_BRANCH if not already set
           FRAPPE_BRANCH=${{ vars.FRAPPE_BRANCH || 'version-15' }}
-          echo "FRAPPE_BRANCH=$FRAPPE_BRANCH" >> $GITHUB_ENV
+          echo "FRAPPE_BRANCH=${FRAPPE_BRANCH}" >> $GITHUB_ENV
 
           # Save metadata to files
           echo "${RELEASE_TAG}" > release_tag.txt
