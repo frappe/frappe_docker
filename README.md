@@ -1,5 +1,5 @@
 # frappe docker (digikwal fork)
-[![Digikwal fork](https://github.com/digikwal/frappe_docker/actions/workflows/docker-build-push.yml/badge.svg)](https://github.com/digikwal/frappe_docker/actions/workflows/docker-build-push.yml)
+[![Digikwal fork](https://github.com/digikwal/frappe_docker/actions/workflows/docker-build.yml/badge.svg)](https://github.com/digikwal/frappe_docker/actions/workflows/docker-build.yml)
 [![Semantic Release](https://github.com/digikwal/frappe_docker/actions/workflows/semantic-release.yml/badge.svg)](https://github.com/digikwal/frappe_docker/actions/workflows/semantic-release.yml)
 
 # frappe docker upstream
