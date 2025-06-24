@@ -1,0 +1,66 @@
+name: Update pre-commit hooks
+
+on:
+  schedule:
+    - cron: '0 4 * * 0'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  pre-commit-autoupdate:
+    if: ${{ github.repository == 'digikwal/frappe_docker' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Cache pre-commit environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pre-commit
+            ~/.cache/pip
+          key: pre-commit-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-
+
+      - name: Install pre-commit
+        run: pip install --upgrade pre-commit
+
+      - name: Autoupdate pre-commit hooks
+        run: pre-commit autoupdate --color=always
+
+      - name: Clean up unused environments (optional)
+        run: pre-commit gc
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: pre-commit-autoupdate-${{ github.run_id }}
+          title: "chore(deps): update pre-commit hooks ($(date +'%Y-%m-%d'))"
+          commit-message: "chore(deps): update pre-commit hooks ($(date +'%Y-%m-%d'))"
+          body: |
+            This PR updates pre-commit hooks to their latest versions.
+            _Generated automatically by GitHub Actions._
+          labels: dependencies,development
+          delete-branch: true
+          draft: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable Auto-Merge
+        if: steps.cpr.outputs.pull-request-number != ''
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: squash
+          token: ${{ secrets.GITHUB_TOKEN }}
