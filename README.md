@@ -3,6 +3,13 @@
 
 Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers.
 
+# First things first
+I recommend adding the following to bashrc, profile or whatever loads on login, ssh etc..:
+
+```sh
+export APPS_JSON_BASE64=$(base64 -w 0 /home/frappe/frappe_docker/apps.json)
+```
+
 # Getting Started
 
 To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-compose](https://docs.docker.com/compose/), and [git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git) setup on your machine. For Docker basics and best practices refer to Docker's [documentation](http://docs.docker.com).

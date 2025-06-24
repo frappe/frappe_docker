@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/builder",
+    "branch": "master"
+  },
+  {
+    "url": "https://github.com/digikwal/fieldmate",
+    "branch": "main"
+  }
+]
