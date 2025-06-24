@@ -1,0 +1,35 @@
+name: Lint
+
+on:
+  workflow_run:
+    workflows:
+      - Pre-commit
+    types:
+      - completed
+  workflow_dispatch: {}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.6"
+
+      - name: Setup Go (for shfmt)
+        uses: actions/setup-go@v5
+        with:
+          go-version: "^1.14"
+
+      - name: Install pre-commit
+        run: pip install -U pre-commit
+
+      - name: Lint
+        run: pre-commit run --color=always --all-files
+        env:
+          GO111MODULE: on
