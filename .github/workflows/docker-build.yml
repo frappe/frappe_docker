@@ -1,0 +1,64 @@
+name: Build and Push ERPNext Docker Image
+
+on:
+  workflow_run:
+    workflows:
+      - Semantic Release
+    types:
+      - completed
+
+jobs:
+  build-and-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download release metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
+          path: ./artifacts/release-metadata
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: digikwal/frappe_docker
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Load release metadata
+        run: |
+          export RELEASE_TAG=$(cat ./artifacts/release-metadata/release_tag.txt)
+          export FRAPPE_BRANCH=$(cat ./artifacts/release-metadata/frappe_branch.txt)
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+          echo "FRAPPE_BRANCH=$FRAPPE_BRANCH" >> $GITHUB_ENV
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PAT }}
+
+      - name: Encode apps.json
+        run: |
+          export APPS_JSON_BASE64=$(base64 -w 0 ./apps.json)
+          echo "APPS_JSON_BASE64=$APPS_JSON_BASE64" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg FRAPPE_PATH=https://github.com/frappe/frappe \
+            --build-arg FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }} \
+            --build-arg APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }} \
+            --tag digikwal/erpnext:${{ env.RELEASE_TAG }} \
+            --file images/layered/Containerfile .
+
+      - name: Push Docker image and tags
+        run: |
+          docker push digikwal/erpnext:${{ env.RELEASE_TAG }}
+          if [[ "${{ env.RELEASE_TAG }}" != *"-"* ]]; then
+            docker tag digikwal/erpnext:${{ env.RELEASE_TAG }} digikwal/erpnext:latest
+            docker push digikwal/erpnext:latest
+          else
+            docker tag digikwal/erpnext:${{ env.RELEASE_TAG }} digikwal/erpnext:dev
+            docker push digikwal/erpnext:dev
+          fi

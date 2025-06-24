@@ -2,18 +2,36 @@ name: Autoupdate pre-commit hooks
 
 on:
   schedule:
-    # Every day at 7 am
-    - cron: 0 7 * * *
+    # Every day at 4 am UTC
+    - cron: 0 4 * * *
 
 jobs:
   pre-commit-autoupdate:
+    if: ${{ github.repository == 'digikwal/frappe_docker' }}
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+
+      - name: Cache pre-commit environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pre-commit
+            ~/.cache/pip
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-
+
+      - name: Install pre-commit
+        run: pip install -U pre-commit
+
       - name: Update pre-commit hooks
-        uses: vrslev/pre-commit-autoupdate@v1.0.0
+        run: pre-commit autoupdate --color=always
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -23,4 +41,4 @@ jobs:
           commit-message: "chore(deps): Update pre-commit hooks"
           body: Update pre-commit hooks
           labels: dependencies,development
-          delete-branch: True
+          delete-branch: true
