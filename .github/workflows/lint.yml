@@ -15,7 +15,7 @@ on:
       - "images/**"
       - ".github/workflows/docker-build.yml"
       - "apps.json"
-
+  workflow_dispatch: {}
 jobs:
   lint:
     if: ${{ github.repository == 'digikwal/frappe_docker' }}
