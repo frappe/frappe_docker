@@ -7,12 +7,14 @@ on:
     paths:
       - "images/**"
       - ".github/workflows/docker-build.yml"
+      - "apps.json"
   pull_request:
     branches:
       - main
     paths:
       - "images/**"
       - ".github/workflows/docker-build.yml"
+      - "apps.json"
 
 jobs:
   lint:
