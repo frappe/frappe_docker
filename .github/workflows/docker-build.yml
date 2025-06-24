@@ -53,12 +53,27 @@ jobs:
             --file images/layered/Containerfile .
 
       - name: Push Docker image and tags
+        env:
+          DOCKER_IMAGE: digikwal/erpnext
         run: |
-          docker push digikwal/erpnext:${{ env.RELEASE_TAG }}
-          if [[ "${{ env.RELEASE_TAG }}" != *"-"* ]]; then
-            docker tag digikwal/erpnext:${{ env.RELEASE_TAG }} digikwal/erpnext:latest
-            docker push digikwal/erpnext:latest
+          TAG="${RELEASE_TAG}"
+          IMAGE_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" \
+            https://hub.docker.com/v2/repositories/${DOCKER_IMAGE}/tags/${TAG}/)
+
+          if [ "$IMAGE_EXISTS" = "200" ]; then
+            echo "Image with tag $TAG already exists. Adding unique suffix..."
+            SUFFIX=$(git rev-parse --short HEAD)
+            TAG="${TAG}-${SUFFIX}"
+          fi
+
+          echo "Using tag: $TAG"
+          docker tag ${DOCKER_IMAGE}:${RELEASE_TAG} ${DOCKER_IMAGE}:${TAG}
+          docker push ${DOCKER_IMAGE}:${TAG}
+
+          if [[ "$TAG" != *"-"* ]]; then
+            docker tag ${DOCKER_IMAGE}:${TAG} ${DOCKER_IMAGE}:latest
+            docker push ${DOCKER_IMAGE}:latest
           else
-            docker tag digikwal/erpnext:${{ env.RELEASE_TAG }} digikwal/erpnext:dev
-            docker push digikwal/erpnext:dev
+            docker tag ${DOCKER_IMAGE}:${TAG} ${DOCKER_IMAGE}:dev
+            docker push ${DOCKER_IMAGE}:dev
           fi
