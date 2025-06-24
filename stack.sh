@@ -6,7 +6,7 @@ set -e
 
 ACTION="$1"
 shift
-ARGS="$@"
+ARGS=("$@")
 
 if [ "$ACTION" != "up" ] && [ "$ACTION" != "down" ]; then
     echo "Usage: $0 up|down [extra docker compose flags]"
@@ -25,7 +25,7 @@ cd /home/frappe/frappe_docker || {
 #   --env-file /home/frappe/gitops/traefik.env \
 #   -f overrides/compose.traefik.yaml \
 #   -f overrides/compose.traefik-ssl.yaml \
-#   "$ACTION" $ARGS
+#   "$ACTION" "${ARGS[@]}"
 
 # Uncomment this block when using mariadb container by frappe
 echo "==> MariaDB $ACTION $ARGS"
@@ -33,10 +33,10 @@ docker compose \
   --project-name mariadb \
   --env-file /home/frappe/gitops/mariadb.env \
   -f overrides/compose.mariadb-shared.yaml \
-  "$ACTION" $ARGS
+  "$ACTION" "${ARGS[@]}"
 
 echo "==> ERPNext $ACTION $ARGS"
 docker compose \
   --project-name erpnext-one \
   -f /home/frappe/gitops/erpnext-one.yaml \
-  "$ACTION" $ARGS
+  "$ACTION" "${ARGS[@]}"
