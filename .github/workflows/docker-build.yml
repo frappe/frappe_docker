@@ -1,4 +1,4 @@
-name: Build and Push ERPNext Docker Image
+name: Digikwal stable
 
 on:
   workflow_run:
