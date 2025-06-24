@@ -1,8 +1,6 @@
 {
   "_comment": "See https://go.microsoft.com/fwlink/?LinkId=827846 to learn about workspace recommendations.",
   "_comment_format": "Extension identifier format: ${publisher}.${name}. Example: vscode.csharp",
-  "recommendations": [
-    "ms-vscode-remote.remote-containers"
-  ],
+  "recommendations": ["ms-vscode-remote.remote-containers"],
   "unwantedRecommendations": []
 }

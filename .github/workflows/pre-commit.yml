@@ -6,10 +6,10 @@ on:
       - main
       - develop
     paths:
-      - '.github/workflows/**'
-      - 'scripts/**'
-      - 'images/**'
-      - 'apps.json'
+      - ".github/workflows/**"
+      - "scripts/**"
+      - "images/**"
+      - "apps.json"
   pull_request:
     branches:
       - main
@@ -33,7 +33,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.6'
+          python-version: "3.10.6"
 
       - name: Install dependencies
         run: |

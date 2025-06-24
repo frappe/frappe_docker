@@ -12,7 +12,10 @@
     "semantic-release": "^24.2.3"
   },
   "release": {
-    "branches": ["main", "dev"],
+    "branches": [
+      "main",
+      "dev"
+    ],
     "plugins": [
       "@semantic-release/commit-analyzer",
       [
@@ -21,16 +24,56 @@
           "preset": "conventionalcommits",
           "presetConfig": {
             "types": [
-              { "type": "feat", "section": "✨ Features", "hidden": false },
-              { "type": "fix", "section": "🐞 Bug Fixes", "hidden": false },
-              { "type": "docs", "section": "📝 Documentation", "hidden": false },
-              { "type": "style", "section": "🎨 Style Changes", "hidden": false },
-              { "type": "refactor", "section": "🔧 Refactoring", "hidden": false },
-              { "type": "perf", "section": "⚡ Performance", "hidden": false },
-              { "type": "test", "section": "✅ Tests", "hidden": false },
-              { "type": "build", "section": "🚢 Build System", "hidden": false },
-              { "type": "ci", "section": "🚀 CI/CD", "hidden": false },
-              { "type": "chore", "section": "🧹 Chores", "hidden": false }
+              {
+                "type": "feat",
+                "section": "✨ Features",
+                "hidden": false
+              },
+              {
+                "type": "fix",
+                "section": "🐞 Bug Fixes",
+                "hidden": false
+              },
+              {
+                "type": "docs",
+                "section": "📝 Documentation",
+                "hidden": false
+              },
+              {
+                "type": "style",
+                "section": "🎨 Style Changes",
+                "hidden": false
+              },
+              {
+                "type": "refactor",
+                "section": "🔧 Refactoring",
+                "hidden": false
+              },
+              {
+                "type": "perf",
+                "section": "⚡ Performance",
+                "hidden": false
+              },
+              {
+                "type": "test",
+                "section": "✅ Tests",
+                "hidden": false
+              },
+              {
+                "type": "build",
+                "section": "🚢 Build System",
+                "hidden": false
+              },
+              {
+                "type": "ci",
+                "section": "🚀 CI/CD",
+                "hidden": false
+              },
+              {
+                "type": "chore",
+                "section": "🧹 Chores",
+                "hidden": false
+              }
             ]
           }
         }
