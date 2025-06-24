@@ -1,0 +1,112 @@
+name: Pre-commit
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'images/**'
+      - 'apps.json'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'images/**'
+      - 'apps.json'
+  workflow_dispatch: {}
+
+jobs:
+  pre-commit:
+    if: ${{ !contains(github.event.pull_request.title, '[pre-commit-fix]') && !contains(github.event.pull_request.body, '[pre-commit-fix]') }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Cache pre-commit hooks
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-
+
+      - name: Run pre-commit (autofix on changed files)
+        id: precommit
+        continue-on-error: true
+        run: |
+          pre-commit run --from-ref origin/main --to-ref HEAD
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Push fixes back to PR
+        if: steps.precommit.outcome == 'failure'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+
+          # Read the mapping file
+          map_file="msg-map.json"
+          default_message="chore: [pre-commit-fix] Apply pre-commit auto-fixes"
+          message="$default_message"
+
+          # Dynamically determine the commit message based on changed files
+          changed_files=$(git diff --cached --name-only)
+          for file in $changed_files; do
+              ext="${file##*.}"
+              ext=".$ext"
+              mapped_message=$(jq -r --arg ext "$ext" '.[$ext] // empty' "$map_file")
+              if [ -n "$mapped_message" ]; then
+                  message="$mapped_message"
+                  break
+              fi
+          done
+
+          git commit -m "$message"
+          git push
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.6"
+
+      - name: Setup Go (for shfmt)
+        uses: actions/setup-go@v5
+        with:
+          go-version: "^1.14"
+
+      - name: Install pre-commit
+        run: pip install -U pre-commit
+
+      - name: Lint
+        run: pre-commit run --color=always --all-files
+        env:
+          GO111MODULE: on
