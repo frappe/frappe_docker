@@ -6,7 +6,6 @@ on:
       - main
       - develop
     paths:
-      - ".github/workflows/**"
       - "scripts/**"
       - "images/**"
       - "apps.json"
