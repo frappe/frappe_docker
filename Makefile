@@ -1,10 +1,3 @@
-# Default help formatter
-.DEFAULT_GOAL := help
-
-# Colors
-GREEN := \033[0;32m
-RESET := \033[0m
-
 # Help generator (targets with ##)
 help: ## Show this help message
 	@echo ""
@@ -14,15 +7,18 @@ help: ## Show this help message
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 
-# 1. Pre-commit check: trailing whitespace only
-lint: ## Run pre-commit check for trailing whitespace
-	pre-commit run trailing-whitespace --all-files
+# 1. Run all linters and formatters from pre-commit config
+lint: ## Run all configured pre-commit hooks (includes formatting & checks)
+	pre-commit run --all-files
 
-# 2. Format all files with prettier
-format: ## Run Prettier on the whole repo
-	npx prettier --write .
+# 2. Only run formatting hooks (e.g. Prettier, Black, Isort)
+format: ## Run formatting-only hooks from pre-commit
+	pre-commit run prettier --all-files || true
+	pre-commit run black --all-files || true
+	pre-commit run isort --all-files || true
+	pre-commit run shfmt --all-files || true
 
-# 3a-c. Stage, commit & push
+# 3. Stage, commit & push
 push: ## Add all files, commit (ask for message), and push
 	@git add .
 	@read -p "Enter commit message: " msg; \
@@ -33,9 +29,9 @@ push: ## Add all files, commit (ask for message), and push
 amend: ## Amend last commit without editing the message
 	git commit --amend --no-edit
 
-# Add-ons you might like:
+# Add-ons:
 
-check-hooks: ## Run all configured pre-commit hooks
+check-hooks: ## Run all pre-commit hooks (full check)
 	pre-commit run --all-files
 
 install-hooks: ## Install pre-commit hooks in .git/hooks

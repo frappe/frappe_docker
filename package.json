@@ -16,6 +16,12 @@
       "main",
       "dev"
     ],
+    "releaseRules": [
+      {
+        "type": "fieldmate",
+        "release": "patch"
+      }
+    ],
     "plugins": [
       "@semantic-release/commit-analyzer",
       [
