@@ -25,6 +25,11 @@
           "presetConfig": {
             "types": [
               {
+                "type": "fieldmate",
+                "section": "📦 Fieldmate Changes",
+                "hidden": false
+              },
+              {
                 "type": "feat",
                 "section": "✨ Features",
                 "hidden": false
