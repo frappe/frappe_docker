@@ -24,7 +24,6 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "Trying to enable auto-merge for PR #$PR_NUMBER"
-
           # Try auto-merge first
           gh pr merge "$PR_NUMBER" \
             --squash \
@@ -32,7 +31,6 @@ jobs:
             --delete-branch \
             --body "$COMMIT_BODY" \
             --subject "$COMMIT_TITLE" || \
-
           # Fallback: direct squash merge
           gh pr merge "$PR_NUMBER" \
             --squash \
