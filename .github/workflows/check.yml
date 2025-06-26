@@ -1,0 +1,61 @@
+# .github/workflows/check.yml
+name: Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  pre-commit:
+    name: Pre-commit checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pre-commit
+        run: |
+          pip install pre-commit
+          pre-commit install
+
+      - name: Run pre-commit on all files
+        run: pre-commit run --all-files
+
+  lint:
+    name: Lint (YAML, Shell, Docker)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install linters
+        run: |
+          pip install yamllint
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          curl -sL https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o hadolint
+          chmod +x hadolint
+          sudo mv hadolint /usr/local/bin/
+
+      - name: Run yamllint
+        run: yamllint .
+
+      - name: Run shellcheck
+        run: |
+          find . -type f -name "*.sh" -exec shellcheck {} +
+
+      - name: Run hadolint
+        run: |
+          find . -type f -name "Dockerfile*" -exec hadolint {} +
