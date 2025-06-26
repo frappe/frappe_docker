@@ -7,9 +7,6 @@ on:
     types:
       - completed
 
-  repository_dispatch:
-    types: [fieldmate-release]
-
 permissions:
   actions: write
   contents: write
@@ -19,8 +16,7 @@ permissions:
 jobs:
   release:
     if: |
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
-      (github.event_name == 'repository_dispatch')
+      github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     steps:
@@ -42,12 +38,6 @@ jobs:
         run: |
           npm install --save-dev conventional-changelog-conventionalcommits
 
-      - name: Handle Fieldmate Metadata
-        if: github.event_name == 'repository_dispatch'
-        run: |
-          echo "FIELDMATE_VERSION=${{ github.event.client_payload.version }}" >> $GITHUB_ENV
-          echo "${{ github.event.client_payload.changelog }}" > fieldmate_changelog.txt
-
       - name: Generate release notes and version
         id: semantic_release
         env:
@@ -61,26 +51,14 @@ jobs:
           # Determine FRAPPE_BRANCH if not already set
           FRAPPE_BRANCH=${{ vars.FRAPPE_BRANCH || 'version-15' }}
           echo "FRAPPE_BRANCH=${FRAPPE_BRANCH}" >> $GITHUB_ENV
-
           # Save metadata to files
           echo "${RELEASE_TAG}" > release_tag.txt
           echo "${FRAPPE_BRANCH}" > frappe_branch.txt
 
       - name: Upload workflow metadata
         uses: actions/upload-artifact@v4
-        if: github.event_name == 'workflow_run'
         with:
           name: release-metadata
           path: |
             release_tag.txt
             frappe_branch.txt
-      
-      - name: Upload dispatch metadata
-        uses: actions/upload-artifact@v4
-        if: github.event_name == 'repository_dispatch'
-        with:
-          name: release-metadata
-          path: |
-            release_tag.txt
-            frappe_branch.txt
-            fieldmate_changelog.txt
