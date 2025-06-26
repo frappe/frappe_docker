@@ -1,27 +1,26 @@
+# .github/workflows/semantic-release.yml
 name: Semantic Release
 
 on:
   workflow_run:
     workflows:
-      - Lint
+      - Release Trigger
     types:
       - completed
 
 permissions:
-  actions: write
   contents: write
   issues: write
   pull-requests: write
 
 jobs:
   release:
-    if: |
-      github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -29,16 +28,12 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run tests
         run: npm test
 
-      - name: Install conventional changelog
-        run: |
-          npm install --save-dev conventional-changelog-conventionalcommits
-
-      - name: Generate release notes and version
+      - name: Run Semantic Release
         id: semantic_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,19 +41,11 @@ jobs:
           RELEASE_TAG=$(npx semantic-release | tee /dev/stderr | grep -oP '(?<=next release version is )[^ ]+')
           echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
 
-      - name: Create release metadata files
-        run: |
-          # Determine FRAPPE_BRANCH if not already set
-          FRAPPE_BRANCH=${{ vars.FRAPPE_BRANCH || 'version-15' }}
-          echo "FRAPPE_BRANCH=${FRAPPE_BRANCH}" >> $GITHUB_ENV
-          # Save metadata to files
-          echo "${RELEASE_TAG}" > release_tag.txt
-          echo "${FRAPPE_BRANCH}" > frappe_branch.txt
+      - name: Save release tag
+        run: echo "${RELEASE_TAG}" > release_tag.txt
 
-      - name: Upload workflow metadata
+      - name: Upload release metadata
         uses: actions/upload-artifact@v4
         with:
           name: release-metadata
-          path: |
-            release_tag.txt
-            frappe_branch.txt
+          path: release_tag.txt
