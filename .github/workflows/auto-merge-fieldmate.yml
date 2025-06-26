@@ -9,10 +9,6 @@ on:
       - synchronize
       - reopened
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   automerge:
     if: startsWith(github.head_ref, 'fieldmate-auto-release')
@@ -21,7 +17,7 @@ jobs:
     steps:
       - name: Enable auto-merge or fallback merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "Trying to enable auto-merge for PR #$PR_NUMBER"
