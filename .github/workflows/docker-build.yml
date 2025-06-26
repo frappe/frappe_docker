@@ -1,36 +1,16 @@
 name: Digikwal stable
 
 on:
-  workflow_run:
-    workflows:
-      - Semantic Release
-    types:
-      - completed
-
+  release:
+    types: [published]
+    
 jobs:
   build-and-push:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Download release metadata
-        uses: actions/download-artifact@v4
-        with:
-          name: release-metadata
-          path: ./artifacts/release-metadata
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: digikwal/frappe_docker
-          run-id: ${{ github.event.workflow_run.id }}
-
-      - name: Load release metadata
-        run: |
-          export RELEASE_TAG=$(cat ./artifacts/release-metadata/release_tag.txt)
-          export FRAPPE_BRANCH=$(cat ./artifacts/release-metadata/frappe_branch.txt)
-          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
-          echo "FRAPPE_BRANCH=$FRAPPE_BRANCH" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -38,42 +18,35 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PAT }}
 
-      - name: Encode apps.json
+      - name: Setup enviroment variables
         run: |
-          export APPS_JSON_BASE64=$(base64 -w 0 ./apps.json)
+          export APPS_JSON_BASE64=$(base64 < ./apps.json | tr -d '\n')
           echo "APPS_JSON_BASE64=$APPS_JSON_BASE64" >> $GITHUB_ENV
+          echo "TAG_NAME=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: |
           docker build \
             --build-arg FRAPPE_PATH=https://github.com/frappe/frappe \
-            --build-arg FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }} \
+            --build-arg FRAPPE_BRANCH=version-15 \
             --build-arg APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }} \
-            --tag digikwal/erpnext:${{ env.RELEASE_TAG }} \
+            --tag digikwal/erpnext:${{ env.TAG_NAME }} \
             --file images/layered/Containerfile .
 
       - name: Push Docker image and tags
         env:
           DOCKER_IMAGE: digikwal/erpnext
         run: |
-          TAG="${RELEASE_TAG}"
-          IMAGE_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" \
-            https://hub.docker.com/v2/repositories/${DOCKER_IMAGE}/tags/${TAG}/)
-
-          if [ "$IMAGE_EXISTS" = "200" ]; then
-            echo "Image with tag $TAG already exists. Adding unique suffix..."
-            SUFFIX=$(git rev-parse --short HEAD)
-            TAG="${TAG}-${SUFFIX}"
-          fi
-
-          echo "Using tag: $TAG"
-          docker tag ${DOCKER_IMAGE}:${RELEASE_TAG} ${DOCKER_IMAGE}:${TAG}
-          docker push ${DOCKER_IMAGE}:${TAG}
-
-          if [[ "$TAG" != *"-"* ]]; then
-            docker tag ${DOCKER_IMAGE}:${TAG} ${DOCKER_IMAGE}:latest
-            docker push ${DOCKER_IMAGE}:latest
-          else
-            docker tag ${DOCKER_IMAGE}:${TAG} ${DOCKER_IMAGE}:dev
+          echo "Using immutable tag: $TAG_NAME"
+          
+          docker push ${DOCKER_IMAGE}:${TAG_NAME}
+      
+          if [[ "$TAG_NAME" == *"-"* ]]; then
+            echo "Detected prerelease. Tagging as dev..."
+            docker tag ${DOCKER_IMAGE}:${TAG_NAME} ${DOCKER_IMAGE}:dev
             docker push ${DOCKER_IMAGE}:dev
+          else
+            echo "Detected stable release. Tagging as latest..."
+            docker tag ${DOCKER_IMAGE}:${TAG_NAME} ${DOCKER_IMAGE}:latest
+            docker push ${DOCKER_IMAGE}:latest
           fi
