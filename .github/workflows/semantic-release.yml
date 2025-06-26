@@ -40,12 +40,3 @@ jobs:
         run: |
           RELEASE_TAG=$(npx semantic-release | tee /dev/stderr | grep -oP '(?<=next release version is )[^ ]+')
           echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
-
-      - name: Save release tag
-        run: echo "${RELEASE_TAG}" > release_tag.txt
-
-      - name: Upload release metadata
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-metadata
-          path: release_tag.txt
