@@ -38,5 +38,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
         run: |
-          RELEASE_TAG=$(npx semantic-release | tee /dev/stderr | grep -oP '(?<=next release version is )[^ ]+')
-          echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
+          set +e
+          OUTPUT=$(npx semantic-release 2>&1)
+          STATUS=$?
+          echo "$OUTPUT" | tee /dev/stderr
+      
+          if [[ $STATUS -eq 0 ]]; then
+            # Extract release tag
+            RELEASE_TAG=$(echo "$OUTPUT" | grep -oP '(?<=next release version is )[^ ]+')
+            echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
+            exit 0
+          elif [[ $STATUS -eq 1 && "$OUTPUT" == *"There are no relevant changes"* ]]; then
+            echo "No release needed. semantic-release exited cleanly."
+            exit 0
+          else
+            echo "❌ semantic-release failed with unexpected error (exit $STATUS)."
+            exit $STATUS
+          fi
+
