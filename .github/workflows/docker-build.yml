@@ -3,7 +3,7 @@ name: Digikwal stable
 on:
   release:
     types: [published]
-    
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PAT }}
 
-      - name: Setup enviroment variables
+      - name: Setup environment variables
         run: |
           export APPS_JSON_BASE64=$(base64 < ./apps.json | tr -d '\n')
           echo "APPS_JSON_BASE64=$APPS_JSON_BASE64" >> $GITHUB_ENV
@@ -38,9 +38,9 @@ jobs:
           DOCKER_IMAGE: digikwal/erpnext
         run: |
           echo "Using immutable tag: $TAG_NAME"
-          
+
           docker push ${DOCKER_IMAGE}:${TAG_NAME}
-      
+
           if [[ "$TAG_NAME" == *"-"* ]]; then
             echo "Detected prerelease. Tagging as dev..."
             docker tag ${DOCKER_IMAGE}:${TAG_NAME} ${DOCKER_IMAGE}:dev
