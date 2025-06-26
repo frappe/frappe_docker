@@ -1,0 +1,14 @@
+name: Release Trigger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  wait:
+    uses: ./.github/workflows/wait-for-check.yml
+    with:
+      sha: ${{ github.sha }}
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
