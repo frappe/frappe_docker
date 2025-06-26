@@ -42,7 +42,7 @@ jobs:
           OUTPUT=$(npx semantic-release 2>&1)
           STATUS=$?
           echo "$OUTPUT" | tee /dev/stderr
-      
+
           if [[ $STATUS -eq 0 ]]; then
             # Extract release tag
             RELEASE_TAG=$(echo "$OUTPUT" | grep -oP '(?<=next release version is )[^ ]+')
@@ -55,4 +55,3 @@ jobs:
             echo "❌ semantic-release failed with unexpected error (exit $STATUS)."
             exit $STATUS
           fi
-
