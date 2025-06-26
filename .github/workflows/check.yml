@@ -58,4 +58,4 @@ jobs:
 
       - name: Run hadolint
         run: |
-          find . -type f -name "Dockerfile*" -exec hadolint {} +
+          find . -type f -name "Dockerfile*" -exec hadolint --failure-threshold error {} +

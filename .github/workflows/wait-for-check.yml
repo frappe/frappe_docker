@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Wait for Check workflow to succeed
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
