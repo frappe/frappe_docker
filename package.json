@@ -85,5 +85,8 @@
       ],
       "@semantic-release/github"
     ]
+  },
+  "devDependencies": {
+    "conventional-changelog-conventionalcommits": "^9.0.0"
   }
 }
