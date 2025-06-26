@@ -1,0 +1,52 @@
+name: Wait for Check Workflow
+
+on:
+  workflow_call:
+    inputs:
+      sha:
+        required: true
+        type: string
+    secrets:
+      GH_TOKEN:
+        required: true
+
+jobs:
+  wait-for-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wait for Check workflow to succeed
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          SHA: ${{ inputs.sha }}
+        run: |
+          echo "🔁 Waiting for 'Check' workflow to succeed on commit $SHA..."
+
+          max_attempts=30
+          attempt=1
+          interval=10
+          success=false
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt..."
+            status=$(gh run list --workflow "Check" --limit 1 --json status,conclusion,headSha -q \
+              'map(select(.headSha=="'"$SHA"'")) | .[0] | "\(.status)-\(.conclusion)"')
+
+            if [[ "$status" == "completed-success" ]]; then
+              echo "✅ Check passed."
+              success=true
+              break
+            elif [[ "$status" == completed-* ]]; then
+              echo "❌ Check completed but failed."
+              exit 1
+            else
+              echo "⏳ Still in progress..."
+              sleep $interval
+              ((attempt++))
+            fi
+          done
+
+          if [[ "$success" == false ]]; then
+            echo "❌ Timeout: Check workflow did not complete in time."
+            exit 1
+          fi
