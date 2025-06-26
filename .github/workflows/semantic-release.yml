@@ -36,7 +36,7 @@ jobs:
       - name: Run Semantic Release
         id: semantic_release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
         run: |
           RELEASE_TAG=$(npx semantic-release | tee /dev/stderr | grep -oP '(?<=next release version is )[^ ]+')
           echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
