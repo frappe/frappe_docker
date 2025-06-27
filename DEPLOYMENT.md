@@ -53,8 +53,11 @@ This repository is configured to automatically deploy the Academy LMS stack to H
 
 Configure the following secrets in this repository:
 
-- `HETZNER_SSH_KEY`: Private SSH key for accessing the Hetzner server
 - `ACADEMY_DOCKER_PAT`: GitHub Personal Access Token with `repo` and `write:packages` permissions
+  - **IMPORTANT**: This PAT must have access to clone the private `academy-LangChain` repository
+  - Create at: https://github.com/settings/tokens/new
+  - Required scopes: `repo` (full), `write:packages`
+- `HETZNER_SSH_KEY`: Private SSH key for accessing the Hetzner server
 
 For environment variables, you can either:
 - Use a `.env` file on the server (default approach)

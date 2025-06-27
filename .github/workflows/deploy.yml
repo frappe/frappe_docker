@@ -87,7 +87,8 @@ jobs:
 
     - name: Clone and prepare LangChain service
       run: |
-        git clone https://github.com/ExarLabs/academy-LangChain.git langchain-temp
+        # Clone private repository using PAT (Personal Access Token)
+        git clone https://${{ secrets.ACADEMY_DOCKER_PAT }}@github.com/ExarLabs/academy-LangChain.git langchain-temp
         
     - name: Extract metadata for LangChain image
       id: meta-langchain
