@@ -12,7 +12,7 @@ on:
       environment:
         description: 'Deployment environment'
         required: false
-        default: 'production'
+        default: 'test'
         type: choice
         options:
           - production
@@ -34,7 +34,7 @@ on:
 env:
   REGISTRY: ghcr.io
   HETZNER_HOST: 188.245.211.114
-  HETZNER_USER: frappe
+  HETZNER_USER: ignis_academy_lms
   DEPLOY_PATH: /opt/frappe-deployment
 
 jobs:
@@ -111,82 +111,82 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    # - name: Setup SSH key
-    #   uses: webfactory/ssh-agent@v0.8.0
-    #   with:
-    #     ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+    - name: Setup SSH key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
 
-    # - name: Add Hetzner server to known hosts
-    #   run: |
-    #     ssh-keyscan -H ${{ env.HETZNER_HOST }} >> ~/.ssh/known_hosts
+    - name: Add Hetzner server to known hosts
+      run: |
+        ssh-keyscan -H ${{ env.HETZNER_HOST }} >> ~/.ssh/known_hosts
 
-    # - name: Deploy to Hetzner
-    #   run: |
-    #     # Copy deployment files to server
-    #     scp -r compose.yaml nginx/ scripts/ ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }}:${{ env.DEPLOY_PATH }}/
+    - name: Deploy to Hetzner
+      run: |
+        # Copy deployment files to server
+        scp -r compose.yaml nginx/ scripts/ ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }}:${{ env.DEPLOY_PATH }}/
         
-    #     # Copy environment file if it doesn't exist
-    #     ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
-    #       cd ${{ env.DEPLOY_PATH }}
-    #       if [ ! -f .env ]; then
-    #         cp .env.example .env
-    #         echo 'Please update .env file with your configuration'
-    #       fi
-    #     "
+        # Copy environment file if it doesn't exist
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          if [ ! -f .env ]; then
+            cp .env.example .env
+            echo 'Please update .env file with your configuration'
+          fi
+        "
         
-    #     # Login to private registry
-    #     ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
-    #       echo '${{ secrets.GITHUB_TOKEN }}' | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-    #     "
+        # Login to private registry
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          echo '${{ secrets.GITHUB_TOKEN }}' | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+        "
 
-    # - name: Update and restart services
-    #   run: |
-    #     ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
-    #       cd ${{ env.DEPLOY_PATH }}
+    - name: Update and restart services
+      run: |
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
           
-    #       # Pull latest images
-    #       docker compose pull
+          # Pull latest images
+          docker compose pull
           
-    #       # Stop services gracefully
-    #       docker compose down --timeout 30
+          # Stop services gracefully
+          docker compose down --timeout 30
           
-    #       # Start services
-    #       docker compose up -d
+          # Start services
+          docker compose up -d
           
-    #       # Wait for services to be ready
-    #       sleep 30
+          # Wait for services to be ready
+          sleep 30
           
-    #       # Run migrations on all sites
-    #       ./scripts/migrate-all-sites.sh
+          # Run migrations on all sites
+          ./scripts/migrate-all-sites.sh
           
-    #       # Show status
-    #       docker compose ps
-    #     "
+          # Show status
+          docker compose ps
+        "
 
-    # - name: Health check
-    #   run: |
-    #     # Wait a bit more for services to fully start
-    #     sleep 60
+    - name: Health check
+      run: |
+        # Wait a bit more for services to fully start
+        sleep 60
         
-    #     # Check if nginx-proxy is responding
-    #     if curl -f http://${{ env.HETZNER_HOST }}/health; then
-    #       echo "✅ Deployment successful - Health check passed"
-    #     else
-    #       echo "❌ Health check failed"
-    #       # Show logs for debugging
-    #       ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
-    #         cd ${{ env.DEPLOY_PATH }}
-    #         docker compose logs --tail=50
-    #       "
-    #       exit 1
-    #     fi
+        # Check if nginx-proxy is responding
+        if curl -f http://${{ env.HETZNER_HOST }}/health; then
+          echo "✅ Deployment successful - Health check passed"
+        else
+          echo "❌ Health check failed"
+          # Show logs for debugging
+          ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+            cd ${{ env.DEPLOY_PATH }}
+            docker compose logs --tail=50
+          "
+          exit 1
+        fi
 
-    # - name: Notify deployment status
-    #   if: always()
-    #   run: |
-    #     if [ "${{ job.status }}" == "success" ]; then
-    #       echo "🚀 Deployment to Hetzner completed successfully!"
-    #       echo "🌐 Access your application at: http://${{ env.HETZNER_HOST }}"
-    #     else
-    #       echo "💥 Deployment failed. Check the logs above for details."
-    #     fi
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🚀 Deployment to Hetzner completed successfully!"
+          echo "🌐 Access your application at: http://${{ env.HETZNER_HOST }}"
+        else
+          echo "💥 Deployment failed. Check the logs above for details."
+        fi
