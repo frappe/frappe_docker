@@ -89,7 +89,7 @@ Add the webhook workflow files to each watched repository:
 
 1. SSH into your Hetzner server:
    ```bash
-   ssh frappe@188.245.211.114
+   ssh ignis_academy_lms@188.245.211.114
    ```
 
 2. Run the automated setup script:
@@ -139,7 +139,7 @@ Trigger the deployment manually:
 After deployment is complete, create your first site:
 
 ```bash
-ssh frappe@188.245.211.114
+ssh ignis_academy_lms@188.245.211.114
 cd /opt/frappe-deployment
 ./scripts/create-site.sh academy.example.com
 ```
@@ -188,7 +188,7 @@ The `migrate-all-sites.sh` script automatically:
 ### Check Service Status
 
 ```bash
-ssh frappe@188.245.211.114
+ssh ignis_academy_lms@188.245.211.114
 cd /opt/frappe-deployment
 docker compose ps
 docker compose logs -f
@@ -199,7 +199,7 @@ docker compose logs -f
 If needed, run migrations manually:
 
 ```bash
-ssh frappe@188.245.211.114
+ssh ignis_academy_lms@188.245.211.114
 cd /opt/frappe-deployment
 ./scripts/migrate-all-sites.sh
 ```
