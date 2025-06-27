@@ -1,7 +1,7 @@
 x-customizable-image:
   # Custom Academy LMS image with all required apps
   &customizable_image
-  image: ${CUSTOM_IMAGE:-ghcr.io/exarlabs/academy-frappe}:${CUSTOM_TAG:-latest}
+  image: ${CUSTOM_IMAGE:-ghcr.io/exarlabs/ignis-academy-lms}:${CUSTOM_TAG:-latest}
   pull_policy: ${PULL_POLICY:-always}
   restart: ${RESTART_POLICY:-unless-stopped}
 

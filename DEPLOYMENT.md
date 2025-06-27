@@ -56,6 +56,16 @@ Configure the following secrets in this repository:
 - `HETZNER_SSH_KEY`: Private SSH key for accessing the Hetzner server
 - `ACADEMY_DOCKER_PAT`: GitHub Personal Access Token with `repo` and `write:packages` permissions
 
+For environment variables, you can either:
+- Use a `.env` file on the server (default approach)
+- Use GitHub Secrets for sensitive values (recommended for production)
+
+If using GitHub Secrets, add these:
+- `MARIADB_ROOT_PASSWORD`: Strong password for MariaDB root user
+- `OPENAI_API_KEY`: Your OpenAI API key for AI features
+- `ANTHROPIC_API_KEY`: Your Anthropic API key (optional)
+- `LANGCHAIN_DB_PASSWORD`: Password for LangChain PostgreSQL database
+
 ### 3. Webhook Setup
 
 Add the webhook workflow files to each watched repository:
@@ -203,6 +213,7 @@ cd /opt/frappe-deployment
    - Never commit `.env` file
    - Use strong passwords
    - Rotate credentials regularly
+   - Consider using GitHub Secrets for production deployments
 
 2. **Network Security**:
    - Configure firewall rules on Hetzner
@@ -211,6 +222,36 @@ cd /opt/frappe-deployment
 3. **Backup Strategy**:
    - Regular database backups
    - Store backups off-site
+
+### Private Registry Setup
+
+By default, images are pushed to GitHub Container Registry (ghcr.io). To use private images:
+
+1. **Make packages private in GitHub**:
+   - Go to your repository settings
+   - Navigate to "Packages" in the sidebar
+   - Find your package (e.g., `ignis-academy-lms`, `academy-langchain`)
+   - Click on "Package settings"
+   - Change visibility to "Private"
+
+2. **Enable registry authentication in deployment**:
+   - The workflow already includes code for private registry login
+   - Uncomment the "Login to private registry" section in `.github/workflows/deploy.yml`
+   - The `GITHUB_TOKEN` automatically has `packages:read` permission for private packages in the same org
+
+3. **Manual registry login on Hetzner** (if needed):
+   ```bash
+   # For GitHub Container Registry
+   echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+   
+   # Or use a Personal Access Token
+   echo $PAT | docker login ghcr.io -u USERNAME --password-stdin
+   ```
+
+4. **Alternative private registries**:
+   - Docker Hub: Update `REGISTRY` to `docker.io`
+   - Harbor: Update `REGISTRY` to your Harbor URL
+   - GitLab: Update `REGISTRY` to `registry.gitlab.com`
 
 ## SSL/TLS Setup (Production)
 

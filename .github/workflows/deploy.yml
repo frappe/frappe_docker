@@ -9,6 +9,14 @@ on:
         required: false
         default: 'false'
         type: boolean
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - test
 
   # Webhook triggers from watched repositories
   repository_dispatch:
@@ -32,6 +40,8 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # Use environment for secrets management
+    environment: ${{ github.event.inputs.environment || 'production' }}
     permissions:
       contents: read
       packages: write
@@ -54,7 +64,7 @@ jobs:
       id: meta-frappe
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/exarlabs/academy-frappe
+        images: ${{ env.REGISTRY }}/exarlabs/ignis-academy-lms
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -75,77 +85,107 @@ jobs:
           LMS_REPO_URL=https://github.com/ExarLabs/academy-lms
           AI_TUTOR_REPO_URL=https://github.com/ExarLabs/academy-ai-tutor-chat
 
-    - name: Setup SSH key
-      uses: webfactory/ssh-agent@v0.8.0
+    - name: Clone and prepare LangChain service
+      run: |
+        git clone https://github.com/ExarLabs/academy-LangChain.git langchain-temp
+        
+    - name: Extract metadata for LangChain image
+      id: meta-langchain
+      uses: docker/metadata-action@v5
       with:
-        ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+        images: ${{ env.REGISTRY }}/exarlabs/academy-langchain
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
 
-    - name: Add Hetzner server to known hosts
-      run: |
-        ssh-keyscan -H ${{ env.HETZNER_HOST }} >> ~/.ssh/known_hosts
+    - name: Build and push LangChain image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./langchain-temp
+        push: true
+        tags: ${{ steps.meta-langchain.outputs.tags }}
+        labels: ${{ steps.meta-langchain.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
-    - name: Deploy to Hetzner
-      run: |
-        # Copy deployment files to server
-        scp -r compose.yaml nginx/ scripts/ ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }}:${{ env.DEPLOY_PATH }}/
+    # - name: Setup SSH key
+    #   uses: webfactory/ssh-agent@v0.8.0
+    #   with:
+    #     ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+    # - name: Add Hetzner server to known hosts
+    #   run: |
+    #     ssh-keyscan -H ${{ env.HETZNER_HOST }} >> ~/.ssh/known_hosts
+
+    # - name: Deploy to Hetzner
+    #   run: |
+    #     # Copy deployment files to server
+    #     scp -r compose.yaml nginx/ scripts/ ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }}:${{ env.DEPLOY_PATH }}/
         
-        # Copy environment file if it doesn't exist
-        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
-          cd ${{ env.DEPLOY_PATH }}
-          if [ ! -f .env ]; then
-            cp .env.example .env
-            echo 'Please update .env file with your configuration'
-          fi
-        "
-
-    - name: Update and restart services
-      run: |
-        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
-          cd ${{ env.DEPLOY_PATH }}
-          
-          # Pull latest images
-          docker compose pull
-          
-          # Stop services gracefully
-          docker compose down --timeout 30
-          
-          # Start services
-          docker compose up -d
-          
-          # Wait for services to be ready
-          sleep 30
-          
-          # Run migrations on all sites
-          ./scripts/migrate-all-sites.sh
-          
-          # Show status
-          docker compose ps
-        "
-
-    - name: Health check
-      run: |
-        # Wait a bit more for services to fully start
-        sleep 60
+    #     # Copy environment file if it doesn't exist
+    #     ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+    #       cd ${{ env.DEPLOY_PATH }}
+    #       if [ ! -f .env ]; then
+    #         cp .env.example .env
+    #         echo 'Please update .env file with your configuration'
+    #       fi
+    #     "
         
-        # Check if nginx-proxy is responding
-        if curl -f http://${{ env.HETZNER_HOST }}/health; then
-          echo "✅ Deployment successful - Health check passed"
-        else
-          echo "❌ Health check failed"
-          # Show logs for debugging
-          ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
-            cd ${{ env.DEPLOY_PATH }}
-            docker compose logs --tail=50
-          "
-          exit 1
-        fi
+    #     # Login to private registry
+    #     ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+    #       echo '${{ secrets.GITHUB_TOKEN }}' | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+    #     "
 
-    - name: Notify deployment status
-      if: always()
-      run: |
-        if [ "${{ job.status }}" == "success" ]; then
-          echo "🚀 Deployment to Hetzner completed successfully!"
-          echo "🌐 Access your application at: http://${{ env.HETZNER_HOST }}"
-        else
-          echo "💥 Deployment failed. Check the logs above for details."
-        fi
+    # - name: Update and restart services
+    #   run: |
+    #     ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+    #       cd ${{ env.DEPLOY_PATH }}
+          
+    #       # Pull latest images
+    #       docker compose pull
+          
+    #       # Stop services gracefully
+    #       docker compose down --timeout 30
+          
+    #       # Start services
+    #       docker compose up -d
+          
+    #       # Wait for services to be ready
+    #       sleep 30
+          
+    #       # Run migrations on all sites
+    #       ./scripts/migrate-all-sites.sh
+          
+    #       # Show status
+    #       docker compose ps
+    #     "
+
+    # - name: Health check
+    #   run: |
+    #     # Wait a bit more for services to fully start
+    #     sleep 60
+        
+    #     # Check if nginx-proxy is responding
+    #     if curl -f http://${{ env.HETZNER_HOST }}/health; then
+    #       echo "✅ Deployment successful - Health check passed"
+    #     else
+    #       echo "❌ Health check failed"
+    #       # Show logs for debugging
+    #       ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+    #         cd ${{ env.DEPLOY_PATH }}
+    #         docker compose logs --tail=50
+    #       "
+    #       exit 1
+    #     fi
+
+    # - name: Notify deployment status
+    #   if: always()
+    #   run: |
+    #     if [ "${{ job.status }}" == "success" ]; then
+    #       echo "🚀 Deployment to Hetzner completed successfully!"
+    #       echo "🌐 Access your application at: http://${{ env.HETZNER_HOST }}"
+    #     else
+    #       echo "💥 Deployment failed. Check the logs above for details."
+    #     fi
