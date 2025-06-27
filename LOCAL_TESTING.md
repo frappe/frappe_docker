@@ -70,7 +70,7 @@ docker compose exec backend bench new-site academy.local \
 docker compose exec backend bench --site academy.local install-app lms
 
 # Install the AI Tutor Chat app
-docker compose exec backend bench --site academy.local install-app academy_ai_tutor_chat
+docker compose exec backend bench --site academy.local install-app ai_tutor_chat
 
 # Set the site as default
 docker compose exec backend bench use academy.local
@@ -111,6 +111,32 @@ This means the image hasn't been built yet. Either:
 
 Ensure your `.env` file exists and contains all required variables. Use `.env.example` as reference.
 
+### Cannot access the site / 404 errors on assets
+
+If you see 404 errors for CSS/JS files:
+
+1. **Rebuild assets**:
+   ```bash
+   docker compose exec backend bench --site academy.local build
+   ```
+
+2. **Clear cache**:
+   ```bash
+   docker compose exec backend bench --site academy.local clear-cache
+   ```
+
+3. **Set current site**:
+   ```bash
+   docker compose exec backend sh -c "echo 'academy.local' > /home/frappe/frappe-bench/sites/currentsite.txt"
+   ```
+
+4. **Restart services**:
+   ```bash
+   docker compose restart backend frontend nginx-proxy
+   ```
+
+5. **Hard refresh your browser** (Ctrl+F5 or Cmd+Shift+R)
+
 ### Cannot access the site
 
 1. Check if all services are running: `docker compose ps`
@@ -121,6 +147,26 @@ Ensure your `.env` file exists and contains all required variables. Use `.env.ex
 
 1. Ensure MariaDB is fully started before creating sites
 2. Check the password in `.env` matches what you use in commands
+
+### LangChain service errors (student_ai_profiles table missing)
+
+If you get errors about missing database tables in the LangChain service:
+
+```bash
+# Create the required tables
+docker compose exec langchain-service sh -c "cd /app && PYTHONPATH=/app python app/create_tables.py"
+```
+
+This will create all necessary tables including:
+- `student_ai_profiles`
+- `chat_conversations`
+- `chat_messages`
+
+### Login issues
+
+Default credentials after site creation:
+- Username: `Administrator`
+- Password: The password you set with `--admin-password` flag
 
 ## Stopping the services
 

@@ -19,23 +19,6 @@ x-backend-defaults: &backend_defaults
     - langchain-network
 
 services:
-  # Nginx reverse proxy for multi-site support
-  nginx-proxy:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - sites:/var/www/html/sites:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - frontend
-    networks:
-      - frappe-network
-    restart: unless-stopped
-
   # MariaDB database (from academy-lms)
   mariadb:
     image: mariadb:10.8
@@ -73,6 +56,24 @@ services:
     networks:
       - langchain-network
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${LANGCHAIN_DB_USER:-langchain_user}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Initialize LangChain database tables
+  langchain-db-init:
+    image: ${LANGCHAIN_IMAGE:-ghcr.io/exarlabs/academy-langchain}:${LANGCHAIN_TAG:-latest}
+    environment:
+      - DATABASE_URL=postgresql://${LANGCHAIN_DB_USER:-langchain_user}:${LANGCHAIN_DB_PASSWORD:-langchain_pass}@postgres:5432/${LANGCHAIN_DB_NAME:-langchain_db}
+    networks:
+      - langchain-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+    command: sh -c "cd /app && PYTHONPATH=/app python app/create_tables.py"
 
   # LangChain service for AI functionality
   langchain-service:
@@ -88,11 +89,21 @@ services:
     networks:
       - langchain-network
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      langchain-db-init:
+        condition: service_completed_successfully
     restart: unless-stopped
     ports:
       - "8001:8000" # Expose on different port to avoid conflict
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   configurator:
     <<: *backend_defaults
@@ -131,6 +142,9 @@ services:
     platform: linux/amd64
     command:
       - nginx-entrypoint.sh
+    ports:
+      - "80:8080"
+      - "443:443"
     environment:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
