@@ -1,90 +1,117 @@
-[![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
-[![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
+# Academy Docker - Automated Deployment for Academy LMS Stack
 
-Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers.
+This repository provides an automated deployment solution for the Academy LMS stack on Hetzner Cloud. It monitors changes in the application repositories and automatically builds, pushes, and deploys updated Docker images.
 
-# Getting Started
+## 🎯 Purpose
 
-To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-compose](https://docs.docker.com/compose/), and [git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git) setup on your machine. For Docker basics and best practices refer to Docker's [documentation](http://docs.docker.com).
+This is a fork of [frappe/frappe_docker](https://github.com/frappe/frappe_docker) customized to:
+- Automatically deploy the Academy LMS stack with custom Frappe apps
+- Monitor and react to changes in watched repositories
+- Provide CI/CD pipeline for Hetzner deployment
+- Integrate AI-powered tutoring capabilities via LangChain
 
-Once completed, chose one of the following two sections for next steps.
+## 📦 Components
 
-### Try in Play With Docker
+The stack includes:
 
-To play in an already set up sandbox, in your browser, click the button below:
+1. **[Academy LMS](https://github.com/ExarLabs/academy-lms)** - Custom fork of Frappe LMS
+2. **[Academy AI Tutor Chat](https://github.com/ExarLabs/academy-ai-tutor-chat)** - AI-powered tutoring Frappe app
+3. **[Academy LangChain](https://github.com/ExarLabs/academy-LangChain)** - LangChain service for AI functionality
+4. **Frappe Framework** - The underlying framework
+5. **Supporting Services** - MariaDB, Redis, PostgreSQL, Nginx
 
-<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
-  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
-</a>
+## 🚀 Quick Start
 
-### Try on your Dev environment
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-First clone the repo:
+### Prerequisites
 
-```sh
-git clone https://github.com/frappe/frappe_docker
-cd frappe_docker
+- GitHub account with access to all repositories
+- Hetzner server (Ubuntu 20.04+ recommended)
+- GitHub Personal Access Token
+- OpenAI API key (for AI features)
+
+### Basic Setup
+
+1. Fork this repository
+2. Configure GitHub secrets:
+   - `HETZNER_SSH_KEY`
+   - `ACADEMY_DOCKER_PAT`
+3. Add webhook workflows to watched repositories
+4. Run setup script on Hetzner server
+5. Configure environment variables
+6. Trigger initial deployment
+
+## 🔄 Automated Workflow
+
+```mermaid
+graph LR
+    A[Code Push] --> B[Webhook Trigger]
+    B --> C[Build Docker Image]
+    C --> D[Push to GHCR]
+    D --> E[Deploy to Hetzner]
+    E --> F[Run Migrations]
+    F --> G[Health Check]
 ```
 
-Then run: `docker compose -f pwd.yml up -d`
+## 📁 Repository Structure
 
-### To run on ARM64 architecture follow this instructions
+```
+academy_docker/
+├── .github/workflows/       # CI/CD workflows
+│   ├── deploy.yml          # Main deployment workflow
+│   └── webhook-*.yml       # Webhook templates for watched repos
+├── images/                 # Docker image definitions
+│   └── custom/            # Custom Frappe image with apps
+├── nginx/                  # Nginx configuration
+├── scripts/               # Utility scripts
+│   ├── migrate-all-sites.sh
+│   └── setup-hetzner.sh
+├── compose.yaml           # Docker Compose configuration
+├── .env.example          # Environment variables template
+└── DEPLOYMENT.md         # Detailed deployment guide
+```
 
-After cloning the repo run this command to build multi-architecture images specifically for ARM64.
+## 🔧 Configuration
 
-`docker buildx bake --no-cache --set "*.platform=linux/arm64"`
+Key environment variables:
 
-and then
+- `MARIADB_ROOT_PASSWORD` - Database root password
+- `ADMIN_PASSWORD` - Frappe admin password
+- `OPENAI_API_KEY` - OpenAI API key for AI features
+- `FRAPPE_SITE_NAME_HEADER` - Your domain name
+- `LANGCHAIN_API_URL` - LangChain service URL
 
-- add `platform: linux/arm64` to all services in the `pwd.yml`
-- replace the current specified versions of erpnext image on `pwd.yml` with `:latest`
+## 🛡️ Security
 
-Then run: `docker compose -f pwd.yml up -d`
+- All secrets stored in GitHub Secrets
+- Firewall rules configured automatically
+- SSL/TLS support for production
+- Regular automated backups
 
-## Final steps
+## 📊 Monitoring
 
-Wait for 5 minutes for ERPNext site to be created or check `create-site` container logs before opening browser on port 8080. (username: `Administrator`, password: `admin`)
+- Check service status: `docker compose ps`
+- View logs: `docker compose logs -f`
+- System health: `docker compose exec backend bench doctor`
 
-If you ran in a Dev Docker environment, to view container logs: `docker compose -f pwd.yml logs -f create-site`. Don't worry about some of the initial error messages, some services take a while to become ready, and then they go away.
+## 🤝 Contributing
 
-# Documentation
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-### [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
+## 📝 License
 
-### [Production](#production)
+This project inherits the license from the original [frappe_docker](https://github.com/frappe/frappe_docker) repository.
 
-- [List of containers](docs/list-of-containers.md)
-- [Single Compose Setup](docs/single-compose-setup.md)
-- [Environment Variables](docs/environment-variables.md)
-- [Single Server Example](docs/single-server-example.md)
-- [Setup Options](docs/setup-options.md)
-- [Site Operations](docs/site-operations.md)
-- [Backup and Push Cron Job](docs/backup-and-push-cronjob.md)
-- [Port Based Multi Tenancy](docs/port-based-multi-tenancy.md)
-- [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
-- [running on linux/mac](docs/setup_for_linux_mac.md)
-- [TLS for local deployment](docs/tls-for-local-deployment.md)
+## 🆘 Support
 
-### [Custom Images](#custom-images)
+- Check [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions
+- Review GitHub Actions logs for deployment issues
+- Open an issue for bugs or feature requests
 
-- [Custom Apps](docs/custom-apps.md)
-- [Custom Apps with podman](docs/custom-apps-podman.md)
-- [Build Version 10 Images](docs/build-version-10-images.md)
+---
 
-### [Development](#development)
-
-- [Development using containers](docs/development.md)
-- [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
-- [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
-
-### [Troubleshoot](docs/troubleshoot.md)
-
-# Contributing
-
-If you want to contribute to this repo refer to [CONTRIBUTING.md](CONTRIBUTING.md)
-
-This repository is only for container related stuff. You also might want to contribute to:
-
-- [Frappe framework](https://github.com/frappe/frappe#contributing),
-- [ERPNext](https://github.com/frappe/erpnext#contributing),
-- [Frappe Bench](https://github.com/frappe/bench).
+Built with ❤️ for automated Academy LMS deployment

@@ -1,8 +1,7 @@
-x-customizable-image: &customizable_image
-  # By default the image used only contains the `frappe` and `erpnext` apps.
-  # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
-  # about using custom images.
-  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+x-customizable-image:
+  # Custom Academy LMS image with all required apps
+  &customizable_image
+  image: ${CUSTOM_IMAGE:-ghcr.io/exarlabs/academy-frappe}:${CUSTOM_TAG:-latest}
   pull_policy: ${PULL_POLICY:-always}
   restart: ${RESTART_POLICY:-unless-stopped}
 
@@ -12,39 +11,120 @@ x-depends-on-configurator: &depends_on_configurator
       condition: service_completed_successfully
 
 x-backend-defaults: &backend_defaults
-  <<: [*depends_on_configurator, *customizable_image]
+  <<: [ *depends_on_configurator, *customizable_image ]
   volumes:
     - sites:/home/frappe/frappe-bench/sites
+  networks:
+    - frappe-network
+    - langchain-network
 
 services:
+  # Nginx reverse proxy for multi-site support
+  nginx-proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - sites:/var/www/html/sites:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+    networks:
+      - frappe-network
+    restart: unless-stopped
+
+  # MariaDB database (from academy-lms)
+  mariadb:
+    image: mariadb:10.8
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./backups:/backups
+    networks:
+      - frappe-network
+    restart: unless-stopped
+
+  # Redis (shared between frappe and langchain)
+  redis:
+    image: redis:alpine
+    networks:
+      - frappe-network
+      - langchain-network
+    restart: unless-stopped
+
+  # PostgreSQL for LangChain service
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${LANGCHAIN_DB_NAME:-langchain_db}
+      POSTGRES_USER: ${LANGCHAIN_DB_USER:-langchain_user}
+      POSTGRES_PASSWORD: ${LANGCHAIN_DB_PASSWORD:-langchain_pass}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - langchain-network
+    restart: unless-stopped
+
+  # LangChain service for AI functionality
+  langchain-service:
+    image: ${LANGCHAIN_IMAGE:-ghcr.io/exarlabs/academy-langchain}:${LANGCHAIN_TAG:-latest}
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
+      - DATABASE_URL=postgresql://${LANGCHAIN_DB_USER:-langchain_user}:${LANGCHAIN_DB_PASSWORD:-langchain_pass}@postgres:5432/${LANGCHAIN_DB_NAME:-langchain_db}
+      - REDIS_URL=redis://redis:6379
+      - ENV=${LANGCHAIN_ENV:-development}
+      - DEBUG=${LANGCHAIN_DEBUG:-true}
+    networks:
+      - langchain-network
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    ports:
+      - "8001:8000" # Expose on different port to avoid conflict
+
   configurator:
     <<: *backend_defaults
     platform: linux/amd64
     entrypoint:
       - bash
       - -c
-    # add redis_socketio for backward compatibility
     command:
       - >
-        ls -1 apps > sites/apps.txt;
-        bench set-config -g db_host $$DB_HOST;
-        bench set-config -gp db_port $$DB_PORT;
-        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
-        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
-        bench set-config -gp socketio_port $$SOCKETIO_PORT;
+        ls -1 apps > sites/apps.txt; bench set-config -g db_host mariadb; bench set-config -gp db_port 3306; bench set-config -g redis_cache "redis://redis:6379"; bench set-config -g redis_queue "redis://redis:6379"; bench set-config -g redis_socketio "redis://redis:6379"; bench set-config -gp socketio_port 9000; bench set-config -g ai_tutor_api_url "${AI_TUTOR_API_URL}";
     environment:
-      DB_HOST: ${DB_HOST:-}
-      DB_PORT: ${DB_PORT:-}
-      REDIS_CACHE: ${REDIS_CACHE:-}
-      REDIS_QUEUE: ${REDIS_QUEUE:-}
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      REDIS_CACHE: redis:6379
+      REDIS_QUEUE: redis:6379
       SOCKETIO_PORT: 9000
-    depends_on: {}
+      AI_TUTOR_API_URL: ${AI_TUTOR_API_URL:-http://langchain-service:8000}
+    depends_on:
+      - mariadb
+      - redis
     restart: on-failure
 
   backend:
     <<: *backend_defaults
     platform: linux/amd64
+    environment:
+      - LANGCHAIN_SERVICE_URL=http://langchain-service:8000
+      - AI_TUTOR_API_URL=${AI_TUTOR_API_URL:-http://langchain-service:8000}
+    depends_on:
+      - mariadb
+      - redis
+      - langchain-service
 
   frontend:
     <<: *customizable_image
@@ -62,18 +142,23 @@ services:
       CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+    networks:
+      - frappe-network
     depends_on:
       - backend
       - websocket
+    restart: unless-stopped
 
   websocket:
-    <<: [*depends_on_configurator, *customizable_image]
+    <<: [ *depends_on_configurator, *customizable_image ]
     platform: linux/amd64
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+    networks:
+      - frappe-network
 
   queue-short:
     <<: *backend_defaults
@@ -90,6 +175,15 @@ services:
     platform: linux/amd64
     command: bench schedule
 
-# ERPNext requires local assets access (Frappe does not)
+# Volumes for persistent data
 volumes:
   sites:
+  mariadb-data:
+  postgres-data:
+
+    # Networks for service communication
+networks:
+  frappe-network:
+    driver: bridge
+  langchain-network:
+    driver: bridge
