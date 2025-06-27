@@ -22,8 +22,8 @@ if ! command -v docker &> /dev/null; then
     sh get-docker.sh
     rm get-docker.sh
     
-    # Add frappe user to docker group
-    usermod -aG docker frappe
+    # Add ignis_academy_lms user to docker group
+    usermod -aG docker ignis_academy_lms
 else
     echo "✅ Docker is already installed"
 fi
@@ -40,7 +40,7 @@ fi
 # Create deployment directory
 echo "📁 Creating deployment directory..."
 mkdir -p /opt/frappe-deployment
-chown frappe:frappe /opt/frappe-deployment
+chown ignis_academy_lms:ignis_academy_lms /opt/frappe-deployment
 
 # Create required networks
 echo "🌐 Creating Docker networks..."
@@ -57,20 +57,20 @@ ufw --force enable
 # Create backup directory
 echo "💾 Creating backup directory..."
 mkdir -p /opt/frappe-deployment/backups
-chown frappe:frappe /opt/frappe-deployment/backups
+chown ignis_academy_lms:ignis_academy_lms /opt/frappe-deployment/backups
 
 # Setup cron for automated backups (optional)
-echo "⏰ Setting up automated backup cron job..."
-cat > /etc/cron.d/frappe-backup << EOF
-# Backup Frappe sites daily at 2 AM
-0 2 * * * frappe cd /opt/frappe-deployment && docker compose exec -T backend bench --site all backup --with-files >> /opt/frappe-deployment/backups/backup.log 2>&1
-# Clean old backups (keep last 7 days)
-0 3 * * * frappe find /opt/frappe-deployment/backups -name "*.sql.gz" -mtime +7 -delete
-EOF
+# echo "⏰ Setting up automated backup cron job..."
+# cat > /etc/cron.d/frappe-backup << EOF
+# # Backup Frappe sites daily at 2 AM
+# 0 2 * * * ignis_academy_lms cd /opt/frappe-deployment && docker compose exec -T backend bench --site all backup --with-files >> /opt/frappe-deployment/backups/backup.log 2>&1
+# # Clean old backups (keep last 7 days)
+# 0 3 * * * ignis_academy_lms find /opt/frappe-deployment/backups -name "*.sql.gz" -mtime +7 -delete
+# EOF
 
 # Install monitoring tools (optional)
-echo "📊 Installing monitoring tools..."
-apt-get install -y htop iotop ncdu
+# echo "📊 Installing monitoring tools..."
+# apt-get install -y htop iotop ncdu
 
 # Create systemd service for auto-start
 echo "🔧 Creating systemd service..."
@@ -83,8 +83,8 @@ After=docker.service network-online.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-User=frappe
-Group=frappe
+User=ignis_academy_lms
+Group=ignis_academy_lms
 WorkingDirectory=/opt/frappe-deployment
 ExecStart=/usr/local/bin/docker-compose up -d
 ExecStop=/usr/local/bin/docker-compose down
@@ -100,7 +100,7 @@ systemctl enable academy-lms.service
 echo "✅ Setup completed!"
 echo ""
 echo "📋 Next steps:"
-echo "1. Switch to frappe user: su - frappe"
+echo "1. Switch to ignis_academy_lms user: su - ignis_academy_lms"
 echo "2. Go to deployment directory: cd /opt/frappe-deployment"
 echo "3. Copy your deployment files there"
 echo "4. Create .env file from .env.example and configure it"
