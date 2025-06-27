@@ -1,4 +1,4 @@
-[![Digikwal Fork](https://github.com/digikwal/frappe_docker/actions/workflows/docker-build.yml/badge.svg)](https://github.com/digikwal/frappe_docker/actions/workflows/docker-build.yml)
+[![Digikwal stable](https://github.com/digikwal/frappe_docker/actions/workflows/docker-build.yml/badge.svg?event=release)](https://github.com/digikwal/frappe_docker/actions/workflows/docker-build.yml)
 [![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
 [![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
 
