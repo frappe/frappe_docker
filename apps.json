@@ -10,5 +10,9 @@
   {
     "url": "https://github.com/digikwal/fieldmate",
     "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/payments",
+    "branch": "version-15"
   }
 ]
