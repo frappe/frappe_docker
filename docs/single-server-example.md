@@ -187,7 +187,7 @@ You can stop here and have a single bench single site setup complete. Continue t
 docker compose --project-name erpnext-one exec backend \
   bench new-site --mariadb-user-host-login-scope=% --db-root-password changeit --install-app erpnext --admin-password changeit two.example.com
 ```
-
+Login with Username: Administrator Password: changeit
 #### Create second bench
 
 Setting up additional bench is optional. Continue only if you need multi bench setup.
