@@ -25,6 +25,10 @@ Frappe framework release. You can find all releases [here](https://github.com/fr
 
 Password for MariaDB (or Postgres) database.
 
+### `DB_PASSWORD_SECRETS_FILE`
+
+Path to the db_password.txt file. Set only if you use docker secrets for the database password (use `overrides/compose.mariadb-secrets.yaml`)
+
 ### `DB_HOST`
 
 Hostname for MariaDB (or Postgres) database. Set only if external service for database is used or the container can not be reached by its service name (db) by other containers.
