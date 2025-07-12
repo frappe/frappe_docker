@@ -65,7 +65,7 @@ Create a file called `traefik.env` in `~/gitops`
 ```shell
 echo 'TRAEFIK_DOMAIN=traefik.example.com' > ~/gitops/traefik.env
 echo 'EMAIL=admin@example.com' >> ~/gitops/traefik.env
-echo 'HASHED_PASSWORD='$(openssl passwd -apr1 changeit | sed -e s/\\$/\\$\\$/g) >> ~/gitops/traefik.env
+echo "HASHED_PASSWORD='$(openssl passwd -apr1 changeit)'" >> ~/gitops/traefik.env
 ```
 
 Note:
