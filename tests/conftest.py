@@ -150,16 +150,32 @@ def s3_service(python_path: str, compose: Compose):
     )
     subprocess.check_call(cmd)
 
-    compose("cp", "tests/_create_bucket.py", "backend:/tmp")
-    compose.exec(
-        "-e",
-        f"S3_ACCESS_KEY={access_key}",
-        "-e",
-        f"S3_SECRET_KEY={secret_key}",
+   # Instead of using compose.exec, use subprocess.run to capture output
+    print("=== ATTEMPTING TO CREATE S3 BUCKET ===")
+    
+    # Build the full docker compose command
+    docker_cmd = [
+        "docker", "compose", "-p", compose.project_name,
+        "--env-file", f"/tmp/pytest-of-runner/pytest-0/frappe-docker0/.env",
+        "-f", "compose.yaml",
+        "-f", "overrides/compose.proxy.yaml",
+        "-f", "overrides/compose.mariadb.yaml",
+        "-f", "overrides/compose.redis.yaml",
+        "-f", "tests/compose.ci.yaml",
+        "exec", "-T",
+        "-e", f"S3_ACCESS_KEY={access_key}",
+        "-e", f"S3_SECRET_KEY={secret_key}",
         "backend",
         python_path,
-        "/tmp/_create_bucket.py",
-    )
+        "/tmp/_create_bucket.py"
+    ]
+    
+    # Run with output capture
+    result = subprocess.run(docker_cmd, capture_output=True, text=True)
+    
+    print(f"Return code: {result.returncode}")
+    print(f"STDOUT:\n{result.stdout}")
+    print(f"STDERR:\n{result.stderr}")
 
     yield S3ServiceResult(access_key=access_key, secret_key=secret_key)
     subprocess.call(("docker", "rm", "minio", "-f"))
