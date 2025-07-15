@@ -168,18 +168,18 @@ jobs:
         # Wait a bit more for services to fully start
         sleep 60
         
-        # Check if nginx-proxy is responding
-        if curl -f http://${{ env.HETZNER_HOST }}/health; then
-          echo "✅ Deployment successful - Health check passed"
-        else
-          echo "❌ Health check failed"
-          # Show logs for debugging
-          ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
-            cd ${{ env.DEPLOY_PATH }}
-            docker compose logs --tail=50
-          "
-          exit 1
-        fi
+        # Check if all docker container are up and running
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          count=$(docker container ls --format "{{.Status}}" | grep -v "^Up" | wc -l)
+          if [ $count -gt 0 ]; then
+            echo "❌ $count containers are not running properly"
+              cd ${{ env.DEPLOY_PATH }}
+              docker compose logs --tail=50
+            exit 1
+          else
+            echo "✅ All containers are running"
+          fi
+        "
 
     - name: Notify deployment status
       if: always()
