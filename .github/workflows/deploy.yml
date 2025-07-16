@@ -123,7 +123,7 @@ jobs:
     - name: Deploy to Hetzner
       run: |
         # Copy deployment files to server
-        scp -r compose.yaml nginx/ scripts/ ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }}:${{ env.DEPLOY_PATH }}/
+        scp -r compose.yaml nginx/ scripts/ .env.example ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }}:${{ env.DEPLOY_PATH }}/
         
         # Copy environment file if it doesn't exist
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
@@ -140,8 +140,6 @@ jobs:
         "
 
     - name: Update and restart services
-      env:
-          MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
       run: |
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
