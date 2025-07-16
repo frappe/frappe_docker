@@ -16,7 +16,7 @@ echo "🌐 Creating new site: $SITE_NAME"
 
 # Load environment variables
 if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
+    export $(cat .env | grep -E '^[A-Z_][A-Z0-9_]*=' | sed 's/#.*$//' | xargs)
 else
     echo "❌ .env file not found. Please create it from .env.example"
     exit 1
@@ -36,7 +36,7 @@ docker compose exec -T backend bench --site "$SITE_NAME" install-app lms
 
 # Install AI Tutor Chat
 echo "📦 Installing AI Tutor Chat..."
-docker compose exec -T backend bench --site "$SITE_NAME" install-app academy_ai_tutor_chat
+docker compose exec -T backend bench --site "$SITE_NAME" install-app ai_tutor_chat
 
 # Set as default site (optional)
 read -p "Set as default site? (y/n) " -n 1 -r
