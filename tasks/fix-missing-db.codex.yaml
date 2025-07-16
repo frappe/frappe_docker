@@ -1,0 +1,34 @@
+name: Fix Frappe site DB and set admin password
+description: >
+  Автоматически проверяет наличие базы данных для Frappe-сайта, создаёт её при необходимости,
+  выдаёт права, и задаёт новый пароль для администратора.
+language: bash
+steps:
+
+  - name: Определение имени БД и пароля
+    run: |
+      export SITE_NAME="erp.ferumrus.ru"
+      export DB_NAME=$(jq -r '.db_name' sites/$SITE_NAME/site_config.json)
+      export DB_PASSWORD=$(jq -r '.db_password' sites/$SITE_NAME/site_config.json)
+      echo "::set-env name=DB_NAME::$DB_NAME"
+      echo "::set-env name=DB_PASSWORD::$DB_PASSWORD"
+
+  - name: Подключение к MariaDB и создание базы и пользователя (если не существует)
+    run: |
+      docker compose -f frappe_docker/pwd.yml exec -T db \
+        mariadb -uroot -p"$MYSQL_ROOT_PASSWORD" <<EOF
+      CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;
+      CREATE USER IF NOT EXISTS '$DB_NAME'@'%' IDENTIFIED BY '$DB_PASSWORD';
+      GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_NAME'@'%';
+      FLUSH PRIVILEGES;
+EOF
+
+  - name: Проверка доступности БД из контейнера backend
+    run: |
+      docker compose -f frappe_docker/pwd.yml exec backend bash -c \
+        "mysql -h db -u$DB_NAME -p$DB_PASSWORD -e 'SHOW DATABASES LIKE \"$DB_NAME\";'"
+
+  - name: Установка нового пароля администратора
+    run: |
+      docker compose -f frappe_docker/pwd.yml exec backend bash -c \
+        "bench --site erp.ferumrus.ru set-admin-password fFeRu1011#f"

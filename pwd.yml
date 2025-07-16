@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   backend:
     image: frappe/erpnext:v15.70.0
@@ -46,39 +44,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
-  create-site:
-    image: frappe/erpnext:v15.70.0
-    networks:
-      - frappe_network
-    deploy:
-      restart_policy:
-        condition: none
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-    entrypoint:
-      - bash
-      - -c
-    command:
-      - >
-        wait-for-it -t 120 db:3306;
-        wait-for-it -t 120 redis-cache:6379;
-        wait-for-it -t 120 redis-queue:6379;
-        export start=`date +%s`;
-        until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_queue // empty"` ]];
-        do
-          echo "Waiting for sites/common_site_config.json to be created";
-          sleep 5;
-          if (( `date +%s`-start > 120 )); then
-            echo "could not find sites/common_site_config.json with required keys";
-            exit 1
-          fi
-        done;
-        echo "sites/common_site_config.json found";
-        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --set-default frontend;
-
+  
   db:
     image: mariadb:10.6
     networks:
@@ -125,7 +91,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - "8080:8080"
+      - "80:8080"
 
   queue-long:
     image: frappe/erpnext:v15.70.0
