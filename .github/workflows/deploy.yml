@@ -139,27 +139,43 @@ jobs:
           echo '${{ secrets.GITHUB_TOKEN }}' | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
         "
 
-    - name: Update and restart services
+    - name: Pull latest images
       run: |
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
-          
-          # Pull latest images
           docker compose pull
-          
-          # Stop services gracefully
+        "
+
+    - name: Stop services
+      run: |
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
           docker compose down --timeout 30
-          
-          # Start services
+        "
+
+    - name: Start services
+      run: |
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
           docker compose up -d
-          
-          # Wait for services to be ready
-          sleep 30
-          
-          # Run migrations on all sites
+        "
+
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for services to start..."
+        sleep 30
+
+    - name: Run migrations
+      run: |
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
           ./scripts/migrate-all-sites.sh
-          
-          # Show status
+        "
+
+    - name: Check service status
+      run: |
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
           docker compose ps
         "
 
