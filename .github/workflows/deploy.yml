@@ -41,7 +41,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     # Use environment for secrets management
-    environment: ${{ github.event.inputs.environment || 'production' }}
+    environment: ${{ github.event.inputs.environment || 'test' }}
     permissions:
       contents: read
       packages: write
