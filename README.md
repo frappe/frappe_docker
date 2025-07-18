@@ -20,7 +20,30 @@ The stack includes:
 4. **Frappe Framework** - The underlying framework
 5. **Supporting Services** - MariaDB, Redis, PostgreSQL, Nginx
 
-## 🚀 Quick Start
+## 🚀 I. Quick Start (Local)
+
+### Prerequisites
+
+- GitHub account with access to all repositories
+- Git and Docker on you machine
+
+### Basic Setup
+
+1. Clone this repository
+2. Create `.env` file in the root folder (check `.env.example` for inspiration)
+3. Run `docker compose up -d`
+4. Create a site by running `bash ./scripts/create-site.sh <your_site_name>`
+5. Set your site name in your machine's hosts file
+    - add the following line to your machine's hosts file
+        ```
+        127.0.0.1 <your_site_name>
+        ```
+    - hosts file location on mac / linus: `/etc/hosts/`
+    - hosts file location on windows:  `C:\Windows\System32\drivers\etc\hosts`
+ 6. Type <your_site_name> in your browser
+
+
+## 🚀 II. Quick Start (CI/CD)
 
 For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
