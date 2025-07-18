@@ -1,0 +1,284 @@
+name: Create Frappe Site
+
+on:
+  # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+          - production
+          - test
+      site_name:
+        description: 'Site name (e.g., academy.example.com)'
+        required: true
+        type: string
+      set_as_default:
+        description: 'Set as default site'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  HETZNER_HOST: 188.245.211.114
+  HETZNER_USER: ignis_academy_lms
+  DEPLOY_PATH: /opt/frappe-deployment
+
+jobs:
+  create-site:
+    runs-on: ubuntu-latest
+    # Use environment for secrets management
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - name: Validate site name
+      run: |
+        SITE_NAME="${{ github.event.inputs.site_name }}"
+        
+        # Validate site name (domain name or IP address)
+        # Domain name pattern
+        DOMAIN_PATTERN="^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$"
+        # IP address pattern (simple IPv4)
+        IP_PATTERN="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+        
+        if [[ "$SITE_NAME" =~ $IP_PATTERN ]]; then
+          # Validate IP address ranges (0-255 for each octet)
+          IFS='.' read -ra OCTETS <<< "$SITE_NAME"
+          for octet in "${OCTETS[@]}"; do
+            if [[ $octet -lt 0 || $octet -gt 255 ]]; then
+              echo "❌ Invalid IP address. Each octet must be between 0-255."
+              exit 1
+            fi
+          done
+          echo "✅ Valid IP address format: $SITE_NAME"
+        elif [[ "$SITE_NAME" =~ $DOMAIN_PATTERN ]]; then
+          echo "✅ Valid domain name format: $SITE_NAME"
+        else
+          echo "❌ Invalid site name format. Please use a valid domain name or IP address."
+          echo "Examples: academy.example.com, test-site.local, 192.168.1.100, 188.231.133.113"
+          exit 1
+        fi
+        
+        if [[ ${#SITE_NAME} -lt 3 ]]; then
+          echo "❌ Site name must be at least 3 characters long."
+          exit 1
+        fi
+        
+        if [[ ${#SITE_NAME} -gt 253 ]]; then
+          echo "❌ Site name must be less than 253 characters long."
+          exit 1
+        fi
+        
+        echo "✅ Site name validation passed: $SITE_NAME"
+
+    - name: Setup SSH key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+    - name: Add Hetzner server to known hosts
+      run: |
+        ssh-keyscan -H ${{ env.HETZNER_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Check if deployment exists
+      run: |
+        echo "🔍 Checking if deployment exists on server..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          if [ ! -d ${{ env.DEPLOY_PATH }} ]; then
+            echo '❌ Deployment directory not found at ${{ env.DEPLOY_PATH }}'
+            echo 'Please run the deploy action first to set up the application.'
+            exit 1
+          fi
+          
+          if [ ! -f ${{ env.DEPLOY_PATH }}/scripts/create-site.sh ]; then
+            echo '❌ create-site.sh script not found at ${{ env.DEPLOY_PATH }}/scripts/'
+            echo 'Please ensure the deployment includes the create-site.sh script in the scripts directory'
+            exit 1
+          fi
+          
+          echo '✅ Deployment found and ready'
+        "
+
+    - name: Check if site already exists
+      run: |
+        echo "🔍 Checking if site already exists..."
+        SITE_EXISTS=$(ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          # Check if site directory exists in sites folder
+          if docker compose exec -T backend test -d '/home/frappe/frappe-bench/sites/${{ github.event.inputs.site_name }}'; then
+            echo 'true'
+          else
+            echo 'false'
+          fi
+        ")
+        
+        if [ "$SITE_EXISTS" = "true" ]; then
+          echo "❌ Site '${{ github.event.inputs.site_name }}' already exists!"
+          echo "Please choose a different site name or remove the existing site first."
+          exit 1
+        fi
+        
+        echo "✅ Site name is available"
+
+    - name: Check services status
+      run: |
+        echo "🔍 Checking if services are running..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Check if containers are running
+          if ! docker compose ps --services --filter 'status=running' | grep -q 'backend'; then
+            echo '❌ Backend service is not running'
+            echo 'Please ensure the application is deployed and running'
+            exit 1
+          fi
+          
+          if ! docker compose ps --services --filter 'status=running' | grep -q 'mariadb'; then
+            echo '❌ MariaDB service is not running'
+            echo 'Please ensure the database is running'
+            exit 1
+          fi
+          
+          echo '✅ Required services are running'
+        "
+
+    - name: Prepare environment for site creation
+      run: |
+        echo "⚙️ Preparing environment..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Make sure the script is executable
+          chmod +x scripts/create-site.sh
+          
+          # Check if .env exists
+          if [ ! -f .env ]; then
+            echo '❌ .env file not found'
+            echo 'Please ensure the deployment is complete with environment configuration'
+            exit 1
+          fi
+          
+          echo '✅ Environment prepared'
+        "
+
+    - name: Create new site
+      run: |
+        echo "🌐 Creating site: ${{ github.event.inputs.site_name }}"
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        
+        # Prepare the set_as_default parameter
+        SET_AS_DEFAULT="${{ github.event.inputs.set_as_default }}"
+        if [ "$SET_AS_DEFAULT" = "true" ]; then
+          SET_DEFAULT_FLAG="y"
+        else
+          SET_DEFAULT_FLAG="n"
+        fi
+        
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Run the create-site script with automatic responses
+          timeout 300 ./scripts/create-site.sh '${{ github.event.inputs.site_name }}' '$SET_DEFAULT_FLAG'
+        "
+
+    - name: Verify site creation
+      run: |
+        echo "🔍 Verifying site creation..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Check if site was created successfully by checking if site directory exists
+          if docker compose exec -T backend test -d '/home/frappe/frappe-bench/sites/${{ github.event.inputs.site_name }}'; then
+            echo '✅ Site created successfully!'
+            
+            # Get site information
+            echo ''
+            echo '📋 Site Information:'
+            echo 'Site Name: ${{ github.event.inputs.site_name }}'
+            echo 'Environment: ${{ github.event.inputs.environment }}'
+            echo 'URL: http://${{ github.event.inputs.site_name }}'
+            echo ''
+            
+            # Show installed apps
+            echo '📦 Installed Apps:'
+            docker compose exec -T backend bench --site '${{ github.event.inputs.site_name }}' list-apps
+          else
+            echo '❌ Site creation verification failed'
+            echo 'Site directory was not created in /home/frappe/frappe-bench/sites/'
+            exit 1
+          fi
+        "
+
+    - name: Post-creation tasks
+      run: |
+        echo "🔧 Running post-creation tasks..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Clear cache for all sites
+          docker compose exec -T backend bench clear-cache
+          
+          # Restart services to ensure everything is properly loaded
+          docker compose restart frontend websocket
+          
+          echo '✅ Post-creation tasks completed'
+        "
+
+    - name: Final status check
+      run: |
+        echo "🏁 Final status check..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Show service status
+          echo '🐳 Container Status:'
+          docker compose ps
+          
+          echo ''
+          echo '📊 Site Status:'
+          # Check if site exists and show basic info
+          if docker compose exec -T backend test -d '/home/frappe/frappe-bench/sites/${{ github.event.inputs.site_name }}'; then
+            echo 'Site directory: ✅ Exists'
+            docker compose exec -T backend bench --site '${{ github.event.inputs.site_name }}' list-apps
+          else
+            echo 'Site directory: ❌ Not found'
+          fi
+        "
+
+    - name: Display success message
+      if: success()
+      run: |
+        echo ""
+        echo "🎉 Site creation completed successfully!"
+        echo ""
+        echo "📋 Site Details:"
+        echo "• Site Name: ${{ github.event.inputs.site_name }}"
+        echo "• Environment: ${{ github.event.inputs.environment }}"
+        echo "• URL: http://${{ github.event.inputs.site_name }}"
+        echo "• Set as Default: ${{ github.event.inputs.set_as_default }}"
+        echo ""
+        echo "🔐 Default Credentials:"
+        echo "• Username: Administrator"
+        echo "• Password: Check your .env file for ADMIN_PASSWORD"
+        echo ""
+        echo "🔧 Next Steps:"
+        echo "1. Update your DNS to point ${{ github.event.inputs.site_name }} to ${{ env.HETZNER_HOST }}"
+        echo "2. Configure SSL certificate for production use"
+        echo "3. Customize the site settings as needed"
+
+    - name: Display failure message
+      if: failure()
+      run: |
+        echo ""
+        echo "💥 Site creation failed!"
+        echo ""
+        echo "🔍 Troubleshooting steps:"
+        echo "1. Check if the deployment is running properly"
+        echo "2. Verify the site name doesn't already exist"
+        echo "3. Ensure the .env file is properly configured"
+        echo "4. Check the server logs for detailed error messages"
+        echo ""
+        echo "📞 For support, check the job logs above for specific error details."
