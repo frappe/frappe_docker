@@ -29,10 +29,15 @@ The stack includes:
 
 ### Basic Setup
 
-1. Clone this repository
+0. Use WSL or Linux 
+1. Clone this repository 
+    - run the next command in terminal: `git clone https://github.com/ExarLabs/academy_docker.git`
 2. Create `.env` file in the root folder (check `.env.example` for inspiration)
+    - run the next command in terminal: `cp .env.example .env`
+    - edit the `.env` file as you want. Note that if you change the `LANGCHAIN_DB_PASSWORD` env variable, you must also change it in the langchain repository's .env file 
 3. Run `docker compose up -d`
 4. Create a site by running `bash ./scripts/create-site.sh <your_site_name>`
+    - your site name must be a valid domain like name (for example academy.local, exar.labs) or an ip (like: 113.23.244.114)
 5. Set your site name in your machine's hosts file
     - add the following line to your machine's hosts file
         ```
