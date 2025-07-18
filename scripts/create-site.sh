@@ -39,9 +39,9 @@ echo "📦 Installing AI Tutor Chat..."
 docker compose exec -T backend bench --site "$SITE_NAME" install-app ai_tutor_chat
 
 # Set as default site (optional)
-read -p "Set as default site? (y/n) " -n 1 -r
+SET_DEFAULT_SITE="${2:-n}"
 echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
+if [[ $SET_DEFAULT_SITE =~ ^[Yy]$ ]]; then
     docker compose exec -T backend bench use "$SITE_NAME"
     echo "✅ Set as default site"
 fi
