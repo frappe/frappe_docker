@@ -6,7 +6,7 @@ set -e
 echo "🔄 Starting migration for all sites..."
 
 # Get list of all sites
-SITES=$(docker compose exec -T backend ls -1 /workspace/development/frappe-bench/sites | grep -v '^apps.txt$' | grep -v '^common_site_config.json$' | grep -v '^assets$' | grep -v '^\..*$')
+SITES=$(docker compose exec -T backend ls -1 /home/frappe/frappe-bench/sites | grep -v '^apps.txt$' | grep -v '^apps.json$' | grep -v '^common_site_config.json$' | grep -v '^assets$' | grep -v '^\..*$')
 
 if [ -z "$SITES" ]; then
     echo "❌ No sites found!"

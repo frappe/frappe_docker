@@ -169,6 +169,10 @@ jobs:
       run: |
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
+
+          # Make sure the script is executable
+          chmod +x scripts/*
+
           ./scripts/migrate-all-sites.sh
         "
 
