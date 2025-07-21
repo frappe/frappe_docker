@@ -123,6 +123,17 @@ Key environment variables:
 - View logs: `docker compose logs -f`
 - System health: `docker compose exec backend bench doctor`
 
+
+# Setup HTTPS for new domains / subdomains
+- SSL/TSL security protol is handled by installign `certbot` and `nginx`.
+- SSL/TSL certificate is generated and handled by `certbot`. Auto-renewing is enabled by a cronjob
+- some nginx configuration (proxying) is create at `/etc/nginx/sites-available/ignis.academy`
+
+## Steps 
+1.  update the `/etc/nginx/sites-available/ignis.academy` file by adding the new (sub-)domain to the `server_name` fields
+1. run the following command: `sudo certbot --nginx -d already.added.domain1 -d already.added.domain2 ... -d new.domain3`
+
+
 ## 🤝 Contributing
 
 1. Fork the repository
