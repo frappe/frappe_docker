@@ -22,8 +22,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          COMMIT_TITLE: "Auto-merge fieldmate release"
-          COMMIT_BODY: "Triggered by fieldmate release workflow"
+          COMMIT_TITLE: ${{ github.event.pull_request.title }}
+          COMMIT_BODY: ${{ github.event.pull_request.body }}
         run: |
           echo "ℹ️ Attempting GitHub auto-merge for PR #$PR_NUMBER"
 
