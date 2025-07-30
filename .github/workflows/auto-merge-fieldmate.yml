@@ -18,22 +18,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Enable auto-merge or fallback merge
+      - name: Enable GitHub auto-merge
         env:
           GH_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT_TITLE: "Auto-merge fieldmate release"
+          COMMIT_BODY: "Triggered by fieldmate release workflow"
         run: |
-          echo "Trying to enable auto-merge for PR #$PR_NUMBER"
-          # Try auto-merge first
+          echo "ℹ️ Attempting GitHub auto-merge for PR #$PR_NUMBER"
+
           gh pr merge "$PR_NUMBER" \
             --squash \
             --auto \
             --delete-branch \
             --body "$COMMIT_BODY" \
-            --subject "$COMMIT_TITLE" || \
-          # Fallback: direct squash merge
-          gh pr merge "$PR_NUMBER" \
-            --squash \
-            --delete-branch \
-            --body "$COMMIT_BODY" \
             --subject "$COMMIT_TITLE"
+
+          echo "✅ Auto-merge enabled"
