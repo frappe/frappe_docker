@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   backend:
     image: frappe/erpnext:v15.75.1
@@ -13,9 +11,8 @@ services:
       - logs:/home/frappe/frappe-bench/logs
     environment:
       DB_HOST: db
-      DB_PORT: "3306"
-      MYSQL_ROOT_PASSWORD: admin
-      MARIADB_ROOT_PASSWORD: admin
+      # MYSQL_ROOT_PASSWORD: admin
+      # MARIADB_ROOT_PASSWORD: admin
 
   configurator:
     image: frappe/erpnext:v15.75.1
@@ -38,10 +35,12 @@ services:
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
     environment:
       DB_HOST: db
-      DB_PORT: "3306"
+      DB_PORT: "5432"
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
       SOCKETIO_PORT: "9000"
+    depends_on:
+      - db
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -61,8 +60,7 @@ services:
       - -c
     command:
       - >
-        wait-for-it -t 120 db:3306;
-        wait-for-it -t 120 redis-cache:6379;
+        wait-for-it -t 120 db:5432;
         wait-for-it -t 120 redis-queue:6379;
         export start=`date +%s`;
         until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
@@ -77,10 +75,11 @@ services:
           fi
         done;
         echo "sites/common_site_config.json found";
-        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --set-default frontend;
+        bench new-site --db-type postgres --db-host db  --db-password=123 --admin-password=123 --db-root-username=postgres --db-root-password=123 --install-app erpnext --set-default frontend;
 
   db:
-    image: mariadb:10.6
+    image: pgvector/pgvector:pg17
+    command: []
     networks:
       - frappe_network
     healthcheck:
@@ -90,16 +89,14 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
-      MYSQL_ROOT_PASSWORD: admin
-      MARIADB_ROOT_PASSWORD: admin
+      # MYSQL_ROOT_PASSWORD: admin
+      # MARIADB_ROOT_PASSWORD: admin
+      # POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: sin
     volumes:
-      - db-data:/var/lib/mysql
+      - pg-data:/var/lib/postgresql/data
 
   frontend:
     image: frappe/erpnext:v15.75.1
@@ -206,7 +203,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
 volumes:
-  db-data:
+  pg-data:
   redis-queue-data:
   sites:
   logs:
