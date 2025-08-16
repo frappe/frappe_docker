@@ -103,7 +103,7 @@ def get_args_parser():
         action="store",
         type=str,
         help="admin password for site, default: admin",  # noqa: E501
-        default="admin",
+        default="123",
     )
     parser.add_argument(
         "-d",
@@ -111,7 +111,7 @@ def get_args_parser():
         action="store",
         type=str,
         help="Database type to use (e.g., mariadb or postgres)",
-        default="mariadb",  # Set your default database type here
+        default="postgres",  # Set your default database type here
     )
     return parser
 
@@ -208,7 +208,7 @@ def create_site_in_bench(args):
             "bench",
             "new-site",
             f"--db-root-username=root",
-            f"--db-host=mariadb",  # Should match the compose service name
+            f"--db-host=db",  # Should match the compose service name
             f"--db-type={args.db_type}",  # Add the selected database type
             f"--mariadb-user-host-login-scope=%",
             f"--db-root-password=123",  # Replace with your MariaDB password
@@ -217,14 +217,14 @@ def create_site_in_bench(args):
     else:
         cprint("Set db_host", level=3)
         subprocess.call(
-            ["bench", "set-config", "-g", "db_host", "postgresql"],
+            ["bench", "set-config", "-g", "db_host", "db"],
             cwd=os.getcwd() + "/" + args.bench_name,
         )
         new_site_cmd = [
             "bench",
             "new-site",
-            f"--db-root-username=root",
-            f"--db-host=postgresql",  # Should match the compose service name
+            f"--db-root-username=postgres",
+            f"--db-host=db",  # Should match the compose service name
             f"--db-type={args.db_type}",  # Add the selected database type
             f"--db-root-password=123",  # Replace with your PostgreSQL password
             f"--admin-password={args.admin_password}",
