@@ -33,6 +33,8 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+    extra_hosts:
+      - "erp-sb1.mitrabisnisdigital.com:host-gateway"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -103,6 +105,7 @@ services:
         done;
         echo "sites/common_site_config.json found";
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --set-default erp-sb1.mitrabisnisdigital.com;
+        **bench --site erp-sb1.mitrabisnisdigital.com set-config host_name http://erp-sb1.mitrabisnisdigital.com;**
 
   db:
     image: mariadb:10.6
