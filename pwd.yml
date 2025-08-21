@@ -33,8 +33,8 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-      extra_hosts:
-      - "erp-sb1.mitrabisnisdigital.com:host-gateway"
+    # extra_hosts:
+      # - "erp-sb1.mitrabisnisdigital.com:host-gateway"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
