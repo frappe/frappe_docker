@@ -33,8 +33,8 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-    extra_hosts:
-      - "erp-sb1.mitrabisnisdigital.com:host-gateway"
+    # extra_hosts:
+      # - "erp-sb1.mitrabisnisdigital.com:host-gateway"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -73,7 +73,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
-  create-site:
+  create-site-1:
     image: frappe/erpnext:v15.74.0
     networks:
       - frappe_network
@@ -106,6 +106,28 @@ services:
         echo "sites/common_site_config.json found";
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --set-default erp-sb1.mitrabisnisdigital.com;
         **bench --site erp-sb1.mitrabisnisdigital.com set-config host_name http://erp-sb1.mitrabisnisdigital.com;**
+        
+  create-site-2:
+    image: frappe/erpnext:v15.74.0
+    networks:
+      - frappe_network
+    depends_on:
+      - configurator
+    deploy:
+      restart_policy:
+        condition: none
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    entrypoint:
+      - bash
+      - -c
+    command: >
+      wait-for-it -t 120 db:3306;
+      wait-for-it -t 120 redis-cache:6379;
+      wait-for-it -t 120 redis-queue:6379;
+      bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --set-default erp-sb2.mitrabisnisdigital.com;
+      bench --site erp-sb2.mitrabisnisdigital.com set-config host_name http://erp-sb2.mitrabisnisdigital.com;
 
   db:
     image: mariadb:10.6
@@ -142,7 +164,7 @@ services:
       - nginx-entrypoint.sh
     environment:
       BACKEND: backend:8000
-      FRAPPE_SITE_NAME_HEADER: erp-sb1.mitrabisnisdigital.com
+      # FRAPPE_SITE_NAME_HEADER: erp-sb1.mitrabisnisdigital.com
       SOCKETIO: websocket:9000
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
@@ -151,10 +173,16 @@ services:
       CLIENT_MAX_BODY_SIZE: 50m
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.erp.rule=Host(`erp-sb1.mitrabisnisdigital.com`)"
-      - "traefik.http.routers.erp.entrypoints=websecure"
-      - "traefik.http.routers.erp.tls.certresolver=myresolver"
-      - "traefik.http.services.erp.loadbalancer.server.port=8080"
+      # Labels for the first site
+      - "traefik.http.routers.erp-sb1.rule=Host(`erp-sb1.mitrabisnisdigital.com`)"
+      - "traefik.http.routers.erp-sb1.entrypoints=websecure"
+      - "traefik.http.routers.erp-sb1.tls.certresolver=myresolver"
+      - "traefik.http.services.erp-sb1.loadbalancer.server.port=8080"
+      # Labels for the second site
+      - "traefik.http.routers.erp-2.rule=Host(`erp-sb2.mitrabisnisdigital.com`)"
+      - "traefik.http.routers.erp-2.entrypoints=websecure"
+      - "traefik.http.routers.erp-2.tls.certresolver=myresolver"
+      - "traefik.http.services.erp-2.loadbalancer.server.port=8080"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
