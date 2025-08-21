@@ -155,7 +155,13 @@ services:
       - "traefik.http.routers.erp.entrypoints=websecure"
       - "traefik.http.routers.erp.tls.certresolver=myresolver"
       - "traefik.http.services.erp.loadbalancer.server.port=8080"
+      
+      # 👇 Explicit router for erp-sb3 with TLS and service
       - "traefik.http.routers.erp-sb3.rule=Host(`erp-sb3.mitrabisnisdigital.com`)"
+      - "traefik.http.routers.erp-sb3.entrypoints=websecure"
+      - "traefik.http.routers.erp-sb3.tls=true"
+      - "traefik.http.routers.erp-sb3.tls.certresolver=myresolver"
+      - "traefik.http.routers.erp-sb3.service=erp"  # 👈 don't forget this line!
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
