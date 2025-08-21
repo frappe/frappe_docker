@@ -177,7 +177,7 @@ services:
       - nginx-entrypoint.sh
     environment:
       BACKEND: backend:8000
-      FRAPPE_SITE_NAME_HEADER: erp-sb1.mitrabisnisdigital.com
+      FRAPPE_SITE_NAME_HEADER: X-Frappe-Site-Name
       SOCKETIO: websocket:9000
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
@@ -189,18 +189,17 @@ services:
       - "traefik.http.routers.erp.rule=Host(`erp-sb1.mitrabisnisdigital.com`)"
       - "traefik.http.routers.erp.entrypoints=websecure"
       - "traefik.http.routers.erp.tls.certresolver=myresolver"
-      - "traefik.http.services.erp.loadbalancer.server.port=8080"
+      - "traefik.http.services.erp.loadbalancer.server.port=80"
 
-      # for site 2
       - "traefik.http.routers.erp2.rule=Host(`erp-sb2.mitrabisnisdigital.com`)"
       - "traefik.http.routers.erp2.entrypoints=websecure"
       - "traefik.http.routers.erp2.tls.certresolver=myresolver"
-      - "traefik.http.services.erp2.loadbalancer.server.port=8080"
+      - "traefik.http.services.erp2.loadbalancer.server.port=80"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
 
   queue-long:
     image: frappe/erpnext:v15.74.0
