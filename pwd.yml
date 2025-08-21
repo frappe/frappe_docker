@@ -155,6 +155,7 @@ services:
       - "traefik.http.routers.erp.entrypoints=websecure"
       - "traefik.http.routers.erp.tls.certresolver=myresolver"
       - "traefik.http.services.erp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.erp-sb3.rule=Host(`erp-sb3.mitrabisnisdigital.com`)"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
