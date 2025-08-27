@@ -35,10 +35,10 @@ services:
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
     environment:
       DB_HOST: db
-      DB_PORT: "5432"
+      DB_PORT: '5432'
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
-      SOCKETIO_PORT: "9000"
+      SOCKETIO_PORT: '9000'
     depends_on:
       - db
     volumes:
@@ -115,14 +115,14 @@ services:
       SOCKETIO: websocket:9000
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
-      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      UPSTREAM_REAL_IP_RECURSIVE: 'off'
       PROXY_READ_TIMEOUT: 120
       CLIENT_MAX_BODY_SIZE: 50m
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - "8080:8080"
+      - '8080:8080'
 
   queue-long:
     image: frappe/erpnext:v15.75.1
@@ -192,6 +192,9 @@ services:
     image: frappe/erpnext:v15.75.1
     networks:
       - frappe_network
+    depends_on:
+      - redis_cache
+      - redis_queue
     deploy:
       restart_policy:
         condition: on-failure
