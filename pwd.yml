@@ -36,6 +36,10 @@ services:
         bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
         bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
+        bench get-app --branch version-15 hrms "https://github.com/frappe/hrms";
+        bench install-app hrms;
+        bench migrate;
+        bench clear-cache;
     environment:
       DB_HOST: db
       DB_PORT: "3306"
