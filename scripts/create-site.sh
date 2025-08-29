@@ -30,13 +30,21 @@ docker compose exec -T backend bench new-site \
     --db-root-password="$MARIADB_ROOT_PASSWORD" \
     "$SITE_NAME"
 
+# Install AI Tutor Chat
+echo "📦 Installing AI Tutor Chat..."
+docker compose exec -T backend bench --site "$SITE_NAME" install-app ai_tutor_chat
+
 # Install LMS
 echo "📦 Installing Academy LMS..."
 docker compose exec -T backend bench --site "$SITE_NAME" install-app lms
 
-# Install AI Tutor Chat
-echo "📦 Installing AI Tutor Chat..."
-docker compose exec -T backend bench --site "$SITE_NAME" install-app ai_tutor_chat
+# Download Payments App
+echo "📦 Downloading Payments App..."
+docker compose exec -T backend bench get-app payments
+
+# Install Payments App
+echo "📦 Installing Payments App..."
+docker compose exec -T backend bench --site "$SITE_NAME" install-app payments
 
 # Set as default site (optional)
 SET_DEFAULT_SITE_FLAG="${2:-n}"
