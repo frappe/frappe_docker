@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: frappe/erpnext:v15.77.0
+    image: frappe/erpnext:v15.78.0
     networks:
       - frappe_network
     deploy:
@@ -18,7 +18,7 @@ services:
       MARIADB_ROOT_PASSWORD: admin
 
   configurator:
-    image: frappe/erpnext:v15.77.0
+    image: frappe/erpnext:v15.78.0
     networks:
       - frappe_network
     deploy:
@@ -51,7 +51,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   create-site:
-    image: frappe/erpnext:v15.77.0
+    image: frappe/erpnext:v15.78.0
     networks:
       - frappe_network
     deploy:
@@ -106,7 +106,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext:v15.77.0
+    image: frappe/erpnext:v15.78.0
     networks:
       - frappe_network
     depends_on:
@@ -132,7 +132,7 @@ services:
       - "8081:8080"
 
   queue-long:
-    image: frappe/erpnext:v15.77.0
+    image: frappe/erpnext:v15.78.0
     networks:
       - frappe_network
     deploy:
@@ -148,7 +148,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   queue-short:
-    image: frappe/erpnext:v15.77.0
+    image: frappe/erpnext:v15.78.0
     networks:
       - frappe_network
     deploy:
@@ -182,7 +182,7 @@ services:
         condition: on-failure
 
   scheduler:
-    image: frappe/erpnext:v15.77.0
+    image: frappe/erpnext:v15.78.0
     networks:
       - frappe_network
     deploy:
@@ -196,7 +196,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   websocket:
-    image: frappe/erpnext:v15.77.0
+    image: frappe/erpnext:v15.78.0
     networks:
       - frappe_network
     deploy:
