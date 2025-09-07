@@ -1,0 +1,38 @@
+[
+  {
+    "git_url": "https://github.com/frappe/erpnext",
+    "branch": "version-15"
+  },
+  {
+    "git_url": "https://github.com/frappe/hrms",
+    "branch": "main"
+  },
+  {
+    "git_url": "https://github.com/frappe/crm",
+    "branch": "main"
+  },
+  {
+    "git_url": "https://github.com/frappe/helpdesk",
+    "branch": "main"
+  },
+  {
+    "git_url": "https://github.com/frappe/drive",
+    "branch": "main"
+  },
+  {
+    "git_url": "https://github.com/frappe/studio",
+    "branch": "main"
+  },
+  {
+    "git_url": "https://github.com/frappe/wiki",
+    "branch": "main"
+  },
+  {
+    "git_url": "https://github.com/frappe/insights",
+    "branch": "main"
+  },
+  {
+    "git_url": "https://github.com/frappe/books",
+    "branch": "main"
+  }
+]
