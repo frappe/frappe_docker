@@ -2,8 +2,17 @@ x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
   # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
   # about using custom images.
-  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
-  pull_policy: ${PULL_POLICY:-always}
+  #
+  # This setup is modified to build a custom image with the apps defined in `apps.json`.
+  image: frappe-custom:latest
+  build:
+    context: .
+    dockerfile: images/layered/Containerfile
+    args:
+      FRAPPE_PATH: https://github.com/frappe/frappe
+      FRAPPE_BRANCH: version-15
+      APPS_JSON_BASE64: WwogIHsKICAgICJnaXRfdXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9mcmFwcGUvZXJwbmV4dCIsCiAgICAiYnJhbmNoIjogInZlcnNpb24tMTUiCiAgfSwKICB7CiAgICAiZ2l0X3VybCI6ICJodHRwczovL2dpdGh1Yi5jb20vZnJhcHBlL2hybXMiLAogICAgImJyYW5jaCI6ICJtYWluIgogIH0sCiAgewogICAgImdpdF91cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL2ZyYXBwZS9jcm0iLAogICAgImJyYW5jaCI6ICJtYWluIgogIH0sCiAgewogICAgImdpdF91cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL2ZyYXBwZS9oZWxwZGVzayIsCiAgICAiYnJhbmNoIjogIm1haW4iCiAgfSwKICB7CiAgICAiZ2l0X3VybCI6ICJodHRwczovL2dpdGh1Yi5jb20vZnJhcHBlL2RyaXZlIiwKICAgICJicmFuY2giOiAibWFpbiIKICB9LAogIHsKICAgICJnaXRfdXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9mcmFwcGUvc3R1ZGlvIiwKICAgICJicmFuY2giOiAibWFpbiIKICB9LAogIHsKICAgICJnaXRfdXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9mcmFwcGUvd2lraSIsCiAgICAiYnJhbmNoIjogIm1haW4iCiAgfSwKICB7CiAgICAiZ2l0X3VybCI6ICJodHRwczovL2dpdGh1Yi5jb20vZnJhcHBlL2luc2lnaHRzIiwKICAgICJicmFuY2giOiAibWFpbiIKICB9LAogIHsKICAgICJnaXRfdXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9mcmFwcGUvYm9va3MiLAogICAgImJyYW5jaCI6ICJtYWluIgogIH0KXQo=
+  pull_policy: never
   restart: ${RESTART_POLICY:-unless-stopped}
 
 x-depends-on-configurator: &depends_on_configurator
