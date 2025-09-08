@@ -30,9 +30,5 @@
   {
     "git_url": "https://github.com/frappe/insights",
     "branch": "main"
-  },
-  {
-    "git_url": "https://github.com/frappe/books",
-    "branch": "main"
   }
 ]

@@ -82,8 +82,7 @@ services:
         bench get-app https://github.com/frappe/studio;
         bench get-app https://github.com/frappe/wiki;
         bench get-app https://github.com/frappe/insights;
-        bench get-app https://github.com/frappe/books;
-        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext,hrms,crm,helpdesk,drive,studio,wiki,insights,books --set-default frontend;
+        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext,hrms,crm,helpdesk,drive,studio,wiki,insights --set-default frontend;
 
   db:
     image: mariadb:10.6
