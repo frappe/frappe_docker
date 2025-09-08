@@ -78,13 +78,16 @@ services:
             fi; \
           done; \
           echo \"sites/common_site_config.json found\"; \
-          bench get-app https://github.com/frappe/hrms; \
-          bench get-app https://github.com/frappe/crm; \
-          bench get-app https://github.com/frappe/helpdesk; \
-          bench get-app https://github.com/frappe/drive; \
-          bench get-app https://github.com/frappe/studio; \
-          bench get-app https://github.com/frappe/wiki; \
-          bench get-app https://github.com/frappe/insights; \
+          bench get-app --resolve-deps https://github.com/frappe/hrms; \
+          bench get-app --resolve-deps https://github.com/frappe/crm; \
+          bench get-app --resolve-deps https://github.com/frappe/helpdesk; \
+          bench get-app --resolve-deps https://github.com/frappe/drive; \
+          bench get-app --resolve-deps https://github.com/frappe/studio; \
+          bench get-app --resolve-deps https://github.com/frappe/wiki; \
+          bench get-app --resolve-deps https://github.com/frappe/insights; \
+          /home/frappe/frappe-bench/env/bin/pip install \
+            \"beautifulsoup4~=4.12.2\" \
+            \"boto3~=1.34.143\"; \
           bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext,hrms,crm,helpdesk,drive,studio,wiki,insights --set-default frontend; \
         ";
         chown -R frappe:frappe /home/frappe/frappe-bench;

@@ -45,6 +45,7 @@ RUN apt-get update \
     libldap2-dev \
     libmariadb-dev \
     libmariadb-dev-compat \
+    default-libmysqlclient-dev \
     libsasl2-dev \
     libtiff5-dev \
     libwebp-dev \
