@@ -46,6 +46,7 @@ services:
 
   create-site:
     image: frappe/erpnext:v15.78.1
+    user: root
     networks:
       - frappe_network
     deploy:
@@ -62,27 +63,31 @@ services:
         wait-for-it -t 120 db:3306;
         wait-for-it -t 120 redis-cache:6379;
         wait-for-it -t 120 redis-queue:6379;
-        export start=`date +%s`;
-        until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_queue // empty"` ]];
-        do
-          echo "Waiting for sites/common_site_config.json to be created";
-          sleep 5;
-          if (( `date +%s`-start > 120 )); then
-            echo "could not find sites/common_site_config.json with required keys";
-            exit 1
-          fi
-        done;
-        echo "sites/common_site_config.json found";
-        bench get-app https://github.com/frappe/hrms;
-        bench get-app https://github.com/frappe/crm;
-        bench get-app https://github.com/frappe/helpdesk;
-        bench get-app https://github.com/frappe/drive;
-        bench get-app https://github.com/frappe/studio;
-        bench get-app https://github.com/frappe/wiki;
-        bench get-app https://github.com/frappe/insights;
-        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext,hrms,crm,helpdesk,drive,studio,wiki,insights --set-default frontend;
+        apt-get update;
+        apt-get install -y pkg-config;
+        su frappe -c "export start=\`date +%s\`; \
+          until [[ -n \`grep -hs ^ sites/common_site_config.json | jq -r \".db_host // empty\"\` ]] && \
+            [[ -n \`grep -hs ^ sites/common_site_config.json | jq -r \".redis_cache // empty\"\` ]] && \
+            [[ -n \`grep -hs ^ sites/common_site_config.json | jq -r \".redis_queue // empty\"\` ]]; \
+          do \
+            echo \"Waiting for sites/common_site_config.json to be created\"; \
+            sleep 5; \
+            if (( \`date +%s\`-start > 120 )); then \
+              echo \"could not find sites/common_site_config.json with required keys\"; \
+              exit 1; \
+            fi; \
+          done; \
+          echo \"sites/common_site_config.json found\"; \
+          bench get-app https://github.com/frappe/hrms; \
+          bench get-app https://github.com/frappe/crm; \
+          bench get-app https://github.com/frappe/helpdesk; \
+          bench get-app https://github.com/frappe/drive; \
+          bench get-app https://github.com/frappe/studio; \
+          bench get-app https://github.com/frappe/wiki; \
+          bench get-app https://github.com/frappe/insights; \
+          bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext,hrms,crm,helpdesk,drive,studio,wiki,insights --set-default frontend; \
+        ";
+        chown -R frappe:frappe /home/frappe/frappe-bench;
 
   db:
     image: mariadb:10.6
