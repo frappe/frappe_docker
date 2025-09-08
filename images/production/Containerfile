@@ -28,6 +28,7 @@ RUN useradd -ms /bin/bash frappe \
     # MariaDB
     mariadb-client \
     libmariadb-dev \
+    libmariadb-dev-compat \
     less \
     pkg-config \
     # Postgres
@@ -85,6 +86,7 @@ RUN apt-get update \
     liblcms2-dev \
     libldap2-dev \
     libmariadb-dev \
+    libmariadb-dev-compat \
     libsasl2-dev \
     libtiff5-dev \
     libwebp-dev \

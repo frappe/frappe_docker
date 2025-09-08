@@ -91,6 +91,7 @@ RUN apt-get update \
     liblcms2-dev \
     libldap2-dev \
     libmariadb-dev \
+    libmariadb-dev-compat \
     libsasl2-dev \
     libtiff5-dev \
     libwebp-dev \
