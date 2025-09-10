@@ -1,6 +1,6 @@
 ### Load custom apps through apps.json file
 
-Base64 encoded string of `apps.json` file needs to be passed in as build arg environment variable.
+A base64 encoded string of `apps.json` file needs to be passed in as a build arg environment variable.
 
 Create the following `apps.json` file:
 
@@ -23,9 +23,9 @@ Create the following `apps.json` file:
 
 Note:
 
-- The `url` needs to be http(s) git url with personal access tokens without username eg:- `http://{{PAT}}@github.com/project/repository.git` in case of private repo.
-- Add dependencies manually in `apps.json` e.g. add `erpnext` if you are installing `hrms`.
-- Use fork repo or branch for ERPNext in case you need to use your fork or test a PR.
+- The `url` needs to be an http(s) git url with a personal access token (without username). For example, in the case of a private repo, you would use: `http://{{PAT}}@github.com/project/repository.git` 
+- Add dependencies manually in `apps.json`. For example, add `erpnext` if you are installing `hrms`.
+- Use a fork repo or branch for ERPNext in case you need to use your fork or test a PR.
 
 Generate base64 string from json file:
 
@@ -35,15 +35,15 @@ export APPS_JSON_BASE64=$(base64 -w 0 /path/to/apps.json)
 
 Test the Previous Step: Decode the Base64-encoded Environment Variable
 
-To verify the previous step, decode the `APPS_JSON_BASE64` environment variable (which is Base64-encoded) into a JSON file. Follow the steps below:
+To verify the previous step, decode the `APPS_JSON_BASE64` environment variable (which is Base64-encoded) into a JSON file:
 
-1. Use the following command to decode and save the output into a JSON file named apps-test-output.json:
+1. Use the following command to decode and save the output into a JSON file named `apps-test-output.json`:
 
 ```shell
 echo -n ${APPS_JSON_BASE64} | base64 -d > apps-test-output.json
 ```
 
-2. Open the apps-test-output.json file to review the JSON output and ensure that the content is correct.
+2. Open the `apps-test-output.json` file to review the JSON output and ensure that the content is correct.
 
 ### Clone frappe_docker and switch directory
 
@@ -64,7 +64,7 @@ Notes
 
 - Use `buildah` or `docker` as per your setup.
 - Make sure `APPS_JSON_BASE64` variable has correct base64 encoded JSON string. It is consumed as build arg, base64 encoding ensures it to be friendly with environment variables. Use `jq empty apps.json` to validate `apps.json` file.
-- Make sure the `--tag` is valid image name that will be pushed to registry. See section [below](#use-images) for remarks about its use.
+- Make sure the `--tag` is valid image name that will be pushed to registry. See the [use-images](#use-images) section below for remarks about its use.
 - `.git` directories for all apps are removed from the image.
 
 ### Quick build image
@@ -84,7 +84,7 @@ docker build \
 
 ### Custom build image
 
-This method builds the base and build layer every time, it allows to customize Python and NodeJS runtime versions. It takes more time to build.
+This method builds the base and build layer every time, it allows you to customize the Python and NodeJS runtime versions. This method will take more time to build.
 
 It uses `images/custom/Containerfile`.
 
@@ -99,7 +99,7 @@ docker build \
   --file=images/custom/Containerfile .
 ```
 
-Custom build args,
+Custom build args:
 
 - `PYTHON_VERSION`, use the specified python version for base image. Default is `3.11.6`.
 - `NODE_VERSION`, use the specified nodejs version, Default `20.19.2`.
@@ -123,7 +123,7 @@ docker push ghcr.io/user/repo/custom:1.0.0
 
 ### Use Images
 
-In the [compose.yaml](../compose.yaml), you can set the image name and tag through environment variables, making it easier to customize.
+In [`compose.yaml`](../compose.yaml), you can set the image name and tag through environment variables, making it easier to customize.
 
 ```yaml
 x-customizable-image: &customizable_image
@@ -131,7 +131,7 @@ x-customizable-image: &customizable_image
   pull_policy: ${PULL_POLICY:-always}
 ```
 
-The environment variables can be set in the shell or in the .env file as [setup-options.md](setup-options.md) describes.
+The environment variables can be set in the shell or in the .env file as described in [setup-options.md](setup-options.md):
 
 - `CUSTOM_IMAGE`: The name of your custom image. Defaults to `frappe/erpnext` if not set.
 - `CUSTOM_TAG`: The tag for your custom image. Must be set if `CUSTOM_IMAGE` is used. Defaults to the value of `ERPNEXT_VERSION` if not set.
@@ -141,7 +141,7 @@ The environment variables can be set in the shell or in the .env file as [setup-
 
 Make sure the image name is correct before pushing to the registry. After the images are pushed, you can pull them to servers to be deployed. If the registry is private, additional auth is needed.
 
-#### Example
+#### Image Usage Example
 
 If you built an image with the tag `ghcr.io/user/repo/custom:1.0.0`, you would set the environment variables as follows:
 
