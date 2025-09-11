@@ -77,6 +77,18 @@ bench init --skip-redis-config-generation frappe-bench
 cd frappe-bench
 ```
 
+
+To setup frappe framework version 15
+
+```
+nvm use v18
+PYENV_VERSION=3.10 bench init --skip-redis-config-generation --frappe-branch version-15 frappe-bench-v15
+# Switch directory
+cd frappe-bench-v15
+```
+
+
+
 To setup frappe framework version 14 bench set `PYENV_VERSION` environment variable to `3.10.5` (default) and use NodeJS version 16 (default),
 
 ```shell
