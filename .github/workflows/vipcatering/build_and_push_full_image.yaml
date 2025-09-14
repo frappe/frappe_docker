@@ -1,0 +1,17 @@
+name: Hello World Workflow
+
+on:
+  workflow_dispatch: # Allows manual triggering via GitHub UI
+  push: # Optional: Trigger on push to main branch
+    branches:
+      - main
+      - feature/added-gh-workflow
+
+jobs:
+  hello-world-job:
+    name: Print Hello World
+    runs-on: [ "centr-gh-runner" ] # Use your custom runner
+
+    steps:
+      - name: Print Hello World
+        run: echo "Hello World!"
