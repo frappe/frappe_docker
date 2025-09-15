@@ -42,8 +42,7 @@ services:
     image: docker.io/redis:alpine
 
   frappe:
-    image: docker.io/frappe/bench:latest
-    platform: linux/amd64
+    build: ../images/bench
     command: sleep infinity
     environment:
       - SHELL=/bin/bash
