@@ -2,7 +2,6 @@ Create backup service or stack.
 
 ```yaml
 # backup-job.yml
-version: "3.7"
 services:
   backup:
     image: frappe/erpnext:${VERSION}
