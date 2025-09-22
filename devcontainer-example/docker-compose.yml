@@ -42,7 +42,9 @@ services:
     image: docker.io/redis:alpine
 
   frappe:
-    build: ../images/bench
+    image: docker.io/frappe/bench:latest
+    # If you want to build the current bench image the Containerfile is in this Repo.
+    # build: ../images/bench
     command: sleep infinity
     environment:
       - SHELL=/bin/bash
