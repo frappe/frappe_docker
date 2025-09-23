@@ -188,6 +188,21 @@ docker compose --project-name erpnext-one exec backend \
   bench new-site --mariadb-user-host-login-scope=% --db-root-password changeit --install-app erpnext --admin-password changeit two.example.com
 ```
 
+Install Python dependencies for all apps (including your custom ones)
+```shell
+docker compose --project-name erpnext-one exec backend
+bench setup requirements
+```
+
+Running bench setup requirements after site creation ensures:
+
+All app dependencies from pyproject.toml or requirements.txt are installed.
+
+Any app hooks or modules that read common_site_config.json will work correctly.
+
+You only need to run bench setup requirements once per bench, even if you create multiple sites later.
+
+
 #### Create second bench
 
 Setting up additional bench is optional. Continue only if you need multi bench setup.
