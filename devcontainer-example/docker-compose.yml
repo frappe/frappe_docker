@@ -2,7 +2,6 @@ version: "3.7"
 services:
   mariadb:
     image: docker.io/mariadb:10.6
-    platform: linux/amd64
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -38,15 +37,14 @@ services:
 
   redis-cache:
     image: docker.io/redis:alpine
-    platform: linux/amd64
 
   redis-queue:
     image: docker.io/redis:alpine
-    platform: linux/amd64
 
   frappe:
     image: docker.io/frappe/bench:latest
-    platform: linux/amd64
+    # If you want to build the current bench image the Containerfile is in this Repo.
+    # build: ../images/bench
     command: sleep infinity
     environment:
       - SHELL=/bin/bash
