@@ -10,9 +10,11 @@ services:
   db:
     image: mariadb:11.8
     healthcheck:
-      test: mariadb-admin ping -h localhost --password=${DB_PASSWORD:-123}
-      interval: 1s
-      retries: 20
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
     command:
       - --character-set-server=utf8mb4
