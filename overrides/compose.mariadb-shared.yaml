@@ -6,7 +6,7 @@ services:
     image: mariadb:11.8
     restart: unless-stopped
     healthcheck:
-      test: mysqladmin ping -h localhost --password=${DB_PASSWORD:-changeit}
+      test: mariadb-admin ping -h localhost --password=${DB_PASSWORD:-changeit}
       interval: 1s
       retries: 20
     command:
@@ -16,6 +16,7 @@ services:
       - --skip-innodb-read-only-compressed
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-changeit}
+      MARIADB_AUTO_UPGRADE: 1
     volumes:
       - db-data:/var/lib/mysql
     networks:
