@@ -8,7 +8,7 @@ services:
         condition: service_healthy
 
   db:
-    image: mariadb:10.6
+    image: mariadb:11.8
     healthcheck:
       test: mysqladmin ping -h localhost --password=${DB_PASSWORD:-123}
       interval: 1s

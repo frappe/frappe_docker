@@ -3,7 +3,7 @@ version: "3.3"
 services:
   database:
     container_name: mariadb-database
-    image: mariadb:10.6
+    image: mariadb:11.8
     restart: unless-stopped
     healthcheck:
       test: mysqladmin ping -h localhost --password=${DB_PASSWORD:-changeit}
