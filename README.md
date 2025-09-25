@@ -3,6 +3,8 @@
 
 # Frappe Docker
 
+Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers.
+
 Production-ready containerized setup for [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) applications. This repository provides Docker images and deployment configurations for running Frappe/ERPNext in both development and production environments.
 
 ## Table of Contents
