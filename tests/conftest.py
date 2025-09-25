@@ -151,6 +151,7 @@ def s3_service(python_path: str, compose: Compose):
     subprocess.check_call(cmd)
 
     compose("cp", "tests/_create_bucket.py", "backend:/tmp")
+    compose.exec("backend", "bench", "pip", "install", "boto3~=1.34.143")
     compose.exec(
         "-e",
         f"S3_ACCESS_KEY={access_key}",

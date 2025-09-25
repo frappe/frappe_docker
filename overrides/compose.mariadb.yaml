@@ -10,7 +10,7 @@ services:
   db:
     image: mariadb:10.6
     healthcheck:
-      test: mysqladmin ping -h localhost --password=${DB_PASSWORD}
+      test: mysqladmin ping -h localhost --password=${DB_PASSWORD:-123}
       interval: 1s
       retries: 20
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
       - --skip-character-set-client-handshake
       - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?No db password set}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-123}
     volumes:
       - db-data:/var/lib/mysql
 
