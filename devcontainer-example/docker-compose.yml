@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   mariadb:
-    image: docker.io/mariadb:10.6
+    image: docker.io/mariadb:11.8
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -9,6 +9,7 @@ services:
       - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
       MYSQL_ROOT_PASSWORD: 123
+      MARIADB_AUTO_UPGRADE: 1
     volumes:
       - mariadb-data:/var/lib/mysql
 

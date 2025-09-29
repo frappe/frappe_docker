@@ -3,12 +3,14 @@ version: "3.3"
 services:
   database:
     container_name: mariadb-database
-    image: mariadb:10.6
+    image: mariadb:11.8
     restart: unless-stopped
     healthcheck:
-      test: mysqladmin ping -h localhost --password=${DB_PASSWORD:-changeit}
-      interval: 1s
-      retries: 20
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 5
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -16,6 +18,7 @@ services:
       - --skip-innodb-read-only-compressed
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-changeit}
+      MARIADB_AUTO_UPGRADE: 1
     volumes:
       - db-data:/var/lib/mysql
     networks:
