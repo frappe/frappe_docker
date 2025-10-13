@@ -7,7 +7,7 @@ repos:
       - id: end-of-file-fixer
         exclude: "(dokploy/VERSION|\\.md|\\.json)$"
       - id: check-yaml
-        exclude: "docker-compose.*\\.yml$"
+        exclude: "(docker-compose.*\\.yml|overrides/.*\\.yaml)$"
       - id: check-added-large-files
       - id: check-merge-conflict
       - id: check-executables-have-shebangs
@@ -19,14 +19,15 @@ repos:
     rev: v2.2.6
     hooks:
       - id: codespell
-        args: ["--skip=*.json,*.lock,*.min.js,*.min.css,*.svg,yarn.lock", "--ignore-words-list=nd,ist,ue"]
+        args: ["--skip=*.json,*.lock,*.min.js,*.min.css,*.svg,yarn.lock", "--ignore-words-list=nd,ist,ue,bu,manuel,sistem,paket,gir,standart"]
+        exclude: "(dokploy/.*\\.md|DOKPLOY.*\\.md|MODULAR.*\\.md|\\.github/.*\\.md)"
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
       - id: prettier
-        types_or: [yaml, markdown]
-        exclude: "(yarn\\.lock|\\.lock|apps\\.json|dokploy\\.json|docker-compose.*\\.yml)$"
+        types_or: [yaml]
+        exclude: "(yarn\\.lock|\\.lock|apps\\.json|dokploy\\.json|docker-compose.*\\.yml|overrides/.*\\.yaml|\\.github/workflows/.*\\.yml)$"
 
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 3.0.0
