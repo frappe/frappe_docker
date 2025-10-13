@@ -121,20 +121,24 @@ WORKDIR /home/frappe/frappe-bench
 COPY dokploy/apps.json /tmp/apps.json
 
 RUN cd /home/frappe/frappe-bench && \
-    # ERPNext - version-15 ile uyumlu
+    # ERPNext - version-15 (stable)
     bench get-app --branch=version-15 --resolve-deps erpnext https://github.com/frappe/erpnext && \
-    # CRM - version-15 branch kullan
-    bench get-app --branch=version-15 crm https://github.com/frappe/crm && \
-    # LMS - version-15 branch kullan
-    bench get-app --branch=version-15 lms https://github.com/frappe/lms && \
-    # Builder - Frappe v15 ile uyumlu
-    bench get-app --branch=main builder https://github.com/frappe/builder && \
-    # Print Designer - version-15 branch
-    bench get-app --branch=version-15 print_designer https://github.com/frappe/print_designer && \
-    # Payments - version-15 branch
-    bench get-app --branch=version-15 payments https://github.com/frappe/payments && \
-    # Wiki - version-15 branch
-    bench get-app --branch=version-15 wiki https://github.com/frappe/wiki && \
+    # HRMS - version-15 (Human Resource Management)
+    bench get-app --branch=version-15 hrms https://github.com/frappe/hrms && \
+    # CRM - latest (Customer Relationship Management)
+    bench get-app crm https://github.com/frappe/crm && \
+    # Helpdesk - latest (Customer Support)
+    bench get-app helpdesk https://github.com/frappe/helpdesk && \
+    # LMS - latest (Learning Management System)
+    bench get-app lms https://github.com/frappe/lms && \
+    # Builder - latest (Website Builder)
+    bench get-app builder https://github.com/frappe/builder && \
+    # Print Designer - latest (Print Templates)
+    bench get-app print_designer https://github.com/frappe/print_designer && \
+    # Payments - latest (Payment Gateway Integration)
+    bench get-app payments https://github.com/frappe/payments && \
+    # Wiki - latest (Knowledge Base)
+    bench get-app wiki https://github.com/frappe/wiki && \
     echo "{}" > sites/common_site_config.json && \
     find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 

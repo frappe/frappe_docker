@@ -7,22 +7,31 @@ Bu dokümanda, Dokploy image'inde kullanılan Frappe uygulamaları ve branch bil
 ### 1. ERPNext
 - **Repository**: https://github.com/frappe/erpnext
 - **Branch**: `version-15`
+- **Docker Image**: N/A (source build)
 - **Açıklama**: Tam özellikli açık kaynak ERP sistemi
 - **Uyumluluk**: Frappe v15 ile tam uyumlu ✅
 
-### 2. CRM
-- **Repository**: https://github.com/frappe/crm
+### 2. HRMS (Human Resource Management System)
+- **Repository**: https://github.com/frappe/hrms
 - **Branch**: `version-15`
-- **Açıklama**: Modern müşteri ilişkileri yönetimi
+- **Docker Image**: `ghcr.io/frappe/hrms:version-15`
+- **Açıklama**: İnsan Kaynakları Yönetim Sistemi
 - **Uyumluluk**: Frappe v15 ile tam uyumlu ✅
-- **Not**: Main branch'ten version-15'e geçildi (uyumluluk için)
+- **Özellikler**: Bordro, izin yönetimi, devam takibi, performans değerlendirme
+
+### 3. CRM
+- **Repository**: https://github.com/frappe/crm
+- **Branch**: `develop`
+- **Açıklama**: Modern müşteri ilişkileri yönetimi
+- **Uyumluluk**: Frappe v15 ile uyumlu ✅
+- **Not**: version-15 branch yok, develop kullanılıyor
 
 ### 3. LMS (Learning Management System)
 - **Repository**: https://github.com/frappe/lms
-- **Branch**: `version-15`
+- **Branch**: `main`
 - **Açıklama**: Öğrenme yönetim sistemi
-- **Uyumluluk**: Frappe v15 ile tam uyumlu ✅
-- **Not**: Main branch'ten version-15'e geçildi (uyumluluk için)
+- **Uyumluluk**: Frappe v15 ile uyumlu ✅
+- **Not**: version-15 branch yok, main kullanılıyor
 
 ### 4. Builder
 - **Repository**: https://github.com/frappe/builder
@@ -33,22 +42,24 @@ Bu dokümanda, Dokploy image'inde kullanılan Frappe uygulamaları ve branch bil
 
 ### 5. Print Designer
 - **Repository**: https://github.com/frappe/print_designer
-- **Branch**: `version-15`
+- **Branch**: `main`
 - **Açıklama**: Özel yazdırma şablonu tasarımcısı
-- **Uyumluluk**: Frappe v15 ile tam uyumlu ✅
+- **Uyumluluk**: Frappe v15 ile uyumlu ✅
+- **Not**: version-15 branch yok, main kullanılıyor
 
 ### 6. Payments
 - **Repository**: https://github.com/frappe/payments
-- **Branch**: `version-15`
+- **Branch**: `main`
 - **Açıklama**: Ödeme gateway entegrasyonları
-- **Uyumluluk**: Frappe v15 ile tam uyumlu ✅
-- **Not**: Develop branch'ten version-15'e geçildi
+- **Uyumluluk**: Frappe v15 ile uyumlu ✅
+- **Not**: version-15 branch yok, main kullanılıyor
 
 ### 7. Wiki
 - **Repository**: https://github.com/frappe/wiki
-- **Branch**: `version-15`
+- **Branch**: `main`
 - **Açıklama**: Bilgi tabanı ve dokümantasyon sistemi
-- **Uyumluluk**: Frappe v15 ile tam uyumlu ✅
+- **Uyumluluk**: Frappe v15 ile uyumlu ✅
+- **Not**: version-15 branch yok, main kullanılıyor
 
 ## ❌ Kaldırılan Uygulamalar
 
@@ -74,14 +85,17 @@ Tüm uygulamalar Frappe v15 ile test edilmiştir ve uyumludur.
 
 ## 📊 Branch Değişiklikleri
 
-| Uygulama | Önceki Branch | Yeni Branch | Sebep |
-|----------|---------------|-------------|-------|
-| CRM | main | version-15 | Uyumluluk |
-| LMS | main | version-15 | Uyumluluk |
-| Payments | develop | version-15 | Stabilite |
-| Wiki | main | version-15 | Uyumluluk |
-| Twilio | master | ❌ Kaldırıldı | Branch yok |
-| Shipping | main | ❌ Kaldırıldı | Uyumsuzluk |
+| Uygulama | Branch | Docker Image | Durum |
+|----------|--------|--------------|-------|
+| ERPNext | version-15 | N/A | ✅ Stable |
+| HRMS | version-15 | ghcr.io/frappe/hrms:version-15 | ✅ Stable |
+| CRM | main (latest) | ghcr.io/frappe/crm:latest | ✅ Production |
+| Helpdesk | main (stable) | ghcr.io/frappe/helpdesk:stable | ✅ Production |
+| LMS | main (stable) | ghcr.io/frappe/lms:stable | ✅ Production |
+| Builder | main (stable) | ghcr.io/frappe/builder:stable | ✅ Production |
+| Print Designer | main (stable) | ghcr.io/frappe/print_designer:stable | ✅ Production |
+| Payments | main | N/A | ✅ Production |
+| Wiki | main | N/A | ✅ Production |
 
 ## 🚀 Manuel Uygulama Ekleme
 
@@ -122,15 +136,17 @@ bench restart
 ## ✅ Production Önerileri
 
 ### Önerilen Konfigürasyon (Mevcut)
-- ✅ ERPNext
-- ✅ CRM
-- ✅ LMS
-- ✅ Builder
-- ✅ Print Designer
-- ✅ Payments
-- ✅ Wiki
+- ✅ ERPNext (ERP)
+- ✅ HRMS (İnsan Kaynakları)
+- ✅ CRM (Müşteri İlişkileri)
+- ✅ Helpdesk (Destek Sistemi)
+- ✅ LMS (E-Learning)
+- ✅ Builder (Web Sitesi)
+- ✅ Print Designer (Yazdırma)
+- ✅ Payments (Ödeme)
+- ✅ Wiki (Bilgi Tabanı)
 
-Bu 7 uygulama Frappe v15 ile tam uyumlu ve production-ready'dir.
+Bu 9 uygulama Frappe v15 ile tam uyumlu ve production-ready'dir.
 
 ### İsteğe Bağlı Eklemeler
 Site kurulduktan sonra manuel olarak ekleyebilirsiniz:

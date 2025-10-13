@@ -5,14 +5,14 @@ Bu klasör, Frappe ERPNext'i tüm popüler uygulamalarıyla birlikte Dokploy'da 
 ## İçerilen Uygulamalar
 
 1. **ERPNext** - Tam özellikli ERP sistemi
-2. **CRM** - Müşteri İlişkileri Yönetimi
-3. **LMS** - Öğrenme Yönetim Sistemi
-4. **Builder** - Web sitesi oluşturucu
-5. **Print Designer** - Yazdırma şablonu tasarımcısı
-6. **Payments** - Ödeme entegrasyonları
-7. **Wiki** - Bilgi tabanı/Wiki sistemi
-8. **Twilio Integration** - SMS ve telefon entegrasyonu
-9. **ERPNext Shipping** - Kargo entegrasyonları
+2. **HRMS** - İnsan Kaynakları Yönetim Sistemi  
+3. **CRM** - Müşteri İlişkileri Yönetimi
+4. **Helpdesk** - Müşteri Destek Sistemi
+5. **LMS** - Öğrenme Yönetim Sistemi (E-Learning)
+6. **Builder** - Web sitesi oluşturucu
+7. **Print Designer** - Yazdırma şablonu tasarımcısı
+8. **Payments** - Ödeme gateway entegrasyonları
+9. **Wiki** - Bilgi tabanı sistemi
 
 ## Dokploy'da Kurulum
 

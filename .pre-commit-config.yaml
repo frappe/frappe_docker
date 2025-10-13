@@ -3,36 +3,35 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        exclude: ^(.*\.md|.*\.txt)$
+        exclude: "\\.(md|txt)$"
       - id: end-of-file-fixer
-        exclude: ^(.*\.md|dokploy/VERSION)$
+        exclude: "(dokploy/VERSION|\\.md)$"
       - id: check-yaml
       - id: check-added-large-files
       - id: check-merge-conflict
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
-        exclude: ^(resources/nginx-entrypoint\.sh)$
+        exclude: "resources/nginx-entrypoint\\.sh$"
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
       - id: codespell
-        args: [--skip="*.json,*.lock,*.min.js,*.min.css,*.svg"]
-        exclude: ^(.*\.min\.js|.*\.min\.css|.*\.svg|yarn\.lock)$
+        args: ["--skip=*.json,*.lock,*.min.js,*.min.css,*.svg,yarn.lock"]
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
       - id: prettier
         types_or: [yaml, markdown, json]
-        exclude: ^(.*\.lock|yarn\.lock)$
+        exclude: "(yarn\\.lock|\\.lock)$"
 
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 3.0.0
     hooks:
       - id: shfmt
-        args: [-i, "2", -ci, -w]
-        exclude: ^(resources/nginx-entrypoint\.sh)$
+        args: ["-i", "2", "-ci", "-w"]
+        exclude: "resources/nginx-entrypoint\\.sh$"
       - id: shellcheck
-        args: [-x]
-        exclude: ^(resources/nginx-entrypoint\.sh)$
+        args: ["-x"]
+        exclude: "resources/nginx-entrypoint\\.sh$"
