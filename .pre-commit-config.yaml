@@ -5,7 +5,7 @@ repos:
       - id: trailing-whitespace
         exclude: "\\.(md|txt)$"
       - id: end-of-file-fixer
-        exclude: "(dokploy/VERSION|\\.md|\\.json)$"
+        exclude: "(dokploy/VERSION|\\.md|\\.json|\\.sh|\\.yml|\\.yaml|Dockerfile|Containerfile|\\.dockerignore|\\.gitignore)$"
       - id: check-yaml
         exclude: "(docker-compose.*\\.yml|overrides/.*\\.yaml)$"
       - id: check-added-large-files
@@ -27,7 +27,7 @@ repos:
     hooks:
       - id: prettier
         types_or: [yaml]
-        exclude: "(yarn\\.lock|\\.lock|apps\\.json|dokploy\\.json|docker-compose.*\\.yml|overrides/.*\\.yaml|\\.github/workflows/.*\\.yml)$"
+        exclude: "(yarn\\.lock|\\.lock|apps\\.json|dokploy\\.json|docker-compose.*\\.yml|overrides/.*\\.yaml|\\.github/workflows/.*\\.yml|\\.pre-commit-config\\.yaml)$"
 
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 3.0.0
