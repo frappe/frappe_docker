@@ -125,7 +125,7 @@ RUN cd /home/frappe/frappe-bench && \
     bench get-app --branch=version-15 --resolve-deps erpnext https://github.com/frappe/erpnext && \
     # CRM - version-15 branch kullan
     bench get-app --branch=version-15 crm https://github.com/frappe/crm && \
-    # LMS - version-15 branch kullan  
+    # LMS - version-15 branch kullan
     bench get-app --branch=version-15 lms https://github.com/frappe/lms && \
     # Builder - Frappe v15 ile uyumlu
     bench get-app --branch=main builder https://github.com/frappe/builder && \
