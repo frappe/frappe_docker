@@ -1,5 +1,3 @@
-version: '3.8'
-
 x-customizable-image: &customizable_image
   image: ${CUSTOM_IMAGE:-erpnext-complete}:${CUSTOM_TAG:-latest}
   build:

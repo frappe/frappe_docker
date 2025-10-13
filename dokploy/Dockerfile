@@ -140,8 +140,8 @@ RUN cd /home/frappe/frappe-bench && \
     find apps/crm -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 RUN cd /home/frappe/frappe-bench && \
-    # Helpdesk - latest (Customer Support)
-    bench get-app helpdesk https://github.com/frappe/helpdesk && \
+    # Helpdesk - v1.14.0 tag (last Frappe v15 compatible version)
+    bench get-app --branch=v1.14.0 helpdesk https://github.com/frappe/helpdesk && \
     find apps/helpdesk -name "*.pyc" -delete && \
     find apps/helpdesk -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 

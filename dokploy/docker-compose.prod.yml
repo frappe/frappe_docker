@@ -1,8 +1,6 @@
 # Production-optimized Docker Compose for Dokploy
 # Bu dosya production deployment için optimize edilmiş ayarları içerir
 
-version: '3.8'
-
 x-customizable-image: &customizable_image
   image: ghcr.io/ubden/frappe_docker/erpnext-complete:latest
   pull_policy: always
