@@ -8,6 +8,9 @@ on:
       - 'dokploy/**'
       - 'images/production/**'
       - 'resources/**'
+    tags:
+      - 'v*.*.*'
+      - 'dokploy-v*.*.*'
   pull_request:
     branches:
       - main
@@ -50,8 +53,11 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
+          flavor: |
+            latest=auto
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5

@@ -117,7 +117,8 @@ RUN bench init \
 WORKDIR /home/frappe/frappe-bench
 
 # Tüm uygulamaları yükle
-COPY apps.json /tmp/apps.json
+# Build context root'tan kopyala (dokploy klasörü altından)
+COPY dokploy/apps.json /tmp/apps.json
 
 RUN cd /home/frappe/frappe-bench && \
     # ERPNext

@@ -1,5 +1,8 @@
 [![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
 [![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
+[![Build Dokploy](https://github.com/ubden/frappe_docker/actions/workflows/build-dokploy.yml/badge.svg)](https://github.com/ubden/frappe_docker/actions/workflows/build-dokploy.yml)
+[![GitHub release](https://img.shields.io/github/v/release/ubden/frappe_docker?label=dokploy)](https://github.com/ubden/frappe_docker/releases)
+[![Docker Image](https://img.shields.io/badge/docker-erpnext--complete-blue)](https://github.com/ubden/frappe_docker/pkgs/container/frappe_docker%2Ferpnext-complete)
 
 Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers.
 

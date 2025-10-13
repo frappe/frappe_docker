@@ -1,0 +1,113 @@
+name: Create Release Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate version format
+        run: |
+          if [[ ! "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format. Please use semantic versioning (e.g., 1.0.0)"
+            exit 1
+          fi
+          echo "✅ Version format valid: ${{ github.event.inputs.version }}"
+
+      - name: Check if tag exists
+        run: |
+          if git rev-parse "v${{ github.event.inputs.version }}" >/dev/null 2>&1; then
+            echo "❌ Tag v${{ github.event.inputs.version }} already exists"
+            exit 1
+          fi
+          echo "✅ Tag does not exist, proceeding..."
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tag
+        run: |
+          git tag -a "v${{ github.event.inputs.version }}" -m "Release v${{ github.event.inputs.version }}"
+          git push origin "v${{ github.event.inputs.version }}"
+          echo "✅ Tag v${{ github.event.inputs.version }} created and pushed"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Release v${{ github.event.inputs.version }}
+          body: |
+            ## Frappe ERPNext Dokploy - v${{ github.event.inputs.version }}
+
+            ### 📦 What's Included
+
+            - ✅ ERPNext (version-15)
+            - ✅ CRM
+            - ✅ LMS
+            - ✅ Builder
+            - ✅ Print Designer
+            - ✅ Payments
+            - ✅ Wiki
+            - ✅ Twilio Integration
+            - ✅ ERPNext Shipping
+
+            ### 🚀 Deployment
+
+            **Dokploy**:
+            ```
+            Repository: https://github.com/${{ github.repository }}
+            Tag: v${{ github.event.inputs.version }}
+            Compose Path: dokploy/docker-compose.yml
+            ```
+
+            **Docker Pull**:
+            ```bash
+            docker pull ghcr.io/${{ github.repository }}/erpnext-complete:${{ github.event.inputs.version }}
+            ```
+
+            ### 📚 Documentation
+
+            - [Quick Start Guide](https://github.com/${{ github.repository }}/blob/v${{ github.event.inputs.version }}/dokploy/QUICKSTART.md)
+            - [Deployment Guide](https://github.com/${{ github.repository }}/blob/v${{ github.event.inputs.version }}/dokploy/DEPLOYMENT.md)
+            - [Environment Variables](https://github.com/${{ github.repository }}/blob/v${{ github.event.inputs.version }}/dokploy/ENV_VARIABLES.md)
+
+            ### 🔗 Resources
+
+            - Docker Image: `ghcr.io/${{ github.repository }}/erpnext-complete:${{ github.event.inputs.version }}`
+            - Changelog: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/v${{ github.event.inputs.version }}/dokploy/CHANGELOG.md)
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+
+  trigger-docker-build:
+    needs: create-tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Docker Build
+        run: |
+          echo "✅ Tag created. Docker build will be triggered automatically."
+          echo "Check: https://github.com/${{ github.repository }}/actions/workflows/build-dokploy.yml"
+
