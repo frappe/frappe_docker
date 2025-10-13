@@ -1,0 +1,34 @@
+# Environment files (except example)
+.env
+.env.local
+.env.production
+.env.test
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker volumes (local development)
+*-data/
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+
+# Backup files
+*.bak
+*.backup
+backups/
+

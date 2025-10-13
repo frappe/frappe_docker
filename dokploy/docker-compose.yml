@@ -1,0 +1,240 @@
+version: '3.8'
+
+x-customizable-image: &customizable_image
+  image: ${CUSTOM_IMAGE:-erpnext-complete}:${CUSTOM_TAG:-latest}
+  build:
+    context: ..
+    dockerfile: dokploy/Dockerfile
+    args:
+      FRAPPE_BRANCH: ${FRAPPE_BRANCH:-version-15}
+      PYTHON_VERSION: ${PYTHON_VERSION:-3.11.6}
+      NODE_VERSION: ${NODE_VERSION:-20.19.2}
+  pull_policy: ${PULL_POLICY:-build}
+  restart: ${RESTART_POLICY:-unless-stopped}
+
+x-depends-on-configurator: &depends_on_configurator
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
+
+x-backend-defaults: &backend_defaults
+  <<: [*depends_on_configurator, *customizable_image]
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+  networks:
+    - erpnext-network
+
+services:
+  # MariaDB Database
+  mariadb:
+    image: mariadb:${MARIADB_VERSION:-10.6}
+    restart: ${RESTART_POLICY:-unless-stopped}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+      - --max-connections=500
+      - --innodb-buffer-pool-size=2G
+      - --innodb-log-file-size=512M
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-changeit}
+      MYSQL_DATABASE: frappe
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks:
+      - erpnext-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-changeit}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache
+  redis-cache:
+    image: redis:${REDIS_VERSION:-7}-alpine
+    restart: ${RESTART_POLICY:-unless-stopped}
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-cache-data:/data
+    networks:
+      - erpnext-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Queue
+  redis-queue:
+    image: redis:${REDIS_VERSION:-7}-alpine
+    restart: ${RESTART_POLICY:-unless-stopped}
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-queue-data:/data
+    networks:
+      - erpnext-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Configurator
+  configurator:
+    <<: *backend_defaults
+    platform: linux/amd64
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        ls -1 apps > sites/apps.txt;
+        bench set-config -g db_host mariadb;
+        bench set-config -gp db_port 3306;
+        bench set-config -g redis_cache "redis://redis-cache:6379";
+        bench set-config -g redis_queue "redis://redis-queue:6379";
+        bench set-config -g redis_socketio "redis://redis-queue:6379";
+        bench set-config -gp socketio_port 9000;
+    environment:
+      DB_HOST: ${DB_HOST:-mariadb}
+      DB_PORT: ${DB_PORT:-3306}
+      REDIS_CACHE: ${REDIS_CACHE:-redis-cache:6379}
+      REDIS_QUEUE: ${REDIS_QUEUE:-redis-queue:6379}
+      SOCKETIO_PORT: ${SOCKETIO_PORT:-9000}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      redis-queue:
+        condition: service_healthy
+    restart: "no"
+
+  # Create Site
+  create-site:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command:
+      - bash
+      - -c
+      - |
+        wait-for-it -t 120 mariadb:3306;
+        wait-for-it -t 120 redis-cache:6379;
+        wait-for-it -t 120 redis-queue:6379;
+        if [ ! -f /home/frappe/frappe-bench/sites/${SITE_NAME:-site1.localhost}/site_config.json ]; then
+          bench new-site ${SITE_NAME:-site1.localhost} --admin-password=${ADMIN_PASSWORD:-admin} --db-root-password=${DB_PASSWORD:-changeit} --install-app erpnext --install-app crm --install-app lms --install-app builder --install-app print_designer --install-app payments --install-app wiki --install-app twilio_integration --install-app erpnext_shipping --no-mariadb-socket;
+        else
+          echo "Site already exists, skipping site creation";
+        fi
+    environment:
+      SITE_NAME: ${SITE_NAME:-site1.localhost}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      DB_PASSWORD: ${DB_PASSWORD:-changeit}
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      mariadb:
+        condition: service_healthy
+    restart: "no"
+
+  # Backend
+  backend:
+    <<: *backend_defaults
+    platform: linux/amd64
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/method/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # Frontend (Nginx)
+  frontend:
+    <<: *customizable_image
+    platform: linux/amd64
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      BACKEND: backend:8000
+      SOCKETIO: websocket:9000
+      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-$$host}
+      UPSTREAM_REAL_IP_ADDRESS: ${UPSTREAM_REAL_IP_ADDRESS:-127.0.0.1}
+      UPSTREAM_REAL_IP_HEADER: ${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
+      UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
+      PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
+      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+    depends_on:
+      - backend
+      - websocket
+    networks:
+      - erpnext-network
+    ports:
+      - "${HTTP_PORT:-80}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/method/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # WebSocket
+  websocket:
+    <<: [*depends_on_configurator, *customizable_image]
+    platform: linux/amd64
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+    networks:
+      - erpnext-network
+
+  # Queue Short
+  queue-short:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command: bench worker --queue short,default
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  # Queue Long
+  queue-long:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command: bench worker --queue long,default,short
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  # Scheduler
+  scheduler:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command: bench schedule
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+volumes:
+  mariadb-data:
+  redis-cache-data:
+  redis-queue-data:
+  sites:
+  logs:
+
+networks:
+  erpnext-network:
+    driver: bridge
+

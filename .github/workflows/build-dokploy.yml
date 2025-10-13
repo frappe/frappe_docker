@@ -1,0 +1,117 @@
+name: Build Dokploy Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'dokploy/**'
+      - 'images/production/**'
+      - 'resources/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'dokploy/**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/erpnext-complete
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./dokploy/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            FRAPPE_BRANCH=version-15
+            PYTHON_VERSION=3.11.6
+
+      - name: Image digest
+        run: echo ${{ steps.meta.outputs.digest }}
+
+  test-deployment:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create test environment file
+        run: |
+          cd dokploy
+          cat > .env.test << EOF
+          SITE_NAME=test.localhost
+          ADMIN_PASSWORD=testpassword
+          DB_PASSWORD=testdbpassword
+          HTTP_PORT=8080
+          EOF
+
+      - name: Start services
+        run: |
+          cd dokploy
+          docker-compose --env-file .env.test up -d
+
+      - name: Wait for services to be healthy
+        run: |
+          timeout 600 bash -c 'until docker-compose -f dokploy/docker-compose.yml ps | grep -q "healthy"; do sleep 10; done'
+
+      - name: Check site creation
+        run: |
+          docker-compose -f dokploy/docker-compose.yml logs create-site
+          docker-compose -f dokploy/docker-compose.yml ps create-site | grep "Exit 0"
+
+      - name: Test site accessibility
+        run: |
+          sleep 30
+          curl -f http://localhost:8080/api/method/ping || exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          cd dokploy
+          docker-compose down -v
+

@@ -1,0 +1,106 @@
+{
+  "name": "frappe-erpnext-complete",
+  "description": "Frappe ERPNext with CRM, LMS, Builder, Print Designer, Payments, Wiki, Twilio Integration, and ERPNext Shipping",
+  "type": "docker-compose",
+  "compose": {
+    "file": "docker-compose.yml",
+    "path": "dokploy"
+  },
+  "environment": {
+    "SITE_NAME": {
+      "description": "Site domain name (e.g., erp.example.com)",
+      "required": true,
+      "default": "site1.localhost"
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Administrator password",
+      "required": true,
+      "default": "admin",
+      "secret": true
+    },
+    "DB_PASSWORD": {
+      "description": "Database root password",
+      "required": true,
+      "default": "changeit",
+      "secret": true
+    },
+    "HTTP_PORT": {
+      "description": "HTTP port for the application",
+      "required": false,
+      "default": "80"
+    },
+    "CLIENT_MAX_BODY_SIZE": {
+      "description": "Maximum upload file size",
+      "required": false,
+      "default": "50m"
+    },
+    "PROXY_READ_TIMEOUT": {
+      "description": "Proxy read timeout in seconds",
+      "required": false,
+      "default": "120"
+    }
+  },
+  "ports": {
+    "http": {
+      "internal": 8080,
+      "external": "${HTTP_PORT:-80}",
+      "protocol": "http"
+    }
+  },
+  "volumes": [
+    {
+      "name": "mariadb-data",
+      "mount": "/var/lib/mysql",
+      "description": "MariaDB database files"
+    },
+    {
+      "name": "redis-cache-data",
+      "mount": "/data",
+      "description": "Redis cache data"
+    },
+    {
+      "name": "redis-queue-data",
+      "mount": "/data",
+      "description": "Redis queue data"
+    },
+    {
+      "name": "sites",
+      "mount": "/home/frappe/frappe-bench/sites",
+      "description": "Frappe sites data"
+    },
+    {
+      "name": "logs",
+      "mount": "/home/frappe/frappe-bench/logs",
+      "description": "Application logs"
+    }
+  ],
+  "healthcheck": {
+    "enabled": true,
+    "endpoint": "/api/method/ping",
+    "interval": 30,
+    "timeout": 10,
+    "retries": 3
+  },
+  "apps": [
+    "erpnext",
+    "crm",
+    "lms",
+    "builder",
+    "print_designer",
+    "payments",
+    "wiki",
+    "twilio_integration",
+    "erpnext_shipping"
+  ],
+  "tags": [
+    "erp",
+    "crm",
+    "lms",
+    "frappe",
+    "erpnext",
+    "accounting",
+    "sales",
+    "inventory"
+  ]
+}
+

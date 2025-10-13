@@ -1,0 +1,39 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/crm.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/lms.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/builder.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/print_designer.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/payments.git",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/frappe/wiki.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/twilio-integration.git",
+    "branch": "master"
+  },
+  {
+    "url": "https://github.com/frappe/erpnext-shipping.git",
+    "branch": "main"
+  }
+]
+

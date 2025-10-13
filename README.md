@@ -9,6 +9,27 @@ To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-c
 
 Once completed, chose one of the following two sections for next steps.
 
+### 🚀 Deploy to Dokploy (Production Ready)
+
+**NEW!** Deploy ERPNext with 9 pre-installed apps (CRM, LMS, Builder, Print Designer, Payments, Wiki, Twilio Integration, and ERPNext Shipping) to Dokploy in minutes!
+
+```bash
+Repository: https://github.com/ubden/frappe_docker
+Branch: main
+Compose Path: dokploy/docker-compose.yml
+```
+
+📚 **Quick Start Guide**: [dokploy/QUICKSTART.md](dokploy/QUICKSTART.md)  
+📖 **Full Documentation**: [dokploy/README.md](dokploy/README.md)
+
+**Features:**
+- ✅ One-click deployment with all apps pre-installed
+- ✅ Production-optimized configuration
+- ✅ Automatic SSL/TLS with Let's Encrypt
+- ✅ Built-in health checks and monitoring
+- ✅ Easy backup and restore
+- ✅ Horizontal scaling ready
+
 ### Try in Play With Docker
 
 To play in an already set up sandbox, in your browser, click the button below:
@@ -50,6 +71,17 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 # Documentation
 
 ### [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
+
+### [Dokploy Deployment](#dokploy) 🚀
+
+Complete ERPNext solution with 9 pre-installed apps, optimized for Dokploy:
+
+- [Quick Start (5 minutes)](dokploy/QUICKSTART.md) ⚡
+- [Deployment Guide](dokploy/DEPLOYMENT.md) 📖
+- [Package Summary](dokploy/SUMMARY.md) 📋
+- [Changelog](dokploy/CHANGELOG.md) 📝
+
+**Included Apps**: ERPNext, CRM, LMS, Builder, Print Designer, Payments, Wiki, Twilio Integration, ERPNext Shipping
 
 ### [Production](#production)
 
