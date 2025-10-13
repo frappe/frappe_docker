@@ -59,6 +59,15 @@ jobs:
           flavor: |
             latest=auto
 
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker system prune -af
+          df -h
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -69,10 +78,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           build-args: |
             FRAPPE_BRANCH=version-15
             PYTHON_VERSION=3.11.6
+          no-cache: false
 
       - name: Image digest
         run: echo ${{ steps.meta.outputs.digest }}
