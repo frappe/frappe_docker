@@ -35,10 +35,11 @@ if [ ! -f .env ]; then
     echo "  Admin şifresi: ADMIN_PASSWORD"
     echo "  Database şifresi: DB_PASSWORD"
     echo ""
-    read -p "Devam etmek için .env dosyasını düzenleyin ve Enter'a basın..."
+    read -r -p "Devam etmek için .env dosyasını düzenleyin ve Enter'a basın..."
 fi
 
 # Ayarları yükle
+# shellcheck source=/dev/null
 source .env
 
 echo "Kurulum Ayarları:"
@@ -47,7 +48,7 @@ echo "  HTTP Port: ${HTTP_PORT:-80}"
 echo ""
 
 # Onay al
-read -p "Bu ayarlarla devam edilsin mi? (y/n) " -n 1 -r
+read -r -p "Bu ayarlarla devam edilsin mi? (y/n) " -n 1
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${RED}Kurulum iptal edildi${NC}"
@@ -89,7 +90,7 @@ TIMEOUT=600
 ELAPSED=0
 INTERVAL=10
 
-while [ $ELAPSED -lt $TIMEOUT ]; do
+while [ "$ELAPSED" -lt "$TIMEOUT" ]; do
     if docker-compose ps | grep -q "create-site.*Exit 0"; then
         echo -e "${GREEN}✓ Site kurulumu tamamlandı${NC}"
         break
@@ -102,11 +103,11 @@ while [ $ELAPSED -lt $TIMEOUT ]; do
     fi
 
     echo "Kurulum devam ediyor... ($ELAPSED/$TIMEOUT saniye)"
-    sleep $INTERVAL
+    sleep "$INTERVAL"
     ELAPSED=$((ELAPSED + INTERVAL))
 done
 
-if [ $ELAPSED -ge $TIMEOUT ]; then
+if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
     echo -e "${YELLOW}! Kurulum zaman aşımına uğradı${NC}"
     echo "Manuel olarak kontrol edin: docker-compose logs create-site"
 fi

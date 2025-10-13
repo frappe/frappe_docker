@@ -121,24 +121,20 @@ WORKDIR /home/frappe/frappe-bench
 COPY dokploy/apps.json /tmp/apps.json
 
 RUN cd /home/frappe/frappe-bench && \
-    # ERPNext
+    # ERPNext - version-15 ile uyumlu
     bench get-app --branch=version-15 --resolve-deps erpnext https://github.com/frappe/erpnext && \
-    # CRM
-    bench get-app --branch=main --resolve-deps crm https://github.com/frappe/crm && \
-    # LMS
-    bench get-app --branch=main --resolve-deps lms https://github.com/frappe/lms && \
-    # Builder
-    bench get-app --branch=main --resolve-deps builder https://github.com/frappe/builder && \
-    # Print Designer
-    bench get-app --branch=main --resolve-deps print_designer https://github.com/frappe/print_designer && \
-    # Payments
-    bench get-app --branch=develop --resolve-deps payments https://github.com/frappe/payments && \
-    # Wiki
-    bench get-app --branch=main --resolve-deps wiki https://github.com/frappe/wiki && \
-    # Twilio Integration
-    bench get-app --branch=master --resolve-deps twilio_integration https://github.com/frappe/twilio-integration && \
-    # ERPNext Shipping
-    bench get-app --branch=main --resolve-deps erpnext_shipping https://github.com/frappe/erpnext-shipping && \
+    # CRM - version-15 branch kullan
+    bench get-app --branch=version-15 crm https://github.com/frappe/crm && \
+    # LMS - version-15 branch kullan  
+    bench get-app --branch=version-15 lms https://github.com/frappe/lms && \
+    # Builder - Frappe v15 ile uyumlu
+    bench get-app --branch=main builder https://github.com/frappe/builder && \
+    # Print Designer - version-15 branch
+    bench get-app --branch=version-15 print_designer https://github.com/frappe/print_designer && \
+    # Payments - version-15 branch
+    bench get-app --branch=version-15 payments https://github.com/frappe/payments && \
+    # Wiki - version-15 branch
+    bench get-app --branch=version-15 wiki https://github.com/frappe/wiki && \
     echo "{}" > sites/common_site_config.json && \
     find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
