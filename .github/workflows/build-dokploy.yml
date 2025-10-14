@@ -84,7 +84,7 @@ jobs:
             PYTHON_VERSION=3.11.6
             NODE_VERSION=20.19.2
           no-cache: false
-          # Minimal setup: 5 apps (ERPNext, HRMS, CRM, Helpdesk, Payments)
+          # Essential apps: ERPNext, CRM, Helpdesk, Payments
 
       - name: Image digest
         run: echo ${{ steps.meta.outputs.digest }}
@@ -133,7 +133,7 @@ jobs:
 
       - name: Test installed apps
         run: |
-          echo "Verifying 5 core apps are installed..."
+          echo "Verifying 4 essential apps are installed..."
           docker-compose -f dokploy/docker-compose.yml exec -T backend bash -c "
             bench --site test.localhost list-apps | grep -q 'erpnext' || exit 1
             bench --site test.localhost list-apps | grep -q 'crm' || exit 1

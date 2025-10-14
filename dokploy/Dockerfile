@@ -120,33 +120,27 @@ WORKDIR /home/frappe/frappe-bench
 # Build context root'tan kopyala (dokploy klasörü altından)
 COPY dokploy/apps.json /tmp/apps.json
 
-# Install core apps - optimized minimal setup
+# Install essential apps only
 RUN cd /home/frappe/frappe-bench && \
-    # ERPNext - version-15 (ERP Core with built-in features)
+    # ERPNext - version-15 (ERP Core)
     bench get-app --branch=version-15 --resolve-deps erpnext https://github.com/frappe/erpnext && \
     find apps/erpnext -name "*.pyc" -delete && \
     find apps/erpnext -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 RUN cd /home/frappe/frappe-bench && \
-    # HRMS - version-15 (Human Resource Management)
-    bench get-app --branch=version-15 hrms https://github.com/frappe/hrms && \
-    find apps/hrms -name "*.pyc" -delete && \
-    find apps/hrms -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-
-RUN cd /home/frappe/frappe-bench && \
-    # CRM - main branch (v15 compatible, latest v1.53.1)
+    # CRM - main (Customer Relations)
     bench get-app --branch=main crm https://github.com/frappe/crm && \
     find apps/crm -name "*.pyc" -delete && \
     find apps/crm -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 RUN cd /home/frappe/frappe-bench && \
-    # Helpdesk - v1.14.0 (last v15 compatible version)
+    # Helpdesk - v1.14.0 (Customer Support)
     bench get-app --branch=v1.14.0 helpdesk https://github.com/frappe/helpdesk && \
     find apps/helpdesk -name "*.pyc" -delete && \
     find apps/helpdesk -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 RUN cd /home/frappe/frappe-bench && \
-    # Payments - main (Payment Gateway Integration)
+    # Payments - main (Payment Gateways)
     bench get-app payments https://github.com/frappe/payments && \
     find apps/payments -name "*.pyc" -delete && \
     find apps/payments -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true && \

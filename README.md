@@ -14,7 +14,7 @@ Once completed, chose one of the following two sections for next steps.
 
 ### 🚀 Deploy to Dokploy (Production Ready)
 
-**NEW!** Minimal ve hızlı ERPNext deployment - 5 production-ready app ile 15-20 dakikada hazır!
+Hızlı ve verimli ERPNext deployment - 4 temel uygulama ile 10-15 dakikada hazır!
 
 ```bash
 Repository: https://github.com/ubden/frappe_docker
@@ -28,19 +28,18 @@ SSL: Auto (Let's Encrypt)
 📖 **Docs**: [dokploy/README.md](dokploy/README.md)  
 🔒 **SSL Setup**: [dokploy/SSL_SETUP.md](dokploy/SSL_SETUP.md)
 
-**Included Apps (5)**:
-- ✅ ERPNext (ERP Core)
-- ✅ HRMS (Human Resource)
-- ✅ CRM (Customer Relations)
-- ✅ Helpdesk (Support System)
-- ✅ Payments (Payment Gateways)
+**Included Apps (4)**:
+- ✅ ERPNext (ERP Core - Accounting, Inventory, Sales, Manufacturing)
+- ✅ CRM (Customer Relations - Lead, Deal Management)
+- ✅ Helpdesk (Support System - Tickets, SLA, Knowledge Base)
+- ✅ Payments (Payment Gateways - Stripe, PayPal, Razorpay)
 
 **Features:**
-- ✅ Fast deployment (15-20 min)
-- ✅ Minimal disk usage (4-5 GB)
+- ✅ Fast deployment (10-15 min)
+- ✅ Minimal disk usage (3-4 GB)
 - ✅ Auto SSL/HTTPS (Let's Encrypt)
 - ✅ Production-ready config
-- ✅ Easy to extend (add more apps anytime)
+- ✅ Port 8088 with HTTPS support
 
 ### Try in Play With Docker
 
@@ -86,18 +85,17 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Dokploy Deployment](#dokploy) 🚀
 
-Minimal ERPNext solution with 5 core apps, optimized for Dokploy:
+ERPNext with essential business apps, optimized for Dokploy:
 
 - [Quick Start (5 minutes)](dokploy/QUICKSTART.md) ⚡
 - [Deployment Guide](dokploy/DEPLOYMENT.md) 📖
 - [SSL Setup](dokploy/SSL_SETUP.md) 🔒
-- [Minimal vs Full](dokploy/MINIMAL_VS_FULL.md) 📊
 - [Package Summary](dokploy/SUMMARY.md) 📋
 
-**Included Apps**: ERPNext, HRMS, CRM, Helpdesk, Payments  
+**Included Apps**: ERPNext, CRM, Helpdesk, Payments  
 **Port**: 8088 (HTTPS otomatik)  
-**Build Time**: 15-20 min  
-**Disk**: 4-5 GB
+**Build Time**: 10-15 min  
+**Disk**: 3-4 GB
 
 ### [Production](#production)
 
