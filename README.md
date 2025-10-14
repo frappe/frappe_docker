@@ -1,17 +1,56 @@
 [![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
 [![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
 
+# Frappe Docker
+
 Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers.
 
-# Getting Started
+Production-ready containerized setup for [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) applications. This repository provides Docker images and deployment configurations for running Frappe/ERPNext in both development and production environments.
 
-To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-compose](https://docs.docker.com/compose/), and [git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git) setup on your machine. For Docker basics and best practices refer to Docker's [documentation](http://docs.docker.com).
+## Table of Contents
 
-Once completed, chose one of the following two sections for next steps.
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Deployment Options](#deployment-options)
+- [Architecture](#architecture)
+- [Common Tasks](#common-tasks)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
 
-### Try in Play With Docker
+## Overview
 
-To play in an already set up sandbox, in your browser, click the button below:
+Frappe Docker provides a complete containerized solution for deploying the Frappe framework and ERPNext ERP system. It includes:
+
+- **Pre-built Docker images** for Frappe and ERPNext (versions 13, 14, and 15)
+- **Multiple deployment configurations** (development, production, single-server)
+- **Docker Compose setups** for easy orchestration
+- **Support for custom apps** and extensions
+- **Built-in backup and restore capabilities**
+- **TLS/SSL support** via Traefik reverse proxy
+- **Multi-tenancy support** with port-based routing
+- **Development containers** with VSCode integration
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- **Docker** (v20.10+) - [Installation Guide](https://docs.docker.com/get-docker/)
+- **Docker Compose** (v2.0+) - [Installation Guide](https://docs.docker.com/compose/install/)
+- **Git** - [Installation Guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- **System Requirements:**
+  - Minimum 4GB RAM (8GB recommended for production)
+  - 20GB free disk space
+  - Linux, macOS, or Windows with WSL2
+
+## Quick Start
+
+Choose one of the following options to get started quickly:
+
+### Option 1: Try in Browser (Play With Docker)
+
+Click below to instantly spin up a Frappe/ERPNext instance in your browser:
 
 <a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
   <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
@@ -56,35 +95,49 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 - [List of containers](docs/list-of-containers.md)
 - [Single Compose Setup](docs/single-compose-setup.md)
 - [Environment Variables](docs/environment-variables.md)
+- [Site Operations](docs/site-operations.md)
+- [Custom Apps](docs/custom-apps.md)
+- [Development Guide](docs/development.md)
+- [Troubleshooting](docs/troubleshoot.md)
+
+### Production Deployment
+
 - [Single Server Example](docs/single-server-example.md)
 - [Setup Options](docs/setup-options.md)
-- [Site Operations](docs/site-operations.md)
 - [Backup and Push Cron Job](docs/backup-and-push-cronjob.md)
 - [Port Based Multi Tenancy](docs/port-based-multi-tenancy.md)
-- [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
-- [running on linux/mac](docs/setup_for_linux_mac.md)
 - [TLS for local deployment](docs/tls-for-local-deployment.md)
+- [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
 
-### [Custom Images](#custom-images)
-
-- [Custom Apps](docs/custom-apps.md)
-- [Custom Apps with podman](docs/custom-apps-podman.md)
-- [Build Version 10 Images](docs/build-version-10-images.md)
-
-### [Development](#development)
+### Development
 
 - [Development using containers](docs/development.md)
 - [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
 - [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
 
-### [Troubleshoot](docs/troubleshoot.md)
+### Customization
 
-# Contributing
+- [Custom Apps](docs/custom-apps.md)
+- [Custom Apps with Podman](docs/custom-apps-podman.md)
+- [Build Version 10 Images](docs/build-version-10-images.md)
 
-If you want to contribute to this repo refer to [CONTRIBUTING.md](CONTRIBUTING.md)
+## Contributing
 
-This repository is only for container related stuff. You also might want to contribute to:
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-- [Frappe framework](https://github.com/frappe/frappe#contributing),
-- [ERPNext](https://github.com/frappe/erpnext#contributing),
-- [Frappe Bench](https://github.com/frappe/bench).
+### Related Projects
+
+- [Frappe Framework](https://github.com/frappe/frappe) - Full-stack web framework
+- [ERPNext](https://github.com/frappe/erpnext) - Open source ERP
+- [Frappe Bench](https://github.com/frappe/bench) - CLI tool for Frappe deployments
+
+## Support
+
+- [Official Documentation](https://frappeframework.com/docs)
+- [Community Forum](https://discuss.frappe.io/)
+- [Report Issues](https://github.com/frappe/frappe_docker/issues)
+- [Commercial Support](https://frappe.io/support)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
