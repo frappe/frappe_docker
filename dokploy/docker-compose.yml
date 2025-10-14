@@ -123,7 +123,7 @@ services:
         wait-for-it -t 120 redis-cache:6379;
         wait-for-it -t 120 redis-queue:6379;
         if [ ! -f /home/frappe/frappe-bench/sites/${SITE_NAME:-site1.localhost}/site_config.json ]; then
-          bench new-site ${SITE_NAME:-site1.localhost} --admin-password=${ADMIN_PASSWORD:-admin} --db-root-password=${DB_PASSWORD:-changeit} --install-app erpnext --install-app hrms --install-app crm --install-app helpdesk --install-app lms --install-app builder --install-app print_designer --install-app payments --install-app wiki --no-mariadb-socket;
+          bench new-site ${SITE_NAME:-site1.localhost} --admin-password=${ADMIN_PASSWORD:-admin} --db-root-password=${DB_PASSWORD:-changeit} --install-app erpnext --install-app hrms --install-app crm --install-app helpdesk --install-app payments --no-mariadb-socket;
         else
           echo "Site already exists, skipping site creation";
         fi
@@ -175,7 +175,7 @@ services:
     networks:
       - erpnext-network
     ports:
-      - "${HTTP_PORT:-80}:8080"
+      - "${HTTP_PORT:-8088}:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/api/method/ping || exit 1"]
       interval: 30s

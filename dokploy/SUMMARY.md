@@ -4,19 +4,23 @@
 
 Bu Dokploy paketi, Frappe ERPNext'i ve 8 ek uygulamayı tek seferde deploy etmenizi sağlar.
 
-### İçerilen Uygulamalar
+### İçerilen Uygulamalar (Minimal Setup)
 
-| Uygulama | Açıklama | Branch |
-|----------|----------|--------|
-| **ERPNext** | Tam özellikli açık kaynak ERP sistemi | version-15 |
-| **CRM** | Müşteri İlişkileri Yönetimi | main |
-| **LMS** | Öğrenme Yönetim Sistemi (e-Learning) | main |
-| **Builder** | Drag & Drop Web Sitesi Oluşturucu | main |
-| **Print Designer** | Özel Yazdırma Şablonu Tasarımcısı | main |
-| **Payments** | Ödeme Gateway Entegrasyonları | develop |
-| **Wiki** | Bilgi Tabanı ve Dokümantasyon Sistemi | main |
-| **Twilio Integration** | SMS ve Telefon Araması Entegrasyonu | master |
-| **ERPNext Shipping** | Kargo Firmalarıyla Entegrasyon | main |
+| Uygulama | Açıklama | Branch/Tag |
+|----------|----------|-----------|
+| **ERPNext** | Tam özellikli ERP (Accounting, Inventory, Sales, Manufacturing) | version-15 |
+| **HRMS** | İnsan Kaynakları Yönetimi (Payroll, Leave, Attendance) | version-15 |
+| **CRM** | Müşteri İlişkileri Yönetimi (Lead, Deal, Contact) | main (v1.53.1) |
+| **Helpdesk** | Müşteri Destek Sistemi (Ticket, SLA, Knowledge Base) | v1.14.0 |
+| **Payments** | Ödeme Gateway Entegrasyonları (Stripe, PayPal, Razorpay) | main |
+
+**Toplam**: 5 Production-Ready Uygulama
+
+**Avantajlar**:
+- 🚀 Hızlı build (~15-20 dakika)
+- 💾 Az disk kullanımı (~4-5 GB)
+- ✅ Tüm core özellikler dahil
+- ✅ Frappe v15 tam uyumlu
 
 ## 🏗️ Mimari
 

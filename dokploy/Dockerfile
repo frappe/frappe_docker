@@ -120,9 +120,9 @@ WORKDIR /home/frappe/frappe-bench
 # Build context root'tan kopyala (dokploy klasörü altından)
 COPY dokploy/apps.json /tmp/apps.json
 
-# Install apps one by one and clean after each to save space
+# Install core apps - optimized minimal setup
 RUN cd /home/frappe/frappe-bench && \
-    # ERPNext - version-15 (stable)
+    # ERPNext - version-15 (ERP Core with built-in features)
     bench get-app --branch=version-15 --resolve-deps erpnext https://github.com/frappe/erpnext && \
     find apps/erpnext -name "*.pyc" -delete && \
     find apps/erpnext -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
@@ -134,46 +134,22 @@ RUN cd /home/frappe/frappe-bench && \
     find apps/hrms -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 RUN cd /home/frappe/frappe-bench && \
-    # CRM - main branch (v15 compatible, latest stable v1.53.1)
+    # CRM - main branch (v15 compatible, latest v1.53.1)
     bench get-app --branch=main crm https://github.com/frappe/crm && \
     find apps/crm -name "*.pyc" -delete && \
     find apps/crm -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 RUN cd /home/frappe/frappe-bench && \
-    # Helpdesk - v1.14.0 tag (last Frappe v15 compatible version)
+    # Helpdesk - v1.14.0 (last v15 compatible version)
     bench get-app --branch=v1.14.0 helpdesk https://github.com/frappe/helpdesk && \
     find apps/helpdesk -name "*.pyc" -delete && \
     find apps/helpdesk -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 RUN cd /home/frappe/frappe-bench && \
-    # LMS - latest (Learning Management System)
-    bench get-app lms https://github.com/frappe/lms && \
-    find apps/lms -name "*.pyc" -delete && \
-    find apps/lms -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-
-RUN cd /home/frappe/frappe-bench && \
-    # Builder - latest (Website Builder)
-    bench get-app builder https://github.com/frappe/builder && \
-    find apps/builder -name "*.pyc" -delete && \
-    find apps/builder -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-
-RUN cd /home/frappe/frappe-bench && \
-    # Print Designer - latest (Print Templates)
-    bench get-app print_designer https://github.com/frappe/print_designer && \
-    find apps/print_designer -name "*.pyc" -delete && \
-    find apps/print_designer -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-
-RUN cd /home/frappe/frappe-bench && \
-    # Payments - latest (Payment Gateway Integration)
+    # Payments - main (Payment Gateway Integration)
     bench get-app payments https://github.com/frappe/payments && \
     find apps/payments -name "*.pyc" -delete && \
-    find apps/payments -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-
-RUN cd /home/frappe/frappe-bench && \
-    # Wiki - latest (Knowledge Base)
-    bench get-app wiki https://github.com/frappe/wiki && \
-    find apps/wiki -name "*.pyc" -delete && \
-    find apps/wiki -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true && \
+    find apps/payments -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true && \
     # Final cleanup
     echo "{}" > sites/common_site_config.json && \
     find apps -mindepth 1 -path "*/.git" | xargs rm -fr && \

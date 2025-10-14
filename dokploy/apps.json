@@ -16,23 +16,7 @@
     "branch": "v1.14.0"
   },
   {
-    "url": "https://github.com/frappe/lms.git",
-    "branch": "main"
-  },
-  {
-    "url": "https://github.com/frappe/builder.git",
-    "branch": "main"
-  },
-  {
-    "url": "https://github.com/frappe/print_designer.git",
-    "branch": "main"
-  },
-  {
     "url": "https://github.com/frappe/payments.git",
-    "branch": "main"
-  },
-  {
-    "url": "https://github.com/frappe/wiki.git",
     "branch": "main"
   }
 ]

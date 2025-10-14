@@ -2,19 +2,25 @@
 
 Bu klasör, Frappe ERPNext'i tüm popüler uygulamalarıyla birlikte Dokploy'da kolayca deploy etmek için hazırlanmıştır.
 
-## İçerilen Uygulamalar
+## İçerilen Uygulamalar (Core + 3 Önemli App)
 
-1. **ERPNext** - Tam özellikli ERP sistemi (built-in CRM dahil)
-2. **HRMS** - İnsan Kaynakları Yönetim Sistemi  
+1. **ERPNext** - Tam özellikli ERP sistemi (Accounting, Inventory, Manufacturing, vb.)
+2. **HRMS** - İnsan Kaynakları Yönetim Sistemi (Payroll, Leave, Attendance)
 3. **CRM** - Müşteri İlişkileri Yönetimi ([v1.53.1](https://github.com/frappe/crm/releases/tag/v1.53.1))
-4. **Helpdesk** - Müşteri Destek ve Ticket Sistemi
-5. **LMS** - Öğrenme Yönetim Sistemi (E-Learning)
-6. **Builder** - Web sitesi oluşturucu
-7. **Print Designer** - Yazdırma şablonu tasarımcısı
-8. **Payments** - Ödeme gateway entegrasyonları
-9. **Wiki** - Bilgi tabanı sistemi
+4. **Helpdesk** - Müşteri Destek ve Ticket Sistemi ([v1.14.0](https://github.com/frappe/helpdesk/releases/tag/v1.14.0))
+5. **Payments** - Ödeme Gateway Entegrasyonları (Stripe, PayPal, Razorpay)
 
-**Not**: Tüm uygulamalar Frappe v15 ile test edilmiş ve uyumludur. İlk deployment'ta hata alırsanız clean build yapın (Dokploy'da service'i silip yeniden oluşturun).
+### 🎯 Neden Bu Uygulamalar?
+
+**Minimal ve Production-Ready Kurulum**:
+- ✅ **Hızlı build** (~15-20 dakika)
+- ✅ **Az disk kullanımı** (~4-5 GB)
+- ✅ **Tüm core özellikler** mevcut
+- ✅ **Frappe v15 tam uyumlu**
+
+**İhtiyaç halinde eklenebilir**: LMS, Builder, Print Designer, Wiki (manuel kurulum)
+
+**Not**: Frontend port **8088** kullanılır. SSL/HTTPS Dokploy tarafından otomatik yönetilir.
 
 ## Dokploy'da Kurulum
 

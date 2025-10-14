@@ -53,19 +53,25 @@ Aşağıdaki değişkenleri ekleyin (hepsini **Secret** olarak işaretleyin):
    - 👤 **Username**: `Administrator`
    - 🔑 **Password**: `ADMIN_PASSWORD` değeriniz
 
-## ✅ Kurulu Uygulamalar
+## ✅ Kurulu Uygulamalar (Minimal Setup)
 
 Deploy sonrası otomatik olarak şu uygulamalar kurulu gelir:
 
-- ✅ **ERPNext** - Tam özellikli ERP
-- ✅ **CRM** - Müşteri İlişkileri Yönetimi
-- ✅ **LMS** - Öğrenme Yönetim Sistemi
-- ✅ **Builder** - Website Builder
-- ✅ **Print Designer** - Yazdırma Tasarımcısı
-- ✅ **Payments** - Ödeme Entegrasyonları
-- ✅ **Wiki** - Bilgi Tabanı
-- ✅ **Twilio Integration** - SMS/Telefon
-- ✅ **ERPNext Shipping** - Kargo Entegrasyonları
+- ✅ **ERPNext** - ERP Core (Accounting, Inventory, Sales, Purchase, Manufacturing)
+- ✅ **HRMS** - İnsan Kaynakları (Payroll, Leave, Attendance, Performance)
+- ✅ **CRM** - Müşteri İlişkileri (Lead, Deal, Contact Management)
+- ✅ **Helpdesk** - Destek Sistemi (Ticket, SLA, Knowledge Base)
+- ✅ **Payments** - Ödeme Entegrasyonları (Stripe, PayPal, Razorpay)
+
+**Toplam**: 5 Uygulama (Minimal ve hızlı kurulum)
+
+### 🔧 Manuel Eklenebilir
+
+İhtiyaç halinde sonradan ekleyebilirsiniz:
+- LMS (E-Learning)
+- Builder (Website Builder)
+- Print Designer (Custom Print Formats)
+- Wiki (Knowledge Base)
 
 ## 📊 Sistem Gereksinimleri
 
