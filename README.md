@@ -14,24 +14,33 @@ Once completed, chose one of the following two sections for next steps.
 
 ### 🚀 Deploy to Dokploy (Production Ready)
 
-**NEW!** Deploy ERPNext with 9 pre-installed apps (CRM, LMS, Builder, Print Designer, Payments, Wiki, Twilio Integration, and ERPNext Shipping) to Dokploy in minutes!
+**NEW!** Minimal ve hızlı ERPNext deployment - 5 production-ready app ile 15-20 dakikada hazır!
 
 ```bash
 Repository: https://github.com/ubden/frappe_docker
 Branch: main
 Compose Path: dokploy/docker-compose.yml
+Frontend Port: 8088
+SSL: Auto (Let's Encrypt)
 ```
 
-📚 **Quick Start Guide**: [dokploy/QUICKSTART.md](dokploy/QUICKSTART.md)  
-📖 **Full Documentation**: [dokploy/README.md](dokploy/README.md)
+📚 **Quick Start**: [dokploy/QUICKSTART.md](dokploy/QUICKSTART.md)  
+📖 **Docs**: [dokploy/README.md](dokploy/README.md)  
+🔒 **SSL Setup**: [dokploy/SSL_SETUP.md](dokploy/SSL_SETUP.md)
+
+**Included Apps (5)**:
+- ✅ ERPNext (ERP Core)
+- ✅ HRMS (Human Resource)
+- ✅ CRM (Customer Relations)
+- ✅ Helpdesk (Support System)
+- ✅ Payments (Payment Gateways)
 
 **Features:**
-- ✅ One-click deployment with all apps pre-installed
-- ✅ Production-optimized configuration
-- ✅ Automatic SSL/TLS with Let's Encrypt
-- ✅ Built-in health checks and monitoring
-- ✅ Easy backup and restore
-- ✅ Horizontal scaling ready
+- ✅ Fast deployment (15-20 min)
+- ✅ Minimal disk usage (4-5 GB)
+- ✅ Auto SSL/HTTPS (Let's Encrypt)
+- ✅ Production-ready config
+- ✅ Easy to extend (add more apps anytime)
 
 ### Try in Play With Docker
 
@@ -77,14 +86,18 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Dokploy Deployment](#dokploy) 🚀
 
-Complete ERPNext solution with 9 pre-installed apps, optimized for Dokploy:
+Minimal ERPNext solution with 5 core apps, optimized for Dokploy:
 
 - [Quick Start (5 minutes)](dokploy/QUICKSTART.md) ⚡
 - [Deployment Guide](dokploy/DEPLOYMENT.md) 📖
+- [SSL Setup](dokploy/SSL_SETUP.md) 🔒
+- [Minimal vs Full](dokploy/MINIMAL_VS_FULL.md) 📊
 - [Package Summary](dokploy/SUMMARY.md) 📋
-- [Changelog](dokploy/CHANGELOG.md) 📝
 
-**Included Apps**: ERPNext, CRM, LMS, Builder, Print Designer, Payments, Wiki, Twilio Integration, ERPNext Shipping
+**Included Apps**: ERPNext, HRMS, CRM, Helpdesk, Payments  
+**Port**: 8088 (HTTPS otomatik)  
+**Build Time**: 15-20 min  
+**Disk**: 4-5 GB
 
 ### [Production](#production)
 
