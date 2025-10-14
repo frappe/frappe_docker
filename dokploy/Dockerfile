@@ -144,12 +144,11 @@ RUN cd /home/frappe/frappe-bench && \
     bench get-app payments https://github.com/frappe/payments && \
     find apps/payments -name "*.pyc" -delete && \
     find apps/payments -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true && \
-    # Final cleanup
+    # Final cleanup (keep node_modules for runtime dependencies like socket.io)
     echo "{}" > sites/common_site_config.json && \
-    find apps -mindepth 1 -path "*/.git" | xargs rm -fr && \
+    find apps -mindepth 1 -path "*/.git" -type d -exec rm -rf {} + 2>/dev/null || true && \
     find apps -name "*.pyc" -delete && \
     find apps -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true && \
-    find apps -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null || true && \
     find apps -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
 
 FROM base AS erpnext-complete
