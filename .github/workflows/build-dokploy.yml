@@ -82,7 +82,9 @@ jobs:
           build-args: |
             FRAPPE_BRANCH=version-15
             PYTHON_VERSION=3.11.6
+            NODE_VERSION=20.19.2
           no-cache: false
+          # Minimal setup: 5 apps (ERPNext, HRMS, CRM, Helpdesk, Payments)
 
       - name: Image digest
         run: echo ${{ steps.meta.outputs.digest }}
@@ -103,7 +105,7 @@ jobs:
           SITE_NAME=test.localhost
           ADMIN_PASSWORD=testpassword
           DB_PASSWORD=testdbpassword
-          HTTP_PORT=8080
+          HTTP_PORT=8088
           EOF
 
       - name: Start services
@@ -113,17 +115,32 @@ jobs:
 
       - name: Wait for services to be healthy
         run: |
-          timeout 600 bash -c 'until docker-compose -f dokploy/docker-compose.yml ps | grep -q "healthy"; do sleep 10; done'
+          timeout 900 bash -c 'until docker-compose -f dokploy/docker-compose.yml ps | grep -q "healthy"; do sleep 15; done'
 
       - name: Check site creation
         run: |
           docker-compose -f dokploy/docker-compose.yml logs create-site
           docker-compose -f dokploy/docker-compose.yml ps create-site | grep "Exit 0"
 
+      - name: Verify installed apps
+        run: |
+          docker-compose -f dokploy/docker-compose.yml exec -T backend bench --site test.localhost list-apps
+
       - name: Test site accessibility
         run: |
           sleep 30
-          curl -f http://localhost:8080/api/method/ping || exit 1
+          curl -f http://localhost:8088/api/method/ping || exit 1
+
+      - name: Test installed apps
+        run: |
+          echo "Verifying 5 core apps are installed..."
+          docker-compose -f dokploy/docker-compose.yml exec -T backend bash -c "
+            bench --site test.localhost list-apps | grep -q 'erpnext' || exit 1
+            bench --site test.localhost list-apps | grep -q 'hrms' || exit 1
+            bench --site test.localhost list-apps | grep -q 'crm' || exit 1
+            bench --site test.localhost list-apps | grep -q 'helpdesk' || exit 1
+            bench --site test.localhost list-apps | grep -q 'payments' || exit 1
+          "
 
       - name: Cleanup
         if: always()
