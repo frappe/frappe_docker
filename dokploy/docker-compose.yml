@@ -174,8 +174,8 @@ services:
       - websocket
     networks:
       - erpnext-network
-    ports:
-      - "${HTTP_PORT:-8080}:8080"
+    expose:
+      - "8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/api/method/ping || exit 1"]
       interval: 30s
