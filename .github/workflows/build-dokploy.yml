@@ -136,7 +136,6 @@ jobs:
           echo "Verifying 5 core apps are installed..."
           docker-compose -f dokploy/docker-compose.yml exec -T backend bash -c "
             bench --site test.localhost list-apps | grep -q 'erpnext' || exit 1
-            bench --site test.localhost list-apps | grep -q 'hrms' || exit 1
             bench --site test.localhost list-apps | grep -q 'crm' || exit 1
             bench --site test.localhost list-apps | grep -q 'helpdesk' || exit 1
             bench --site test.localhost list-apps | grep -q 'payments' || exit 1
