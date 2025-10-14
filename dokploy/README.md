@@ -24,7 +24,7 @@ Compose Path: dokploy/docker-compose.yml
 SITE_NAME=erp.yourdomain.com
 ADMIN_PASSWORD=your_secure_password
 DB_PASSWORD=your_db_password
-HTTP_PORT=8088
+HTTP_PORT=8080
 ```
 
 **Domain + SSL**:

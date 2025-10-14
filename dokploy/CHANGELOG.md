@@ -17,7 +17,7 @@ Production-ready Frappe ERPNext Dokploy deployment paketi.
 #### Özellikler
 - Dokploy-optimized Docker Compose
 - Otomatik SSL/HTTPS (Let's Encrypt)
-- Frontend port 8088
+- Frontend port 8080 (standard Frappe port)
 - Production-ready konfigürasyon
 - Environment-based configuration
 - Health checks

@@ -15,7 +15,7 @@
 - [ ] `SITE_NAME` belirlendi
 - [ ] `ADMIN_PASSWORD` güçlü şifre (12+ karakter)
 - [ ] `DB_PASSWORD` güçlü şifre (12+ karakter)
-- [ ] Port 8088 kullanılacak
+- [ ] Port 8080 (standard) kullanılacak
 
 ### Güvenlik
 - [ ] Tüm şifreler güçlü ve unique
@@ -36,7 +36,7 @@
 - [ ] `SITE_NAME` eklendi
 - [ ] `ADMIN_PASSWORD` eklendi (Secret)
 - [ ] `DB_PASSWORD` eklendi (Secret)
-- [ ] `HTTP_PORT=8088` eklendi
+- [ ] `HTTP_PORT=8080` eklendi
 
 ### Domain & SSL
 - [ ] Domain eklendi

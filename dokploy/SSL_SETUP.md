@@ -19,7 +19,7 @@ Dokploy otomatik olarak Let's Encrypt sertifikası oluşturur:
 
 ```
 Domain: erp.yourdomain.com
-Port: 8088
+Port: 8080 (standard Frappe port)
 Enable HTTPS: ✅ (işaretleyin)
 ```
 
@@ -44,18 +44,18 @@ Dokploy otomatik olarak:
 
 ## 🌐 Port Yapılandırması
 
-### Frontend Port: 8088
+### Frontend Port: 8080
 
 ```env
 # .env dosyasında
-HTTP_PORT=8088
+HTTP_PORT=8080
 ```
 
 ### Erişim URL'leri
 
 **HTTP** (development):
 ```
-http://erp.yourdomain.com:8088
+http://erp.yourdomain.com:8080
 ```
 
 **HTTPS** (production - Dokploy):

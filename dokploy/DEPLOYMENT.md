@@ -31,14 +31,14 @@ Frappe ERPNext'i 4 temel uygulama ile Dokploy'da deploy etme kılavuzu.
 SITE_NAME=erp.yourdomain.com
 ADMIN_PASSWORD=YourSecurePass123!
 DB_PASSWORD=YourDBPass456!
-HTTP_PORT=8088
+HTTP_PORT=8080
 ```
 
 ### Adım 4: Domain + SSL
 
 1. **Domains** → **Add Domain**
 2. Domain: `erp.yourdomain.com`
-3. Port: `8088`
+3. Port: `8080`
 4. **Enable HTTPS** ✅
 5. **Force HTTPS** ✅
 

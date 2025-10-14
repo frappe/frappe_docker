@@ -20,7 +20,7 @@ Hızlı ve verimli ERPNext deployment - 4 temel uygulama ile 10-15 dakikada haz�
 Repository: https://github.com/ubden/frappe_docker
 Branch: main
 Compose Path: dokploy/docker-compose.yml
-Frontend Port: 8088
+Frontend Port: 8080
 SSL: Auto (Let's Encrypt)
 ```
 
@@ -39,7 +39,7 @@ SSL: Auto (Let's Encrypt)
 - ✅ Minimal disk usage (3-4 GB)
 - ✅ Auto SSL/HTTPS (Let's Encrypt)
 - ✅ Production-ready config
-- ✅ Port 8088 with HTTPS support
+- ✅ Standard port 8080 with HTTPS support
 
 ### Try in Play With Docker
 
@@ -93,7 +93,7 @@ ERPNext with essential business apps, optimized for Dokploy:
 - [Package Summary](dokploy/SUMMARY.md) 📋
 
 **Included Apps**: ERPNext, CRM, Helpdesk, Payments  
-**Port**: 8088 (HTTPS otomatik)  
+**Port**: 8080 (HTTPS otomatik)  
 **Build Time**: 10-15 min  
 **Disk**: 3-4 GB
 

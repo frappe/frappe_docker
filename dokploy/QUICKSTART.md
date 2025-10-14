@@ -25,7 +25,7 @@ Frappe ERPNext'i 4 temel uygulama ile 5 dakikada deploy edin!
 | `SITE_NAME` | `erp.yourdomain.com` | Site domain adı |
 | `ADMIN_PASSWORD` | `YourPass123!` | Admin şifresi (güçlü) |
 | `DB_PASSWORD` | `DBPass456!` | Database şifresi (güçlü) |
-| `HTTP_PORT` | `8088` | Frontend port |
+| `HTTP_PORT` | `8080` | Frontend port |
 
 **⚠️ ÖNEMLİ**: Şifreleri "Secret" olarak işaretleyin!
 

@@ -21,7 +21,7 @@ Frappe ERPNext ve 3 ek uygulama ile production-ready deployment paketi.
 - 💾 Az disk kullanımı (3-4 GB)
 - 🔒 Otomatik SSL (Let's Encrypt)
 - 🚀 Production-ready konfigürasyon
-- 📱 Port 8088
+- 📱 Port 8080 (standard)
 
 ## 🏗️ Mimari
 
@@ -30,7 +30,7 @@ Browser (HTTPS:443)
     ↓
 Dokploy Proxy (SSL)
     ↓
-Frontend (Port 8088 → 8080)
+Frontend (Port 8080)
     ↓
 Backend (Port 8000)
     ↓
@@ -52,7 +52,7 @@ MariaDB + Redis
 SITE_NAME=erp.yourdomain.com
 ADMIN_PASSWORD=your_password
 DB_PASSWORD=db_password
-HTTP_PORT=8088
+HTTP_PORT=8080
 ```
 
 ### SSL

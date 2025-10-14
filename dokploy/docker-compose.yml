@@ -175,7 +175,7 @@ services:
     networks:
       - erpnext-network
     ports:
-      - "${HTTP_PORT:-8088}:8080"
+      - "${HTTP_PORT:-8080}:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/api/method/ping || exit 1"]
       interval: 30s

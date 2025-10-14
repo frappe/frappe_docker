@@ -105,7 +105,7 @@ jobs:
           SITE_NAME=test.localhost
           ADMIN_PASSWORD=testpassword
           DB_PASSWORD=testdbpassword
-          HTTP_PORT=8088
+          HTTP_PORT=8080
           EOF
 
       - name: Start services
@@ -129,7 +129,7 @@ jobs:
       - name: Test site accessibility
         run: |
           sleep 30
-          curl -f http://localhost:8088/api/method/ping || exit 1
+          curl -f http://localhost:8080/api/method/ping || exit 1
 
       - name: Test installed apps
         run: |
