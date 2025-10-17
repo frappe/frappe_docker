@@ -53,9 +53,9 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Production](#production)
 
-- [List of containers](docs/list-of-containers.md)
+- [List of containers](docs/container-setup/01-overview.md)
 - [Single Compose Setup](docs/single-compose-setup.md)
-- [Environment Variables](docs/environment-variables.md)
+- [Environment Variables](docs/container-setup/env-variables.md)
 - [Single Server Example](docs/single-server-example.md)
 - [Setup Options](docs/setup-options.md)
 - [Site Operations](docs/site-operations.md)
@@ -67,8 +67,7 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Custom Images](#custom-images)
 
-- [Custom Apps](docs/custom-apps.md)
-- [Custom Apps with podman](docs/custom-apps-podman.md)
+- [Custom Apps](docs/container-setup/02-build-setup.md)
 - [Build Version 10 Images](docs/build-version-10-images.md)
 
 ### [Development](#development)
