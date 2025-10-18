@@ -176,6 +176,13 @@ EOF
             echo "  Generate with: openssl passwd -apr1 yourpassword"
         fi
         
+        # Check if HASHED_PASSWORD has username prefix (it shouldn't)
+        if [[ -n "$hashed_password" ]] && echo "$hashed_password" | grep -q "^admin:"; then
+            echo_error "HASHED_PASSWORD should NOT include 'admin:' prefix"
+            echo_warn "Remove 'admin:' from the hash in traefik.env"
+            echo_warn "The compose file adds it automatically"
+        fi
+        
         # Check domain format
         local traefik_domain
         traefik_domain=$(get_env_value "traefik.env" "TRAEFIK_DOMAIN")

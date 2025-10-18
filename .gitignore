@@ -34,3 +34,4 @@ production/*.env
 production/generated-compose.yaml
 production/logs/
 production/backups/
+production/production.yaml
