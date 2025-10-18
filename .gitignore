@@ -28,3 +28,10 @@ venv
 
 # NodeJS
 node_modules
+
+# Production environment files (never commit secrets)
+production/*.env
+production/generated-compose.yaml
+production/logs/
+production/backups/
+production/production.yaml
