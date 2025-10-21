@@ -34,6 +34,8 @@ RUN useradd -ms /bin/bash frappe \
     # For healthcheck
     wait-for-it \
     jq \
+    # For MIME type detection
+    media-types \
     # NodeJS
     && mkdir -p ${NVM_DIR} \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
