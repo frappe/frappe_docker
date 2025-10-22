@@ -1,0 +1,116 @@
+# Docker Compose configuration for Zerops deployment
+# This extends the main compose.yaml with Zerops-specific requirements
+
+x-customizable-image: &customizable_image
+  # Use ERPNext image with custom apps from our Containerfile
+  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-v15.84.0}
+  pull_policy: always
+  restart: unless-stopped
+  # IMPORTANT: All services must use network_mode: host for Zerops
+  network_mode: host
+
+x-depends-on-configurator: &depends_on_configurator
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
+
+x-backend-defaults: &backend_defaults
+  <<: [*depends_on_configurator, *customizable_image]
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+  environment:
+    - DB_HOST
+    - DB_PORT
+    - DB_PASSWORD
+    - ADMIN_PASSWORD
+    - REDIS_CACHE
+    - REDIS_QUEUE
+    - SOCKETIO_PORT
+    - FRAPPE_SITE_NAME_HEADER
+
+services:
+  configurator:
+    <<: *backend_defaults
+    platform: linux/amd64
+    entrypoint:
+      - bash
+      - -c
+    # Basic Frappe configuration only (site installation handled by Zerops)
+    command:
+      - >
+        ls -1 apps > sites/apps.txt;
+        bench set-config -g db_host $$DB_HOST;
+        bench set-config -gp db_port $$DB_PORT;
+        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
+        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
+        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
+        bench set-config -gp socketio_port $$SOCKETIO_PORT;
+        echo "✅ Frappe configuration completed";
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      REDIS_CACHE: ${REDIS_CACHE}
+      REDIS_QUEUE: ${REDIS_QUEUE}
+      SOCKETIO_PORT: 9000
+      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER}
+    depends_on: {}
+    restart: on-failure
+
+  backend:
+    <<: *backend_defaults
+    platform: linux/amd64
+    ports:
+      - "8000:8000"
+
+  frontend:
+    <<: *customizable_image
+    platform: linux/amd64
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      - BACKEND=127.0.0.1:8000
+      - SOCKETIO=127.0.0.1:9000
+      - FRAPPE_SITE_NAME_HEADER
+      - UPSTREAM_REAL_IP_ADDRESS=127.0.0.1
+      - UPSTREAM_REAL_IP_HEADER=X-Forwarded-For
+      - UPSTREAM_REAL_IP_RECURSIVE=off
+      - PROXY_READ_TIMEOUT=120
+      - CLIENT_MAX_BODY_SIZE=50m
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+    depends_on:
+      - backend
+      - websocket
+    ports:
+      - "8080:8080"
+
+  websocket:
+    <<: [*depends_on_configurator, *customizable_image]
+    platform: linux/amd64
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+    ports:
+      - "9000:9000"
+
+  queue-short:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command: bench worker --queue short,default
+
+  queue-long:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command: bench worker --queue long,default,short
+
+  scheduler:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command: bench schedule
+
+volumes:
+  sites:

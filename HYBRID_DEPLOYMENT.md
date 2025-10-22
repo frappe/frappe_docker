@@ -1,84 +1,127 @@
-# Hybrid Deployment Guide: Apps in Image + Persistent Volumes
+# Zerops Deployment Guide: Managed Services + Docker Compose
 
-This configuration implements the best of both worlds:
-- **Apps baked into Docker image** for consistency and fast deployments
-- **Site data in persistent volumes** for data safety and persistence
+This configuration leverages Zerops' managed services for databases while using Docker Compose for application containers, providing the best of both worlds:
+- **Managed MariaDB and Redis** for reliability, backups, and performance
+- **Docker Compose applications** for flexibility and familiar workflows
+- **Automated site installation** with custom apps included
 
 ## Architecture Overview
 
-### What's in the Image (Built once, reusable):
-- ✅ Frappe and ERPNext applications
-- ✅ All Python dependencies  
-- ✅ Custom apps (if configured)
-- ✅ Basic directory structure
+### Zerops Managed Services:
+- ✅ **MariaDB 11** - Database service with automatic backups and monitoring
+- ✅ **Valkey 7.2 (Redis)** - Cache service for high-performance caching
+- ✅ **Valkey 7.2 (Redis)** - Queue service for background job processing
 
-### What's in Persistent Volumes:
-- ✅ Site configurations (`sites/[site-name]/site_config.json`)
-- ✅ Uploaded files (`sites/[site-name]/public/files/`)
-- ✅ Private files (`sites/[site-name]/private/files/`)
-- ✅ Site-specific customizations
-- ✅ Database backups
+### Docker Compose Application Services:
+- ✅ **Backend** - Main Frappe/ERPNext application server
+- ✅ **Frontend** - Nginx reverse proxy for web serving
+- ✅ **WebSocket** - Real-time communication service
+- ✅ **Queue Workers** - Background job processing (short & long tasks)
+- ✅ **Scheduler** - Cron job management
+
+### Automated Site Setup:
+- ✅ Site creation and configuration
+- ✅ ERPNext application installation
+- ✅ Custom XML Importer app installation
+- ✅ Database migrations and setup
 - ✅ Application logs
 
 ## Deployment Steps
 
-### 1. Set Required Environment Secrets in Zerops
+### 1. Create Zerops Services
 
-```bash
-# In Zerops Dashboard > Project > Environment Variables
-db_password=YourSecureDbPassword123
-admin_password=YourAdminPassword123
-site_name=your-domain.com
+Create these services in your Zerops project:
+
+```yaml
+# Database service
+- Service Name: db
+- Type: MariaDB 11
+- Mode: Default (or HA for production)
+
+# Redis Cache service  
+- Service Name: redis-cache
+- Type: Valkey 7.2
+- Mode: NON_HA (or HA for production)
+
+# Redis Queue service
+- Service Name: redis-queue  
+- Type: Valkey 7.2
+- Mode: NON_HA (or HA for production)
 ```
 
-### 2. Deploy the Configuration
+### 2. Set Environment Secrets
 
-1. Import the `zerops.yml` file to Zerops
-2. Zerops will build all services using `Dockerfile.zerops`
-3. Each service will run the initialization script on startup
-4. Site will be automatically created if it doesn't exist
+In Zerops Dashboard > Project > Environment Variables:
 
-### 3. Automatic Initialization Process
+```bash
+dbPassword=YourSecureDbPassword123
+adminPassword=YourAdminPassword123  
+siteName=your-domain.com
+```
 
-On first deployment, each container will:
+### 3. Deploy the Application
 
-1. **Build Phase** (runs once during image creation):
-   - Install Frappe/ERPNext apps into image
-   - Copy initialization scripts
-   - Set proper permissions
+1. Connect your GitHub repository to Zerops
+2. Set branch to `zerops`
+3. Zerops will automatically find and deploy using `zerops.yml`
+4. The deployment will:
+   - Create managed database and Redis services
+   - Pull and start Docker Compose services
+   - Run site installation script
+   - Configure all service connections
+
+### 4. Automatic Site Installation
+
+During deployment, the installation script will:
+
+1. **Service Verification**:
+   - Wait for database connection to be ready
+   - Verify Redis cache and queue services are available
+   - Pull required Docker images
+
+2. **Site Setup**:
+   - Check if site already exists
+   - Create new site if needed (with database and admin user)
+   - Install ERPNext application
+   - Install custom XML Importer app from GitHub
+   - Run database migrations
 
 2. **Runtime Phase** (runs on every container start):
-   - **Backend service**: Full site initialization (creates site, installs ERPNext)
-   - **Other services**: Light initialization (just checks if site exists)
-   - Configure database and Redis connections
-   - Wait for database to be ready (backend only)
-   - Set proper permissions and configurations
+3. **Service Startup**:
+   - Start all Docker Compose services
+   - Services connect to managed databases using service names
+   - Site becomes available at the app service URL
 
-## Benefits of This Approach
+## Benefits of This Architecture
 
-### ✅ **Container Restart Resilience**
-- Site data survives container restarts/crashes
+### ✅ **Managed Database Reliability**
+- Automatic backups and point-in-time recovery
+- Built-in monitoring and alerting
+- High availability options
+- No database container overhead
+
+### ✅ **Docker Compose Flexibility**
+- Familiar development workflow
+- Easy service management and scaling
+- Shared volumes for site data
+- Service dependencies handled automatically
+
+### ✅ **Automated Setup**
+- Zero-touch deployment
+- Custom apps automatically installed
+- Site creation and configuration handled
 - No manual intervention required
-- Fast recovery times
 
-### ✅ **Consistent App Deployments**
-- Apps are identical across all containers
-- No version drift between services
-- Easy to update apps (rebuild image)
+### ✅ **Service Discovery**
+- Internal service communication via names
+- No hardcoded IPs or complex networking
+- Zerops handles internal DNS resolution
 
-### ✅ **Zero-Downtime Updates**
-- App updates: rebuild image, rolling update
-- Site data preserved during updates
-- Database migrations handled automatically
-
-### ✅ **Backup & Recovery**
-- Simple volume snapshots for site data
-- Database backups work seamlessly
-- Easy disaster recovery
-
-### ✅ **Scalability**
-- New containers start with same apps
-- Shared persistent volume for site data
+### ✅ **Scalability & Performance**
+- Database services can be scaled independently  
+- Application services can be horizontally scaled
+- Redis services optimized for their use case
+- No database performance impact from containerization
 - Auto-scaling works out of the box
 
 ## File Structure
@@ -98,51 +141,51 @@ On first deployment, each container will:
 └── logs/                   # Application logs (persistent volume)
 ```
 
+## Access Your ERPNext Instance
+
+After successful deployment:
+
+1. **Find your app service URL** in Zerops Dashboard > Services > app
+2. **Access ERPNext** at `https://your-app-service-url` 
+3. **Login credentials**:
+   - Username: `Administrator`
+   - Password: `[value you set for adminPassword]`
+
 ## Common Operations
 
 ### Adding New Custom Apps
 
-1. **Update `Dockerfile.zerops`**:
-   ```dockerfile
-   RUN bench get-app --branch main custom_app https://github.com/user/custom_app.git
-   ```
-
-2. **Redeploy services** (Zerops will rebuild image)
-
-3. **Install app on site** (automatic or manual):
+1. **Update the installation script** `scripts/install-site.sh`:
    ```bash
-   bench --site your-domain.com install-app custom_app
+   # Add your custom app
+   bench get-app https://github.com/user/custom_app.git
+   bench --site "$FRAPPE_SITE_NAME_HEADER" install-app custom_app
    ```
+
+2. **Redeploy the application** - Zerops will run the updated script
 
 ### Updating Frappe/ERPNext Version
 
-1. **Update version in `Dockerfile.zerops`**:
-   ```dockerfile
-   FROM frappe/erpnext:v16.0.0
-   ```
-
-2. **Update `zerops.yml` environment**:
+1. **Update version in `zerops.yml`**:
    ```yaml
+   CUSTOM_TAG: v16.0.0
    ERPNEXT_VERSION: v16.0.0
    ```
 
-3. **Redeploy** - migrations run automatically
+2. **Redeploy** - migrations run automatically during site setup
 
 ### Manual Site Operations
 
-Access any service terminal in Zerops dashboard:
+Access the app service terminal in Zerops dashboard:
 
 ```bash
-# Navigate to bench directory
+# Navigate to bench directory  
 cd /home/frappe/frappe-bench
 
 # Run migrations
 bench --site your-domain.com migrate
 
-# Create new site
-bench new-site newsite.com --install-app erpnext
-
-# Install custom app
+# Install additional apps
 bench --site your-domain.com install-app custom_app
 
 # Backup site
@@ -154,7 +197,7 @@ bench --site your-domain.com console
 
 ## Troubleshooting
 
-### Site Not Created Automatically
+### Site Installation Issues
 - Check environment variables are set correctly
 - Check database connectivity
 - Review container logs in Zerops dashboard
