@@ -1,0 +1,291 @@
+# Zerops YAML configuration for Frappe/ERPNext deployment
+# This file defines the infrastructure and deployment settings for Zerops platform
+# Documentation: https://docs.zerops.io/
+
+# Import this file in Zerops GUI to create the project with all required services
+
+project:
+  name: frappe-erpnext
+  
+services:
+  # MariaDB Database Service
+  - hostname: db
+    type: mariadb
+    version: "11"
+    mode: HA
+    priority: 10
+    # Zerops will automatically configure MariaDB with UTF8MB4
+    
+  # Redis Cache Service  
+  - hostname: redis-cache
+    type: redis
+    version: "6"
+    mode: HA
+    priority: 10
+    
+  # Redis Queue Service
+  - hostname: redis-queue  
+    type: redis
+    version: "6"
+    mode: HA
+    priority: 10
+    
+  # Main Backend Application (Frappe/ERPNext)
+  - hostname: backend
+    type: python
+    version: "3.11"
+    buildFromGit: https://github.com/UhrinDavid/frappe_docker@zerops
+    enableSubdomainAccess: false
+    minContainers: 1
+    maxContainers: 3
+    autoscaling:
+      cpuThreshold: 70
+      memoryThreshold: 80
+    # Environment variables
+    envSecrets:
+      DB_PASSWORD: ${db_password}
+      ADMIN_PASSWORD: ${admin_password}
+      ERPNEXT_VERSION: v15.84.0
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_CACHE: redis-cache
+      REDIS_QUEUE: redis-queue
+      SOCKETIO_PORT: 9000
+      FRAPPE_SITE_NAME_HEADER: ${site_name}
+      CUSTOM_IMAGE: frappe/erpnext
+      CUSTOM_TAG: ${ERPNEXT_VERSION}
+    # Persistent volumes for site data
+    volumes:
+      - name: frappe-sites
+        mountPath: /home/frappe/frappe-bench/sites
+        size: 20GB
+      - name: frappe-logs
+        mountPath: /home/frappe/frappe-bench/logs
+        size: 5GB
+    # Build settings using production Dockerfile
+    build:
+      dockerfile: ./images/production/Containerfile
+      context: .
+      # Build-time commands to include site and apps in image
+      buildCommands:
+        - |
+          # Install any additional apps during build
+          # Example: bench get-app --branch main custom_app https://github.com/user/custom_app
+          echo "Building Frappe image with pre-installed apps..."
+      # Runtime initialization - deployment specific
+      runPrepareCommands:
+        - |
+          # Copy and execute the site initialization script
+          cp scripts/init-frappe-site.sh /home/frappe/init-frappe-site.sh
+          chmod +x /home/frappe/init-frappe-site.sh
+          chown frappe:frappe /home/frappe/init-frappe-site.sh
+          
+          # Run the initialization script as frappe user
+          su - frappe -c "/home/frappe/init-frappe-site.sh"
+    # Health check
+    healthCheck:
+      httpGet:
+        port: 8000
+        path: /api/method/ping
+      initialDelaySeconds: 120
+      periodSeconds: 30
+        
+  # Frontend/Nginx Proxy Service  
+  - hostname: frontend
+    type: nginx
+    version: "1.24"
+    enableSubdomainAccess: true
+    minContainers: 1
+    maxContainers: 2
+    buildFromGit: https://github.com/UhrinDavid/frappe_docker@zerops
+    # Environment variables for nginx templating
+    envSecrets:
+      BACKEND: backend:8000
+      SOCKETIO: websocket:9000
+      FRAPPE_SITE_NAME_HEADER: ${site_name}
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For  
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      PROXY_READ_TIMEOUT: 120s
+      CLIENT_MAX_BODY_SIZE: 50m
+    # Build nginx with custom configuration
+    build:
+      dockerfile: ./images/production/Containerfile
+      context: .
+      # Use the nginx configuration from the frappe image
+      runPrepareCommands:
+        - cp /opt/frappe/nginx-template.conf /etc/nginx/conf.d/default.conf.template
+        - envsubst '$BACKEND $SOCKETIO $FRAPPE_SITE_NAME_HEADER' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+      # Command to run nginx
+      start: nginx-entrypoint.sh
+    # Health check
+    healthCheck:
+      httpGet:
+        port: 8080
+        path: /api/method/ping
+      initialDelaySeconds: 30
+      periodSeconds: 10
+        
+  # WebSocket Service
+  - hostname: websocket  
+    type: nodejs
+    version: "18"
+    buildFromGit: https://github.com/UhrinDavid/frappe_docker@zerops
+    enableSubdomainAccess: false
+    minContainers: 1
+    maxContainers: 2
+    # Shared persistent volumes for site access
+    volumes:
+      - name: frappe-sites
+        mountPath: /home/frappe/frappe-bench/sites
+        size: 20GB
+    # Environment variables
+    envSecrets:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_CACHE: redis-cache
+      REDIS_QUEUE: redis-queue
+      SOCKETIO_PORT: 9000
+    build:
+      dockerfile: ./images/production/Containerfile
+      context: .
+      runPrepareCommands:
+        - |
+          # Copy and execute the service initialization script
+          cp scripts/init-service.sh /home/frappe/init-service.sh
+          chmod +x /home/frappe/init-service.sh
+          chown frappe:frappe /home/frappe/init-service.sh
+          
+          # Run the initialization script as frappe user
+          su - frappe -c "/home/frappe/init-service.sh WebSocket"
+      # Command to run the WebSocket server
+      start: node /home/frappe/frappe-bench/apps/frappe/socketio.js
+    # Health check  
+    healthCheck:
+      httpGet:
+        port: 9000
+        path: /socket.io/
+      initialDelaySeconds: 60
+      periodSeconds: 30
+        
+  # Queue Worker - Short Tasks
+  - hostname: queue-short
+    type: python
+    version: "3.11"
+    buildFromGit: https://github.com/UhrinDavid/frappe_docker@zerops
+    enableSubdomainAccess: false
+    minContainers: 1
+    maxContainers: 3
+    # Shared persistent volumes for site access
+    volumes:
+      - name: frappe-sites
+        mountPath: /home/frappe/frappe-bench/sites
+        size: 20GB
+    # Environment variables
+    envSecrets:
+      DB_HOST: db
+      DB_PORT: 3306  
+      REDIS_CACHE: redis-cache
+      REDIS_QUEUE: redis-queue
+    build:
+      dockerfile: ./images/production/Containerfile
+      context: .
+      runPrepareCommands:
+        - |
+          # Copy and execute the service initialization script
+          cp scripts/init-service.sh /home/frappe/init-service.sh
+          chmod +x /home/frappe/init-service.sh
+          chown frappe:frappe /home/frappe/init-service.sh
+          
+          # Run the initialization script as frappe user
+          su - frappe -c "/home/frappe/init-service.sh 'Queue Worker (Short)'"
+      # Command to run the worker
+      start: bench worker --queue short,default
+          
+  # Queue Worker - Long Tasks  
+  - hostname: queue-long
+    type: python
+    version: "3.11"
+    buildFromGit: https://github.com/UhrinDavid/frappe_docker@zerops
+    enableSubdomainAccess: false
+    minContainers: 1
+    maxContainers: 2
+    # Shared persistent volumes for site access
+    volumes:
+      - name: frappe-sites
+        mountPath: /home/frappe/frappe-bench/sites
+        size: 20GB
+    # Environment variables
+    envSecrets:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_CACHE: redis-cache
+      REDIS_QUEUE: redis-queue
+    build:
+      dockerfile: ./images/production/Containerfile
+      context: .
+      runPrepareCommands:
+        - |
+          # Copy and execute the service initialization script
+          cp scripts/init-service.sh /home/frappe/init-service.sh
+          chmod +x /home/frappe/init-service.sh
+          chown frappe:frappe /home/frappe/init-service.sh
+          
+          # Run the initialization script as frappe user
+          su - frappe -c "/home/frappe/init-service.sh 'Queue Worker (Long)'"
+      # Command to run the long queue worker
+      start: bench worker --queue long,default,short
+          
+  # Scheduler Service
+  - hostname: scheduler
+    type: python
+    version: "3.11"
+    buildFromGit: https://github.com/UhrinDavid/frappe_docker@zerops
+    enableSubdomainAccess: false  
+    minContainers: 1
+    maxContainers: 1
+    # Shared persistent volumes for site access
+    volumes:
+      - name: frappe-sites
+        mountPath: /home/frappe/frappe-bench/sites
+        size: 20GB
+    # Environment variables
+    envSecrets:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_CACHE: redis-cache
+      REDIS_QUEUE: redis-queue
+    build:
+      dockerfile: ./images/production/Containerfile
+      context: .
+      runPrepareCommands:
+        - |
+          # Copy and execute the service initialization script
+          cp scripts/init-service.sh /home/frappe/init-service.sh
+          chmod +x /home/frappe/init-service.sh
+          chown frappe:frappe /home/frappe/init-service.sh
+          
+          # Run the initialization script as frappe user
+          su - frappe -c "/home/frappe/init-service.sh Scheduler"
+      # Command to run the scheduler
+      start: bench schedule
+
+# Required secrets that need to be set in Zerops dashboard:
+# - db_password: Database password for MariaDB (e.g., "mySecureDbPassword123")
+# - admin_password: ERPNext admin user password (e.g., "myAdminPassword123")  
+# - site_name: Your site domain name (e.g., "mycompany.example.com")
+# 
+# This configuration includes:
+# ✅ Clean Docker image with ERPNext apps (deployment-agnostic)
+# ✅ Persistent volumes for site data, uploads, and configurations  
+# ✅ Deployment-specific initialization via runPrepareCommands
+# ✅ Shared volumes across all services that need site access
+# 
+# Benefits:
+# - Docker image is reusable across different deployment platforms
+# - Site initialization is handled at deployment time (not in image)
+# - Container restarts preserve all site data and configurations
+# - Apps are consistently deployed across all containers
+# - No manual setup required after deployment
+# - Fast container startup times
+# - Proper separation between image and deployment concerns
