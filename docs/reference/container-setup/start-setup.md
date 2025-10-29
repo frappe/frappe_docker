@@ -39,4 +39,4 @@ Replace `<sitename>` with your desired site name.
 
 ---
 
-**Back:** [Build Setup →](02-build-setup.md)
+**Back:** [Build Setup →](build-setup.md)

@@ -55,32 +55,50 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
 
+### [Getting Started](#getting-started)
+
+- [Quick Start (Linux/Mac)](docs/getting-started/quick-start-linux-mac.md)
+- [Single Compose Setup](docs/getting-started/single-compose-setup.md)
+
+### [Setup](#setup)
+
+- [Container Overview](docs/reference/container-setup/overview.md)
+- [Setup Options](docs/setup/setup-options.md)
+- [Single Server Example](docs/setup/single-server-example.md)
+
 ### [Production](#production)
 
-- [List of containers](docs/container-setup/01-overview.md)
-- [Single Compose Setup](docs/single-compose-setup.md)
-- [Environment Variables](docs/container-setup/env-variables.md)
-- [Single Server Example](docs/single-server-example.md)
-- [Setup Options](docs/setup-options.md)
-- [Site Operations](docs/site-operations.md)
-- [Backup and Push Cron Job](docs/backup-and-push-cronjob.md)
-- [Port Based Multi Tenancy](docs/port-based-multi-tenancy.md)
-- [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
-- [running on linux/mac](docs/setup_for_linux_mac.md)
-- [TLS for local deployment](docs/tls-for-local-deployment.md)
+- [TLS/SSL Setup](docs/production/tls-ssl-setup.md)
+- [Backup Strategy](docs/production/backup-strategy.md)
+- [Multi-Tenancy](docs/production/multi-tenancy.md)
 
-### [Custom Images](#custom-images)
+### [Operations](#operations)
 
-- [Custom Apps](docs/container-setup/02-build-setup.md)
-- [Build Version 10 Images](docs/build-version-10-images.md)
+- [Site Operations](docs/operations/site-operations.md)
 
 ### [Development](#development)
 
-- [Development using containers](docs/development.md)
-- [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
-- [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
+- [Development Guide](docs/development/development.md)
+- [Debugging](docs/development/debugging.md)
+- [Local Services Connection](docs/development/local-services-connection.md)
 
-### [Troubleshoot](docs/troubleshoot.md)
+### [Migration](#migration)
+
+- [Migrate from Multi-Image Setup](docs/migration/migrate-from-multi-image-setup.md)
+
+### [Troubleshooting](#troubleshooting)
+
+- [Troubleshoot Guide](docs/troubleshooting/troubleshoot.md)
+- [Windows Nginx Entrypoint Error](docs/troubleshooting/windows-nginx-entrypoint-error.md)
+
+### [Reference](#reference)
+
+- [Container Setup Overview](docs/reference/container-setup/overview.md)
+- [Build Setup](docs/reference/container-setup/build-setup.md)
+- [Start Setup](docs/reference/container-setup/start-setup.md)
+- [Environment Variables](docs/reference/container-setup/env-variables.md)
+- [Compose Overrides](docs/reference/container-setup/overrides.md)
+- [Build Version 10 Images](docs/reference/build-version-10-images.md)
 
 # Contributing
 
