@@ -17,7 +17,7 @@ Copy the example docker environment file to `.env`:
 cp example.env .env
 ```
 
-Note: To know more about environment variable [read here](../reference/container-setup/env-variables.md). Set the necessary variables in the `.env` file.
+Note: To know more about environment variable [read here](../08-reference/container-setup/04-env-variables.md). Set the necessary variables in the `.env` file.
 
 ## Generate docker-compose.yml for variety of setups
 
@@ -98,7 +98,7 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -
 
 ## Create first site
 
-After starting containers, the first site needs to be created. Refer [site operations](../operations/site-operations.md#setup-new-site).
+After starting containers, the first site needs to be created. Refer [site operations](../04-operations/01-site-operations.md#setup-new-site).
 
 ## Updating Images
 
@@ -128,4 +128,4 @@ Note:
 - pull and stop container commands can be skipped if immutable image tags are used
 - `docker compose up -d` will pull new immutable tags if not found.
 
-To migrate sites refer [site operations](../operations/site-operations.md#migrate-site)
+To migrate sites refer [site operations](../04-operations/01-site-operations.md#migrate-site)

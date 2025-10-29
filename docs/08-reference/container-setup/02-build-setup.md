@@ -95,7 +95,7 @@ The compose file requires several environment variables. You can either export t
 cp example.env custom.env
 ```
 
-Edit `custom.env` to customize variables for your setup. The template includes common variables, but you can add, modify, or remove any as needed. See [env-variables.md](env-variables.md) for detailed descriptions of all available variables.
+Edit `custom.env` to customize variables for your setup. The template includes common variables, but you can add, modify, or remove any as needed. See [env-variables.md](04-env-variables.md) for detailed descriptions of all available variables.
 
 # Creating the final compose file
 
@@ -116,6 +116,6 @@ This generates `compose.custom.yaml`, which you'll use to start all containers. 
 
 ---
 
-**Next:** [Start Setup →](start-setup.md)
+**Next:** [Start Setup →](03-start-setup.md)
 
-**Back:** [Container Overview ←](overview.md)
+**Back:** [Container Overview ←](01-overview.md)

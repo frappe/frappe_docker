@@ -57,48 +57,47 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Getting Started](#getting-started)
 
-- [Quick Start (Linux/Mac)](docs/getting-started/quick-start-linux-mac.md)
-- [Single Compose Setup](docs/getting-started/single-compose-setup.md)
+- [Quick Start (Linux/Mac)](docs/01-getting-started/01-quick-start-linux-mac.md)
+- [Single Compose Setup](docs/01-getting-started/02-single-compose-setup.md)
 
 ### [Setup](#setup)
 
-- [Container Overview](docs/reference/container-setup/overview.md)
-- [Setup Options](docs/setup/setup-options.md)
-- [Single Server Example](docs/setup/single-server-example.md)
+- [Setup Options](docs/02-setup/01-setup-options.md)
+- [Single Server Example](docs/02-setup/02-single-server-example.md)
 
 ### [Production](#production)
 
-- [TLS/SSL Setup](docs/production/tls-ssl-setup.md)
-- [Backup Strategy](docs/production/backup-strategy.md)
-- [Multi-Tenancy](docs/production/multi-tenancy.md)
+- [TLS/SSL Setup](docs/03-production/01-tls-ssl-setup.md)
+- [Backup Strategy](docs/03-production/02-backup-strategy.md)
+- [Multi-Tenancy](docs/03-production/03-multi-tenancy.md)
 
 ### [Operations](#operations)
 
-- [Site Operations](docs/operations/site-operations.md)
+- [Site Operations](docs/04-operations/01-site-operations.md)
 
 ### [Development](#development)
 
-- [Development Guide](docs/development/development.md)
-- [Debugging](docs/development/debugging.md)
-- [Local Services Connection](docs/development/local-services-connection.md)
+- [Development Guide](docs/05-development/01-development.md)
+- [Debugging](docs/05-development/02-debugging.md)
+- [Local Services Connection](docs/05-development/03-local-services-connection.md)
 
 ### [Migration](#migration)
 
-- [Migrate from Multi-Image Setup](docs/migration/migrate-from-multi-image-setup.md)
+- [Migrate from Multi-Image Setup](docs/06-migration/01-migrate-from-multi-image-setup.md)
 
 ### [Troubleshooting](#troubleshooting)
 
-- [Troubleshoot Guide](docs/troubleshooting/troubleshoot.md)
-- [Windows Nginx Entrypoint Error](docs/troubleshooting/windows-nginx-entrypoint-error.md)
+- [Troubleshoot Guide](docs/07-troubleshooting/01-troubleshoot.md)
+- [Windows Nginx Entrypoint Error](docs/07-troubleshooting/02-windows-nginx-entrypoint-error.md)
 
 ### [Reference](#reference)
 
-- [Container Setup Overview](docs/reference/container-setup/overview.md)
-- [Build Setup](docs/reference/container-setup/build-setup.md)
-- [Start Setup](docs/reference/container-setup/start-setup.md)
-- [Environment Variables](docs/reference/container-setup/env-variables.md)
-- [Compose Overrides](docs/reference/container-setup/overrides.md)
-- [Build Version 10 Images](docs/reference/build-version-10-images.md)
+- [Container Setup Overview](docs/08-reference/container-setup/01-overview.md)
+- [Build Setup](docs/08-reference/container-setup/02-build-setup.md)
+- [Start Setup](docs/08-reference/container-setup/03-start-setup.md)
+- [Environment Variables](docs/08-reference/container-setup/04-env-variables.md)
+- [Compose Overrides](docs/08-reference/container-setup/05-overrides.md)
+- [Build Version 10 Images](docs/08-reference/01-build-version-10-images.md)
 
 # Contributing
 

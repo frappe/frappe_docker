@@ -285,4 +285,4 @@ docker compose --project-name custom-one-example -f ~/gitops/custom-one-example.
 
 ### Site operations
 
-Refer: [site operations](../operations/site-operations.md)
+Refer: [site operations](../04-operations/01-site-operations.md)
