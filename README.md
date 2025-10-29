@@ -62,11 +62,11 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Setup](#setup)
 
-- [Container Setup Overview](docs/02-setup/container-setup/01-overview.md)
-- [Build Setup](docs/02-setup/container-setup/02-build-setup.md)
-- [Start Setup](docs/02-setup/container-setup/03-start-setup.md)
-- [Environment Variables](docs/02-setup/container-setup/04-env-variables.md)
-- [Compose Overrides](docs/02-setup/container-setup/05-overrides.md)
+- [Container Setup Overview](docs/02-setup/01-overview.md)
+- [Build Setup](docs/02-setup/02-build-setup.md)
+- [Start Setup](docs/02-setup/03-start-setup.md)
+- [Environment Variables](docs/02-setup/04-env-variables.md)
+- [Compose Overrides](docs/02-setup/05-overrides.md)
 - [Setup Examples](docs/02-setup/06-setup-examples.md)
 - [Single Server Example](docs/02-setup/07-single-server-example.md)
 

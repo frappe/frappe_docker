@@ -46,4 +46,4 @@ Example: The main compose file has no database service, but `compose.mariadb.yam
 
 **Next:** [Build Setup →](02-build-setup.md)
 
-**See also:** [Setup Examples](../06-setup-examples.md) for practical deployment scenarios.
+**See also:** [Setup Examples](06-setup-examples.md) for practical deployment scenarios.

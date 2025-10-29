@@ -59,4 +59,4 @@ For more site operations, refer to [site operations](../../04-operations/01-site
 
 **Back:** [Build Setup →](02-build-setup.md)
 
-**Next:** [Setup Examples →](../06-setup-examples.md)
+**Next:** [Setup Examples →](06-setup-examples.md)

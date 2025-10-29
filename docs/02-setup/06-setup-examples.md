@@ -1,6 +1,6 @@
 # Setup Examples
 
-This guide provides practical examples for common setup scenarios. These examples build upon the [container setup guide](container-setup/01-overview.md) and demonstrate how to combine the base compose file with overrides.
+This guide provides practical examples for common setup scenarios. These examples build upon the [container setup guide](01-overview.md) and demonstrate how to combine the base compose file with overrides.
 
 > **Note:** This setup is not for development. A complete development environment is available [here](../05-development/01-development.md).
 
@@ -18,7 +18,7 @@ Copy the example docker environment file to `.env`:
 cp example.env .env
 ```
 
-Edit `.env` and set variables according to your needs. See [environment variables](container-setup/04-env-variables.md) for detailed descriptions of all available variables.
+Edit `.env` and set variables according to your needs. See [environment variables](04-env-variables.md) for detailed descriptions of all available variables.
 
 ## Storing Generated YAML Files
 
@@ -90,7 +90,7 @@ docker compose -f compose.yaml \
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
-> **Note:** Ensure your `SITES` variable is properly formatted. See [environment variables](container-setup/04-env-variables.md) for the correct format.
+> **Note:** Ensure your `SITES` variable is properly formatted. See [environment variables](04-env-variables.md) for the correct format.
 
 ## Create First Site
 
@@ -129,7 +129,7 @@ To migrate sites after updating, refer to [site operations](../04-operations/01-
 
 ---
 
-**Back:** [Start Setup →](container-setup/03-start-setup.md)
+**Back:** [Start Setup →](03-start-setup.md)
 
 **Next:** [Single Server Example →](07-single-server-example.md)
 
