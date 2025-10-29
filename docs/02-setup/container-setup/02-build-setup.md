@@ -119,3 +119,5 @@ This generates `compose.custom.yaml`, which you'll use to start all containers. 
 **Next:** [Start Setup →](03-start-setup.md)
 
 **Back:** [Container Overview ←](01-overview.md)
+
+**See also:** [Setup Examples](../06-setup-examples.md) for practical deployment scenarios.

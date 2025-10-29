@@ -1,4 +1,6 @@
-### Single Server Example
+# Single Server Example
+
+This guide demonstrates setting up multiple Frappe/ERPNext benches (projects) on a single server with shared infrastructure components.
 
 In this use case we have a single server with a static IP attached to it. It can be used in scenarios where one powerful VM has multiple benches and applications or one entry level VM with single site. For single bench, single site setup follow only up to the point where first bench and first site is added. If you choose this setup you can only scale vertically. If you need to scale horizontally you'll need to backup the sites and restore them on to cluster setup.
 
@@ -286,3 +288,7 @@ docker compose --project-name custom-one-example -f ~/gitops/custom-one-example.
 ### Site operations
 
 Refer: [site operations](../04-operations/01-site-operations.md)
+
+---
+
+**Back:** [Setup Examples →](06-setup-examples.md)

@@ -16,6 +16,8 @@ The `-p` (or `--project-name`) flag names the project `frappe`, allowing you to 
 
 Frappe is now running, but it's not yet configured. You need to create a site and install your apps.
 
+## Basic site creation
+
 ```bash
 docker compose -p frappe exec backend bench new-site <sitename> --mariadb-user-host-login-scope='172.%.%.%'
 docker compose -p frappe exec backend bench --site <sitename> install-app erpnext
@@ -29,6 +31,22 @@ bench --site <sitename> install-app erpnext
 
 Replace `<sitename>` with your desired site name.
 
+## Create site with app installation
+
+You can install apps during site creation:
+
+```bash
+docker compose -p frappe exec backend bench new-site <sitename> \
+  --mariadb-user-host-login-scope='%' \
+  --db-root-password <db-password> \
+  --admin-password <admin-password> \
+  --install-app erpnext
+```
+
+> **Note:** Wait for the `db` service to start and `configurator` to exit before trying to create a new site. Usually this takes up to 10 seconds.
+
+For more site operations, refer to [site operations](../../04-operations/01-site-operations.md).
+
 > ## Understanding the MariaDB User Scope
 >
 > The flag --mariadb-user-host-login-scope='172.%.%.%' allows database connections from any IP address within the 172.0.0.0/8 range. This includes all containers and virtual machines running on your machine.
@@ -40,3 +58,5 @@ Replace `<sitename>` with your desired site name.
 ---
 
 **Back:** [Build Setup →](02-build-setup.md)
+
+**Next:** [Setup Examples →](../06-setup-examples.md)

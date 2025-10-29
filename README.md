@@ -62,8 +62,13 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Setup](#setup)
 
-- [Setup Options](docs/02-setup/01-setup-options.md)
-- [Single Server Example](docs/02-setup/02-single-server-example.md)
+- [Container Setup Overview](docs/02-setup/container-setup/01-overview.md)
+- [Build Setup](docs/02-setup/container-setup/02-build-setup.md)
+- [Start Setup](docs/02-setup/container-setup/03-start-setup.md)
+- [Environment Variables](docs/02-setup/container-setup/04-env-variables.md)
+- [Compose Overrides](docs/02-setup/container-setup/05-overrides.md)
+- [Setup Examples](docs/02-setup/06-setup-examples.md)
+- [Single Server Example](docs/02-setup/07-single-server-example.md)
 
 ### [Production](#production)
 
@@ -92,11 +97,6 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Reference](#reference)
 
-- [Container Setup Overview](docs/08-reference/container-setup/01-overview.md)
-- [Build Setup](docs/08-reference/container-setup/02-build-setup.md)
-- [Start Setup](docs/08-reference/container-setup/03-start-setup.md)
-- [Environment Variables](docs/08-reference/container-setup/04-env-variables.md)
-- [Compose Overrides](docs/08-reference/container-setup/05-overrides.md)
 - [Build Version 10 Images](docs/08-reference/01-build-version-10-images.md)
 
 # Contributing
