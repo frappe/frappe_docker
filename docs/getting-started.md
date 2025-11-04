@@ -30,13 +30,19 @@ Frappe Docker provides a comprehensive containerized environment for developing 
 
 ### Core Services
 
-- **backend** - Gunicorn WSGI server running Frappe applications
-- **frontend** - Nginx for static files and reverse proxy
-- **queue-short/long** - Background job workers for asynchronous task processing
-- **scheduler** - Cron-style task scheduler for periodic jobs
-- **websocket** - Socket.IO server for real-time communications
-- **db** - MariaDB/PostgreSQL database server
-- **redis-cache/queue** - Redis for caching and job queue management
+The base compose file includes these essential services:
+
+- **configurator** - Initialization service that configures database and Redis connections; runs on startup and exits
+- **backend** - Werkzeug development server for dynamic content processing
+- **frontend** - Nginx reverse proxy that serves static assets and routes requests
+- **websocket** - Node.js server running Socket.IO for real-time communications
+- **queue-short/long** - Python workers using RQ (Redis Queue) for asynchronous background job processing
+- **scheduler** - Python service that runs scheduled tasks using the schedule library
+
+Additional services are added through compose overrides:
+
+- **db** - MariaDB or PostgreSQL database server (via `compose.mariadb.yaml` or `compose.postgres.yaml`)
+- **redis-cache/queue** - Redis instances for caching and job queues (via `compose.redis.yaml`)
 
 ### How Services Work Together
 
@@ -45,7 +51,7 @@ User Request
     ↓
 [frontend (Nginx)] → Static files served directly
     ↓
-[backend (Gunicorn)] → Dynamic content processing
+[backend (Werkzeug)] → Dynamic content processing
     ↓                    ↓
 [db (MariaDB)]      [redis-cache]
 
@@ -68,10 +74,14 @@ Real-time:
 
 ### 📁 images/ - Docker Image Definitions
 
-- **images/bench/** - Development container with full Frappe tooling and CLI
-- **images/production/** - Production-optimized containers (smaller, security-hardened)
-- **images/custom/** - Build custom apps using apps.json configuration
-- **images/layered/** - Optimized layered builds for faster rebuilds
+Four predefined Dockerfiles are available, each serving different use cases:
+
+- **images/bench/** - Sets up only the Bench CLI for development or debugging; does not include runtime services
+- **images/custom/** - Multi-purpose Python backend built from plain Python base image; installs apps from `apps.json`; suitable for **production** and testing; ideal when you need control over Python/Node versions
+- **images/layered/** - Same final contents as `custom` but based on prebuilt images from Docker Hub; faster builds for production when using Frappe-managed dependency versions
+- **images/production/** - Installs only Frappe and ERPNext (not customizable with `apps.json`); best for **quick starts or exploration**; for real deployments, use `custom` or `layered`
+
+> **Note:** For detailed build arguments and advanced configuration options, see [docs/container-setup/01-overview.md](container-setup/01-overview.md).
 
 ### 📁 overrides/ - Compose File Extensions
 
@@ -419,7 +429,7 @@ images/*/Dockerfile           # Core images - extend rather than modify
 
 ```
 .github/workflows/            # CI/CD pipelines
-images/production/            # Production containers
+images/*/                     # Core image definitions
 resources/                    # Core templates
 ```
 
