@@ -5,6 +5,8 @@ Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https:
 
 # Getting Started
 
+**New to Frappe Docker?** Read the [Getting Started Guide](docs/getting-started.md) for a comprehensive overview of repository structure, development workflow, custom apps, Docker concepts, and quick start examples.
+
 To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-compose](https://docs.docker.com/compose/), and [git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git) setup on your machine. For Docker basics and best practices refer to Docker's [documentation](http://docs.docker.com).
 
 Once completed, chose one of the following two sections for next steps.
@@ -48,6 +50,8 @@ Wait for 5 minutes for ERPNext site to be created or check `create-site` contain
 If you ran in a Dev Docker environment, to view container logs: `docker compose -f pwd.yml logs -f create-site`. Don't worry about some of the initial error messages, some services take a while to become ready, and then they go away.
 
 # Documentation
+
+### [Getting Started Guide](docs/getting-started.md)
 
 ### [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
 
