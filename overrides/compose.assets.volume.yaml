@@ -1,0 +1,12 @@
+services:
+  backend:
+    volumes:
+      - assets:/home/frappe/frappe-bench/sites/assets
+
+  frontend:
+    volumes:
+      - assets:/home/frappe/frappe-bench/sites/assets:ro
+
+volumes:
+  assets:
+    name: frappe_docker_assets

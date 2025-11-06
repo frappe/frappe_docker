@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/Bamboi-tech/frappe_ecommerce_integrations",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/Bamboi-tech/frappe_kuehne_nagel_sftp",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/frappe/hrms",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/frappe/drive",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/frappe/payments",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/frappe/crm",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/frappe/insights",
+    "branch": "develop"
+  }
+]
