@@ -6,7 +6,7 @@ Now you need to specify command and environment variables for following containe
 
 ### Frontend
 
-For `frontend` service to act as static assets frontend and reverse proxy, you need to pass `nginx-entrypoint.sh` as container `command` and `BACKEND` and `SOCKETIO` environment variables pointing `{host}:{port}` for gunicorn and websocket services. Check [environment variables](environment-variables.md)
+For `frontend` service to act as static assets frontend and reverse proxy, you need to pass `nginx-entrypoint.sh` as container `command` and `BACKEND` and `SOCKETIO` environment variables pointing `{host}:{port}` for gunicorn and websocket services. Check [environment variables](../02-setup/04-env-variables.md)
 
 Now you only need to mount the `sites` volume at location `/home/frappe/frappe-bench/sites`. No need for `assets` volume and asset population script or steps.
 
