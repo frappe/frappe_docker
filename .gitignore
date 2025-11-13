@@ -28,3 +28,11 @@ venv
 
 # NodeJS
 node_modules
+
+# Production environment files
+production/**/*.env
+production/generated-compose.yaml
+production/logs/
+production/backups/
+production/production.yaml*
+production/traefik.env.*
