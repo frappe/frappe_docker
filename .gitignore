@@ -34,5 +34,6 @@ production/**/*.env
 production/generated-compose.yaml
 production/logs/
 production/backups/
+production/troubleshooting/
 production/production.yaml*
 production/traefik.env.*
