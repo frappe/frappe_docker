@@ -1,6 +1,13 @@
 version: "3.3"
 
 services:
+  configurator:
+    environment:
+      DB_HOST: database
+      DB_PORT: 3306
+    depends_on:
+      database:
+        condition: service_healthy
   database:
     container_name: mariadb-database
     image: mariadb:11.8
