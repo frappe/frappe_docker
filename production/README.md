@@ -29,10 +29,6 @@ erp-is/
 ├── production/              # Production deployment (this directory)
 │   ├── README.md           # This guide
 │   ├── *.env.example       # Configuration templates
-│   ├── customizations/     # Brand customizations (CSS, favicon, logo)
-│   │   ├── custom.css
-│   │   ├── favicon.ico
-│   │   └── logo.png
 │   ├── scripts/            # Automation scripts
 │   │   ├── deploy.sh              # Main deployment (includes setup/regenerate)
 │   │   ├── create-site.sh         # Create new site
@@ -55,19 +51,38 @@ erp-is/
 
 ## Table of Contents
 
+- [Stack Versions & Fork Notes](#stack-versions--fork-notes)
 - [Quick Start](#quick-start)
 - [Prerequisites](#prerequisites)
 - [Pre-Deployment Checklist](#pre-deployment-checklist)
 - [Environment Configuration](#environment-configuration)
-- [Deployment](#deployment)
 - [Script Usage Guide](#script-usage-guide)
-- [Branding Customization](#branding-customization)
+- [Deployment](#deployment)
+- [Custom Apps & Third-Party Integrations](#custom-apps--third-party-integrations)
 - [Common Operations](#common-operations)
 - [Update Procedures](#update-procedures)
+- [Apply Updates to Sites (new vs existing)](#apply-updates-to-sites-new-vs-existing)
+- [Git Workflow](#git-workflow)
+- [Maintenance Playbook](#maintenance-playbook)
 - [Troubleshooting](#troubleshooting)
 - [Security](#security)
 - [Architecture Explained](#architecture-explained)
-- [Script Optimizations](#script-optimizations)
+
+---
+
+## Stack Versions & Fork Notes
+
+| Layer | Version / Source | Why it matters |
+|-------|------------------|----------------|
+| Host OS (reference) | Ubuntu 22.04 LTS | All scripts are validated on this release; Debian 11/12 behave the same as long as Docker 24+ is installed. |
+| ERPNext | v15.82.1 | Set through `ERPNEXT_VERSION` in `production/production.env`. Keep this aligned with the branch you pin in `apps.json`. |
+| Frappe Framework | v15.82.1 | Declared as `FRAPPE_VERSION`; must match ERPNext to avoid schema drift. |
+| MariaDB | 11.8 (official image) | Shared across every site in the bench; plan capacity accordingly. |
+| Redis | `redis:alpine` | Provides cache, queue, and websocket backplanes. |
+| Traefik | v2.11 | Handles TLS (Let’s Encrypt) and routing. |
+| Python (app containers) | 3.11.6 on Debian Bookworm | Comes from `images/custom/Containerfile`; upgrade only after testing custom apps. |
+| Node.js | 20.19.2 | Needed for asset builds (`bench build`). |
+
 
 ---
 
@@ -243,8 +258,11 @@ All scripts have been optimized for efficiency and include comprehensive help. E
 # Basic backup
 ./scripts/backup-site.sh erp.example.com
 
-# Advanced backup with files, auto-copy, cleanup
-./scripts/backup-site.sh erp.example.com --with-files --auto-copy --cleanup-old
+# Advanced backup with files, auto-copy, cleanup (7-day retention)
+./scripts/backup-site.sh erp.example.com --with-files --auto-copy --cleanup-old 7
+
+# Host-only backup that prunes everything except this run
+./scripts/backup-site.sh erp.example.com --with-files --auto-copy --host-only --cleanup-old latest
 
 # Encrypted backup
 BACKUP_PASSPHRASE='your-secret' ./scripts/backup-site.sh erp.example.com --encrypt --auto-copy
@@ -255,10 +273,29 @@ AUTO_COPY=1 CLEANUP_OLD=1 ./scripts/backup-site.sh erp.example.com
 
 **Backup Features:**
 - **Encryption**: GPG symmetric encryption with AES256
-- **Auto-copy**: Copy backups from container to host `./backups/`
-- **Cleanup**: Remove old backups (configurable retention)
+- **Auto-copy & host-only**: `--auto-copy` mirrors to the host; use `--flat-host-path` (default) to drop files directly in `$HOST_BACKUP_ROOT` or `--nested-host-path`/`HOST_BACKUP_LAYOUT=nested` for `$HOST_BACKUP_ROOT/<site>/<timestamp>`. Add `--host-only` to delete container copies once the host copy is verified.
+- **Cleanup policies**: `--cleanup-old` accepts `N` (days), `keep:N` (retain newest runs), or `latest` (keep only the current run); defaults to `BACKUP_RETENTION_DAYS`
 - **Validation**: Verify backup files and sizes
 - **Logging**: Detailed operation logs in `/tmp/`
+
+#### Standard backup recipes
+
+- **Host-only snapshot, keep only the latest run**
+
+  ```bash
+  ./scripts/backup-site.sh erp.example.com \
+    --with-files --auto-copy --host-only --cleanup-old latest
+  ```
+
+  This flow copies fresh files to the host, deletes the container copies immediately, and prunes older host snapshots so only the latest timestamp remains.
+
+- **Cron-friendly daily backups with 30‑day retention**
+
+  ```bash
+  AUTO_COPY=1 CLEANUP_OLD=1 ./scripts/backup-site.sh erp.example.com
+  ```
+
+  Environment flags keep the command short for crontab entries. Set `BACKUP_RETENTION_DAYS` globally (defaults to 30) or export `CLEANUP_POLICY="keep:7"` if you prefer to keep a fixed number of runs.
 
 ### 📊 Logs Script
 
@@ -274,6 +311,8 @@ AUTO_COPY=1 CLEANUP_OLD=1 ./scripts/backup-site.sh erp.example.com
 ./scripts/logs.sh backend    # Same as above
 ./scripts/logs.sh frontend   # Nginx logs
 ./scripts/logs.sh all        # All services
+./scripts/logs.sh backend --tail 100  # Show last 100 lines and exit
+./scripts/logs.sh --tail              # Tail recent logs for every service
 ```
 
 **Available Services:**
@@ -460,8 +499,9 @@ docker compose -f production/production.yaml ps
 
 # Follow logs (live)
 ./scripts/logs.sh -f backend
+
 ```
-```
+
 
 ### Access Your Site
 
@@ -471,373 +511,109 @@ docker compose -f production/production.yaml ps
 
 ---
 
-## Branding Customization
+## Custom Apps & Third-Party Integrations
 
-### Overview
+### Why ship custom logic as apps?
 
-Customize your ERPNext instance with your company's brand identity including favicon, logo, colors, and styling. This section provides **manual procedures** for applying branding changes.
+- **Upstream-safe**: Apps keep your business logic outside the upstream fork, so rebasing on `frappe_docker` stays painless.
+- **Repeatable**: Every site receives the exact same code (DocTypes, patches, API clients) whenever the container is rebuilt.
+- **Supported**: This mirrors the official [frappe_docker custom app workflow](../docs/container-setup/02-build-setup.md#define-custom-apps).
 
-### Step 1: Prepare Customization Assets
+### 1. Describe the apps you need (`apps.json`)
 
-#### Create Directory Structure
+Create a manifest in the repository root that lists every app you want baked into the image—first-party or third-party:
+
+```json
+[
+  { "url": "https://github.com/frappe/erpnext", "branch": "version-15" },
+  { "url": "https://github.com/frappe/hrms", "branch": "version-15" },
+  { "url": "https://github.com/acme/custom_integrations", "branch": "main" }
+]
+```
+
+Convert it to base64 once so the build context can read it without extra files:
 
 ```bash
-mkdir -p production/customizations
-cd production/customizations
+export APPS_JSON_BASE64=$(base64 -w 0 apps.json)
 ```
 
-#### Prepare Your Files
+### 2. Build (and optionally push) a custom ERPNext image
 
-You'll need:
-- **favicon.ico** - Browser tab icon (16x16, 32x32, 48x48 px)
-- **favicon.png** - Modern browser icon (192x192 px recommended)
-- **logo.png** - Company logo (any size, PNG with transparency recommended)
-- **custom.css** - Brand colors and styling overrides
-
-#### Generate Favicon from Logo (Optional)
-
-If you have a logo and need to create favicons:
+Use the official layered image as the base and inject your apps list:
 
 ```bash
-# Install ImageMagick
-sudo apt install imagemagick -y
+docker build \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=version-15 \
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --tag=registry.example.com/erpnext-custom:15 \
+  --file=images/layered/Containerfile .
 
-# Generate multiple sizes
-convert your-logo.png -resize 16x16 favicon-16.ico
-convert your-logo.png -resize 32x32 favicon-32.ico
-convert your-logo.png -resize 48x48 favicon.ico
-convert your-logo.png -resize 192x192 favicon.png
-
-# Or use online tool: https://realfavicongenerator.net/
+# optional
+docker push registry.example.com/erpnext-custom:15
 ```
 
-### Step 2: Create Custom CSS
+> Prefer `docker buildx bake -f docker-bake.hcl --set erpnext.args.APPS_JSON_BASE64=$APPS_JSON_BASE64` if you already rely on Buildx/CI.
 
-Create `production/customizations/custom.css`:
+### 3. Point production to the new image
 
-```css
-/* Brand Color Scheme */
-:root {
-    --primary: #1a365d;        /* Primary brand color (navbar, buttons) */
-    --secondary: #2c5282;      /* Secondary brand color */
-    --accent: #3182ce;         /* Accent color (links, hover states) */
-    --text-on-primary: #ffffff; /* Text color on primary background */
-}
+Edit `production/production.env` so compose uses your artifact everywhere:
 
-/* Apply primary color to navbar */
-.navbar {
-    background-color: var(--primary) !important;
-}
-
-.navbar .navbar-brand,
-.navbar .nav-link {
-    color: var(--text-on-primary) !important;
-}
-
-/* Primary buttons */
-.btn-primary {
-    background-color: var(--primary) !important;
-    border-color: var(--primary) !important;
-}
-
-.btn-primary:hover {
-    background-color: var(--accent) !important;
-    border-color: var(--accent) !important;
-}
-
-/* Links */
-a {
-    color: var(--accent) !important;
-}
-
-a:hover {
-    color: var(--primary) !important;
-}
-
-/* Hide "Powered by ERPNext" footer */
-.footer-powered {
-    display: none !important;
-}
-
-/* Login page branding */
-.login-content {
-    background-color: #f7fafc;
-}
-
-.login-content .card {
-    border: 1px solid var(--primary);
-}
+```env
+CUSTOM_IMAGE=registry.example.com/erpnext-custom
+CUSTOM_TAG=15
+PULL_POLICY=always
 ```
 
-**Customize the colors:**
-- Replace `#1a365d`, `#2c5282`, `#3182ce` with your brand colors
-- Use a color picker to get hex codes from your logo
-
-### Step 3: Configure Docker Volume Mounts
-
-Add volume mounts to `production/production.yaml` to inject your customizations.
-
-**Option A: Edit production.yaml directly** (regenerate will overwrite)
+Regenerate and redeploy so every service shares the same build:
 
 ```bash
-nano production/production.yaml
+./scripts/deploy.sh --regenerate
+./scripts/deploy.sh
 ```
 
-Find the `backend` service and add under `volumes:`:
+### 4. Install or update apps on sites
 
-```yaml
-services:
-  backend:
-    volumes:
-      # ... existing volumes ...
-      - ./customizations/custom.css:/home/frappe/frappe-bench/sites/assets/custom.css:ro
-      - ./customizations/favicon.ico:/home/frappe/frappe-bench/sites/assets/favicon.ico:ro
-      - ./customizations/favicon.png:/home/frappe/frappe-bench/sites/assets/favicon.png:ro
-      - ./customizations/logo.png:/home/frappe/frappe-bench/sites/assets/logo.png:ro
-```
+All apps listed in `apps.json` become available inside the bench. You still choose which sites receive them.
 
-Also add to `frontend` service:
-
-```yaml
-  frontend:
-    volumes:
-      # ... existing volumes ...
-      - ./customizations/custom.css:/usr/share/nginx/html/assets/custom.css:ro
-      - ./customizations/favicon.ico:/usr/share/nginx/html/assets/favicon.ico:ro
-      - ./customizations/favicon.png:/usr/share/nginx/html/assets/favicon.png:ro
-      - ./customizations/logo.png:/usr/share/nginx/html/assets/logo.png:ro
-```
-
-**Option B: Create compose.custom.yaml overlay** (recommended, survives regeneration)
-
-Create `production/compose.custom.yaml`:
-
-```yaml
-services:
-  backend:
-    volumes:
-      - ./customizations/custom.css:/home/frappe/frappe-bench/sites/assets/custom.css:ro
-      - ./customizations/favicon.ico:/home/frappe/frappe-bench/sites/assets/favicon.ico:ro
-      - ./customizations/favicon.png:/home/frappe/frappe-bench/sites/assets/favicon.png:ro
-      - ./customizations/logo.png:/home/frappe/frappe-bench/sites/assets/logo.png:ro
-
-  frontend:
-    volumes:
-      - ./customizations/custom.css:/usr/share/nginx/html/assets/custom.css:ro
-      - ./customizations/favicon.ico:/usr/share/nginx/html/assets/favicon.ico:ro
-      - ./customizations/favicon.png:/usr/share/nginx/html/assets/favicon.png:ro
-      - ./customizations/logo.png:/usr/share/nginx/html/assets/logo.png:ro
-```
-
-Then modify `scripts/deploy.sh` to include this overlay during generation (search for the `docker compose` command that generates production.yaml).
-
-### Step 4: Apply Volume Mounts
+**New site**
 
 ```bash
-# Restart services to mount new files
-docker compose -f production/production.yaml restart backend frontend
-
-# Verify files are mounted
+./scripts/create-site.sh erp.example.com
 docker compose -f production/production.yaml exec backend \
-  ls -la /home/frappe/frappe-bench/sites/assets/
-
-# Should show: custom.css, favicon.ico, favicon.png, logo.png
+  bench --site erp.example.com install-app custom_integrations hrms
 ```
 
-### Step 5: Configure Site to Use Custom Assets
-
-**Method 1: Via Website Settings (Recommended)**
-
-1. Login to ERPNext: `https://erp.example.com`
-2. Go to: **Setup → Website Settings**
-3. Set the following:
-   - **Favicon**: Upload or set path to `/assets/favicon.ico`
-   - **Brand HTML**: Add custom logo if needed
-   - **Website Theme**: Create custom theme with your colors
-   - **Custom HTML**: Add CSS reference if needed
-
-4. Go to: **Setup → System Settings**
-   - Upload app icon if needed
-
-**Method 2: Via Bench Commands**
+**Existing site**
 
 ```bash
-# Set site config to use custom CSS
+# Install a newly added app
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com set-config app_include_css '["/assets/custom.css"]'
+  bench --site erp.example.com install-app custom_integrations
 
-# Set favicon
+# Apply database patches after pulling latest code/image
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com set-config app_logo_url '/assets/favicon.png'
+  bench --site erp.example.com migrate
 
-# Clear cache and rebuild
+# Rebuild assets when the app ships JS/CSS
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com clear-cache
-
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build --force
+  bench --site erp.example.com build
 ```
 
-**Method 3: Via site_config.json**
+### 5. Wire in third-party services securely
 
-```bash
-# Edit site config directly
-docker compose -f production/production.yaml exec backend bash
+- Store API keys or secrets per site with `bench --site <site> set-config SERVICE_API_KEY value --as-dict` so they land in `site_config.json` instead of the repo.
+- Use background jobs (`frappe.enqueue`) inside your app for webhook callbacks, polling jobs, or queue workers that call external APIs.
+- Mount extra certificates or client libraries via an override compose file if an integration needs system packages.
+- Keep outbound allow-lists in Traefik/MariaDB untouched—integrations happen from the backend container, so no Traefik tweaks are required unless you expose a new inbound service.
 
-# Inside container:
-cd sites/erp.example.com
-nano site_config.json
+### 6. Keep apps synchronized
 
-# Add these lines:
-{
-  "app_include_css": ["/assets/custom.css"],
-  "app_logo_url": "/assets/favicon.png",
-  # ... other config ...
-}
+- Version pin each entry in `apps.json` (tag, branch, or commit) so rebuilds are deterministic.
+- When a third-party releases an update, bump the branch or tag, rebuild the image, redeploy, and run `bench migrate` on every existing site.
+- Automate this via CI to ensure upstream merges (`git fetch upstream && git merge upstream/main`) and app bumps happen in the same pipeline.
 
-# Exit and rebuild
-exit
-
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build --force
-```
-
-### Step 6: Verify Branding
-
-```bash
-# Clear cache
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com clear-cache
-
-# Rebuild assets
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build --force
-
-# Restart services
-docker compose -f production/production.yaml restart backend frontend
-```
-
-**In Browser:**
-1. Open `https://erp.example.com`
-2. Hard refresh: `Ctrl + Shift + R` (or `Cmd + Shift + R` on Mac)
-3. Check browser tab for your favicon
-4. Verify colors match your brand
-5. Check that "Powered by ERPNext" is hidden
-
-### Updating Branding
-
-When you need to update your branding:
-
-```bash
-# 1. Edit customization files
-nano production/customizations/custom.css
-# or replace files:
-cp ~/new-logo.png production/customizations/logo.png
-
-# 2. Restart services (mounts are read-only, no rebuild needed)
-docker compose -f production/production.yaml restart backend frontend
-
-# 3. Clear cache and rebuild
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com clear-cache
-
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build --force
-
-# 4. Hard refresh browser (Ctrl+Shift+R)
-```
-
-### What Gets Customized
-
-✅ **Via File Mounts + CSS:**
-- Favicon (browser tab icon)
-- Brand colors (navbar, buttons, links)
-- Login page styling
-- Hide "Powered by ERPNext" footer
-- Custom CSS overrides
-
-✅ **Via ERPNext Settings:**
-- Website logo (Setup → Website Settings)
-- App name (Setup → System Settings)
-- Website theme colors
-- Custom HTML/CSS includes
-
-### Troubleshooting Branding
-
-**Branding not showing:**
-
-```bash
-# 1. Check files exist
-ls -la production/customizations/
-
-# 2. Check files are mounted
-docker compose -f production/production.yaml exec backend \
-  ls -la /home/frappe/frappe-bench/sites/assets/
-
-# 3. Check site config
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com show-config | grep -i css
-
-# 4. Force rebuild
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com clear-cache
-
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build --force
-
-# 5. Restart services
-docker compose -f production/production.yaml restart backend frontend
-```
-
-**CSS not applied:**
-
-```bash
-# Verify CSS is loaded (check browser console)
-# Should see: /assets/custom.css
-
-# If not, set in site_config.json:
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com set-config app_include_css '["/assets/custom.css"]'
-```
-
-**Favicon not showing:**
-
-```bash
-# Set favicon URL
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com set-config app_logo_url '/assets/favicon.png'
-
-# Or via Website Settings in UI
-```
-
-### Advanced: Custom Frappe App for Branding
-
-For complex branding needs, create a custom Frappe app:
-
-```bash
-# Inside backend container
-docker compose -f production/production.yaml exec backend bash
-
-# Create custom app
-cd /home/frappe/frappe-bench
-bench new-app custom_theme
-
-# Add your customizations to:
-# apps/custom_theme/custom_theme/public/css/
-# apps/custom_theme/custom_theme/public/js/
-
-# Install app to site
-bench --site erp.example.com install-app custom_theme
-
-# Exit container
-exit
-```
-
-This approach is recommended for:
-- Complex UI changes
-- Multiple sites with different branding
-- Custom JavaScript functionality
-- Version-controlled branding
+Following this flow keeps the deployment upstream-compatible while giving you a repeatable way to include bespoke code, official marketplace apps, or deep third-party integrations without touching container internals manually.
 
 ---
 
@@ -849,19 +625,23 @@ This approach is recommended for:
 # Basic backup
 ./scripts/backup-site.sh erp.example.com
 
-# Advanced backup with files and auto-copy
-./scripts/backup-site.sh erp.example.com --with-files --auto-copy
+# Advanced backup with files and 7-day cleanup
+./scripts/backup-site.sh erp.example.com --with-files --auto-copy --cleanup-old 7
 
 # Encrypted backup with cleanup
 BACKUP_PASSPHRASE='your-secret' ./scripts/backup-site.sh erp.example.com \
   --encrypt --auto-copy --cleanup-old
+
+# Host-only snapshot keeping only this run
+./scripts/backup-site.sh erp.example.com --with-files --auto-copy --host-only --cleanup-old latest
 ```
 
 **Backup Features:**
 - **Database + Files**: Use `--with-files` to include uploaded files
-- **Auto-copy**: `--auto-copy` copies backups to host `./backups/` directory
+- **Auto-copy**: `--auto-copy` copies backups to host `$HOST_BACKUP_ROOT/<site>/<timestamp>`
+- **Host-only**: `--host-only` deletes container copies after verifying the host snapshot
 - **Encryption**: `--encrypt` with GPG AES256 (requires `BACKUP_PASSPHRASE`)
-- **Cleanup**: `--cleanup-old` removes backups older than `BACKUP_RETENTION_DAYS`
+- **Cleanup**: `--cleanup-old` accepts `N` (days), `keep:N` (runs), or `latest` to prune aggressively
 - **Validation**: Automatic backup verification and size reporting
 
 Backups are stored in: `sites/erp.example.com/private/backups/` (container) or `./backups/` (host)
@@ -880,10 +660,10 @@ Backups are stored in: `sites/erp.example.com/private/backups/` (container) or `
 
 # Alternative: direct Docker commands
 docker compose -f production/production.yaml logs -f backend
-```
 
-# Follow logs (live)
-./production/scripts/logs.sh -f backend
+# Tail logs without following
+./scripts/logs.sh backend --tail 200
+./scripts/logs.sh --tail           # All services, last 200 lines
 ```
 
 ### Stop Services
@@ -937,21 +717,16 @@ docker compose -f production/production.yaml up -d
 # Create new site
 ./scripts/create-site.sh erp2.example.com
 
-# Apply branding to new site (manual steps)
-# 1. Set CSS include
+# Install custom apps that were baked into the image
 docker compose -f production/production.yaml exec backend \
-  bench --site erp2.example.com set-config app_include_css '["/assets/custom.css"]'
+  bench --site erp2.example.com install-app custom_integrations hrms
 
-# 2. Set logo/favicon
+# Run migrations and build assets once
 docker compose -f production/production.yaml exec backend \
-  bench --site erp2.example.com set-config app_logo_url '/assets/favicon.png'
-
-# 3. Build and clear cache
-docker compose -f production/production.yaml exec backend \
-  bench --site erp2.example.com clear-cache
+  bench --site erp2.example.com migrate
 
 docker compose -f production/production.yaml exec backend \
-  bench --site erp2.example.com build --force
+  bench --site erp2.example.com build
 ```
 
 ---
@@ -973,10 +748,10 @@ This deployment has **three layers** that update independently:
    - Frappe framework updates
    - **Updates via**: Changing version tags in `production.env`
 
-3. **Customization Layer** (Your Branding)
-   - Custom CSS, logos, favicon
-   - Your deployment scripts
-   - **Updates via**: Editing files in `production/customizations/`
+3. **Customization Layer** (Custom Apps & Integrations)
+  - Custom Frappe apps, DocTypes, API clients, third-party connectors
+  - Site-level configurations stored via `bench set-config`
+  - **Updates via**: Rebuilding images with a new `apps.json`, migrating sites, and redeploying containers
 
 ### Update Infrastructure (Docker Configs)
 
@@ -1053,27 +828,63 @@ docker compose -f production/production.yaml exec backend \
 docker compose -f production/production.yaml exec backend bench version
 ```
 
-### Update Branding
+### Apply Updates to Sites (new vs existing)
 
-**What this updates**: Your custom CSS, logos, favicon
+Use the same redeploy pipeline for every site, but tailor the final bench commands depending on whether the site already exists.
+
+**New sites created after an update**
+
+1. Run `./scripts/create-site.sh new.example.com` once the new image is live.
+2. Install any optional apps: `bench --site new.example.com install-app custom_integrations hrms`.
+3. Seed data, fixtures, or integrations using your app's onboarding commands.
+
+Because the site is created after the image rebuild, it automatically receives the latest code; no manual migration is needed beyond the installer.
+
+**Existing sites that were updated**
+
+1. Stop users (maintenance window) and take a backup: `./scripts/backup-site.sh erp.example.com --with-files`.
+2. After redeploying containers, run:
 
 ```bash
-# 1. Edit customization files
-nano production/customizations/custom.css
-# or replace:
-cp ~/new-logo.png production/customizations/logo.png
-
-# 2. Restart services to mount new files
-docker compose -f production/production.yaml restart backend frontend
-
-# 3. Clear cache and rebuild
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com migrate
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com build
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com clear-cache
+```
 
+3. If the update introduced new apps, install them explicitly and migrate again.
+4. Re-enable background jobs (`bench enable-scheduler`) if you disabled them for the maintenance window.
+
+
+### Update Custom Apps & Integrations
+
+**What this updates**: Custom Frappe apps, DocTypes, webhook handlers, and any bundled third-party modules.
+
+```bash
+# 1. Pull or merge the new code for each app, then refresh apps.json
+git pull origin main  # inside every custom app repo
+vim apps.json         # bump branch/tag references if needed
+
+# 2. Rebuild the image with the refreshed manifest
+export APPS_JSON_BASE64=$(base64 -w 0 apps.json)
+docker build \
+  --build-arg=FRAPPE_BRANCH=version-15 \
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --tag=registry.example.com/erpnext-custom:15 .
+docker push registry.example.com/erpnext-custom:15
+
+# 3. Update production to pull the new tag
+sed -i 's/CUSTOM_TAG=.*/CUSTOM_TAG=15/' production/production.env
+./scripts/deploy.sh --regenerate
+./scripts/deploy.sh
+
+# 4. Apply database patches and rebuild assets per site
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build --force
-
-# 4. Clear browser cache (Ctrl+Shift+R)
+  bench --site erp.example.com migrate
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com build
 ```
 
 ### Complete Update (All Layers)
@@ -1102,7 +913,7 @@ docker compose -f production/production.yaml up -d
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
 
-# 7. Rebuild branding and cache
+# 7. Rebuild assets and clear cache
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com clear-cache
 
@@ -1110,47 +921,114 @@ docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com build --force
 ```
 
-### Scheduled Maintenance Window
+## Git Workflow
 
-**Recommended schedule:**
+### Branch contract
+
+| Branch | Purpose | Deploy target |
+|--------|---------|---------------|
+| `main` | Production truth. Tracks only tested commits paired with container/image tags referenced in `production.env`. | Production |
+| `staging` | Release candidate. Used to exercise upstream merges and new custom-app tags against a staging bench. | Staging bench (optional) |
+| `dev` | Scratch/feature work. Safe spot to prototype new overrides, scripts, or Containerfile tweaks. | Local only |
+
+**Remotes:**
+
+- `origin` → this fork (`erp-is`).
+- `upstream` → `https://github.com/frappe/frappe_docker.git`.
+
+### Sync loop (weekly)
+
+1. `git checkout dev && git fetch upstream` – bring in the latest frappe_docker changes.
+2. `git merge upstream/main` (or `git rebase upstream/main`) – resolve conflicts in `overrides/`, `compose.yaml`, and `production/` scripts.
+3. Smoke-test locally (`./scripts/deploy.sh --regenerate && docker compose -f production/production.yaml up -d`).
+4. Promote into `staging`: `git switch staging && git merge dev` once tests pass.
+5. Cut a tested release into `main` only after staging verification and update the stack-version table + `.env` pins.
+
+### Custom app release recipe
+
+- Keep each custom Frappe app in its own repository.
+- Tag or branch the app when you are ready to promote (`git tag v2.4.0`).
+- Update `apps.json` with that tag/commit and keep the file sorted. This manifest is the **source of truth** for `APPS_JSON_BASE64`.
+- Rebuild/push the custom image from the repo root:
+
+  ```bash
+  export APPS_JSON_BASE64=$(base64 -w0 apps.json)
+  docker build -f images/custom/Containerfile \
+    --build-arg FRAPPE_BRANCH=version-15 \
+    --build-arg APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+    -t registry.example.com/erpnext-custom:v15-2024.09 .
+  docker push registry.example.com/erpnext-custom:v15-2024.09
+  ```
+
+- Update `production/production.env` (`CUSTOM_TAG=v15-2024.09`), regenerate, then run migrations for each site.
+
+### Helpful habits
+
+- Use `git worktree` to keep `dev`, `staging`, and `main` checked out simultaneously so you can hotfix production without stashing local experiments.
+- Commit regenerated `production/production.yaml` only when auditing diffs—normally it stays generated.
+- Keep a short `CHANGELOG.md` (or GitHub Releases) per branch so stakeholders know which ERPs/custom apps were promoted.
+- Treat `bench` commands exactly like `python manage.py`: every change should be expressed as a migration, patch, or fixture committed alongside app code.
+
+## Maintenance Playbook
+
+### Daily / Continuous
+
+- `./scripts/logs.sh --tail` – scan for traceback spikes in backend/worker containers.
+- `docker compose -f production/production.yaml ps` – confirm containers are `Up` and restarts are zero.
+- `bench doctor` (inside backend) for a consolidated health check.
+- Respond to Traefik cert emails quickly—renewals are automatic, but DNS issues show up here first.
+
+### Weekly
+
+- Validate backups: `ls -lh backups/$(date +%Y-*)` and run a dry-run restore in staging (`bench --site staging.local restore ...`).
+- Apply OS security patches (`sudo unattended-upgrade` or manual `apt update && apt upgrade`).
+- Review pending PRs from upstream frappe_docker—if a fix matters to you, merge it into `dev` early.
+
+### Monthly & release cadence
+
+- Pick a low-traffic window, announce downtime, and tag the commit you plan to deploy.
+- Create a staging bench (optional but recommended) and run `./scripts/deploy.sh --regenerate` + `./scripts/deploy.sh` against it.
+- Execute automated checks: `bench --site staging.local migrate`, `bench --site staging.local build`, and any Cypress/API smoke tests you maintain.
+- Freeze the container tags (`CUSTOM_TAG`, `ERPNEXT_VERSION`, `FRAPPE_VERSION`) before moving to production.
+
+### Scheduled maintenance workflow
+
+1. **Notify + prep** – enable maintenance banners in ERPNext, pause schedulers if heavy migrations are expected.
+2. **Fresh backups** – `./scripts/backup-site.sh <site> --with-files --auto-copy --cleanup-old latest`.
+3. **Deploy** – `./scripts/stop.sh`, `docker compose -f production/production.yaml pull`, `./scripts/deploy.sh`.
+4. **Post-deploy bench tasks** – run `bench --site <site> migrate`, `build`, and `clear-cache` (see [Apply Updates to Sites](#apply-updates-to-sites-new-vs-existing)).
+5. **Smoke tests** – log in as an admin, run a report, submit a Sales Order, and ping critical integrations/webhooks.
+6. **Resume schedulers** – `bench --site <site> enable-scheduler`.
+7. **Document** – capture version/tag, time, and any anomalies for traceability.
+
+### Rollback fast path
+
+If something regresses:
 
 ```bash
-# Monthly: Infrastructure updates
-# - Review frappe_docker upstream changes
-# - Merge if stability improvements available
-# - Test in staging first
-
-# Quarterly: ERPNext version updates
-# - Check release notes: https://erpnext.com/version-15
-# - Backup before upgrading
-# - Update during low-traffic period
-
-# As needed: Branding updates
-# - No downtime required
-# - Can be done anytime
-```
-
-### Rollback Procedures
-
-**If update fails:**
-
-```bash
-# 1. Restore from backup
-# (Backup is in sites/SITENAME/private/backups/ or ./backups/)
-
-# 2. Revert version in production.env
-nano production/production.env
-# Change back to previous version
-
-# 3. Regenerate and redeploy
+# 1. Stop new containers and bring back previous tags
+git checkout main~1  # or the last known-good tag
 ./scripts/deploy.sh --regenerate
-./scripts/stop.sh
-docker compose -f production/production.yaml up -d
+./scripts/stop.sh && docker compose -f production/production.yaml up -d
 
-# 4. Restore database backup
+# 2. Restore data (if schema already changed)
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com restore /path/to/backup/database.sql.gz
+  bench --site erp.example.com restore /backups/erp.example.com-2024-09-15-1200.sql.gz
+
+# 3. Reapply files if needed
+tar -xzf /backups/erp.example.com-2024-09-15-1200-files.tar.gz -C sites
 ```
+
+- The backup script keeps copies on the Docker host when `--auto-copy` is used—document the host path for on-call engineers.
+- After rollback, note the incident in your changelog and keep staging up until a fixed build is ready.
+
+### Operational hygiene checklist
+
+- ✅ Backups verified in the last 7 days
+- ✅ Security patches applied (OS + ERPNext release notes reviewed)
+- ✅ Custom app tags mapped to deployed commit SHAs
+- ✅ Monitoring + alerting endpoints tested (uptime checks, SMTP alerts, etc.)
+- ✅ Runbook stored with credentials/secrets in the team password manager
 
 ---
 
@@ -1209,42 +1087,35 @@ docker compose -f production/production.yaml exec backend \
 - `DB_PASSWORD` mismatch between `production.env` and `mariadb.env`
 - `DB_HOST` should be `mariadb-database` (container name)
 
-### Branding Not Applied
+### Custom App Deployment Issues
 
-**Check files exist:**
+**Verify the image really contains your apps:**
 ```bash
-ls -la production/customizations/
-# Should show: custom.css, favicon.ico, favicon.png, logo.png
+docker compose -f production/production.yaml exec backend bench list-apps
+docker compose -f production/production.yaml exec backend cat apps.txt
 ```
 
-**Check mounts:**
+If the app is missing, rebuild the image with the correct `apps.json`, push it, and redeploy.
+
+**Confirm the right image is running:**
 ```bash
-docker compose -f production/production.yaml exec backend \
-  ls -la /home/frappe/frappe-bench/sites/assets/
+docker compose -f production/production.yaml images | grep backend
+grep CUSTOM_TAG production/production.env
 ```
 
-**Reapply branding manually:**
+**Re-apply the app to a site:**
 ```bash
-# 1. Verify volume mounts in production.yaml
-grep -A5 "customizations" production/production.yaml
-
-# 2. Restart services
-docker compose -f production/production.yaml restart backend frontend
-
-# 3. Set CSS and favicon in site config
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com set-config app_include_css '["/assets/custom.css"]'
-
+  bench --site erp.example.com install-app custom_integrations
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com set-config app_logo_url '/assets/favicon.png'
-
-# 4. Clear cache and rebuild
+  bench --site erp.example.com migrate
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com clear-cache
-
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build --force
+  bench --site erp.example.com build
 ```
+
+**Integration secrets not picked up?**
+- Run `bench --site erp.example.com show-config | grep -i API_KEY` to ensure `set-config` wrote the value.
+- Restart background workers if you changed environment variables: `docker compose -f production/production.yaml restart queue-short queue-long scheduler`.
 
 ### Service Crash Loops
 
@@ -1489,7 +1360,7 @@ This setup uses **official Frappe Docker images**:
 ```yaml
 # Your fork provides:
 - Infrastructure: compose.yaml, deployment scripts
-- Customizations: production/customizations/, branding
+- Custom app tooling: apps.json manifest, image overrides, site automation
 
 # Frappe provides:
 - Container images: frappe/erpnext, frappe/frappe
@@ -1508,7 +1379,7 @@ traefik:v2.11
 
 **You maintain:**
 - `production/` directory (deployment scripts, configs)
-- `production/customizations/` (branding files)
+- `apps.json` (or CI secrets) describing the custom/third-party apps you ship
 - `.gitignore` (excludes *.env files)
 
 **You track upstream:**
@@ -1521,105 +1392,15 @@ traefik:v2.11
 **Benefits:**
 - ✅ Get official, tested ERPNext images
 - ✅ Receive infrastructure updates from frappe_docker
-- ✅ Keep your customizations separate
+- ✅ Keep your custom apps and integrations isolated from infrastructure changes
 - ✅ Easy to merge upstream improvements
-- ✅ No need to rebuild images for simple branding
+- ✅ Only rebuild images when you really need additional apps or dependencies
 
 **When you'd build custom images:**
 - Need to modify Python dependencies
 - Add system packages to containers
-- Install custom Frappe apps (beyond branding)
+- Install or update custom/third-party Frappe apps
 
----
-
-## Script Optimizations
-
-All automation scripts have been significantly optimized for better performance, maintainability, and user experience.
-
-### 📊 Optimization Results
-
-| Script | Before | After | Reduction | Features Added |
-|--------|--------|-------|-----------|----------------|
-| **backup-site.sh** | 469 lines | 224 lines | **52%** | Help, encryption, validation |
-| **create-site.sh** | 118 lines | 96 lines | **19%** | Help, better prompts |
-| **deploy.sh** | 287 lines | 156 lines | **46%** | Help, cleaner output |
-| **logs.sh** | 106 lines | 65 lines | **39%** | Help, menu interface |
-| **stop.sh** | 85 lines | 68 lines | **20%** | Help, --all option |
-| **validate-env.sh** | 238 lines | 241 lines | **+1%** | Help (already optimal) |
-| **TOTAL** | **1,303** | **850** | **35%** | **100% help coverage** |
-
-### 🚀 Key Improvements
-
-**1. Comprehensive Help System**
-```bash
-# Every script now has detailed help
-./scripts/deploy.sh --help
-./scripts/backup-site.sh -h
-./scripts/logs.sh --help
-```
-
-**2. Condensed Code Structure**
-- One-liner helper functions
-- Compact conditional statements
-- DRY (Don't Repeat Yourself) principles
-- Smart use of bash shortcuts
-
-**3. Enhanced Backup Features**
-- **GPG Encryption**: AES256 symmetric encryption
-- **Auto-copy**: Container → host backup transfer
-- **Cleanup**: Automated old backup removal
-- **Validation**: File verification and size reporting
-- **Logging**: Detailed operation logs
-
-**4. Interactive Log Viewer**
-- Menu-driven service selection
-- Support for both numbers (1-7) and names
-- Real-time log following
-- Clear service descriptions
-
-**5. Smart Deployment**
-- Built-in validation before deployment
-- Cleaner progress output
-- Helper functions for repetitive tasks
-- Better error handling
-
-**6. Improved Stop Script**
-- Selective service stopping
-- `--all` flag for automation
-- Interactive confirmation for dependencies
-
-### 📝 Technical Details
-
-**Before (verbose):**
-```bash
-echo_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-if [ -z "$SITE_NAME" ]; then
-    echo_error "Site name cannot be empty"
-    exit 1
-fi
-```
-
-**After (lean):**
-```bash
-echo_info() { echo -e "${GREEN}[INFO]${NC} $1"; }
-
-[[ -z "$SITE_NAME" ]] && { echo_error "Site name cannot be empty"; exit 1; }
-```
-
-**Result:** 60% fewer lines with identical functionality.
-
-### 🛡️ Maintained Compatibility
-
-✅ **All original functionality preserved**  
-✅ **Same command-line interfaces**  
-✅ **No breaking changes**  
-✅ **Enhanced error handling**  
-✅ **Better user experience**
-
-For detailed optimization information, see: `scripts/OPTIMIZATION_SUMMARY.md`
 
 ---
 
