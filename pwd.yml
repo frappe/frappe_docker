@@ -2,7 +2,9 @@ version: "3"
 
 services:
   backend:
-    image: frappe/erpnext:v15.88.1
+    image: frappe-custom:v15
+    pull_policy: never
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -18,7 +20,9 @@ services:
       MARIADB_ROOT_PASSWORD: admin
 
   configurator:
-    image: frappe/erpnext:v15.88.1
+    image: frappe-custom:v15
+    pull_policy: never
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -47,7 +51,9 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   create-site:
-    image: frappe/erpnext:v15.88.1
+    image: frappe-custom:v15
+    pull_policy: never
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -77,10 +83,11 @@ services:
           fi
         done;
         echo "sites/common_site_config.json found";
-        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --set-default frontend;
+        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --install-app hrms --set-default frontend;
 
   db:
     image: mariadb:10.6
+    platform: linux/amd64
     networks:
       - frappe_network
     healthcheck:
@@ -102,7 +109,9 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext:v15.88.1
+    image: frappe-custom:v15
+    pull_policy: never
+    platform: linux/amd64
     networks:
       - frappe_network
     depends_on:
@@ -128,7 +137,9 @@ services:
       - "8080:8080"
 
   queue-long:
-    image: frappe/erpnext:v15.88.1
+    image: frappe-custom:v15
+    pull_policy: never
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -147,7 +158,9 @@ services:
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
 
   queue-short:
-    image: frappe/erpnext:v15.88.1
+    image: frappe-custom:v15
+    pull_policy: never
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -167,6 +180,7 @@ services:
 
   redis-queue:
     image: redis:6.2-alpine
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -184,7 +198,9 @@ services:
         condition: on-failure
 
   scheduler:
-    image: frappe/erpnext:v15.88.1
+    image: frappe-custom:v15
+    pull_policy: never
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
@@ -198,7 +214,9 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   websocket:
-    image: frappe/erpnext:v15.88.1
+    image: frappe-custom:v15
+    pull_policy: never
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
