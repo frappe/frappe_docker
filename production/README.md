@@ -1011,12 +1011,20 @@ git checkout main~1  # or the last known-good tag
 ./scripts/deploy.sh --regenerate
 ./scripts/stop.sh && docker compose -f production/production.yaml up -d
 
-# 2. Restore data (if schema already changed)
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com restore /backups/erp.example.com-2024-09-15-1200.sql.gz
+# 2. Copy backup files from host to container (if backups are on host)
+docker cp production/backups/erp.example.com-2024-09-15-1200.sql.gz \
+  $(docker compose -f production/production.yaml ps -q backend):/tmp/
 
-# 3. Reapply files if needed
-tar -xzf /backups/erp.example.com-2024-09-15-1200-files.tar.gz -C sites
+# 3. Restore data (if schema already changed)
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com restore /tmp/erp.example.com-2024-09-15-1200.sql.gz
+# Note: If prompted for MySQL root password, use the DB_PASSWORD from production/production.env
+
+# 4. Reapply files if needed
+docker cp production/backups/erp.example.com-2024-09-15-1200-files.tar.gz \
+  $(docker compose -f production/production.yaml ps -q backend):/tmp/
+docker compose -f production/production.yaml exec backend \
+  tar -xzf /tmp/erp.example.com-2024-09-15-1200-files.tar.gz -C /home/frappe/frappe-bench/sites/
 ```
 
 - The backup script keeps copies on the Docker host when `--auto-copy` is used—document the host path for on-call engineers.
