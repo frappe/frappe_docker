@@ -513,107 +513,230 @@ docker compose -f production/production.yaml ps
 
 ## Custom Apps & Third-Party Integrations
 
-### Why ship custom logic as apps?
+**Production Standard**: This guide covers deploying ERPNext with custom or third-party apps using **immutable Docker images** with pre-compiled assets. This approach provides reproducible deployments, instant rollbacks, and eliminates runtime build complexity.
 
-- **Upstream-safe**: Apps keep your business logic outside the upstream fork, so rebasing on `frappe_docker` stays painless.
-- **Repeatable**: Every site receives the exact same code (DocTypes, patches, API clients) whenever the container is rebuilt.
-- **Supported**: This mirrors the official [frappe_docker custom app workflow](../docs/container-setup/02-build-setup.md#define-custom-apps).
+> **📖 Detailed Guide**: For comprehensive implementation details, troubleshooting, and CI/CD integration, see [`production/docs/custom-image-workflow.md`](docs/custom-image-workflow.md)
 
-### 1. Describe the apps you need (`apps.json`)
+> **📚 Technical Deep-Dive**: For understanding different deployment patterns and asset management approaches, see [`production/docs/asset-management-frappe.md`](docs/asset-management-frappe.md)
 
-Create a manifest in the repository root that lists every app you want baked into the image—first-party or third-party:
+### Why Custom Images?
+
+- **True Immutability**: Apps frozen at specific versions (tags/commits)
+- **Zero Runtime Builds**: Assets pre-compiled during image build
+- **Reliable Rollbacks**: Switch image tags to revert instantly
+- **Upstream-Safe**: Custom logic isolated from infrastructure updates
+- **Audit Trail**: Image tag maps to exact deployed code
+
+### 1. Create apps.json with Pinned Versions
+
+Create `production/apps.json` listing **custom/third-party apps only** with pinned versions:
 
 ```json
 [
-  { "url": "https://github.com/frappe/erpnext", "branch": "version-15" },
-  { "url": "https://github.com/frappe/hrms", "branch": "version-15" },
-  { "url": "https://github.com/acme/custom_integrations", "branch": "main" }
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "v15.88.1"
+  },
+  {
+    "url": "https://github.com/resilient-tech/india-compliance",
+    "branch": "v15.23.2"
+  },
+  {
+    "url": "https://github.com/frappe/hrms",
+    "branch": "v15.12.0"
+  }
 ]
 ```
 
-Convert it to base64 once so the build context can read it without extra files:
+**Important**: 
+- **Frappe Framework** is controlled via `FRAPPE_BRANCH` build arg (not in apps.json)
+- Use specific tags (e.g., `v15.88.1`) for custom apps, NOT moving branches (e.g., `version-15`)
+- This ensures reproducible builds—same apps.json = identical image
 
+**Find available versions**:
 ```bash
-export APPS_JSON_BASE64=$(base64 -w 0 apps.json)
+# Check tags on GitHub
+curl -s https://api.github.com/repos/frappe/erpnext/tags | grep '"name"' | head -5
+curl -s https://api.github.com/repos/resilient-tech/india-compliance/tags | grep '"name"' | head -5
+
+# For Frappe Framework (use as FRAPPE_BRANCH build arg)
+curl -s https://api.github.com/repos/frappe/frappe/tags | grep '"name"' | head -5
 ```
 
-### 2. Build (and optionally push) a custom ERPNext image
+### 2. Build Immutable Image
 
-Use the official layered image as the base and inject your apps list:
+Build a custom image with your apps and pre-compiled assets:
 
 ```bash
+# Encode apps.json
+export APPS_JSON_BASE64=$(base64 -w0 production/apps.json)
+
+# Generate traceable image tag (date + git commit)
+BUILD_DATE=$(date +%Y%m%d)
+GIT_SHA=$(git rev-parse --short HEAD)
+IMAGE_TAG="ghcr.io/YOUR_USERNAME/erpnext-custom:${BUILD_DATE}-${GIT_SHA}"
+
+# Build image (includes bench build - assets compiled into image)
 docker build \
-  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-  --build-arg=FRAPPE_BRANCH=version-15 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
-  --tag=registry.example.com/erpnext-custom:15 \
-  --file=images/layered/Containerfile .
-
-# optional
-docker push registry.example.com/erpnext-custom:15
+  --build-arg=PYTHON_VERSION=3.11.6 \
+  --build-arg=NODE_VERSION=18.18.2 \
+  --tag=$IMAGE_TAG \
+  --tag=ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest \
+  --file=images/layered/Containerfile \
+  .
 ```
 
-> Prefer `docker buildx bake -f docker-bake.hcl --set erpnext.args.APPS_JSON_BASE64=$APPS_JSON_BASE64` if you already rely on Buildx/CI.
+**What happens during build**:
+1. Installs all apps from `apps.json`
+2. Installs Python and Node.js dependencies
+3. **Runs `bench build`** - compiles all JS/CSS assets
+4. Creates immutable image with everything baked in
 
-### 3. Point production to the new image
+**Push to registry**:
+```bash
+# Push specific version (for production)
+docker push ghcr.io/YOUR_USERNAME/erpnext-custom:${BUILD_DATE}-${GIT_SHA}
 
-Edit `production/production.env` so compose uses your artifact everywhere:
+# Push latest tag (convenience pointer)
+docker push ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest
+```
+
+**Image tagging strategy**:
+- `20251118-4c860c6` - Immutable tag for production (date + git commit)
+- `production-latest` - Mutable pointer to newest build (for staging/testing)
+
+### 3. Update Production Configuration
+
+Edit `production/production.env` to use your custom image:
 
 ```env
-CUSTOM_IMAGE=registry.example.com/erpnext-custom
-CUSTOM_TAG=15
+CUSTOM_IMAGE=ghcr.io/YOUR_USERNAME/erpnext-custom
+CUSTOM_TAG=20251118-4c860c6  # Use your BUILD_DATE-GIT_SHA
 PULL_POLICY=always
 ```
 
-Regenerate and redeploy so every service shares the same build:
+**Important**: Use the specific date-commit tag in production, not `production-latest`. This ensures you can rollback by simply changing the tag.
+
+Regenerate configuration and deploy:
 
 ```bash
-./scripts/deploy.sh --regenerate
-./scripts/deploy.sh
+./scripts/deploy.sh --regenerate  # Updates production.yaml with new image
+./scripts/deploy.sh               # Pulls and deploys new image
 ```
 
-### 4. Install or update apps on sites
+Verify all containers use the same image:
+```bash
+docker compose -f production/production.yaml images
+```
 
-All apps listed in `apps.json` become available inside the bench. You still choose which sites receive them.
+### 4. Install Apps on Sites
 
-**New site**
+Apps are in the image but need to be activated per site.
 
+**New site with apps**:
 ```bash
 ./scripts/create-site.sh erp.example.com
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com install-app custom_integrations hrms
+  bench --site erp.example.com install-app india_compliance hrms
 ```
 
-**Existing site**
-
+**Existing site - add new app**:
 ```bash
-# Install a newly added app
+# Install the app on the site
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com install-app custom_integrations
+  bench --site erp.example.com install-app india_compliance
 
-# Apply database patches after pulling latest code/image
+# Run database migrations
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
-
-# Rebuild assets when the app ships JS/CSS
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build
 ```
 
-### 5. Wire in third-party services securely
+**That's it!** No `bench build` or asset sync needed—assets are already compiled and present in all containers from the image.
 
-- Store API keys or secrets per site with `bench --site <site> set-config SERVICE_API_KEY value --as-dict` so they land in `site_config.json` instead of the repo.
-- Use background jobs (`frappe.enqueue`) inside your app for webhook callbacks, polling jobs, or queue workers that call external APIs.
-- Mount extra certificates or client libraries via an override compose file if an integration needs system packages.
-- Keep outbound allow-lists in Traefik/MariaDB untouched—integrations happen from the backend container, so no Traefik tweaks are required unless you expose a new inbound service.
+Verify it works:
+```bash
+# Check installed apps
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com list-apps
 
-### 6. Keep apps synchronized
+# Test site access
+curl -k -I https://erp.example.com/app/home
+```
 
-- Version pin each entry in `apps.json` (tag, branch, or commit) so rebuilds are deterministic.
-- When a third-party releases an update, bump the branch or tag, rebuild the image, redeploy, and run `bench migrate` on every existing site.
-- Automate this via CI to ensure upstream merges (`git fetch upstream && git merge upstream/main`) and app bumps happen in the same pipeline.
+### 5. Update Apps
 
-Following this flow keeps the deployment upstream-compatible while giving you a repeatable way to include bespoke code, official marketplace apps, or deep third-party integrations without touching container internals manually.
+When apps release new versions:
+
+```bash
+# 1. Update apps.json with new versions (custom apps only)
+nano production/apps.json
+# Example: India Compliance: "branch": "v15.23.2" → "branch": "v15.24.0"
+
+# 2. Update Frappe version if needed (via build arg)
+# Check available versions: curl -s https://api.github.com/repos/frappe/frappe/tags | grep '"name"'
+
+# 3. Rebuild image with new tag
+export APPS_JSON_BASE64=$(base64 -w0 production/apps.json)
+NEW_TAG="ghcr.io/YOUR_USERNAME/erpnext-custom:$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+
+docker build \
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --tag=$NEW_TAG \
+  --tag=ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest \
+  --file=images/layered/Containerfile \
+  .
+
+# 3. Push new image
+docker push $NEW_TAG
+docker push ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest
+
+# 4. Update production.env
+nano production/production.env
+# CUSTOM_TAG=20251119-xyz5678  # New date-commit tag
+
+# 5. Deploy
+./scripts/deploy.sh --regenerate
+./scripts/deploy.sh
+
+# 6. Migrate all sites
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com migrate
+```
+
+**Rollback if needed**:
+```bash
+# Just revert to previous tag
+nano production/production.env
+# CUSTOM_TAG=20251118-4c860c6  # Previous working version
+
+./scripts/deploy.sh
+# Old image still exists in registry!
+```
+
+### 6. Uninstall Apps
+
+Remove an app from a site:
+
+```bash
+# 1. Backup first (uninstall deletes DocTypes and data!)
+./scripts/backup-site.sh erp.example.com --with-files --auto-copy
+
+# 2. Uninstall from site
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com uninstall-app india_compliance
+
+# 3. Clear cache and restart
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com clear-cache
+docker compose -f production/production.yaml restart frontend
+```
+
+**Notes**:
+- The app remains in the image's `/apps/` but is deactivated on the site
+- To completely remove: rebuild image without it in `apps.json`
+- Check dependencies before uninstalling
+- Always backup first—uninstall deletes all app data
 
 ---
 
@@ -717,16 +840,13 @@ docker compose -f production/production.yaml up -d
 # Create new site
 ./scripts/create-site.sh erp2.example.com
 
-# Install custom apps that were baked into the image
+# Install apps from the image
 docker compose -f production/production.yaml exec backend \
-  bench --site erp2.example.com install-app custom_integrations hrms
+  bench --site erp2.example.com install-app india_compliance hrms
 
-# Run migrations and build assets once
+# Run migrations
 docker compose -f production/production.yaml exec backend \
   bench --site erp2.example.com migrate
-
-docker compose -f production/production.yaml exec backend \
-  bench --site erp2.example.com build
 ```
 
 ---
@@ -843,13 +963,12 @@ Because the site is created after the image rebuild, it automatically receives t
 **Existing sites that were updated**
 
 1. Stop users (maintenance window) and take a backup: `./scripts/backup-site.sh erp.example.com --with-files`.
-2. After redeploying containers, run:
+2. After redeploying containers, run migrations:
 
 ```bash
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build
+
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com clear-cache
 ```
@@ -860,31 +979,39 @@ docker compose -f production/production.yaml exec backend \
 
 ### Update Custom Apps & Integrations
 
-**What this updates**: Custom Frappe apps, DocTypes, webhook handlers, and any bundled third-party modules.
+**What this updates**: Custom apps with new features or bug fixes.
 
 ```bash
-# 1. Pull or merge the new code for each app, then refresh apps.json
-git pull origin main  # inside every custom app repo
-vim apps.json         # bump branch/tag references if needed
+# 1. Update apps.json with new versions
+nano production/apps.json
+# Example: Update Frappe, ERPNext, or custom apps
+# Frappe: "branch": "v15.88.1" → "branch": "v15.89.0"
+# India Compliance: "branch": "v15.23.2" → "branch": "v15.24.0"
 
-# 2. Rebuild the image with the refreshed manifest
-export APPS_JSON_BASE64=$(base64 -w 0 apps.json)
+# 2. Rebuild the image with new tag
+export APPS_JSON_BASE64=$(base64 -w0 production/apps.json)
+NEW_TAG="ghcr.io/YOUR_USERNAME/erpnext-custom:$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+
 docker build \
-  --build-arg=FRAPPE_BRANCH=version-15 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
-  --tag=registry.example.com/erpnext-custom:15 .
-docker push registry.example.com/erpnext-custom:15
+  --tag=$NEW_TAG \
+  --tag=ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest \
+  --file=images/layered/Containerfile .
 
-# 3. Update production to pull the new tag
-sed -i 's/CUSTOM_TAG=.*/CUSTOM_TAG=15/' production/production.env
+docker push $NEW_TAG
+docker push ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest
+
+# 3. Update production.env with new tag
+nano production/production.env
+# CUSTOM_TAG=20251119-xyz5678
+
+# 4. Deploy
 ./scripts/deploy.sh --regenerate
 ./scripts/deploy.sh
 
-# 4. Apply database patches and rebuild assets per site
+# 5. Migrate all sites
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build
 ```
 
 ### Complete Update (All Layers)
@@ -913,12 +1040,9 @@ docker compose -f production/production.yaml up -d
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
 
-# 7. Rebuild assets and clear cache
+# 7. Clear cache
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com clear-cache
-
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build --force
 ```
 
 ## Git Workflow
@@ -948,19 +1072,23 @@ docker compose -f production/production.yaml exec backend \
 
 - Keep each custom Frappe app in its own repository.
 - Tag or branch the app when you are ready to promote (`git tag v2.4.0`).
-- Update `apps.json` with that tag/commit and keep the file sorted. This manifest is the **source of truth** for `APPS_JSON_BASE64`.
-- Rebuild/push the custom image from the repo root:
+- Update `production/apps.json` with that tag/commit. This manifest is the **source of truth** for `APPS_JSON_BASE64`.
+- Rebuild/push the custom image:
 
   ```bash
-  export APPS_JSON_BASE64=$(base64 -w0 apps.json)
-  docker build -f images/custom/Containerfile \
-    --build-arg FRAPPE_BRANCH=version-15 \
-    --build-arg APPS_JSON_BASE64=$APPS_JSON_BASE64 \
-    -t registry.example.com/erpnext-custom:v15-2024.09 .
-  docker push registry.example.com/erpnext-custom:v15-2024.09
+  export APPS_JSON_BASE64=$(base64 -w0 production/apps.json)
+  NEW_TAG="ghcr.io/YOUR_USERNAME/erpnext-custom:$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+  
+  docker build \
+    --build-arg=FRAPPE_BRANCH=version-15 \
+    --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+    --tag=$NEW_TAG \
+    --file=images/layered/Containerfile .
+  
+  docker push $NEW_TAG
   ```
 
-- Update `production/production.env` (`CUSTOM_TAG=v15-2024.09`), regenerate, then run migrations for each site.
+- Update `production/production.env` with the new `CUSTOM_TAG`, regenerate, then migrate each site.
 
 ### Helpful habits
 
@@ -1114,11 +1242,9 @@ grep CUSTOM_TAG production/production.env
 **Re-apply the app to a site:**
 ```bash
 docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com install-app custom_integrations
+  bench --site erp.example.com install-app india_compliance
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build
 ```
 
 **Integration secrets not picked up?**
@@ -1386,28 +1512,29 @@ traefik:v2.11
 ```
 
 **You maintain:**
-- `production/` directory (deployment scripts, configs)
-- `apps.json` (or CI secrets) describing the custom/third-party apps you ship
+- `production/` directory (deployment scripts, configs, docs)
+- `production/apps.json` - manifest for custom/third-party apps
 - `.gitignore` (excludes *.env files)
 
 **You track upstream:**
 - `compose.yaml` (base infrastructure)
 - `overrides/compose.*.yaml` (feature overlays)
-- `images/*/Containerfile` (if you need custom builds)
+- `images/layered/Containerfile` (for building custom images)
 
 ### Why This Approach?
 
 **Benefits:**
-- ✅ Get official, tested ERPNext images
+- ✅ Get official, tested ERPNext images (or build custom ones)
 - ✅ Receive infrastructure updates from frappe_docker
-- ✅ Keep your custom apps and integrations isolated from infrastructure changes
+- ✅ Keep custom apps isolated from infrastructure changes
 - ✅ Easy to merge upstream improvements
-- ✅ Only rebuild images when you really need additional apps or dependencies
+- ✅ Pre-compiled assets eliminate runtime build complexity
 
-**When you'd build custom images:**
-- Need to modify Python dependencies
-- Add system packages to containers
-- Install or update custom/third-party Frappe apps
+**When to build custom images:**
+- Adding custom or third-party Frappe apps
+- Modifying Python/Node dependencies
+- Adding system packages
+- Need reproducible production deployments
 
 
 ---
@@ -1421,6 +1548,6 @@ traefik:v2.11
 
 ---
 
-**Tested With**: ERPNext v15.82.1, Docker 24.0+, Ubuntu 22.04 LTS  
-**Script Optimization**: 35% reduction in code, 100% help coverage  
-**Last Updated**: October 2025
+**Tested With**: ERPNext v15.88.1, Frappe v15.88.1, Docker 24.0+, Ubuntu 22.04 LTS  
+**Deployment Method**: Immutable images with pre-compiled assets  
+**Last Updated**: November 2025
