@@ -54,6 +54,18 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
+  v16:
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      repo: erpnext
+      version: "16"
+      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+      python_version: 3.12.12
+      node_version: 22.21.1
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
   update_versions:
     name: Update example.env and pwd.yml
     runs-on: ubuntu-latest

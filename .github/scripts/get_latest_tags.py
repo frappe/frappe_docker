@@ -9,7 +9,7 @@ import sys
 from typing import Literal
 
 Repo = Literal["frappe", "erpnext"]
-MajorVersion = Literal["12", "13", "14", "15", "develop"]
+MajorVersion = Literal["12", "13", "14", "15", "16", "develop"]
 
 
 def get_latest_tag(repo: Repo, version: MajorVersion) -> str:
@@ -57,7 +57,7 @@ def main(_args: list[str]) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", choices=["frappe", "erpnext"], required=True)
     parser.add_argument(
-        "--version", choices=["12", "13", "14", "15", "develop"], required=True
+        "--version", choices=["12", "13", "14", "15", "16", "develop"], required=True
     )
     args = parser.parse_args(_args)
 
