@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: frappe/erpnext:v15.89.0
+    image: frappe/erpnext:v16.0.0-beta.1
     networks:
       - frappe_network
     deploy:
