@@ -1,0 +1,59 @@
+services:
+  # Ofelia cron scheduler for automated backups
+  backup-cron:
+    image: mcuadros/ofelia:latest
+    container_name: ${PROJECT_NAME:-erpnext-production}-backup-cron
+    restart: unless-stopped
+    depends_on:
+      - scheduler
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - bench-network
+
+  # Scheduler service with backup job labels
+  scheduler:
+    env_file:
+      - ./backup/backup.env
+    environment:
+      # S3/Digital Ocean Spaces configuration
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
+      - S3_REGION=${S3_REGION:-blr1}
+      - AWS_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-}
+      # Environment segregation
+      - ENV_PREFIX=${ENV_PREFIX:-production}
+      # Backup configuration
+      - BACKUP_SITES=${BACKUP_SITES:-erp.localhost}
+      - BACKUP_WITH_FILES=${BACKUP_WITH_FILES:-1}
+      - BACKUP_COMPRESS=${BACKUP_COMPRESS:-1}
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}
+      - S3_BACKUP_RETENTION_DAYS=${S3_BACKUP_RETENTION_DAYS:-30}
+      - BACKUP_DEBUG=${BACKUP_DEBUG:-0}
+      - S3_STORAGE_CLASS=${S3_STORAGE_CLASS:-STANDARD}
+    volumes:
+      - ./backup/backup-to-s3.sh:/usr/local/bin/backup-to-s3.sh:ro
+    labels:
+      # Ofelia job configuration for automated S3 backups
+      ofelia.enabled: "true"
+      
+      # Job 1: Hourly database-only backup (official @every syntax)
+      # See: https://pkg.go.dev/github.com/robfig/cron/v3#hdr-Intervals
+      ofelia.job-exec.backup-db-hourly.schedule: "@every 1h"
+      ofelia.job-exec.backup-db-hourly.command: "bash -c 'export BACKUP_WITH_FILES=0 && /bin/bash /usr/local/bin/backup-to-s3.sh'"
+      ofelia.job-exec.backup-db-hourly.user: "frappe"
+      ofelia.job-exec.backup-db-hourly.no-overlap: "true"
+      
+      # Job 2: Daily full backup at 3 AM (standard 5-field cron)
+      # See: https://pkg.go.dev/github.com/robfig/cron/v3#hdr-CRON_Expression_Format
+      ofelia.job-exec.backup-full-daily.schedule: "0 3 * * *"
+      ofelia.job-exec.backup-full-daily.command: "bash -c 'export BACKUP_WITH_FILES=1 && /bin/bash /usr/local/bin/backup-to-s3.sh'"
+      ofelia.job-exec.backup-full-daily.user: "frappe"
+      ofelia.job-exec.backup-full-daily.no-overlap: "true"
+
+networks:
+  bench-network:
+    external: true
+    name: ${PROJECT_NAME:-erpnext-production}
