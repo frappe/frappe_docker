@@ -8,8 +8,8 @@ Complete guide for deploying ERPNext in production using Docker Compose with Tra
 
 This guide provides everything needed to deploy a production-ready ERPNext instance using Docker Compose. The setup includes:
 
-- **ERPNext v15.82.1** - ERP application
-- **Frappe Framework v15.82.1** - Application framework
+- **ERPNext v15.88.1** - ERP application
+- **Frappe Framework v15.88.1** - Application framework
 - **Traefik v2.11** - Reverse proxy with automatic Let's Encrypt SSL
 - **MariaDB 11.8** - Database server
 - **Redis** - Cache, queue, and socketio
@@ -74,9 +74,9 @@ erp-is/
 
 | Layer | Version / Source | Why it matters |
 |-------|------------------|----------------|
-| Host OS (reference) | Ubuntu 22.04 LTS | All scripts are validated on this release; Debian 11/12 behave the same as long as Docker 24+ is installed. |
-| ERPNext | v15.82.1 | Set through `ERPNEXT_VERSION` in `production/production.env`. Keep this aligned with the branch you pin in `apps.json`. |
-| Frappe Framework | v15.82.1 | Declared as `FRAPPE_VERSION`; must match ERPNext to avoid schema drift. |
+| Host OS (reference) | Ubuntu 24.04 LTS | All scripts are validated on this release; Debian 11/12 behave the same as long as Docker 24+ is installed. |
+| ERPNext | v15.88.1 | Set through custom image built with `apps.json`. For immutable images, version is frozen at build time. |
+| Frappe Framework | v15.88.1 | Controlled via `FRAPPE_BRANCH` build arg when building custom images. Must match ERPNext to avoid schema drift. |
 | MariaDB | 11.8 (official image) | Shared across every site in the bench; plan capacity accordingly. |
 | Redis | `redis:alpine` | Provides cache, queue, and websocket backplanes. |
 | Traefik | v2.11 | Handles TLS (Let’s Encrypt) and routing. |
@@ -121,7 +121,7 @@ htpasswd -nB admin       # Traefik dashboard password
 
 ### System Requirements
 
-- **OS**: Ubuntu 20.04/22.04 LTS or Debian 11/12
+- **OS**: Ubuntu 22.04/24.04 LTS or Debian 11/12
 - **CPU**: 2+ cores (4+ recommended)
 - **RAM**: 4GB minimum (8GB+ recommended)
 - **Disk**: 50GB+ SSD storage
@@ -391,8 +391,8 @@ nano production/production.env
 Required values:
 ```env
 SITES=erp.example.com                           # Your domain
-ERPNEXT_VERSION=v15.82.1                        # ERPNext version
-FRAPPE_VERSION=v15.82.1                         # Frappe version
+ERPNEXT_VERSION=v15.88.1                        # ERPNext version
+FRAPPE_VERSION=v15.88.1                         # Frappe version
 DB_HOST=mariadb-database                        # Database host
 DB_PASSWORD=<paste-generated-db-password>       # From step 1
 REDIS_CACHE=redis-cache:6379                    # Redis cache
@@ -515,9 +515,7 @@ docker compose -f production/production.yaml ps
 
 **Production Standard**: This guide covers deploying ERPNext with custom or third-party apps using **immutable Docker images** with pre-compiled assets. This approach provides reproducible deployments, instant rollbacks, and eliminates runtime build complexity.
 
-> **📖 Detailed Guide**: For comprehensive implementation details, troubleshooting, and CI/CD integration, see [`production/docs/custom-image-workflow.md`](docs/custom-image-workflow.md)
-
-> **📚 Technical Deep-Dive**: For understanding different deployment patterns and asset management approaches, see [`production/docs/asset-management-frappe.md`](docs/asset-management-frappe.md)
+> **📖 Detailed Guide**: For comprehensive implementation details, troubleshooting, and CI/CD integration, see [`production/docs/custom-image-workflow.md`](custom-image-workflow.md)
 
 ### Why Custom Images?
 
@@ -578,6 +576,8 @@ IMAGE_TAG="ghcr.io/YOUR_USERNAME/erpnext-custom:${BUILD_DATE}-${GIT_SHA}"
 
 # Build image (includes bench build - assets compiled into image)
 docker build \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=v15.88.1 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
   --build-arg=PYTHON_VERSION=3.11.6 \
   --build-arg=NODE_VERSION=18.18.2 \
@@ -687,21 +687,26 @@ docker build \
   --file=images/layered/Containerfile \
   .
 
-# 3. Push new image
+# 4. Push new image
 docker push $NEW_TAG
 docker push ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest
 
-# 4. Update production.env
+# 5. Update production.env
 nano production/production.env
 # CUSTOM_TAG=20251119-xyz5678  # New date-commit tag
 
-# 5. Deploy
+# 6. Deploy
 ./scripts/deploy.sh --regenerate
 ./scripts/deploy.sh
 
-# 6. Migrate all sites
+# 7. Migrate all sites
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
+
+# 8. Clear cache and restart
+docker compose -f production/production.yaml exec backend \
+  bench --site erp.example.com clear-cache
+docker compose -f production/production.yaml restart frontend
 ```
 
 **Rollback if needed**:
@@ -806,24 +811,6 @@ docker compose -f production/production.yaml logs -f backend
 ./scripts/deploy.sh
 ```
 
-### Update ERPNext
-
-```bash
-# Update version in production.env
-nano production/production.env
-# Change: ERPNEXT_VERSION=v15.83.0
-
-# Pull new images
-docker compose -f production/production.yaml pull
-
-# Redeploy
-./production/scripts/deploy.sh
-
-# Run migrations
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com migrate
-```
-
 ### Add New Site (Multi-tenancy)
 
 ```bash
@@ -904,9 +891,11 @@ docker compose -f production/production.yaml ps
 
 **Important**: This does NOT update ERPNext version, only how it runs.
 
-### Update ERPNext Version
+### Update ERPNext/Frappe Base Images (Official Releases)
 
-**What this updates**: ERPNext features, bug fixes, Frappe framework
+**⚠️ Important**: This section is for updating the **base Frappe/ERPNext images** (official releases without custom apps). If you're using **custom images with apps.json**, skip to [Update Custom Apps & Integrations](#update-custom-apps--integrations) instead.
+
+**What this updates**: ERPNext features, bug fixes, Frappe framework (base images only)
 
 ```bash
 # 1. Check current version
@@ -918,8 +907,9 @@ docker compose -f production/production.yaml exec backend bench version
 # 3. Update version in production.env
 nano production/production.env
 # Change:
-# ERPNEXT_VERSION=v15.82.1  →  ERPNEXT_VERSION=v15.85.0
-# FRAPPE_VERSION=v15.82.1   →  FRAPPE_VERSION=v15.85.0
+# ERPNEXT_VERSION=v15.88.1  →  ERPNEXT_VERSION=v15.90.0
+# FRAPPE_VERSION=v15.88.1   →  FRAPPE_VERSION=v15.90.0
+# Note: Only use this if NOT using custom images with apps.json
 
 # 4. Regenerate configuration
 ./scripts/deploy.sh --regenerate
@@ -937,30 +927,34 @@ docker compose -f production/production.yaml up -d
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
 
-# 9. Clear cache and rebuild
+# 9. Clear cache
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com clear-cache
 
-docker compose -f production/production.yaml exec backend \
-  bench --site erp.example.com build
+# Note: No bench build needed with immutable images - assets pre-compiled in image!
 
 # 10. Verify new version
 docker compose -f production/production.yaml exec backend bench version
 ```
 
-### Apply Updates to Sites (new vs existing)
+### Apply Updates to Sites
 
-Use the same redeploy pipeline for every site, but tailor the final bench commands depending on whether the site already exists.
+**With immutable images, the workflow is identical for both new and existing sites:**
 
-**New sites created after an update**
+1. Deploy the new image (apps are already in the image)
+2. Install apps on sites using `bench install-app`
+3. Run `bench migrate` to apply database changes
 
-1. Run `./scripts/create-site.sh new.example.com` once the new image is live.
-2. Install any optional apps: `bench --site new.example.com install-app custom_integrations hrms`.
-3. Seed data, fixtures, or integrations using your app's onboarding commands.
+**New sites**:
+```bash
+./scripts/create-site.sh new.example.com
+docker compose -f production/production.yaml exec backend \
+  bench --site new.example.com install-app india_compliance
+docker compose -f production/production.yaml exec backend \
+  bench --site new.example.com migrate
+```
 
-Because the site is created after the image rebuild, it automatically receives the latest code; no manual migration is needed beyond the installer.
-
-**Existing sites that were updated**
+**Existing sites**
 
 1. Stop users (maintenance window) and take a backup: `./scripts/backup-site.sh erp.example.com --with-files`.
 2. After redeploying containers, run migrations:
@@ -982,17 +976,23 @@ docker compose -f production/production.yaml exec backend \
 **What this updates**: Custom apps with new features or bug fixes.
 
 ```bash
-# 1. Update apps.json with new versions
+# 1. Update apps.json with new versions (custom apps only)
 nano production/apps.json
-# Example: Update Frappe, ERPNext, or custom apps
-# Frappe: "branch": "v15.88.1" → "branch": "v15.89.0"
+# Example: Update custom apps (ERPNext, India Compliance, etc.)
+# ERPNext: "branch": "v15.88.1" → "branch": "v15.89.0"
 # India Compliance: "branch": "v15.23.2" → "branch": "v15.24.0"
 
-# 2. Rebuild the image with new tag
+# 2. Update Frappe version via build arg (if needed)
+# Change FRAPPE_BRANCH in the docker build command below
+# Example: v15.88.1 → v15.89.0
+
+# 3. Rebuild the image with new tag
 export APPS_JSON_BASE64=$(base64 -w0 production/apps.json)
 NEW_TAG="ghcr.io/YOUR_USERNAME/erpnext-custom:$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
 
 docker build \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=v15.88.1 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
   --tag=$NEW_TAG \
   --tag=ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest \
@@ -1001,15 +1001,15 @@ docker build \
 docker push $NEW_TAG
 docker push ghcr.io/YOUR_USERNAME/erpnext-custom:production-latest
 
-# 3. Update production.env with new tag
+# 4. Update production.env with new tag
 nano production/production.env
 # CUSTOM_TAG=20251119-xyz5678
 
-# 4. Deploy
+# 5. Deploy
 ./scripts/deploy.sh --regenerate
 ./scripts/deploy.sh
 
-# 5. Migrate all sites
+# 6. Migrate all sites
 docker compose -f production/production.yaml exec backend \
   bench --site erp.example.com migrate
 ```
@@ -1080,7 +1080,8 @@ docker compose -f production/production.yaml exec backend \
   NEW_TAG="ghcr.io/YOUR_USERNAME/erpnext-custom:$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
   
   docker build \
-    --build-arg=FRAPPE_BRANCH=version-15 \
+    --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+    --build-arg=FRAPPE_BRANCH=v15.88.1 \
     --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
     --tag=$NEW_TAG \
     --file=images/layered/Containerfile .
@@ -1504,8 +1505,8 @@ This setup uses **official Frappe Docker images**:
 **Image pull locations:**
 ```bash
 # From Docker Hub (official Frappe images)
-frappe/erpnext:v15.82.1
-frappe/frappe:v15.82.1
+frappe/erpnext:v15.88.1
+frappe/frappe:v15.88.1
 library/mariadb:11.8
 library/redis:alpine
 traefik:v2.11
@@ -1548,6 +1549,6 @@ traefik:v2.11
 
 ---
 
-**Tested With**: ERPNext v15.88.1, Frappe v15.88.1, Docker 24.0+, Ubuntu 22.04 LTS  
+**Tested With**: ERPNext v15.88.1, Frappe v15.88.1, Docker 24.0+, Ubuntu 24.04 LTS  
 **Deployment Method**: Immutable images with pre-compiled assets  
 **Last Updated**: November 2025
