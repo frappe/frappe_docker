@@ -125,4 +125,4 @@ jobs:
         run: |
           git clone git@github.com:frappe/helm.git && cd helm
           pip install -r release_wizard/requirements.txt
-          ./release_wizard/wizard 15 patch --remote origin --ci
+          ./release_wizard/wizard 16 patch --remote origin --ci
