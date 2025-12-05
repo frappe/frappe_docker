@@ -1,3 +1,7 @@
+---
+title: Single Server Setup
+---
+
 # Single Server Example
 
 This guide demonstrates setting up multiple Frappe/ERPNext benches (projects) on a single server with shared infrastructure components.
