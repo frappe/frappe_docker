@@ -7,7 +7,7 @@ hero:
   # text: "Frappe in Container"
   tagline: "Documentation to use Docker based setup of Frappe framework"
   image:
-    src: ./images/frappe_docker.png
+    src: /frappe-docker.png
   actions:
     - theme: brand
       text: Getting Started
