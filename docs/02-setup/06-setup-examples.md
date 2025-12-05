@@ -37,6 +37,7 @@ Alternatively, you can directly use `docker compose up` to start containers with
 Setup Frappe with containerized MariaDB and Redis, exposing the application directly on port `:8080` without a reverse proxy.
 
 **Requirements:**
+
 - Set `DB_PASSWORD` in `.env` (or use default `123`)
 - No external database or Redis needed
 
@@ -57,6 +58,7 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -
 Setup ERPNext using external MariaDB and Redis instances with Traefik HTTP proxy.
 
 **Requirements:**
+
 - Set `DB_HOST`, `DB_PORT`, `REDIS_CACHE`, and `REDIS_QUEUE` in `.env`
 - External database and Redis must be accessible
 
@@ -75,6 +77,7 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -
 Setup Frappe/ERPNext using containerized MariaDB and Redis with Let's Encrypt SSL certificates via Traefik.
 
 **Requirements:**
+
 - Set `LETSENCRYPT_EMAIL` and `SITES` environment variables
 - DNS must point to your server IP
 
@@ -121,7 +124,8 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml down
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
-> **Note:** 
+> **Note:**
+>
 > - Pull and stop container commands can be skipped if immutable image tags are used
 > - `docker compose up -d` will pull new immutable tags if not found
 
@@ -132,4 +136,3 @@ To migrate sites after updating, refer to [site operations](../04-operations/01-
 **Back:** [Start Setup →](03-start-setup.md)
 
 **Next:** [Single Server Example →](07-single-server-example.md)
-
