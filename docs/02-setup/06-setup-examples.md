@@ -1,3 +1,7 @@
+---
+title: Setup Examples
+---
+
 # Setup Examples
 
 This guide provides practical examples for common setup scenarios. These examples build upon the [container setup guide](01-overview.md) and demonstrate how to combine the base compose file with overrides.

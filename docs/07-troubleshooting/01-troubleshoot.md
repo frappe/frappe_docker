@@ -1,6 +1,11 @@
-1. [Fixing MariaDB issues after rebuilding the container](#fixing-mariadb-issues-after-rebuilding-the-container)
-1. [docker-compose does not recognize variables from `.env` file](#docker-compose-does-not-recognize-variables-from-env-file)
-1. [Windows Based Installation](#windows-based-installation)
+---
+title: Troubleshoot
+---
+
+- [Fixing MariaDB issues after rebuilding the container](#fixing-mariadb-issues-after-rebuilding-the-container)
+- [docker-compose does not recognize variables from `.env` file](#docker-compose-does-not-recognize-variables-from-env-file)
+- [Windows Based Installation](#windows-based-installation)
+- [Redo installation](#redo-installation)
 
 ### Fixing MariaDB issues after rebuilding the container
 

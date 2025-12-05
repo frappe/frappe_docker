@@ -1,3 +1,7 @@
+---
+title: NGINX in Windows
+---
+
 # Resolving Docker `nginx-entrypoint.sh` Script Not Found Error on Windows
 
 If you're encountering the error `exec /usr/local/bin/nginx-entrypoint.sh: no such file or directory` in a Docker container on Windows, follow these steps to resolve the issue.

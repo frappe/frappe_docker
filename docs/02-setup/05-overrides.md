@@ -1,3 +1,7 @@
+---
+title: Overrides
+---
+
 Overrides extend the base compose.yaml with additional services or modify existing behavior. Include them in your compose command using multiple -f flags.
 
 ```bash

@@ -1,3 +1,7 @@
+---
+title: Backup Strategy
+---
+
 Create backup service or stack.
 
 ```yaml

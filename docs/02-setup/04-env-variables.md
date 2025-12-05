@@ -1,3 +1,7 @@
+---
+title: Environment Variables
+---
+
 # Environment Variables Reference
 
 Environment variables configure your Frappe Docker setup. They can be set directly in the container or defined in a `.env` file referenced by Docker Compose.
