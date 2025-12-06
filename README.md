@@ -55,32 +55,49 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 ### [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
 
+### [Getting Started](#getting-started)
+
+- [Quick Start (Linux/Mac)](docs/01-getting-started/01-quick-start-linux-mac.md)
+- [Single Compose Setup](docs/01-getting-started/02-single-compose-setup.md)
+
+### [Setup](#setup)
+
+- [Container Setup Overview](docs/02-setup/01-overview.md)
+- [Build Setup](docs/02-setup/02-build-setup.md)
+- [Start Setup](docs/02-setup/03-start-setup.md)
+- [Environment Variables](docs/02-setup/04-env-variables.md)
+- [Compose Overrides](docs/02-setup/05-overrides.md)
+- [Setup Examples](docs/02-setup/06-setup-examples.md)
+- [Single Server Example](docs/02-setup/07-single-server-example.md)
+
 ### [Production](#production)
 
-- [List of containers](docs/container-setup/01-overview.md)
-- [Single Compose Setup](docs/single-compose-setup.md)
-- [Environment Variables](docs/container-setup/env-variables.md)
-- [Single Server Example](docs/single-server-example.md)
-- [Setup Options](docs/setup-options.md)
-- [Site Operations](docs/site-operations.md)
-- [Backup and Push Cron Job](docs/backup-and-push-cronjob.md)
-- [Port Based Multi Tenancy](docs/port-based-multi-tenancy.md)
-- [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
-- [running on linux/mac](docs/setup_for_linux_mac.md)
-- [TLS for local deployment](docs/tls-for-local-deployment.md)
+- [TLS/SSL Setup](docs/03-production/01-tls-ssl-setup.md)
+- [Backup Strategy](docs/03-production/02-backup-strategy.md)
+- [Multi-Tenancy](docs/03-production/03-multi-tenancy.md)
 
-### [Custom Images](#custom-images)
+### [Operations](#operations)
 
-- [Custom Apps](docs/container-setup/02-build-setup.md)
-- [Build Version 10 Images](docs/build-version-10-images.md)
+- [Site Operations](docs/04-operations/01-site-operations.md)
 
 ### [Development](#development)
 
-- [Development using containers](docs/development.md)
-- [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
-- [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
+- [Development Guide](docs/05-development/01-development.md)
+- [Debugging](docs/05-development/02-debugging.md)
+- [Local Services Connection](docs/05-development/03-local-services-connection.md)
 
-### [Troubleshoot](docs/troubleshoot.md)
+### [Migration](#migration)
+
+- [Migrate from Multi-Image Setup](docs/06-migration/01-migrate-from-multi-image-setup.md)
+
+### [Troubleshooting](#troubleshooting)
+
+- [Troubleshoot Guide](docs/07-troubleshooting/01-troubleshoot.md)
+- [Windows Nginx Entrypoint Error](docs/07-troubleshooting/02-windows-nginx-entrypoint-error.md)
+
+### [Reference](#reference)
+
+- [Build Version 10 Images](docs/08-reference/01-build-version-10-images.md)
 
 # Contributing
 
