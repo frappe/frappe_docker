@@ -45,7 +45,7 @@ docker compose -p frappe exec backend bench new-site <sitename> \
 
 > **Note:** Wait for the `db` service to start and `configurator` to exit before trying to create a new site. Usually this takes up to 10 seconds.
 
-For more site operations, refer to [site operations](../../04-operations/01-site-operations.md).
+For more site operations, refer to [site operations](../04-operations/01-site-operations.md).
 
 > ## Understanding the MariaDB User Scope
 >
