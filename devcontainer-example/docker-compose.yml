@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   mariadb:
     image: docker.io/mariadb:11.8

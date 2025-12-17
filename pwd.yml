@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   backend:
     image: frappe/erpnext:v15.92.1
