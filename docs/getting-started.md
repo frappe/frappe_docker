@@ -66,6 +66,10 @@ Real-time:
 
 ### 📁 Core Configuration Files
 
+> ⚠️ Before deploying, read
+> **[Choosing a Deployment Method](01-getting-started/01-choosing-a-deployment-method.md)**
+> to understand the differences between `pwd.yml`, development setup, the Easy Install script and the production setup.
+
 - **compose.yaml** - Main Docker Compose file defining all services
 - **example.env** - Environment variables template (copy to `.env`)
 - **pwd.yml** - "Play with Docker" - simplified single-file setup for quick testing
