@@ -6,6 +6,45 @@ On each PR that contains changes relevant to Docker builds, images are being bui
 
 > :evergreen_tree: Please be considerate when pushing commits and opening PR for multiple branches, as the process of building images uses energy and contributes to global warming.
 
+## Pull Request Process
+
+1. Test builds locally before submitting
+2. Follow conventional commit format
+3. Update documentation if needed
+4. Ensure all pre-commit checks pass
+5. Reference related issues in PR description
+
+## Commit Message Convention
+
+We recommend [Conventional Commits](https://www.conventionalcommits.org/) for clear and semantic commit history.
+
+Format: `<type>(<scope>): <description>`
+
+**Types:**
+
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, missing semicolons, etc.)
+- `refactor`: Code refactoring
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks (dependencies, build config, etc.)
+- `ci`: CI/CD changes
+
+**Examples:**
+
+```
+chore(deps): bump wkhtmltopdf version
+fix(ci): correct buildx cache configuration
+docs(contributing): add conventional commits guidelines
+```
+
+## Branch Naming
+
+- `feature/<description>` - New features
+- `fix/<description>` - Bug fixes
+- `docs/<description>` - Documentation updates
+
 ## Lint
 
 We use `pre-commit` framework to lint the codebase before committing.
