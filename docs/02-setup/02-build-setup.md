@@ -97,12 +97,26 @@ cp example.env custom.env
 
 Edit `custom.env` to customize variables for your setup. The template includes common variables, but you can add, modify, or remove any as needed. See [env-variables.md](04-env-variables.md) for detailed descriptions of all available variables.
 
+For this setup, make sure **at least** the following values are added to `custom.env`:
+
+```txt
+CUSTOM_IMAGE=custom
+CUSTOM_TAG=15
+PULL_POLICY=missing
+```
+
+> The `CUSTOM_*` variables ensure the image reference points to the recently built image.
+> `PULL_POLICY` ensures Docker does not attempt to pull the image, but instead uses the locally built one (the default pull policy is `always`).
+
+**⚠️ This is not meant to be a complete `.env` configuration guide. These are only the minimal additions required for this example.
+Please have a look at [env-variables.md](04-env-variables.md) for a full description of all available variables and adjust them according to your needs.**
+
 # Creating the final compose file
 
 Combine the base compose file with appropriate overrides for your use case. This example adds MariaDB, Redis, and exposes ports on `:8080`:
 
 ```bash
-docker compose --env-file example.env \
+docker compose --env-file custom.env \
     -f compose.yaml \
     -f overrides/compose.mariadb.yaml \
     -f overrides/compose.redis.yaml \
