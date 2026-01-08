@@ -42,6 +42,10 @@ docker compose exec -T backend bench --site "$SITE_NAME" install-app lms
 echo "📦 Downloading Payments App..."
 docker compose exec -T backend bench get-app payments
 
+# Ensure Payments is installed into the Python environment (editable install)
+echo "🐍 Installing Payments Python package into venv..."
+docker compose exec -T backend bash -lc 'cd /home/frappe/frappe-bench && pip install -e apps/payments && python -c "import payments;"'
+
 # Install Payments App
 echo "📦 Installing Payments App..."
 docker compose exec -T backend bench --site "$SITE_NAME" install-app payments
@@ -61,6 +65,9 @@ docker compose exec -T backend bench --site "$SITE_NAME" clear-cache
 # Run migrations
 echo "🔄 Running migrations..."
 docker compose exec -T backend bench --site "$SITE_NAME" migrate
+
+# Restarting backend
+docker compose restart backend
 
 echo "✅ Site created successfully!"
 echo ""
