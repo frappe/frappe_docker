@@ -169,7 +169,7 @@ jobs:
         "
     
     - name: Remove backup files if needed
-      if: ${{ github.event.inputs.should_remove_backups == "true" }}
+      if: ${{ github.event.inputs.should_remove_backups == true }}
       run: |
         echo "🗑️ Removing backup files for site: ${{ github.event.inputs.site_name }}"
         echo "Environment: ${{ github.event.inputs.environment }}"
@@ -183,7 +183,7 @@ jobs:
 
       
     - name: Display backup information
-      if: ${{ github.event.inputs.should_remove_backups == "false" }}
+      if: ${{ github.event.inputs.should_remove_backups == false }}
       run: |
           # Find and display the latest backup files after removal
           echo ''
