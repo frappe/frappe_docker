@@ -79,6 +79,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
 
+    - name: Add Hetzner server to known hosts
+      run: |
+        ssh-keyscan -H ${{ env.HETZNER_HOST }} >> ~/.ssh/known_hosts
+
     - name: Check if deployment exists
       run: |
         echo "🔍 Checking if deployment exists on server..."
