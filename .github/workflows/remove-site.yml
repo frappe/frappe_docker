@@ -1,0 +1,228 @@
+name: Remove Frappe Site
+
+on:
+  # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+          - production
+          - test
+      site_name:
+        description: 'Site name (e.g., academy.example.com)'
+        required: true
+        type: string
+      should_remove_backups:
+        description: 'Remove backups as well after site removal (⚠️ Backup is created by default before dropping the site. Do not use this option if you want to keep the backups)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  HETZNER_HOST: 188.245.211.114
+  HETZNER_USER: ignis_academy_lms
+  DEPLOY_PATH: /opt/frappe-deployment
+
+jobs:
+  remove-site:
+    runs-on: ubuntu-latest
+    # Use environment for secrets management
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - name: Validate site name
+      run: |
+        SITE_NAME="${{ github.event.inputs.site_name }}"
+        
+        # Validate site name (domain name or IP address)
+        # Domain name pattern
+        DOMAIN_PATTERN="^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$"
+        # IP address pattern (simple IPv4)
+        IP_PATTERN="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+        
+        if [[ "$SITE_NAME" =~ $IP_PATTERN ]]; then
+          # Validate IP address ranges (0-255 for each octet)
+          IFS='.' read -ra OCTETS <<< "$SITE_NAME"
+          for octet in "${OCTETS[@]}"; do
+            if [[ $octet -lt 0 || $octet -gt 255 ]]; then
+              echo "❌ Invalid IP address. Each octet must be between 0-255."
+              exit 1
+            fi
+          done
+          echo "✅ Valid IP address format: $SITE_NAME"
+        elif [[ "$SITE_NAME" =~ $DOMAIN_PATTERN ]]; then
+          echo "✅ Valid domain name format: $SITE_NAME"
+        else
+          echo "❌ Invalid site name format. Please use a valid domain name or IP address."
+          echo "Examples: academy.example.com, test-site.local, 192.168.1.100, 188.231.133.113"
+          exit 1
+        fi
+        
+        if [[ ${#SITE_NAME} -lt 3 ]]; then
+          echo "❌ Site name must be at least 3 characters long."
+          exit 1
+        fi
+        
+        if [[ ${#SITE_NAME} -gt 253 ]]; then
+          echo "❌ Site name must be less than 253 characters long."
+          exit 1
+        fi
+        
+        echo "✅ Site name validation passed: $SITE_NAME"
+
+    - name: Setup SSH key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+    - name: Check if deployment exists
+      run: |
+        echo "🔍 Checking if deployment exists on server..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          if [ ! -d ${{ env.DEPLOY_PATH }} ]; then
+            echo '❌ Deployment directory not found at ${{ env.DEPLOY_PATH }}'
+            echo 'Please run the deploy action first to set up the application.'
+            exit 1
+          fi
+          
+          echo '✅ Deployment found and ready'
+        "
+
+    - name: Check if site exists
+      run: |
+        echo "🔍 Checking if site exists..."
+        SITE_EXISTS=$(ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          # Check if site directory exists in sites folder
+          if docker compose exec -T backend test -d '/home/frappe/frappe-bench/sites/${{ github.event.inputs.site_name }}'; then
+            echo 'true'
+          else
+            echo 'false'
+          fi
+        ")
+        
+        if [ "$SITE_EXISTS" = "false" ]; then
+          echo "✅ Site '${{ github.event.inputs.site_name }}' doesn't exist!"
+          echo "Please choose a different site name"
+          exit 1
+        fi
+        
+    - name: Check services status
+      run: |
+        echo "🔍 Checking if services are running..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Check if containers are running
+          if ! docker compose ps --services --filter 'status=running' | grep -q 'backend'; then
+            echo '❌ Backend service is not running'
+            echo 'Please ensure the application is deployed and running'
+            exit 1
+          fi
+          
+          if ! docker compose ps --services --filter 'status=running' | grep -q 'mariadb'; then
+            echo '❌ MariaDB service is not running'
+            echo 'Please ensure the database is running'
+            exit 1
+          fi
+          
+          echo '✅ Required services are running'
+        "
+
+    - name: Removing the site
+      run: |
+        echo "🗑️ Removing site: ${{ github.event.inputs.site_name }}"
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+
+          # Load environment variables
+          if [ -f .env ]; then
+              export \$(cat .env | grep -E '^[A-Z_][A-Z0-9_]*=' | sed 's/#.*\$//' | xargs)
+          else
+              echo '❌ .env file not found. Please create it from .env.example'
+              exit 1
+          fi
+          
+          # Drop the site (this will create backup files automatically)
+          docker compose exec -T backend bench drop-site ${{ github.event.inputs.site_name }} --db-root-password \$MARIADB_ROOT_PASSWORD --force
+          
+
+    - name: Verify site removal
+      run: |
+        echo "🔍 Verifying site removal..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Check if site was created successfully by checking if site directory exists
+          if docker compose exec -T backend test -d '/home/frappe/frappe-bench/sites/${{ github.event.inputs.site_name }}'; then
+            echo '❌ Site removal failed!'
+            exit 1
+          else
+            echo '✅ Site removed successfully!'
+          fi
+        "
+    
+    - name: Remove backup files if needed
+      if: ${{ github.event.inputs.should_remove_backups == "true" }}
+      run: |
+        echo "🗑️ Removing backup files for site: ${{ github.event.inputs.site_name }}"
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Remove the backup files
+          docker compose exec -T backend rm -rf ~/frappe-bench/archived/sites/${{ github.event.inputs.site_name }}
+        "
+
+      
+    - name: Display backup information
+      if: ${{ github.event.inputs.should_remove_backups == "false" }}
+      run: |
+          # Find and display the latest backup files after removal
+          echo ''
+          echo '📦 Searching for the backup created during removal...'
+          
+          BACKUP_INFO=\$(docker compose exec -T backend bash -c \"
+            cd ~/frappe-bench/archived/sites/${{ github.event.inputs.site_name }}/private/backups 2>/dev/null || exit 1
+            
+            # Get the latest timestamp (from any file)
+            LATEST_TIMESTAMP=\\\$(ls -t *.sql.gz 2>/dev/null | head -n 1 | cut -d'-' -f1)
+            
+            if [ -n \\\"\\\$LATEST_TIMESTAMP\\\" ]; then
+              echo \\\"TIMESTAMP=\\\$LATEST_TIMESTAMP\\\"
+              ls -lh \\\${LATEST_TIMESTAMP}-* 2>/dev/null | awk '{print \\\$9, \\\"(\\\"\\\$5\\\")\\\"}' || echo 'No files found'
+            else
+              echo 'No backups found'
+            fi
+          \")
+          
+          if echo "$BACKUP_INFO" | grep -q "TIMESTAMP="; then
+              ARCHIVED_DIR=$(echo "$BACKUP_INFO" | grep -o "ARCHIVED_DIR=[^ ]*" | cut -d'=' -f2)
+              TIMESTAMP=$(echo "$BACKUP_INFO" | grep -o "TIMESTAMP=[^ ]*" | cut -d'=' -f2)
+              
+              # Extract just the filenames (everything after TIMESTAMP= that looks like a file)
+              FILES=$(echo "$BACKUP_INFO" | sed 's/.*TIMESTAMP=[^ ]* //' | tr ' ' '\n' | grep "^$TIMESTAMP")
+              
+              echo ""
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              echo "✅ Site removed successfully!"
+              echo ""
+              echo "📦 Backup location:"
+              echo "   ~/frappe-bench/archived/sites/$ARCHIVED_DIR/private/backups/"
+              echo ""
+              echo "📋 Backup files (timestamp: $TIMESTAMP):"
+              echo "$FILES" | sed 's/^/   - /'
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          else
+              echo "⚠️  Could not find the archived backup (but site was removed)"
+          fi
+        
+
+    
