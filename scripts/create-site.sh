@@ -38,9 +38,13 @@ docker compose exec -T backend bench --site "$SITE_NAME" install-app ai_tutor_ch
 echo "📦 Installing Academy LMS..."
 docker compose exec -T backend bench --site "$SITE_NAME" install-app lms
 
-# Download Payments App
-echo "📦 Downloading Payments App..."
-docker compose exec -T backend bench get-app payments
+# Download Payments App (if needed)
+if docker compose exec -T backend test -d apps/payments; then
+    echo "✅ Payments App already downloaded"
+else
+    echo "📦 Downloading Payments App..."
+    docker compose exec -T backend bench get-app payments
+fi
 
 # Ensure Payments is installed into the Python environment (editable install)
 echo "🐍 Installing Payments Python package into venv..."
