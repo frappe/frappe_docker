@@ -155,7 +155,7 @@ jobs:
           
           # Drop the site (this will create backup files automatically)
           docker compose exec -T backend bench drop-site ${{ github.event.inputs.site_name }} --db-root-password \$MARIADB_ROOT_PASSWORD --force
-          
+        "
 
     - name: Verify site removal
       run: |
