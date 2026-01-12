@@ -154,7 +154,7 @@ jobs:
           fi
           
           # Drop the site (this will create backup files automatically)
-          docker compose exec -T backend bench drop-site ${{ github.event.inputs.site_name }} --db-root-password \$MARIADB_ROOT_PASSWORD --archived-sites-path /home/frappe/frappe-bench/archived/sites/${{ github.event.inputs.site_name }} --force
+          docker compose exec -T backend bench drop-site ${{ github.event.inputs.site_name }} --db-root-password \$MARIADB_ROOT_PASSWORD --force
         "
 
     - name: Verify site removal
@@ -181,8 +181,8 @@ jobs:
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
           
-          # Remove the backup files
-          docker compose exec -T backend rm -rf ~/frappe-bench/archived/sites/${{ github.event.inputs.site_name }}
+          # Remove the backup files (there could be multiple same site name backup folders with incremented numbers at the end in case of multiple removals)
+          docker compose exec -T backend rm -rf /home/frappe/frappe-bench/archived/sites/${{ github.event.inputs.site_name }}*
         "
 
       
@@ -197,16 +197,28 @@ jobs:
             cd ${{ env.DEPLOY_PATH }}
 
             BACKUP_INFO=\$(docker compose exec -T backend bash -c \"
-              cd ~/frappe-bench/archived/sites/${{ github.event.inputs.site_name }}/private/backups 2>/dev/null || exit 1
+              # Match the site directory in archived/sites (it might have an incremented suffix)
+              cd /home/frappe/frappe-bench/archived/sites/ 2>/dev/null || exit 1
               
-              # Get the latest timestamp (from any file)
-              LATEST_TIMESTAMP=\\\$(ls -t *.sql.gz 2>/dev/null | head -n 1 | cut -d'-' -f1)
+              # Find latest directory matching site_name* (sorted by time)
+              LATEST_DIR=\\\$(ls -td ${{ github.event.inputs.site_name }}* 2>/dev/null | head -n 1)
               
-              if [ -n \\\"\\\$LATEST_TIMESTAMP\\\" ]; then
-                echo \\\"TIMESTAMP=\\\$LATEST_TIMESTAMP\\\"
-                ls -lh \\\${LATEST_TIMESTAMP}-* 2>/dev/null | awk '{print \\\$9, \\\$5}' || echo 'No files found'
+              if [ -n \\\"\\\$LATEST_DIR\\\" ]; then
+                echo \\\"ARCHIVED_DIR=\\\$LATEST_DIR\\\"
+                cd \\\"\\\$LATEST_DIR/private/backups\\\" 2>/dev/null || exit 1
+                
+                # Get the latest timestamp (from any file)
+                LATEST_TIMESTAMP=\\\$(ls -t *.sql.gz 2>/dev/null | head -n 1 | cut -d'-' -f1)
+                
+                if [ -n \\\"\\\$LATEST_TIMESTAMP\\\" ]; then
+                  echo \\\"TIMESTAMP=\\\$LATEST_TIMESTAMP\\\"
+                  ls -lh \\\${LATEST_TIMESTAMP}-* 2>/dev/null | awk '{print \\\$9, \\\$5}' || echo 'No files found'
+                else
+                  echo 'No backups found'
+                fi
               else
-                echo 'No backups found'
+                echo 'No archived directory found'
+                exit 1
               fi
             \")
             
@@ -222,7 +234,7 @@ jobs:
                 echo \"✅ Site removed successfully!\"
                 echo \"\"
                 echo \"📦 Backup location:\"
-                echo \"   ~/frappe-bench/archived/sites/${{ github.event.inputs.site_name }}/private/backups/\"
+                echo \"   /home/frappe/frappe-bench/archived/sites/\$ARCHIVED_DIR/private/backups/\"
                 echo \"\"
                 echo \"📋 Backup files (timestamp: \$TIMESTAMP):\"
                 echo \"\$FILES\" | sed 's/^/   - /'
