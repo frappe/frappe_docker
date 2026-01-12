@@ -204,30 +204,30 @@ jobs:
               
               if [ -n \\\"\\\$LATEST_TIMESTAMP\\\" ]; then
                 echo \\\"TIMESTAMP=\\\$LATEST_TIMESTAMP\\\"
-                ls -lh \\\${LATEST_TIMESTAMP}-* 2>/dev/null | awk '{print \\\$9, \\\"(\\\"\\\$5\\\")\\\"}' || echo 'No files found'
+                ls -lh \\\${LATEST_TIMESTAMP}-* 2>/dev/null | awk '{print \\\$9, \\\$5}' || echo 'No files found'
               else
                 echo 'No backups found'
               fi
             \")
             
-            if echo "$BACKUP_INFO" | grep -q "TIMESTAMP="; then
-                ARCHIVED_DIR=$(echo "$BACKUP_INFO" | grep -o "ARCHIVED_DIR=[^ ]*" | cut -d'=' -f2)
-                TIMESTAMP=$(echo "$BACKUP_INFO" | grep -o "TIMESTAMP=[^ ]*" | cut -d'=' -f2)
+            if echo \"\$BACKUP_INFO\" | grep -q \"TIMESTAMP=\"; then
+                ARCHIVED_DIR=\$(echo \"\$BACKUP_INFO\" | grep -o \"ARCHIVED_DIR=[^ ]*\" | cut -d'=' -f2)
+                TIMESTAMP=\$(echo \"\$BACKUP_INFO\" | grep -o \"TIMESTAMP=[^ ]*\" | cut -d'=' -f2)
                 
                 # Extract just the filenames (everything after TIMESTAMP= that looks like a file)
-                FILES=$(echo "$BACKUP_INFO" | sed 's/.*TIMESTAMP=[^ ]* //' | tr ' ' '\n' | grep "^$TIMESTAMP")
+                FILES=\$(echo \"\$BACKUP_INFO\" | sed 's/.*TIMESTAMP=[^ ]* //' | tr ' ' '\n' | grep \"^\$TIMESTAMP\")
                 
-                echo ""
-                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                echo "✅ Site removed successfully!"
-                echo ""
-                echo "📦 Backup location:"
-                echo "   ~/frappe-bench/archived/sites/$ARCHIVED_DIR/private/backups/"
-                echo ""
-                echo "📋 Backup files (timestamp: $TIMESTAMP):"
-                echo "$FILES" | sed 's/^/   - /'
-                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo \"\"
+                echo \"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\"
+                echo \"✅ Site removed successfully!\"
+                echo \"\"
+                echo \"📦 Backup location:\"
+                echo \"   ~/frappe-bench/archived/sites/\$ARCHIVED_DIR/private/backups/\"
+                echo \"\"
+                echo \"📋 Backup files (timestamp: \$TIMESTAMP):\"
+                echo \"\$FILES\" | sed 's/^/   - /'
+                echo \"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\"
             else
-                echo "⚠️  Could not find the archived backup (but site was removed)"
+                echo \"⚠️  Could not find the archived backup (but site was removed)\"
             fi
           "
