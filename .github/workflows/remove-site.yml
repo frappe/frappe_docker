@@ -181,11 +181,10 @@ jobs:
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
           
-          # Remove the backup files (there could be multiple same site name backup folders with incremented numbers at the end in case of multiple removals)
-          docker compose exec -T -e SITE_NAME="${{ github.event.inputs.site_name }}" backend bash -c '
+          docker compose exec -T backend bash -c '
             cd /home/frappe/frappe-bench/archived/sites/
-            rm -rf "${SITE_NAME}" "${SITE_NAME}"[0-9]* 2>/dev/null || true
-            echo "Removed: ${SITE_NAME} and ${SITE_NAME}[0-9]*"
+            rm -rf \"${{ github.event.inputs.site_name }}\" \"${{ github.event.inputs.site_name }}\"[0-9]* 2>/dev/null || true
+            echo \"Removed: ${{ github.event.inputs.site_name }} and ${{ github.event.inputs.site_name }}[0-9]*\"
           '
         "
 
