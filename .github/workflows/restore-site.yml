@@ -1,0 +1,313 @@
+name: Restore Frappe Site from Backup
+
+on:
+  # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+          - production
+          - test
+      site_name:
+        description: 'Site name to restore. Should match the one that was archived (e.g., academy.example.com)'
+        required: true
+        type: string
+      backup_timestamp:
+        description: 'Backup timestamp (e.g., 20260109_142920) - leave empty to use latest'
+        required: false
+        type: string
+
+env:
+  HETZNER_HOST: 188.245.211.114
+  HETZNER_USER: ignis_academy_lms
+  DEPLOY_PATH: /opt/frappe-deployment
+
+jobs:
+  restore-site:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - name: Validate site name
+      run: |
+        SITE_NAME="${{ github.event.inputs.site_name }}"
+        
+        # Validate site name (domain name or IP address)
+        DOMAIN_PATTERN="^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$"
+        IP_PATTERN="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+        
+        if [[ "$SITE_NAME" =~ $IP_PATTERN ]]; then
+          IFS='.' read -ra OCTETS <<< "$SITE_NAME"
+          for octet in "${OCTETS[@]}"; do
+            if [[ $octet -lt 0 || $octet -gt 255 ]]; then
+              echo "❌ Invalid IP address. Each octet must be between 0-255."
+              exit 1
+            fi
+          done
+          echo "✅ Valid IP address format: $SITE_NAME"
+        elif [[ "$SITE_NAME" =~ $DOMAIN_PATTERN ]]; then
+          echo "✅ Valid domain name format: $SITE_NAME"
+        else
+          echo "❌ Invalid site name format."
+          exit 1
+        fi
+        
+        echo "✅ Site name validation passed: $SITE_NAME"
+
+    - name: Setup SSH key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+    - name: Add Hetzner server to known hosts
+      run: |
+        ssh-keyscan -H ${{ env.HETZNER_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Check if deployment exists
+      run: |
+        echo "🔍 Checking if deployment exists on server..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          if [ ! -d ${{ env.DEPLOY_PATH }} ]; then
+            echo '❌ Deployment directory not found at ${{ env.DEPLOY_PATH }}'
+            exit 1
+          fi
+          echo '✅ Deployment found and ready'
+        "
+
+    - name: Check services status
+      run: |
+        echo "🔍 Checking if services are running..."
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          if ! docker compose ps --services --filter 'status=running' | grep -q 'backend'; then
+            echo '❌ Backend service is not running'
+            exit 1
+          fi
+          
+          if ! docker compose ps --services --filter 'status=running' | grep -q 'mariadb'; then
+            echo '❌ MariaDB service is not running'
+            exit 1
+          fi
+          
+          echo '✅ Required services are running'
+        "
+
+    - name: Check if site already exists
+      run: |
+        echo "🔍 Checking if site already exists..."
+        SITE_EXISTS=$(ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          if docker compose exec -T backend test -d '/home/frappe/frappe-bench/sites/${{ github.event.inputs.site_name }}'; then
+            echo 'true'
+          else
+            echo 'false'
+          fi
+        ")
+        
+        if [ "$SITE_EXISTS" = "true" ]; then
+          echo "❌ Site '${{ github.event.inputs.site_name }}' already exists!"
+          echo "Please remove it first or choose a different site name"
+          exit 1
+        fi
+        
+        echo "✅ Site doesn't exist, proceeding with restore"
+
+    - name: Find backup files
+      id: find_backup
+      run: |
+        echo "🔍 Searching for backup files..."
+        
+        BACKUP_INFO=$(ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          docker compose exec -T backend bash -c '
+            # Check both possible archived locations
+            if [ -d /home/frappe/frappe-bench/archived/sites ]; then
+              ARCHIVED_BASE=/home/frappe/frappe-bench/archived/sites
+            elif [ -d /home/frappe/frappe-bench/archived_sites ]; then
+              ARCHIVED_BASE=/home/frappe/frappe-bench/archived_sites
+            else
+              echo \"ERROR: No archived sites directory found\"
+              exit 1
+            fi
+            
+            # Find the archived site directory
+            ARCHIVED_SITE=\$(ls -td \$ARCHIVED_BASE/${{ github.event.inputs.site_name }}* 2>/dev/null | head -n 1)
+            
+            if [ -z \"\$ARCHIVED_SITE\" ]; then
+              echo \"ERROR: No archived backup found for site ${{ github.event.inputs.site_name }}\"
+              exit 1
+            fi
+            
+            BACKUP_DIR=\"\$ARCHIVED_SITE/private/backups\"
+            
+            if [ ! -d \"\$BACKUP_DIR\" ]; then
+              echo \"ERROR: Backup directory not found: \$BACKUP_DIR\"
+              exit 1
+            fi
+            
+            cd \"\$BACKUP_DIR\"
+            
+            # If timestamp specified, use it; otherwise get the latest
+            if [ -n \"${{ github.event.inputs.backup_timestamp }}\" ]; then
+              TIMESTAMP=\"${{ github.event.inputs.backup_timestamp }}\"
+            else
+              TIMESTAMP=\$(ls -t *-database.sql.gz 2>/dev/null | head -n 1 | cut -d\"-\" -f1)
+            fi
+            
+            if [ -z \"\$TIMESTAMP\" ]; then
+              echo \"ERROR: No database backup files found\"
+              exit 1
+            fi
+            
+            # Check which backup files exist
+            DB_BACKUP=\"\${TIMESTAMP}-*-database.sql.gz\"
+            FILES_BACKUP=\"\${TIMESTAMP}-*-files.tar\"
+            PRIVATE_FILES_BACKUP=\"\${TIMESTAMP}-*-private-files.tar\"
+            
+            DB_FILE=\$(ls \$DB_BACKUP 2>/dev/null | head -n 1)
+            FILES_FILE=$(ls ${TIMESTAMP}-*-files.tar ${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
+            PRIVATE_FILES_FILE=$(ls ${TIMESTAMP}-*-private-files.tar ${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
+            
+            if [ -z \"\$DB_FILE\" ]; then
+              echo \"ERROR: Database backup not found for timestamp \$TIMESTAMP\"
+              exit 1
+            fi
+            
+            echo \"TIMESTAMP=\$TIMESTAMP\"
+            echo \"BACKUP_DIR=\$BACKUP_DIR\"
+            echo \"DB_FILE=\$DB_FILE\"
+            echo \"FILES_FILE=\$FILES_FILE\"
+            echo \"PRIVATE_FILES_FILE=\$PRIVATE_FILES_FILE\"
+          '
+        ")
+        
+        if echo "$BACKUP_INFO" | grep -q "ERROR:"; then
+          echo "$BACKUP_INFO"
+          exit 1
+        fi
+        
+        echo "$BACKUP_INFO"
+        
+        # Extract values for later steps
+        TIMESTAMP=$(echo "$BACKUP_INFO" | grep "TIMESTAMP=" | cut -d'=' -f2)
+        BACKUP_DIR=$(echo "$BACKUP_INFO" | grep "BACKUP_DIR=" | cut -d'=' -f2)
+        
+        echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+        echo "backup_dir=$BACKUP_DIR" >> $GITHUB_OUTPUT
+        
+        echo ""
+        echo "✅ Found backup with timestamp: $TIMESTAMP"
+
+    - name: Create new site
+      run: |
+        echo "🌐 Creating site: ${{ github.event.inputs.site_name }}"
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        
+        # Prepare the set_as_default parameter
+        SET_AS_DEFAULT="${{ github.event.inputs.set_as_default }}"
+        if [ "$SET_AS_DEFAULT" = "true" ]; then
+          SET_DEFAULT_FLAG="y"
+        else
+          SET_DEFAULT_FLAG="n"
+        fi
+        
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Run the create-site script with automatic responses
+          timeout 300 ./scripts/create-site.sh '${{ github.event.inputs.site_name }}' '$SET_DEFAULT_FLAG'
+        "
+
+    - name: Restore database backup
+      run: |
+        echo "💾 Restoring database backup..."
+        
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Load environment variables
+          if [ -f .env ]; then
+              export \$(cat .env | grep -E '^[A-Z_][A-Z0-9_]*=' | sed 's/#.*\$//' | xargs)
+          fi
+          
+          docker compose exec -T backend bash -c '
+            BACKUP_DIR=\"${{ steps.find_backup.outputs.backup_dir }}\"
+            TIMESTAMP=\"${{ steps.find_backup.outputs.timestamp }}\"
+            
+            DB_FILE=\$(ls \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-database.sql.gz 2>/dev/null | head -n 1)
+            PUBLIC_FILES=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-files.tar "$BACKUP_DIR"/${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
+            PRIVATE_FILES=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-private-files.tar "$BACKUP_DIR"/${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
+            
+            if [ -z \"\$DB_FILE\" ]; then
+              echo \"❌ Database backup file not found\"
+              exit 1
+            fi
+            
+            echo \"Restoring from: \$DB_FILE\"
+            
+            # Restore the database
+            bench --site ${{ github.event.inputs.site_name }} --force restore \"\$DB_FILE\" --with-public-files \"\$PUBLIC_FILES\" --with-private-files \"\$PRIVATE_FILES\"
+            
+            echo \"✅ Database restored successfully\"
+          '
+        "
+
+    - name: Run database migrations
+      run: |
+        echo "🔄 Running database migrations..."
+        
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} migrate
+          
+          echo '✅ Migrations completed successfully'
+        "
+
+    - name: Clear cache
+      run: |
+        echo "🧹 Clearing cache..."
+        
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} clear-cache
+          docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} clear-website-cache
+          
+          echo '✅ Cache cleared successfully'
+        "
+
+    - name: Verify site restoration
+      run: |
+        echo "🔍 Verifying site restoration..."
+        
+        ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Check if site exists and is accessible
+          if docker compose exec -T backend test -d '/home/frappe/frappe-bench/sites/${{ github.event.inputs.site_name }}'; then
+            echo '✅ Site directory exists'
+          else
+            echo '❌ Site directory not found'
+            exit 1
+          fi
+          
+          # List installed apps
+          echo ''
+          echo '📦 Installed apps on site:'
+          docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} list-apps
+          
+          echo ''
+          echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+          echo '✅ Site restored successfully!'
+          echo 'Site: ${{ github.event.inputs.site_name }}'
+          echo 'Backup timestamp: ${{ steps.find_backup.outputs.timestamp }}'
+          echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+        "
+        
