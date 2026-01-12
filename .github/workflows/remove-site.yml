@@ -154,7 +154,7 @@ jobs:
           fi
           
           # Drop the site (this will create backup files automatically)
-          docker compose exec -T backend bench drop-site ${{ github.event.inputs.site_name }} --db-root-password \$MARIADB_ROOT_PASSWORD --archived-sites-path ~/frappe-bench/archived/sites/${{ github.event.inputs.site_name }} --force
+          docker compose exec -T backend bench drop-site ${{ github.event.inputs.site_name }} --db-root-password \$MARIADB_ROOT_PASSWORD --archived-sites-path /home/frappe/frappe-bench/archived/sites/${{ github.event.inputs.site_name }} --force
         "
 
     - name: Verify site removal
