@@ -222,7 +222,7 @@ jobs:
                 echo \"✅ Site removed successfully!\"
                 echo \"\"
                 echo \"📦 Backup location:\"
-                echo \"   ~/frappe-bench/archived/sites/\$ARCHIVED_DIR/private/backups/\"
+                echo \"   ~/frappe-bench/archived/sites/${{ github.event.inputs.site_name }}/private/backups/\"
                 echo \"\"
                 echo \"📋 Backup files (timestamp: \$TIMESTAMP):\"
                 echo \"\$FILES\" | sed 's/^/   - /'
