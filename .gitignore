@@ -9,6 +9,7 @@ development/*
 !development/installer.py
 !development/apps-example.json
 !development/vscode-example/
+!development/download-backups.sh
 
 # Pycharm
 .idea
