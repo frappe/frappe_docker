@@ -171,8 +171,8 @@ jobs:
             PRIVATE_FILES_BACKUP=\"\${TIMESTAMP}-*-private-files.tar\"
             
             DB_FILE=\$(ls \$DB_BACKUP 2>/dev/null | head -n 1)
-            FILES_FILE=$(ls ${TIMESTAMP}-*-files.tar ${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
-            PRIVATE_FILES_FILE=$(ls ${TIMESTAMP}-*-private-files.tar ${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
+            FILES_FILE=\$(ls \${TIMESTAMP}-*-files.tar \${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
+            PRIVATE_FILES_FILE=\$(ls \${TIMESTAMP}-*-private-files.tar \${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
             
             if [ -z \"\$DB_FILE\" ]; then
               echo \"ERROR: Database backup not found for timestamp \$TIMESTAMP\"
@@ -237,25 +237,46 @@ jobs:
           fi
           
           docker compose exec -T backend bash -c '
-            BACKUP_DIR=\"${{ steps.find_backup.outputs.backup_dir }}\"
-            TIMESTAMP=\"${{ steps.find_backup.outputs.timestamp }}\"
+            set -e
+
+            BACKUP_DIR="${{ steps.find_backup.outputs.backup_dir }}"
+            TIMESTAMP="${{ steps.find_backup.outputs.timestamp }}"
             
-            DB_FILE=\$(ls \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-database.sql.gz 2>/dev/null | head -n 1)
+            DB_FILE=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-database.sql.gz 2>/dev/null | head -n 1)
             PUBLIC_FILES=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-files.tar "$BACKUP_DIR"/${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
             PRIVATE_FILES=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-private-files.tar "$BACKUP_DIR"/${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
             
-            if [ -z \"\$DB_FILE\" ]; then
-              echo \"❌ Database backup file not found\"
+            if [ -z "$DB_FILE" ]; then
+              echo "❌ Database backup file not found"
               exit 1
             fi
             
-            echo \"Restoring from: \$DB_FILE\"
+            echo "Restoring from: $DB_FILE"
+            
+            # Construct command dynamically to handle missing file backups
+            CMD="bench --site ${{ github.event.inputs.site_name }} --force restore '$DB_FILE'"
+            
+            if [ -n "$PUBLIC_FILES" ]; then
+                echo "With public files: $PUBLIC_FILES"
+                CMD="$CMD --with-public-files '$PUBLIC_FILES'"
+            else
+                echo "⚠️ No public files backup found, skipping files restore"
+            fi
+            
+            if [ -n "$PRIVATE_FILES" ]; then
+                echo "With private files: $PRIVATE_FILES"
+                CMD="$CMD --with-private-files '$PRIVATE_FILES'"
+            else
+                 echo "⚠️ No private files backup found, skipping private files restore"
+            fi
             
             # Restore the database
-            bench --site ${{ github.event.inputs.site_name }} --force restore \"\$DB_FILE\" --with-public-files \"\$PUBLIC_FILES\" --with-private-files \"\$PRIVATE_FILES\"
+            echo "Running: $CMD"
+            eval "$CMD"
             
-            echo \"✅ Database restored successfully\"
+            echo "✅ Database restored successfully"
           '
+
         "
 
     - name: Run database migrations
@@ -265,6 +286,8 @@ jobs:
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
           
+          
+          set -e
           docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} migrate
           
           echo '✅ Migrations completed successfully'
@@ -277,6 +300,8 @@ jobs:
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
           
+          
+          set -e
           docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} clear-cache
           docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} clear-website-cache
           
