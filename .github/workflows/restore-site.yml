@@ -239,42 +239,42 @@ jobs:
           docker compose exec -T backend bash -c '
             set -e
 
-            BACKUP_DIR="${{ steps.find_backup.outputs.backup_dir }}"
-            TIMESTAMP="${{ steps.find_backup.outputs.timestamp }}"
+            BACKUP_DIR=\"${{ steps.find_backup.outputs.backup_dir }}\"
+            TIMESTAMP=\"${{ steps.find_backup.outputs.timestamp }}\"
             
-            DB_FILE=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-database.sql.gz 2>/dev/null | head -n 1)
-            PUBLIC_FILES=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-files.tar "$BACKUP_DIR"/${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
-            PRIVATE_FILES=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-private-files.tar "$BACKUP_DIR"/${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
+            DB_FILE=\$(ls \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-database.sql.gz 2>/dev/null | head -n 1)
+            PUBLIC_FILES=\$(ls \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-files.tar \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
+            PRIVATE_FILES=\$(ls \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-private-files.tar \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
             
-            if [ -z "$DB_FILE" ]; then
-              echo "❌ Database backup file not found"
+            if [ -z \"\$DB_FILE\" ]; then
+              echo \"❌ Database backup file not found\"
               exit 1
             fi
             
-            echo "Restoring from: $DB_FILE"
+            echo \"Restoring from: \$DB_FILE\"
             
             # Construct command dynamically to handle missing file backups
-            CMD="bench --site ${{ github.event.inputs.site_name }} --force restore '$DB_FILE'"
+            CMD=\"bench --site ${{ github.event.inputs.site_name }} --force restore '\$DB_FILE'\"
             
-            if [ -n "$PUBLIC_FILES" ]; then
-                echo "With public files: $PUBLIC_FILES"
-                CMD="$CMD --with-public-files '$PUBLIC_FILES'"
+            if [ -n \"\$PUBLIC_FILES\" ]; then
+                echo \"With public files: \$PUBLIC_FILES\"
+                CMD=\"\$CMD --with-public-files '\$PUBLIC_FILES'\"
             else
-                echo "⚠️ No public files backup found, skipping files restore"
+                echo \"⚠️ No public files backup found, skipping files restore\"
             fi
             
-            if [ -n "$PRIVATE_FILES" ]; then
-                echo "With private files: $PRIVATE_FILES"
-                CMD="$CMD --with-private-files '$PRIVATE_FILES'"
+            if [ -n \"\$PRIVATE_FILES\" ]; then
+                echo \"With private files: \$PRIVATE_FILES\"
+                CMD=\"\$CMD --with-private-files '\$PRIVATE_FILES'\"
             else
-                 echo "⚠️ No private files backup found, skipping private files restore"
+                 echo \"⚠️ No private files backup found, skipping private files restore\"
             fi
             
             # Restore the database
-            echo "Running: $CMD"
-            eval "$CMD"
+            echo \"Running: \$CMD\"
+            eval \"\$CMD\"
             
-            echo "✅ Database restored successfully"
+            echo \"✅ Database restored successfully\"
           '
 
         "
