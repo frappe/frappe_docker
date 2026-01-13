@@ -136,8 +136,28 @@ jobs:
               exit 1
             fi
             
-            # Find the archived site directory
-            ARCHIVED_SITE=\$(ls -td \$ARCHIVED_BASE/${{ github.event.inputs.site_name }}* 2>/dev/null | head -n 1)
+            # Find the archived site directory matching criteria
+            INPUT_TIMESTAMP=\"${{ github.event.inputs.backup_timestamp }}\"
+            
+            if [ -n \"\$INPUT_TIMESTAMP\" ]; then
+              echo \"Searching for archived site containing backup timestamp: \$INPUT_TIMESTAMP\"
+              ARCHIVED_SITE=\"\"
+              # Loop through all matching site directories to find one with the specific backup
+              for site_dir in \$(ls -d \"\$ARCHIVED_BASE\"/${{ github.event.inputs.site_name }}* 2>/dev/null); do
+                if ls \"\$site_dir/private/backups/\${INPUT_TIMESTAMP}\"-*-database.sql.gz 1> /dev/null 2>&1; then
+                  ARCHIVED_SITE=\"\$site_dir\"
+                  break
+                fi
+              done
+              
+              if [ -z \"\$ARCHIVED_SITE\" ]; then
+                 echo \"ERROR: No archived site folder for ${{ github.event.inputs.site_name }} contains backup \$INPUT_TIMESTAMP\"
+                 exit 1
+              fi
+            else
+              # Default: take the latest archived folder
+              ARCHIVED_SITE=\$(ls -td \"\$ARCHIVED_BASE\"/${{ github.event.inputs.site_name }}* 2>/dev/null | head -n 1)
+            fi
             
             if [ -z \"\$ARCHIVED_SITE\" ]; then
               echo \"ERROR: No archived backup found for site ${{ github.event.inputs.site_name }}\"
