@@ -254,7 +254,7 @@ jobs:
             echo \"Restoring from: \$DB_FILE\"
             
             # Construct command using array to handle arguments safely
-            ARGS=(bench --site ${{ github.event.inputs.site_name }} --force restore \"\$DB_FILE\")
+            ARGS=(bench --site ${{ github.event.inputs.site_name }} --force restore \"\$DB_FILE\" --db-root-password \"'\"\$MARIADB_ROOT_PASSWORD\"'\" --admin-password \"'\"\$ADMIN_PASSWORD\"'\")
             
             if [ -n \"\$PUBLIC_FILES\" ]; then
                 echo \"With public files: \$PUBLIC_FILES\"
