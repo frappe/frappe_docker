@@ -21,7 +21,7 @@ on:
         required: false
         type: string
       absolute_backup_dir_path:
-        description: '(Optional) Absolute path to the backup directory (the backup files contained in the directory should match the the following naming convention: <timestamp>-<site_name>-database.sql.gz, <timestamp>-<site_name>-files.tar, <timestamp>-<site_name>-private-files.tar.gz)'
+        description: '(Optional) Absolute path to the backup directory (the backup files contained in the directory should match the the following naming convention: <timestamp>-<site_name>-database.sql.gz, <timestamp>-<site_name>-files.tar, <timestamp>-<site_name>-private-files.tar)'
         required: false
         type: string
 
@@ -131,6 +131,7 @@ jobs:
           
           docker compose exec -T backend bash -c '
             if [ -n \"${{ github.event.inputs.absolute_backup_dir_path }}\" ]; then
+              echo "Using absolute backup directory: ${{ github.event.inputs.absolute_backup_dir_path }}"
               BACKUP_DIR=\"${{ github.event.inputs.absolute_backup_dir_path }}\"
             else
               # Check both possible archived locations
