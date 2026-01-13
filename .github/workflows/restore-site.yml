@@ -253,26 +253,26 @@ jobs:
             
             echo \"Restoring from: \$DB_FILE\"
             
-            # Construct command dynamically to handle missing file backups
-            CMD=\"bench --site ${{ github.event.inputs.site_name }} --force restore '\$DB_FILE'\"
+            # Construct command using array to handle arguments safely
+            ARGS=(bench --site ${{ github.event.inputs.site_name }} --force restore \"\$DB_FILE\")
             
             if [ -n \"\$PUBLIC_FILES\" ]; then
                 echo \"With public files: \$PUBLIC_FILES\"
-                CMD=\"\$CMD --with-public-files '\$PUBLIC_FILES'\"
+                ARGS+=(--with-public-files \"\$PUBLIC_FILES\")
             else
                 echo \"⚠️ No public files backup found, skipping files restore\"
             fi
             
             if [ -n \"\$PRIVATE_FILES\" ]; then
                 echo \"With private files: \$PRIVATE_FILES\"
-                CMD=\"\$CMD --with-private-files '\$PRIVATE_FILES'\"
+                ARGS+=(--with-private-files \"\$PRIVATE_FILES\")
             else
                  echo \"⚠️ No private files backup found, skipping private files restore\"
             fi
             
             # Restore the database
-            echo \"Running: \$CMD\"
-            eval \"\$CMD\"
+            echo \"Running: \${ARGS[*]}\"
+            \"\${ARGS[@]}\"
             
             echo \"✅ Database restored successfully\"
           '
