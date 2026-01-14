@@ -36,9 +36,9 @@ LIVE_PATH="/var/lib/docker/volumes/frappe-deployment_sites/_data/${SITE_NAME}/pr
 # Load environment variables from .env file
 source .env
 
-# Function to download only the latest backup set (files with the same timestamp prefix)
+# Downloads backup files matching a timestamp prefix (latest or specified)
 # Args: $1 = backup path, $2 = "true" if path is inside container, "false" if on host
-download_latest_backup_set() {
+download_backup_set() {
     local BACKUP_PATH="$1"
     local IS_CONTAINER="$2"
     local PREFIX=""
@@ -76,17 +76,15 @@ download_latest_backup_set() {
         return 1
     fi
 
-    LATEST_PREFIX="$PREFIX"
-
     TEMP_DIR="/tmp/backup_${SITE_NAME}"
     mkdir -p ./development/backups
 
     if [ "$IS_CONTAINER" = "true" ]; then
         # Copy from container: use tar to stream only matching files
-        sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "rm -rf ${TEMP_DIR} && mkdir -p ${TEMP_DIR} && docker exec frappe-deployment-backend-1 sh -c 'cd ${BACKUP_PATH} && tar cf - ${LATEST_PREFIX}*' | tar xf - -C ${TEMP_DIR}"
+        sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "rm -rf ${TEMP_DIR} && mkdir -p ${TEMP_DIR} && docker exec frappe-deployment-backend-1 sh -c 'cd ${BACKUP_PATH} && tar cf - ${PREFIX}*' | tar xf - -C ${TEMP_DIR}"
     else
         # Copy from host: copy only matching files to temp dir
-        sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "rm -rf ${TEMP_DIR} && mkdir -p ${TEMP_DIR} && cp ${BACKUP_PATH}/${LATEST_PREFIX}* ${TEMP_DIR}/"
+        sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "rm -rf ${TEMP_DIR} && mkdir -p ${TEMP_DIR} && cp ${BACKUP_PATH}/${PREFIX}* ${TEMP_DIR}/"
     fi
 
     sshpass -p "$HETZNER_SSH_PASSWORD" scp "${SERVER}:${TEMP_DIR}/"* ./development/backups/
@@ -95,8 +93,8 @@ download_latest_backup_set() {
     echo "Download complete."
 }
 
-# Function to download from archived location
-download_from_archive() {
+# Finds the latest archived site directory and downloads backups from it
+download_from_archived_site() {
     echo "Checking archived location..."
 
     ARCHIVED_BASE="/home/frappe/frappe-bench/archived/sites"
@@ -111,7 +109,7 @@ download_from_archive() {
         # Check if backup directory exists in the archived site
         if sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "docker exec frappe-deployment-backend-1 test -d '${ARCHIVED_BACKUP_PATH}'"; then
             echo "Downloading from archived location..."
-            download_latest_backup_set "$ARCHIVED_BACKUP_PATH" "true"
+            download_backup_set "$ARCHIVED_BACKUP_PATH" "true"
         else
             echo "Error: Backup directory not found in archived site ${LATEST_ARCHIVED}."
             exit 1
@@ -128,12 +126,12 @@ if sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "[ -d '$LIVE_PATH' ]"; then
     # Check if backup directory has files
     if sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "[ -n \"\$(ls -A '$LIVE_PATH' 2>/dev/null)\" ]"; then
         echo "Site is live with backup files. Downloading from live location..."
-        download_latest_backup_set "$LIVE_PATH" "false"
+        download_backup_set "$LIVE_PATH" "false"
     else
         echo "Site is live but has no backup files."
-        download_from_archive
+        download_from_archived_site
     fi
 else
     echo "Site is not live."
-    download_from_archive
+    download_from_archived_site
 fi
