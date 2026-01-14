@@ -15,16 +15,9 @@ ARCHIVED_PATH="/home/frappe/frappe-bench/archived/sites/${SITE_NAME}/private/bac
 # Load environment variables from .env file
 source .env
 
-# Check if live site exists
-echo "Checking if site ${SITE_NAME} is live..."
-if sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "[ -d '$LIVE_PATH' ]"; then
-    echo "Site is live. Downloading from live location..."
-    sshpass -p "$HETZNER_SSH_PASSWORD" scp -r "${SERVER}:${LIVE_PATH}" ./development
-    echo "Download complete."
-else
-    echo "Site is not live. Checking archived location..."
-
-    # Check if archived site exists and download using docker cp
+# Function to download from archived location
+download_from_archive() {
+    echo "Checking archived location..."
     if sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "docker exec frappe-deployment-backend-1 test -d '${ARCHIVED_PATH}'"; then
         echo "Site is archived. Downloading from archived location..."
 
@@ -39,4 +32,21 @@ else
         echo "Error: Site ${SITE_NAME} not found in live or archived locations."
         exit 1
     fi
+}
+
+# Check if live site exists and has backup files
+echo "Checking if site ${SITE_NAME} is live..."
+if sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "[ -d '$LIVE_PATH' ]"; then
+    # Check if backup directory has files
+    if sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "[ -n \"\$(ls -A '$LIVE_PATH' 2>/dev/null)\" ]"; then
+        echo "Site is live with backup files. Downloading from live location..."
+        sshpass -p "$HETZNER_SSH_PASSWORD" scp -r "${SERVER}:${LIVE_PATH}" ./development
+        echo "Download complete."
+    else
+        echo "Site is live but has no backup files."
+        download_from_archive
+    fi
+else
+    echo "Site is not live."
+    download_from_archive
 fi
