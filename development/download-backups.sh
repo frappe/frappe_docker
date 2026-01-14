@@ -1,4 +1,24 @@
 # Download backups from production server
+#
+# Usage: ./download-backups.sh <site_name> [backup_timestamp]
+#
+# Arguments:
+#   site_name         Required. The site to download backups for (e.g., qa.ignis.academy)
+#   backup_timestamp  Optional. Specific backup timestamp to download (e.g., 20260114_150602)
+#                     If not provided, downloads the latest backup set.
+#
+# Examples:
+#   ./download-backups.sh qa.ignis.academy                    # Download latest backup
+#   ./download-backups.sh qa.ignis.academy 20260114_150602    # Download specific backup
+#
+# The script will:
+#   1. Check if the site is live (has backups in the Docker volume)
+#   2. If not live or no backups, check the archived sites folder
+#   3. For archived sites, find the latest archive directory matching the site name
+#   4. Download only files matching the specified/latest backup timestamp to the development/backups folder
+#
+# Requires: HETZNER_SSH_PASSWORD environment variable set in .env file
+# Requires: sshpass (sudo apt install sshpas)
 
 # Check if site name is provided
 if [ -z "$1" ]; then
