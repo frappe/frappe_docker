@@ -17,7 +17,11 @@ on:
         required: true
         type: string
       backup_timestamp:
-        description: 'Backup timestamp (e.g., 20260109_142920) - leave empty to use latest'
+        description: '(Optional) Backup timestamp (e.g., 20260109_142920) - leave empty to use latest'
+        required: false
+        type: string
+      absolute_backup_dir_path:
+        description: '(Optional) Absolute path to the backup directory (the backup files contained in the directory should match the the following naming convention: <timestamp>-<site_name>-database.sql.gz, <timestamp>-<site_name>-files.tar, <timestamp>-<site_name>-private-files.tar)'
         required: false
         type: string
 
@@ -126,25 +130,50 @@ jobs:
           cd ${{ env.DEPLOY_PATH }}
           
           docker compose exec -T backend bash -c '
-            # Check both possible archived locations
-            if [ -d /home/frappe/frappe-bench/archived/sites ]; then
-              ARCHIVED_BASE=/home/frappe/frappe-bench/archived/sites
-            elif [ -d /home/frappe/frappe-bench/archived_sites ]; then
-              ARCHIVED_BASE=/home/frappe/frappe-bench/archived_sites
+            if [ -n \"${{ github.event.inputs.absolute_backup_dir_path }}\" ]; then
+              echo "Using absolute backup directory: ${{ github.event.inputs.absolute_backup_dir_path }}"
+              BACKUP_DIR=\"${{ github.event.inputs.absolute_backup_dir_path }}\"
             else
-              echo \"ERROR: No archived sites directory found\"
-              exit 1
+              # Check both possible archived locations
+              if [ -d /home/frappe/frappe-bench/archived/sites ]; then
+                ARCHIVED_BASE=/home/frappe/frappe-bench/archived/sites
+              elif [ -d /home/frappe/frappe-bench/archived_sites ]; then
+                ARCHIVED_BASE=/home/frappe/frappe-bench/archived_sites
+              else
+                echo \"ERROR: No archived sites directory found\"
+                exit 1
+              fi
+              
+              # Find the archived site directory matching criteria
+              INPUT_TIMESTAMP=\"${{ github.event.inputs.backup_timestamp }}\"
+              
+              if [ -n \"\$INPUT_TIMESTAMP\" ]; then
+                echo \"Searching for archived site containing backup timestamp: \$INPUT_TIMESTAMP\"
+                ARCHIVED_SITE=\"\"
+                # Loop through all matching site directories to find one with the specific backup
+                for site_dir in \$(ls -d \"\$ARCHIVED_BASE\"/${{ github.event.inputs.site_name }}* 2>/dev/null); do
+                  if ls \"\$site_dir/private/backups/\${INPUT_TIMESTAMP}\"-*-database.sql.gz 1> /dev/null 2>&1; then
+                    ARCHIVED_SITE=\"\$site_dir\"
+                    break
+                  fi
+                done
+                
+                if [ -z \"\$ARCHIVED_SITE\" ]; then
+                  echo \"ERROR: No archived site folder for ${{ github.event.inputs.site_name }} contains backup \$INPUT_TIMESTAMP\"
+                  exit 1
+                fi
+              else
+                # Default: take the latest archived folder
+                ARCHIVED_SITE=\$(ls -td \"\$ARCHIVED_BASE\"/${{ github.event.inputs.site_name }}* 2>/dev/null | head -n 1)
+              fi
+              
+              if [ -z \"\$ARCHIVED_SITE\" ]; then
+                echo \"ERROR: No archived backup found for site ${{ github.event.inputs.site_name }}\"
+                exit 1
+              fi
+              
+              BACKUP_DIR=\"\$ARCHIVED_SITE/private/backups\"
             fi
-            
-            # Find the archived site directory
-            ARCHIVED_SITE=\$(ls -td \$ARCHIVED_BASE/${{ github.event.inputs.site_name }}* 2>/dev/null | head -n 1)
-            
-            if [ -z \"\$ARCHIVED_SITE\" ]; then
-              echo \"ERROR: No archived backup found for site ${{ github.event.inputs.site_name }}\"
-              exit 1
-            fi
-            
-            BACKUP_DIR=\"\$ARCHIVED_SITE/private/backups\"
             
             if [ ! -d \"\$BACKUP_DIR\" ]; then
               echo \"ERROR: Backup directory not found: \$BACKUP_DIR\"
@@ -171,8 +200,8 @@ jobs:
             PRIVATE_FILES_BACKUP=\"\${TIMESTAMP}-*-private-files.tar\"
             
             DB_FILE=\$(ls \$DB_BACKUP 2>/dev/null | head -n 1)
-            FILES_FILE=$(ls ${TIMESTAMP}-*-files.tar ${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
-            PRIVATE_FILES_FILE=$(ls ${TIMESTAMP}-*-private-files.tar ${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
+            FILES_FILE=\$(ls \${TIMESTAMP}-*-files.tar \${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
+            PRIVATE_FILES_FILE=\$(ls \${TIMESTAMP}-*-private-files.tar \${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
             
             if [ -z \"\$DB_FILE\" ]; then
               echo \"ERROR: Database backup not found for timestamp \$TIMESTAMP\"
@@ -237,12 +266,14 @@ jobs:
           fi
           
           docker compose exec -T backend bash -c '
+            set -e
+
             BACKUP_DIR=\"${{ steps.find_backup.outputs.backup_dir }}\"
             TIMESTAMP=\"${{ steps.find_backup.outputs.timestamp }}\"
             
             DB_FILE=\$(ls \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-database.sql.gz 2>/dev/null | head -n 1)
-            PUBLIC_FILES=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-files.tar "$BACKUP_DIR"/${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
-            PRIVATE_FILES=$(ls "$BACKUP_DIR"/${TIMESTAMP}-*-private-files.tar "$BACKUP_DIR"/${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
+            PUBLIC_FILES=\$(ls \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-files.tar \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-files.tgz 2>/dev/null | head -n 1)
+            PRIVATE_FILES=\$(ls \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-private-files.tar \"\$BACKUP_DIR\"/\${TIMESTAMP}-*-private-files.tgz 2>/dev/null | head -n 1)
             
             if [ -z \"\$DB_FILE\" ]; then
               echo \"❌ Database backup file not found\"
@@ -251,11 +282,30 @@ jobs:
             
             echo \"Restoring from: \$DB_FILE\"
             
+            # Construct command using array to handle arguments safely
+            ARGS=(bench --site ${{ github.event.inputs.site_name }} --force restore \"\$DB_FILE\" --db-root-password \"'\"\$MARIADB_ROOT_PASSWORD\"'\" --admin-password \"'\"\$ADMIN_PASSWORD\"'\")
+            
+            if [ -n \"\$PUBLIC_FILES\" ]; then
+                echo \"With public files: \$PUBLIC_FILES\"
+                ARGS+=(--with-public-files \"\$PUBLIC_FILES\")
+            else
+                echo \"⚠️ No public files backup found, skipping files restore\"
+            fi
+            
+            if [ -n \"\$PRIVATE_FILES\" ]; then
+                echo \"With private files: \$PRIVATE_FILES\"
+                ARGS+=(--with-private-files \"\$PRIVATE_FILES\")
+            else
+                 echo \"⚠️ No private files backup found, skipping private files restore\"
+            fi
+            
             # Restore the database
-            bench --site ${{ github.event.inputs.site_name }} --force restore \"\$DB_FILE\" --with-public-files \"\$PUBLIC_FILES\" --with-private-files \"\$PRIVATE_FILES\"
+            echo \"Running: \${ARGS[*]}\"
+            \"\${ARGS[@]}\"
             
             echo \"✅ Database restored successfully\"
           '
+
         "
 
     - name: Run database migrations
@@ -265,6 +315,8 @@ jobs:
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
           
+          
+          set -e
           docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} migrate
           
           echo '✅ Migrations completed successfully'
@@ -277,6 +329,8 @@ jobs:
         ssh ${{ env.HETZNER_USER }}@${{ env.HETZNER_HOST }} "
           cd ${{ env.DEPLOY_PATH }}
           
+          
+          set -e
           docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} clear-cache
           docker compose exec -T backend bench --site ${{ github.event.inputs.site_name }} clear-website-cache
           
