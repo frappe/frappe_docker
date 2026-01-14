@@ -24,9 +24,21 @@ download_latest_backup_set() {
     local PREFIX=""
 
     if [ -n "$BACKUP_TIMESTAMP" ]; then
-        # Use the provided timestamp
+        # Verify the provided timestamp exists
         PREFIX="$BACKUP_TIMESTAMP"
-        echo "Using specified backup timestamp: ${PREFIX}"
+        echo "Looking for backup timestamp: ${PREFIX}"
+
+        if [ "$IS_CONTAINER" = "true" ]; then
+            FILE_COUNT=$(sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "docker exec frappe-deployment-backend-1 sh -c \"ls ${BACKUP_PATH}/${PREFIX}* 2>/dev/null | wc -l\"")
+        else
+            FILE_COUNT=$(sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "ls ${BACKUP_PATH}/${PREFIX}* 2>/dev/null | wc -l")
+        fi
+
+        if [ "$FILE_COUNT" -eq 0 ]; then
+            echo "Error: No backup files found with timestamp ${PREFIX} in ${BACKUP_PATH}."
+            return 1
+        fi
+        echo "Found ${FILE_COUNT} files with timestamp: ${PREFIX}"
     else
         # Find the latest backup timestamp
         if [ "$IS_CONTAINER" = "true" ]; then
