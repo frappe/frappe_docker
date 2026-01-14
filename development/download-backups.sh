@@ -2,12 +2,14 @@
 
 # Check if site name is provided
 if [ -z "$1" ]; then
-    echo "Usage: $0 <site_name>"
+    echo "Usage: $0 <site_name> [backup_timestamp]"
     echo "Example: $0 qa.ignis.academy"
+    echo "Example: $0 qa.ignis.academy 20260114_150602"
     exit 1
 fi
 
 SITE_NAME="$1"
+BACKUP_TIMESTAMP="${2:-}"  # Optional: specific backup timestamp to download
 SERVER="root@188.245.211.114"
 LIVE_PATH="/var/lib/docker/volumes/frappe-deployment_sites/_data/${SITE_NAME}/private/backups/"
 
@@ -19,21 +21,30 @@ source .env
 download_latest_backup_set() {
     local BACKUP_PATH="$1"
     local IS_CONTAINER="$2"
+    local PREFIX=""
 
-    if [ "$IS_CONTAINER" = "true" ]; then
-        # Get latest prefix from inside container
-        LATEST_PREFIX=$(sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "docker exec frappe-deployment-backend-1 sh -c \"ls -t ${BACKUP_PATH}/ 2>/dev/null | head -1 | cut -d'-' -f1\"")
+    if [ -n "$BACKUP_TIMESTAMP" ]; then
+        # Use the provided timestamp
+        PREFIX="$BACKUP_TIMESTAMP"
+        echo "Using specified backup timestamp: ${PREFIX}"
     else
-        # Get latest prefix from host filesystem
-        LATEST_PREFIX=$(sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "ls -t ${BACKUP_PATH}/ 2>/dev/null | head -1 | cut -d'-' -f1")
+        # Find the latest backup timestamp
+        if [ "$IS_CONTAINER" = "true" ]; then
+            # Get latest prefix from inside container
+            PREFIX=$(sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "docker exec frappe-deployment-backend-1 sh -c \"ls -t ${BACKUP_PATH}/ 2>/dev/null | head -1 | cut -d'-' -f1\"")
+        else
+            # Get latest prefix from host filesystem
+            PREFIX=$(sshpass -p "$HETZNER_SSH_PASSWORD" ssh "$SERVER" "ls -t ${BACKUP_PATH}/ 2>/dev/null | head -1 | cut -d'-' -f1")
+        fi
+        echo "Found latest backup set: ${PREFIX}"
     fi
 
-    if [ -z "$LATEST_PREFIX" ]; then
+    if [ -z "$PREFIX" ]; then
         echo "Error: No backup files found in ${BACKUP_PATH}."
         return 1
     fi
 
-    echo "Found latest backup set: ${LATEST_PREFIX}"
+    LATEST_PREFIX="$PREFIX"
 
     TEMP_DIR="/tmp/backup_${SITE_NAME}"
     mkdir -p ./development/backups
