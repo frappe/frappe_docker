@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: "traefik:v2.11"
+    image: "traefik:v3.6"
     restart: unless-stopped
     labels:
       # Enable Traefik for this service, to make it available in the public network
@@ -11,6 +11,7 @@ services:
       # Using the environment variables USERNAME and HASHED_PASSWORD
       - traefik.http.middlewares.admin-auth.basicauth.users=admin:${HASHED_PASSWORD:?No HASHED_PASSWORD set}
       # Uses the environment variable TRAEFIK_DOMAIN
+      - traefik.http.routers.traefik-public-http.ruleSyntax=v3
       - traefik.http.routers.traefik-public-http.rule=Host(`${TRAEFIK_DOMAIN:?No TRAEFIK_DOMAIN set}`)
       - traefik.http.routers.traefik-public-http.entrypoints=http
       # Use the special Traefik service api@internal with the web UI/Dashboard

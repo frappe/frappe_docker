@@ -9,6 +9,7 @@ services:
       - traefik.http.routers.traefik-public-http.middlewares=https-redirect
       # traefik-https the actual router using HTTPS
       # Uses the environment variable DOMAIN
+      - traefik.http.routers.traefik-public-https.ruleSyntax=v3
       - traefik.http.routers.traefik-public-https.rule=Host(`${TRAEFIK_DOMAIN}`)
       - traefik.http.routers.traefik-public-https.entrypoints=https
       - traefik.http.routers.traefik-public-https.tls=true
