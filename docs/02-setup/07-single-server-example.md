@@ -142,7 +142,7 @@ cp example.env ~/gitops/erpnext-one.env
 sed -i 's/DB_PASSWORD=123/DB_PASSWORD=changeit/g' ~/gitops/erpnext-one.env
 sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/erpnext-one.env
 sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/erpnext-one.env
-sed -i 's/SITES=`erp.example.com`/SITES=\`one.example.com\`,\`two.example.com\`/g' ~/gitops/erpnext-one.env
+sed -i 's/SITES_RULE=Host(`erp.example.com`)/SITES_RULE=Host(`one.example.com`) || Host(`two.example.com`)/g' ~/gitops/erpnext-one.env
 echo 'ROUTER=erpnext-one' >> ~/gitops/erpnext-one.env
 echo "BENCH_NETWORK=erpnext-one" >> ~/gitops/erpnext-one.env
 ```
@@ -204,7 +204,7 @@ sed -i 's/DB_PASSWORD=123/DB_PASSWORD=changeit/g' ~/gitops/erpnext-two.env
 sed -i 's/DB_HOST=/DB_HOST=mariadb-database/g' ~/gitops/erpnext-two.env
 sed -i 's/DB_PORT=/DB_PORT=3306/g' ~/gitops/erpnext-two.env
 echo "ROUTER=erpnext-two" >> ~/gitops/erpnext-two.env
-echo "SITES=\`three.example.com\`,\`four.example.com\`" >> ~/gitops/erpnext-two.env
+echo 'SITES_RULE=Host(`three.example.com`) || Host(`four.example.com`)' >> ~/gitops/erpnext-two.env
 echo "BENCH_NETWORK=erpnext-two" >> ~/gitops/erpnext-two.env
 ```
 
@@ -253,7 +253,7 @@ Create environment file
 
 ```shell
 echo "ROUTER=custom-one-example" > ~/gitops/custom-one-example.env
-echo "SITES=\`custom-one.example.com\`" >> ~/gitops/custom-one-example.env
+echo 'SITES_RULE=Host(`custom-one.example.com`)' >> ~/gitops/custom-one-example.env
 echo "BASE_SITE=one.example.com" >> ~/gitops/custom-one-example.env
 echo "BENCH_NETWORK=erpnext-one" >> ~/gitops/custom-one-example.env
 ```
@@ -262,7 +262,7 @@ Note:
 
 - Change the file name from `custom-one-example.env` to a logical one.
 - Change `ROUTER` variable from `custom-one.example.com` to the one being added.
-- Change `SITES` variable from `custom-one.example.com` to the one being added. You can add multiple sites quoted in backtick (`) and separated by commas.
+- Change `SITES_RULE` variable to the one being added. You can add multiple sites with `Host(...) || Host(...)`.
 - Change `BASE_SITE` variable from `one.example.com` to the one which is being pointed to.
 - Change `BENCH_NETWORK` variable from `erpnext-one` to the one which was created with the bench.
 
