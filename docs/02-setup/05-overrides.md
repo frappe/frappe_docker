@@ -4,6 +4,8 @@ Overrides extend the base compose.yaml with additional services or modify existi
 docker compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml config > compose.custom.yaml
 ```
 
+Note: The Traefik-based overrides uses Traefik v3.6 and `--core.defaultRuleSyntax=v2` for compatibility with existing traefik v2.11. This flag is temporary and will be removed once the transition to v3.6 is completed.
+
 | Overrider                      | Purpose                                                                                                                                                             | Additional Info                                                                                       |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | **Database**                   |                                                                                                                                                                     |                                                                                                       |
