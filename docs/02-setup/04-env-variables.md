@@ -45,10 +45,10 @@ Then edit `.env` and set variables according to your needs.
 
 ## HTTPS & SSL Configuration
 
-| Variable            | Purpose                                          | Default | When to Set                              |
-| ------------------- | ------------------------------------------------ | ------- | ---------------------------------------- |
-| `LETSENCRYPT_EMAIL` | Email for Let's Encrypt certificate registration | —       | Required if using HTTPS override         |
-| `SITES_RULE`        | List of domains for SSL (Traefik rule for TLS domain routing) | — | Required if using reverse proxy override |
+| Variable            | Purpose                                                       | Default | When to Set                              |
+| ------------------- | ------------------------------------------------------------- | ------- | ---------------------------------------- |
+| `LETSENCRYPT_EMAIL` | Email for Let's Encrypt certificate registration              | —       | Required if using HTTPS override         |
+| `SITES_RULE`        | List of domains for SSL (Traefik rule for TLS domain routing) | —       | Required if using reverse proxy override |
 
 **Format for `SITES_RULE`:**
 

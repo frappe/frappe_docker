@@ -3,24 +3,27 @@
 Use this guide if you already run Traefik v2 with `frappe_docker` and want to upgrade to v3. It focuses on the image upgrade and the v3 routing rule changes that affect existing setups.
 
 ### Before you start
+
 Before migrating anything, it is always recommended to create a backup. Better safe than sorry. In particular, compose and .env should be backed up.
 
 ### Quick upgrade summary
 
-1) Pull the updated repo
-2) Update env variables especially the updated `SITES` to `SITES_RULE`
-3) Regenerate the compose config and restart the stack
+1. Pull the updated repo
+2. Update env variables especially the updated `SITES` to `SITES_RULE`
+3. Regenerate the compose config and restart the stack
 
 #### Multiple hostnames
 
 v2 allowed comma-separated host lists inside `Host(...)`. In v3 traefik uses logical OR
 
 **Before (v2):**
+
 ```
 Host(`a.example.com`,`b.example.com`)
 ```
 
 **After (v3):**
+
 ```
 Host(`a.example.com`) || Host(`b.example.com`)
 ```
@@ -30,11 +33,13 @@ Host(`a.example.com`) || Host(`b.example.com`)
 All Traefik routing for HTTPS and multi-bench setups now uses `SITES_RULE`, which is a full v3 rule expression
 
 **Single site:**
+
 ```
 SITES_RULE=Host(`erp.example.com`)
 ```
 
 **Multiple sites:**
+
 ```
 SITES_RULE=Host(`a.example.com`) || Host(`b.example.com`)
 ```
@@ -51,6 +56,7 @@ docker compose --env-file .env \
   -f overrides/compose.https.yaml \
   config > ~/gitops/docker-compose.yml
 ```
+
 ```sh
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
@@ -65,6 +71,6 @@ After restarting, Traefik will be used in the new supported version 3.6 and the 
 
 If you need to rollback:
 
-1) Revert Traefik image to `v2.11`
-2) Restore the old `SITES` variable format and v2 rules
-3) Regenerate the compose config and restart
+1. Revert Traefik image to `v2.11`
+2. Restore the old `SITES` variable format and v2 rules
+3. Regenerate the compose config and restart
