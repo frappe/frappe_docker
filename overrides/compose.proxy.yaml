@@ -7,10 +7,13 @@ services:
       - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
 
   proxy:
-    image: traefik:v2.11
+    image: traefik:v3.6
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
+      # Keep v2 rule syntax for now
+      # Ensure compatibility with existing labels (will be removed if v3 transition is complete)
+      - --core.defaultRuleSyntax=v2
       - --entrypoints.web.address=:80
     ports:
       - ${HTTP_PUBLISH_PORT:-80}:80
