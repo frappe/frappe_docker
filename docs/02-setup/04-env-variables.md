@@ -60,9 +60,9 @@ SITES=`mysite.example.com`
 SITES=`{any:.+}`
 ```
 
->Note: `SITES` currently supplies the host list that goes into the `Host(...)` rules. Once the Traefik v3 transition is completed, the plan is to switch to `SITES_RULE` (full rule expression) and deprecate `SITES` to map the Traefik Rule Syntax. 
+> Note: `SITES` currently supplies the host list that goes into the `Host(...)` rules. Once the Traefik v3 transition is completed, the plan is to switch to `SITES_RULE` (full rule expression) and deprecate `SITES` to map the Traefik Rule Syntax.
 
->Currently the used syntax is pinned to v2 via `--core.defaultRuleSyntax=v2`).
+> Currently the used syntax is pinned to v2 via `--core.defaultRuleSyntax=v2`).
 
 ---
 

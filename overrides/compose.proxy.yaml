@@ -11,7 +11,7 @@ services:
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
-      # Keep v2 rule syntax for now 
+      # Keep v2 rule syntax for now
       # Ensure compatibility with existing labels (will be removed if v3 transition is complete)
       - --core.defaultRuleSyntax=v2
       - --entrypoints.web.address=:80
