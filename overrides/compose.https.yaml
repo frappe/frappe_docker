@@ -8,11 +8,14 @@ services:
       - traefik.http.routers.frontend-http.rule=Host(${SITES:?List of sites not set})
 
   proxy:
-    image: traefik:v2.11
+    image: traefik:v3.6
     restart: unless-stopped
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
+      # Keep v2 rule syntax for now 
+      # Ensure compatibility with existing labels (will be removed if v3 transistion is complete)
+      - --core.defaultRuleSyntax=v2
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
