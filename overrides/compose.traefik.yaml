@@ -25,7 +25,7 @@ services:
       # Do not expose all Docker services, only the ones explicitly exposed
       - --providers.docker.exposedbydefault=false
       # Keep v2 rule syntax for now 
-      # Ensure compatibility with existing labels (will be removed if v3 transistion is complete)
+      # Ensure compatibility with existing labels (will be removed if v3 transition is complete)
       - --core.defaultRuleSyntax=v2
       # Create an entrypoint http listening on port 80
       - --entrypoints.http.address=:80
