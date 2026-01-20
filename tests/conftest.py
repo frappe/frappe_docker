@@ -26,11 +26,19 @@ def _add_version_var(name: str, env_path: Path):
 def _add_sites_var(env_path: Path):
     with open(env_path, "r+") as f:
         content = f.read()
+        sites = (
+            "tests.localhost",
+            "test-erpnext-site.localhost",
+            "test-pg-site.localhost",
+        )
+        sites_list = ",".join(f"`{site}`" for site in sites)
+        sites_rule = " || ".join(f"Host(`{site}`)" for site in sites)
         content = re.sub(
             rf"SITES=.*",
-            f"SITES=`tests.localhost`,`test-erpnext-site.localhost`,`test-pg-site.localhost`",
+            f"SITES={sites_list}",
             content,
         )
+        content = re.sub(rf"SITES_RULE=.*", f"SITES_RULE={sites_rule}", content)
         f.seek(0)
         f.truncate()
         f.write(content)
