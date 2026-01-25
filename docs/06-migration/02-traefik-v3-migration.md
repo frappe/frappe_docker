@@ -2,6 +2,9 @@
 
 Use this guide if you already run Traefik v2 with `frappe_docker` and want to upgrade to v3. It focuses on the image upgrade and the v3 routing rule changes that affect existing setups.
 
+> Note: The Traefik v2 -> v3 migration is complete. The provided overrides no longer set `core.defaultRuleSyntax` or per-router `ruleSyntax` labels, because v3 is the default rule syntax.
+> Note: If you have a system that must continue to run on v2 despite EOL, you can pin v2 rule syntax with `--core.defaultRuleSyntax=v2` in your Traefik service.
+
 ### Before you start
 
 Before migrating anything, it is always recommended to create a backup. Better safe than sorry. In particular, compose and .env should be backed up.
@@ -14,7 +17,7 @@ Before migrating anything, it is always recommended to create a backup. Better s
 
 #### Multiple hostnames
 
-v2 allowed comma-separated host lists inside `Host(...)`. In v3 traefik uses logical OR
+v2 allowed comma-separated host lists inside `Host(...)`. In v3 Traefik uses logical OR.
 
 **Before (v2):**
 
@@ -30,7 +33,7 @@ Host(`a.example.com`) || Host(`b.example.com`)
 
 ### Step 1: Replace `SITES` with `SITES_RULE`
 
-All Traefik routing for HTTPS and multi-bench setups now uses `SITES_RULE`, which is a full v3 rule expression
+All Traefik routing for HTTPS and multi-bench setups now uses `SITES_RULE`, which is a full v3 rule expression.
 
 **Single site:**
 
