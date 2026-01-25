@@ -31,13 +31,7 @@ def _add_sites_var(env_path: Path):
             "test-erpnext-site.localhost",
             "test-pg-site.localhost",
         )
-        sites_list = ",".join(f"`{site}`" for site in sites)
         sites_rule = " || ".join(f"Host(`{site}`)" for site in sites)
-        content = re.sub(
-            rf"SITES=.*",
-            f"SITES={sites_list}",
-            content,
-        )
         content = re.sub(rf"SITES_RULE=.*", f"SITES_RULE={sites_rule}", content)
         f.seek(0)
         f.truncate()
