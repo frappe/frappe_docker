@@ -5,7 +5,6 @@ services:
       - traefik.http.services.frontend.loadbalancer.server.port=8080
       - traefik.http.routers.frontend-http.entrypoints=websecure
       - traefik.http.routers.frontend-http.tls.certresolver=main-resolver
-      - traefik.http.routers.frontend-http.ruleSyntax=v3
       - traefik.http.routers.frontend-http.rule=${SITES_RULE:?SITES_RULE not set}
 
   proxy:
@@ -14,9 +13,6 @@ services:
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      # Keep v2 rule syntax for now
-      # Ensure compatibility with existing labels (will be removed if v3 transition is complete)
-      - --core.defaultRuleSyntax=v2
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https

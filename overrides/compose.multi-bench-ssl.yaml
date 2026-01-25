@@ -5,7 +5,6 @@ services:
       - traefik.http.routers.${ROUTER}-http.middlewares=https-redirect
       # ${ROUTER}-https the actual router using HTTPS
       # Uses the environment variable SITES_RULE
-      - traefik.http.routers.${ROUTER}-https.ruleSyntax=v3
       - traefik.http.routers.${ROUTER}-https.rule=${SITES_RULE?SITES_RULE not set}
       - traefik.http.routers.${ROUTER}-https.entrypoints=https
       - traefik.http.routers.${ROUTER}-https.tls=true

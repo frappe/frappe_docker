@@ -11,7 +11,6 @@ services:
       # Using the environment variables USERNAME and HASHED_PASSWORD
       - traefik.http.middlewares.admin-auth.basicauth.users=admin:${HASHED_PASSWORD:?No HASHED_PASSWORD set}
       # Uses the environment variable TRAEFIK_DOMAIN
-      - traefik.http.routers.traefik-public-http.ruleSyntax=v3
       - traefik.http.routers.traefik-public-http.rule=Host(`${TRAEFIK_DOMAIN:?No TRAEFIK_DOMAIN set}`)
       - traefik.http.routers.traefik-public-http.entrypoints=http
       # Use the special Traefik service api@internal with the web UI/Dashboard
@@ -25,9 +24,6 @@ services:
       - --providers.docker=true
       # Do not expose all Docker services, only the ones explicitly exposed
       - --providers.docker.exposedbydefault=false
-      # Keep v2 rule syntax for now
-      # Ensure compatibility with existing labels (will be removed if v3 transition is complete)
-      - --core.defaultRuleSyntax=v2
       # Create an entrypoint http listening on port 80
       - --entrypoints.http.address=:80
       # Enable the access log, with HTTP requests
