@@ -6,11 +6,14 @@ services:
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
       - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
+      - --skip-name-resolve
     environment:
       MYSQL_ROOT_PASSWORD: 123
       MARIADB_AUTO_UPGRADE: 1
     volumes:
       - mariadb-data:/var/lib/mysql
+    networks:
+      - frappe-network
 
   # Enable PostgreSQL only if you use it, see development/README.md for more information.
   # postgresql:
@@ -34,12 +37,18 @@ services:
   #      MP_DATA_FILE: /data/mailpit.db
   #      MP_SMTP_AUTH_ACCEPT_ANY: 1
   #      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+  #    networks:
+  #      - frappe-network
 
   redis-cache:
     image: docker.io/redis:alpine
+    networks:
+      - frappe-network
 
   redis-queue:
     image: docker.io/redis:alpine
+    networks:
+      - frappe-network
 
   frappe:
     image: docker.io/frappe/bench:latest
@@ -56,6 +65,8 @@ services:
     ports:
       - 8000-8005:8000-8005
       - 9000-9005:9000-9005
+    networks:
+      - frappe-network
   # enable the below service if you need Cypress UI Tests to be executed
   # Before enabling ensure install_x11_deps.sh has been executed and display variable is exported.
   # Run install_x11_deps.sh again if DISPLAY is not set
@@ -87,3 +98,6 @@ volumes:
   mariadb-data:
   #postgresql-data:
   #mailpit-data:
+networks:
+  frappe-network:
+    driver: bridge
