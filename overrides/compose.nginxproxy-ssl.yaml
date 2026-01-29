@@ -1,0 +1,26 @@
+services:
+  frontend:
+    environment:
+      LETSENCRYPT_HOST: ${NGINX_PROXY_HOSTS:?No NGINX_PROXY_HOSTS set}
+
+  nginx-proxy:
+    ports:
+      - ${HTTP_PUBLISH_PORT:-80}:80
+      - ${HTTPS_PUBLISH_PORT:-443}:443
+
+  acme-companion:
+    image: nginxproxy/acme-companion:latest
+    restart: unless-stopped
+    environment:
+      DEFAULT_EMAIL: ${LETSENCRYPT_EMAIL:?No LETSENCRYPT_EMAIL set}
+    volumes:
+      - nginx-proxy-certs:/etc/nginx/certs
+      - nginx-proxy-html:/usr/share/nginx/html
+      - nginx-proxy-vhost:/etc/nginx/vhost.d
+      - acme-data:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - nginx-proxy
+
+volumes:
+  acme-data:
