@@ -103,8 +103,8 @@ Docker Compose "overrides" that extend the base compose.yaml for different scena
 
 ### 📁 resources/ - Runtime Templates
 
-- **nginx-entrypoint.sh** - Dynamic Nginx configuration generator script
-- **nginx-template.conf** - Nginx configuration template with variable substitution
+- **core/nginx/nginx-entrypoint.sh** - Dynamic Nginx configuration generator script
+- **core/nginx/nginx-template.conf** - Nginx configuration template with variable substitution
 
 ## Custom Apps Explained
 
