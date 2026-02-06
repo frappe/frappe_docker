@@ -2,7 +2,7 @@ name: Deploy Frappe Docker Docs to GitHub Pages
 
 on:
   push:
-    branches: [docs-v2]
+    branches: [main]
     paths:
       - "docs/**"
       - ".github/workflows/publish_docs.yml"
