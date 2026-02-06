@@ -2,7 +2,7 @@ name: Deploy Frappe Docker Docs to GitHub Pages
 
 on:
   push:
-    branches: [docs]
+    branches: [docs-v2]
     paths:
       - "docs/**"
       - ".github/workflows/publish_docs.yml"
@@ -12,6 +12,10 @@ permissions:
   contents: read
   pages: write
   id-token: write
+
+defaults:
+  run:
+    working-directory: ./docs
 
 concurrency:
   group: pages
@@ -26,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -34,10 +38,11 @@ jobs:
           version: 10
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
+          cache-dependency-path: ./docs
 
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
@@ -46,7 +51,7 @@ jobs:
         run: pnpm docs:build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/.vitepress/dist
 
