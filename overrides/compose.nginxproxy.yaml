@@ -1,0 +1,21 @@
+services:
+  frontend:
+    environment:
+      VIRTUAL_HOST: ${NGINX_PROXY_HOSTS:?No NGINX_PROXY_HOSTS set}
+      VIRTUAL_PORT: 8080
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    restart: unless-stopped
+    ports:
+      - ${HTTP_PUBLISH_PORT:-80}:80
+    volumes:
+      - nginx-proxy-certs:/etc/nginx/certs
+      - nginx-proxy-html:/usr/share/nginx/html
+      - nginx-proxy-vhost:/etc/nginx/vhost.d
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+volumes:
+  nginx-proxy-certs:
+  nginx-proxy-html:
+  nginx-proxy-vhost:

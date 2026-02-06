@@ -8,5 +8,5 @@ On Windows, files often have `CRLF` line endings, while Linux systems expect `LF
 
 - **Convert Line Endings using `dos2unix`:**
   ```bash
-  dos2unix resources/nginx-entrypoint.sh
+  dos2unix resources/core/nginx/nginx-entrypoint.sh
   ```
