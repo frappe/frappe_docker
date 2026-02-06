@@ -1,3 +1,7 @@
+---
+title: Choosing a Method
+---
+
 # Choosing a Deployment or Development Method
 
 This repository (`frappe_docker`) supports **multiple ways to run Frappe using Docker**.

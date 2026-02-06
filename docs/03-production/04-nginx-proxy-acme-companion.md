@@ -1,3 +1,7 @@
+---
+title: NGINX and ACME Companion
+---
+
 # nginx-proxy + acme-companion (HTTPS)
 
 This guide explains how to use nginx-proxy with acme-companion to provide HTTPS for a Frappe Docker stack.
