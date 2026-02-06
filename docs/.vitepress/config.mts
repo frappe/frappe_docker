@@ -19,7 +19,7 @@ const vitePressOptions = {
 };
 
 const vitePressSidebarOptions = {
-  documentRootPath: ".",
+  documentRootPath: "./src",
   useTitleFromFrontmatter: true,
   useFolderTitleFromIndexFile: true,
 };
