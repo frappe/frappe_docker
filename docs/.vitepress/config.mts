@@ -5,7 +5,6 @@ import { withSidebar } from "vitepress-sidebar";
 const vitePressOptions: UserConfig = {
   title: "Frappe Docker Docs",
   description: "Frappe in a Container",
-  srcDir: "./src",
   base: "/frappe_docker/",
   head: [["link", { rel: "icon", href: "/frappe_docker/favicon.png" }]],
   themeConfig: {
@@ -20,7 +19,7 @@ const vitePressOptions: UserConfig = {
 };
 
 const vitePressSidebarOptions = {
-  documentRootPath: "./src",
+  documentRootPath: ".",
   useTitleFromFrontmatter: true,
   useFolderTitleFromIndexFile: true,
 };
