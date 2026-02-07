@@ -1,3 +1,7 @@
+---
+title: Getting Started
+---
+
 # Getting Started with Frappe Docker
 
 _A comprehensive guide for developers getting started with Frappe Docker, with comparisons to Django for teams familiar with that framework_
@@ -85,7 +89,7 @@ Four predefined Dockerfiles are available, each serving different use cases:
 - **images/layered/** - Same final contents as `custom` but based on prebuilt images from Docker Hub; faster builds for production when using Frappe-managed dependency versions
 - **images/production/** - Installs only Frappe and ERPNext (not customizable with `apps.json`); best for **quick starts or exploration**; for real deployments, use `custom` or `layered`
 
-> **Note:** For detailed build arguments and advanced configuration options, see [docs/container-setup/01-overview.md](container-setup/01-overview.md).
+> **Note:** For detailed build arguments and advanced configuration options, see [docs/02-setup/01-overview.md](02-setup/01-overview.md).
 
 ### 📁 overrides/ - Compose File Extensions
 
@@ -855,11 +859,11 @@ Many teams use both: Frappe for back-office/admin tools, Django for customer-fac
 
 ### Key Files in This Repository
 
-- [`docs/development.md`](development.md) - Detailed development setup
-- [`docs/container-setup/env-variables.md`](container-setup/env-variables.md) - Environment variable reference
-- [`docs/single-server-example.md`](single-server-example.md) - Production deployment guide
-- [`docs/site-operations.md`](site-operations.md) - Common site management tasks
-- [`development/installer.py`](../development/installer.py) - Automated setup script
+- [`docs/05-development/01-development.md`](05-development/01-development.md) - Detailed development setup
+- [`docs/02-setup/04-env-variables.md`](02-setup/04-env-variables.md) - Environment variable reference
+- [`docs/02-setup/07-single-server-example.md`](02-setup/07-single-server-example.md) - Production deployment guide
+- [`docs/04-operations/01-site-operations.md`](04-operations/01-site-operations.md) - Common site management tasks
+- `development/installer.py` - Automated setup script
 - [`pwd.yml`](../pwd.yml) - Quick test configuration
 - [`compose.yaml`](../compose.yaml) - Base Docker Compose configuration
 
@@ -954,7 +958,7 @@ bench update                     # Update framework and apps
 
 ### Getting Help
 
-1. **Check existing docs** - Most issues covered in [`docs/troubleshoot.md`](troubleshoot.md)
+1. **Check existing docs** - Most issues covered in [`docs/07-troubleshooting/01-troubleshoot.md](07-troubleshooting/01-troubleshoot.md)
 2. **Search Frappe Forum** - [discuss.frappe.io](https://discuss.frappe.io)
 3. **GitHub Issues** - Search existing issues first
 4. **Discord/Telegram** - Community real-time chat (links in main repo)
@@ -965,7 +969,7 @@ Found issues or improvements for this guide?
 
 - Create an issue: [frappe_docker/issues](https://github.com/frappe/frappe_docker/issues)
 - Submit focused PRs: keep updates scoped and split large efforts across multiple pull requests.
-- Review [CONTRIBUTING.md](../CONTRIBUTING.md) for coding standards and review expectations.
+- Review CONTRIBUTING.md: for coding standards and review expectations.
 
 ---
 

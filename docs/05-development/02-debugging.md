@@ -1,3 +1,7 @@
+---
+title: Debugging
+---
+
 Add the following configuration to `launch.json` `configurations` array to start bench console and use debugger. Replace `development.localhost` with appropriate site. Also replace `frappe-bench` with name of the bench directory.
 
 ```json

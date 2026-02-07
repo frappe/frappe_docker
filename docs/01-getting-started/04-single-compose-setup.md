@@ -1,3 +1,7 @@
+---
+title: Single Compose Setup
+---
+
 # Single Compose Setup
 
 This setup is a very simple single compose file that does everything to start required services and a frappe-bench. It is used to start play with docker instance with a site. The file is located in the root of repo and named `pwd.yml`.

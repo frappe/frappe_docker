@@ -1,3 +1,7 @@
+---
+title: Migrate Traefik from v2 to v3
+---
+
 # Migrate an existing Traefik v2 instance to v3
 
 Use this guide if you already run Traefik v2 with `frappe_docker` and want to upgrade to v3. It focuses on the image upgrade and the v3 routing rule changes that affect existing setups.
