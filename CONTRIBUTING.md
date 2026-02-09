@@ -102,7 +102,25 @@ pytest
 
 # Documentation
 
-Place relevant markdown files in the `docs` directory and index them in README.md located at the root of repo.
+Documentation is written as markdown files, and placed inside the `docs/` directory. There are multiple sub directories under `docs/`, and be sure to place the `.md` file in the relevant sub directory if you are adding a new page.
+
+If you want to include any image in the markdown file, place them in the `docs/images/` folder, and add a relative link in the `.md` file.
+
+Frappe Docker also have a static site version of the documentation, which is made using the same `.md` files in the `docs/` directory. Build pipeline uses [VitePress](https://vitepress.dev/) as the Static Site builder, which is a JavaScript (TypeScript) static site builder. Note that to contribute to the documentation JavaScript or VitePress knowledge is not needed. Updating the `.md` file is enough.
+
+The only additional content needed that is specific to VitePress, is a ['frontmatter'](https://vitepress.dev/guide/frontmatter#frontmatter). Frontmatter is like the `metadata` or `config` of that specific `.md` file, added at the beginning of the file and enclosed in `---`. For example, the frontmatter can include a friendly title, author, date of publishing, etc. A more detailed overview on what is frontmatter can be found in this [blog](https://www.seancdavis.com/posts/wtf-is-frontmatter/).
+
+In this project only one field is used in the frontmatter. The `title` field. This is used to specify the title of the page shown in the sidebar, which is either same or a simpler and smaller version of the first heading `#` of the page. To add the required frontmatter just add a block at the beginning of the `.md` file as shown below
+
+```yaml
+---
+title: <short-title-for-sidebar>
+---
+```
+
+In case of any doubt, just refer to any of the existing `.md` file. Also checkout the Markdown section in the VitePress documentation to see some additional features supported by VitePress: [Markdown Extensions](https://vitepress.dev/guide/markdown). Be careful not to break compatibility with what is supported by GitHub markdown. It is recommended to keep the documentation simple.
+
+If you want details on how to configure or update VitePress specific settings and and functionalities, refer this page: [Configuring VitePress](https://github.com/frappe/frappe_docker/blob/main/docs/08-reference/02-configuring-vitepress.md)
 
 # Frappe and ERPNext updates
 
