@@ -1,3 +1,7 @@
+---
+title: Migrate from Multi Image Setup
+---
+
 ## Migrate from multi-image setup
 
 All the containers now use same image. Use `frappe/erpnext` instead of `frappe/frappe-worker`, `frappe/frappe-nginx` , `frappe/frappe-socketio` , `frappe/erpnext-worker` and `frappe/erpnext-nginx`.

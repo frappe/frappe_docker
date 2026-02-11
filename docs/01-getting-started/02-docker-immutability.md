@@ -1,3 +1,7 @@
+---
+title: Docker Immutability
+---
+
 # Important Concept: Immutability and Persistence
 
 A frequent source of confusion is how **Docker-based Frappe deployments handle persistence**.

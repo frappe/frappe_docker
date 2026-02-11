@@ -1,3 +1,7 @@
+---
+title: Setup Overview
+---
+
 The purpose of this document is to give you an overview of how the Frappe Docker containers are structured.
 
 # 🐳 Images
