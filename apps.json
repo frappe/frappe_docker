@@ -1,0 +1,9 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "version-16"
+  },
+  {
+    "url": "https://github.com/alyf-de/woocommerce_integration",
+    "branch" : "version-15"
+    }
