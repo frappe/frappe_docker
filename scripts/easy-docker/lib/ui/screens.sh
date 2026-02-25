@@ -8,7 +8,7 @@ render_main_screen() {
     clear
   fi
 
-  header_text="$(printf "Easy Frappe Docker\nMinimal TUI bootstrap")"
+  header_text="$(printf "Easy Frappe Docker\nManage Docker setups quickly and easily")"
 
   gum style \
     --border rounded \
@@ -31,16 +31,20 @@ show_main_menu() {
 
 show_environment_status() {
   local docker_status="not installed"
-  local gum_status="installed"
+  local docker_daemon_status="not running"
   local status_text=""
 
   if command_exists docker; then
     docker_status="installed"
+
+    if docker_daemon_running; then
+      docker_daemon_status="running"
+    fi
   fi
 
   render_main_screen 1 >&2
 
-  status_text="$(printf "Environment status\n\n- gum: %s\n- docker: %s" "${gum_status}" "${docker_status}")"
+  status_text="$(printf "Environment status\n\n- docker: %s\n- docker daemon: %s" "${docker_status}" "${docker_daemon_status}")"
 
   gum style \
     --border rounded \
@@ -57,4 +61,9 @@ show_environment_status() {
     --selected.foreground 45 \
     "Back to main menu" \
     "Exit and close easy-docker"
+}
+
+show_warning_message() {
+  local message="${1}"
+  gum style --foreground 214 "${message}"
 }
