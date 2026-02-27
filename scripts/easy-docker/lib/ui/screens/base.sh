@@ -74,11 +74,12 @@ render_main_screen() {
 
 show_main_menu() {
   gum choose \
-    --height 7 \
+    --height 8 \
     --header "Choose an action" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
-    "Production setup" \
+    "Production Stack" \
+    "Development Stack" \
     "Environment check" \
     "Exit"
 }
