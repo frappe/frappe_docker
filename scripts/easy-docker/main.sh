@@ -3,22 +3,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck source=scripts/easy-docker/lib/core/commands.sh
-source "${SCRIPT_DIR}/lib/core/commands.sh"
-# shellcheck source=scripts/easy-docker/lib/core/messages.sh
-source "${SCRIPT_DIR}/lib/core/messages.sh"
-# shellcheck source=scripts/easy-docker/lib/install/gum/load.sh
-source "${SCRIPT_DIR}/lib/install/gum/load.sh"
-# shellcheck source=scripts/easy-docker/lib/checks/docker.sh
-source "${SCRIPT_DIR}/lib/checks/docker.sh"
-# shellcheck source=scripts/easy-docker/lib/ui/screens.sh
-source "${SCRIPT_DIR}/lib/ui/screens.sh"
-# shellcheck source=scripts/easy-docker/lib/app/screen.sh
-source "${SCRIPT_DIR}/lib/app/screen.sh"
-# shellcheck source=scripts/easy-docker/lib/app/options.sh
-source "${SCRIPT_DIR}/lib/app/options.sh"
-# shellcheck source=scripts/easy-docker/lib/app/run.sh
-source "${SCRIPT_DIR}/lib/app/run.sh"
+# shellcheck source=scripts/easy-docker/lib/load.sh
+source "${SCRIPT_DIR}/lib/load.sh"
 
 disable_installation_fallback=0
 if parse_cli_options disable_installation_fallback "$@"; then
