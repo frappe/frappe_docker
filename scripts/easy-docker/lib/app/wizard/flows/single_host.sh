@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2034
-readonly FLOW_BACK_TO_MAIN=10
-# shellcheck disable=SC2034
-readonly FLOW_EXIT_APP=11
-
 handle_single_host_stack_flow() {
   local stack_dir="${1}"
   local proxy_mode=""

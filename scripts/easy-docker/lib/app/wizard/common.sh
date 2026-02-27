@@ -4,6 +4,8 @@ load_easy_docker_wizard_common_modules() {
   local wizard_dir=""
   wizard_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+  # shellcheck source=scripts/easy-docker/lib/app/wizard/common/constants.sh
+  source "${wizard_dir}/common/constants.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/common/core.sh
   source "${wizard_dir}/common/core.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/common/helpers.sh

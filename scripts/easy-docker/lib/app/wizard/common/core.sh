@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2034
-readonly FLOW_CONTINUE=0
-# shellcheck disable=SC2034
-readonly FLOW_ABORT_INPUT=12
-
 get_easy_docker_repo_root() {
   local app_lib_dir=""
   app_lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
