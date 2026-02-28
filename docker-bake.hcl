@@ -6,10 +6,10 @@ variable "REGISTRY_USER" {
 }
 
 variable PYTHON_VERSION {
-    default = "3.13.3"
+    default = "3.14.2"
 }
 variable NODE_VERSION {
-    default = "22.14.0"
+    default = "24.13.0"
 }
 
 variable "FRAPPE_VERSION" {
