@@ -12,6 +12,7 @@ handle_manage_selected_stack_flow() {
   local persist_apps_status=0
   local render_compose_status=0
   local build_image_status=0
+  local compose_start_status=0
   local generated_compose_path=""
 
   stack_dir="$(get_stack_dir_by_name "${stack_name}" || true)"
@@ -80,6 +81,43 @@ handle_manage_selected_stack_flow() {
           ;;
         esac
       done
+      ;;
+    "Start stack in Docker Compose")
+      show_warning_message "Starting stack with docker compose: ${stack_name}"
+      if start_stack_with_compose_from_metadata "${stack_dir}"; then
+        :
+      else
+        compose_start_status=$?
+        case "${compose_start_status}" in
+        31)
+          show_warning_and_wait "Cannot start stack: metadata.json is missing in ${stack_dir}." 4
+          ;;
+        32)
+          show_warning_and_wait "Cannot start stack: stack env file not found in ${stack_dir}." 4
+          ;;
+        33)
+          show_warning_and_wait "Cannot start stack: topology is missing in metadata.json. Re-run the topology wizard for this stack." 4
+          ;;
+        34)
+          show_warning_and_wait "Cannot start stack via docker compose for topology '${EASY_DOCKER_COMPOSE_ERROR_DETAIL}'. Use the topology-specific runbook path." 5
+          ;;
+        35)
+          show_warning_and_wait "Cannot start stack: no compose files configured in metadata.json." 4
+          ;;
+        36)
+          show_warning_and_wait "Cannot start stack: compose file is missing -> ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 4
+          ;;
+        37)
+          show_warning_and_wait "docker compose up failed. Check the output above for details." 4
+          ;;
+        *)
+          show_warning_and_wait "Cannot start stack with docker compose (${compose_start_status})." 4
+          ;;
+        esac
+        continue
+      fi
+
+      show_warning_and_wait "Stack started successfully with docker compose: ${stack_name}" 3
       ;;
     "Docker")
       while true; do

@@ -365,12 +365,13 @@ show_manage_stack_actions_menu() {
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
-    --height 7 \
+    --height 8 \
     --header "Stack actions" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Apps" \
     "Docker" \
+    "Start stack in Docker Compose" \
     "Back" \
     "Exit and close easy-docker"
 }

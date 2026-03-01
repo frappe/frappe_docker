@@ -288,6 +288,25 @@ get_stack_dir_by_name() {
   return 1
 }
 
+get_stack_topology() {
+  local stack_dir="${1}"
+  local metadata_path=""
+  local topology=""
+
+  metadata_path="${stack_dir}/metadata.json"
+  if [ ! -f "${metadata_path}" ]; then
+    return 1
+  fi
+
+  topology="$(get_metadata_string_field "${metadata_path}" "topology" || true)"
+  if [ -z "${topology}" ]; then
+    return 1
+  fi
+
+  printf '%s\n' "${topology}"
+  return 0
+}
+
 get_metadata_compose_files_lines() {
   local metadata_path="${1}"
 
