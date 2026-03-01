@@ -14,6 +14,7 @@ handle_manage_selected_stack_flow() {
   local build_image_status=0
   local compose_start_status=0
   local generated_compose_path=""
+  local stack_runtime_status=""
 
   stack_dir="$(get_stack_dir_by_name "${stack_name}" || true)"
   if [ -z "${stack_dir}" ]; then
@@ -22,7 +23,8 @@ handle_manage_selected_stack_flow() {
   fi
 
   while true; do
-    stack_action="$(show_manage_stack_actions_menu "${stack_name}" "${stack_dir}" || true)"
+    get_stack_compose_runtime_status_label stack_runtime_status "${stack_dir}"
+    stack_action="$(show_manage_stack_actions_menu "${stack_name}" "${stack_dir}" "${stack_runtime_status}" || true)"
     case "${stack_action}" in
     "Apps")
       while true; do
