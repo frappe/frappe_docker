@@ -235,6 +235,7 @@ prompt_custom_modular_apps_data() {
   local options_lines=""
   local selected_labels_csv=""
   local selection_raw=""
+  local selection_lines=""
   local prompt_status=0
   local selected_predefined_csv=""
   local parsed_predefined_csv=""
@@ -311,8 +312,12 @@ prompt_custom_modular_apps_data() {
     fi
 
     parsed_predefined_csv=""
+    # gum choose can return multiple values separated by newlines or commas
+    # depending on version/configuration. Normalize to one label per line.
+    selection_lines="$(printf '%s' "${selection_raw}" | tr ',' '\n')"
 
     while IFS= read -r selected_label; do
+      trim_predefined_catalog_field selected_label "${selected_label}"
       if [ -z "${selected_label}" ]; then
         continue
       fi
@@ -323,7 +328,7 @@ prompt_custom_modular_apps_data() {
       fi
       append_csv_unique parsed_predefined_csv "${parsed_predefined_csv}" "${predefined_app_id}"
     done <<EOF
-${selection_raw}
+${selection_lines}
 EOF
 
     selected_predefined_csv="${parsed_predefined_csv}"

@@ -194,7 +194,9 @@ show_custom_modular_apps_multi_select() {
   local stack_name=""
   local status_text=""
   local option_line=""
+  local selected_label=""
   local -a menu_options=()
+  local -a selected_labels=()
   local -a gum_args=()
 
   render_main_screen 1 >&2
@@ -224,7 +226,14 @@ EOF
     --selected.foreground 45
   )
   if [ -n "${selected_labels_csv}" ]; then
-    gum_args+=(--selected "${selected_labels_csv}")
+    IFS=',' read -r -a selected_labels <<<"${selected_labels_csv}"
+    for selected_label in "${selected_labels[@]}"; do
+      trim_predefined_catalog_field selected_label "${selected_label}"
+      if [ -z "${selected_label}" ]; then
+        continue
+      fi
+      gum_args+=(--selected "${selected_label}")
+    done
   fi
 
   gum choose "${gum_args[@]}" "${menu_options[@]}"

@@ -230,216 +230,169 @@ get_predefined_apps_catalog_entries() {
   done <"${catalog_path}"
 }
 
-get_predefined_app_labels_lines() {
-  local entry=""
-  local app_label=""
+parse_predefined_app_catalog_entry() {
+  local entry="${1}"
+  local app_id_var="${2}"
+  local app_label_var="${3}"
+  local app_repo_var="${4}"
+  local app_default_branch_var="${5}"
+  local app_branches_csv_var="${6}"
+  local parsed_app_id=""
+  local parsed_app_label=""
+  local parsed_app_repo=""
+  local parsed_app_default_branch=""
+  local parsed_app_branches_csv=""
 
-  while IFS= read -r entry; do
-    if [ -z "${entry}" ]; then
-      continue
-    fi
-
-    app_label="${entry#*|}"
-    app_label="${app_label%%|*}"
-    printf '%s\n' "${app_label}"
-  done < <(get_predefined_apps_catalog_entries)
+  IFS='|' read -r parsed_app_id parsed_app_label parsed_app_repo parsed_app_default_branch parsed_app_branches_csv <<<"${entry}"
+  printf -v "${app_id_var}" "%s" "${parsed_app_id}"
+  printf -v "${app_label_var}" "%s" "${parsed_app_label}"
+  printf -v "${app_repo_var}" "%s" "${parsed_app_repo}"
+  printf -v "${app_default_branch_var}" "%s" "${parsed_app_default_branch}"
+  printf -v "${app_branches_csv_var}" "%s" "${parsed_app_branches_csv}"
 }
 
-get_predefined_app_id_by_label() {
-  local label="${1}"
+get_predefined_app_field_by_field() {
+  local lookup_field="${1}"
+  local lookup_value="${2}"
+  local result_field="${3}"
   local entry=""
   local app_id=""
   local app_label=""
   local app_repo=""
   local app_default_branch=""
   local app_branches_csv=""
+  local lookup_candidate=""
+  local result_value=""
+
+  trim_predefined_catalog_field lookup_value "${lookup_value}"
+  if [ -z "${lookup_value}" ]; then
+    return 1
+  fi
 
   while IFS= read -r entry; do
     if [ -z "${entry}" ]; then
       continue
     fi
 
-    IFS='|' read -r app_id app_label app_repo app_default_branch app_branches_csv <<<"${entry}"
-    if [ "${app_label}" = "${label}" ]; then
-      printf '%s\n' "${app_id}"
-      return 0
-    fi
-  done < <(get_predefined_apps_catalog_entries)
+    parse_predefined_app_catalog_entry "${entry}" app_id app_label app_repo app_default_branch app_branches_csv
 
-  return 1
-}
-
-get_predefined_app_repo_by_id() {
-  local app_id_lookup="${1}"
-  local entry=""
-  local app_id=""
-  local app_label=""
-  local app_repo=""
-  local app_default_branch=""
-  local app_branches_csv=""
-
-  while IFS= read -r entry; do
-    if [ -z "${entry}" ]; then
-      continue
-    fi
-
-    IFS='|' read -r app_id app_label app_repo app_default_branch app_branches_csv <<<"${entry}"
-    if [ "${app_id}" = "${app_id_lookup}" ]; then
-      printf '%s\n' "${app_repo}"
-      return 0
-    fi
-  done < <(get_predefined_apps_catalog_entries)
-
-  return 1
-}
-
-get_predefined_app_label_by_id() {
-  local app_id_lookup="${1}"
-  local entry=""
-  local app_id=""
-  local app_label=""
-  local app_repo=""
-  local app_default_branch=""
-  local app_branches_csv=""
-
-  while IFS= read -r entry; do
-    if [ -z "${entry}" ]; then
-      continue
-    fi
-
-    IFS='|' read -r app_id app_label app_repo app_default_branch app_branches_csv <<<"${entry}"
-    if [ "${app_id}" = "${app_id_lookup}" ]; then
-      printf '%s\n' "${app_label}"
-      return 0
-    fi
-  done < <(get_predefined_apps_catalog_entries)
-
-  return 1
-}
-
-get_predefined_app_default_branch_by_id() {
-  local app_id_lookup="${1}"
-  local entry=""
-  local app_id=""
-  local app_label=""
-  local app_repo=""
-  local app_default_branch=""
-  local app_branches_csv=""
-
-  while IFS= read -r entry; do
-    if [ -z "${entry}" ]; then
-      continue
-    fi
-
-    IFS='|' read -r app_id app_label app_repo app_default_branch app_branches_csv <<<"${entry}"
-    if [ "${app_id}" = "${app_id_lookup}" ]; then
-      printf '%s\n' "${app_default_branch}"
-      return 0
-    fi
-  done < <(get_predefined_apps_catalog_entries)
-
-  return 1
-}
-
-get_predefined_app_branch_lines_by_id() {
-  local result_var="${1}"
-  local app_id_lookup="${2}"
-  local entry=""
-  local app_id=""
-  local app_label=""
-  local app_repo=""
-  local app_default_branch=""
-  local app_branches_csv=""
-  local branch=""
-  local branch_lines=""
-  local -a branches=()
-
-  while IFS= read -r entry; do
-    if [ -z "${entry}" ]; then
-      continue
-    fi
-
-    IFS='|' read -r app_id app_label app_repo app_default_branch app_branches_csv <<<"${entry}"
-    if [ "${app_id}" != "${app_id_lookup}" ]; then
-      continue
-    fi
-
-    IFS=',' read -r -a branches <<<"${app_branches_csv}"
-    for branch in "${branches[@]}"; do
-      trim_predefined_catalog_field branch "${branch}"
-      if [ -z "${branch}" ]; then
-        continue
-      fi
-      if [ -z "${branch_lines}" ]; then
-        branch_lines="${branch}"
-      else
-        branch_lines="${branch_lines}"$'\n'"${branch}"
-      fi
-    done
-
-    if [ -z "${branch_lines}" ]; then
+    case "${lookup_field}" in
+    id)
+      lookup_candidate="${app_id}"
+      ;;
+    label)
+      lookup_candidate="${app_label}"
+      ;;
+    *)
       return 1
+      ;;
+    esac
+
+    trim_predefined_catalog_field lookup_candidate "${lookup_candidate}"
+    if [ "${lookup_candidate}" != "${lookup_value}" ]; then
+      continue
     fi
 
-    printf -v "${result_var}" "%s" "${branch_lines}"
+    case "${result_field}" in
+    id)
+      result_value="${app_id}"
+      ;;
+    label)
+      result_value="${app_label}"
+      ;;
+    repo)
+      result_value="${app_repo}"
+      ;;
+    default_branch)
+      result_value="${app_default_branch}"
+      ;;
+    branches_csv)
+      result_value="${app_branches_csv}"
+      ;;
+    *)
+      return 1
+      ;;
+    esac
+
+    printf '%s\n' "${result_value}"
     return 0
   done < <(get_predefined_apps_catalog_entries)
 
   return 1
 }
 
+get_predefined_app_id_by_label() {
+  local label="${1}"
+  get_predefined_app_field_by_field "label" "${label}" "id"
+}
+
+get_predefined_app_repo_by_id() {
+  local app_id_lookup="${1}"
+  get_predefined_app_field_by_field "id" "${app_id_lookup}" "repo"
+}
+
+get_predefined_app_label_by_id() {
+  local app_id_lookup="${1}"
+  get_predefined_app_field_by_field "id" "${app_id_lookup}" "label"
+}
+
+get_predefined_app_default_branch_by_id() {
+  local app_id_lookup="${1}"
+  get_predefined_app_field_by_field "id" "${app_id_lookup}" "default_branch"
+}
+
+get_predefined_app_branch_lines_by_id() {
+  local result_var="${1}"
+  local app_id_lookup="${2}"
+  local app_branches_csv=""
+  local branch=""
+  local branch_lines=""
+  local -a branches=()
+
+  app_branches_csv="$(get_predefined_app_field_by_field "id" "${app_id_lookup}" "branches_csv" || true)"
+  if [ -z "${app_branches_csv}" ]; then
+    return 1
+  fi
+
+  IFS=',' read -r -a branches <<<"${app_branches_csv}"
+  for branch in "${branches[@]}"; do
+    trim_predefined_catalog_field branch "${branch}"
+    if [ -z "${branch}" ]; then
+      continue
+    fi
+    if [ -z "${branch_lines}" ]; then
+      branch_lines="${branch}"
+    else
+      branch_lines="${branch_lines}"$'\n'"${branch}"
+    fi
+  done
+
+  if [ -z "${branch_lines}" ]; then
+    return 1
+  fi
+
+  printf -v "${result_var}" "%s" "${branch_lines}"
+  return 0
+}
+
 predefined_app_catalog_has_id() {
   local app_id_lookup="${1}"
-  local entry=""
-  local app_id=""
-  local app_label=""
-  local app_repo=""
-  local app_default_branch=""
-  local app_branches_csv=""
 
   if [ -z "${app_id_lookup}" ]; then
     return 1
   fi
 
-  while IFS= read -r entry; do
-    if [ -z "${entry}" ]; then
-      continue
-    fi
-
-    IFS='|' read -r app_id app_label app_repo app_default_branch app_branches_csv <<<"${entry}"
-    if [ "${app_id}" = "${app_id_lookup}" ]; then
-      return 0
-    fi
-  done < <(get_predefined_apps_catalog_entries || true)
-
-  return 1
+  get_predefined_app_field_by_field "id" "${app_id_lookup}" "id" >/dev/null 2>&1
 }
 
 predefined_app_catalog_has_label() {
   local app_label_lookup="${1}"
-  local entry=""
-  local app_id=""
-  local app_label=""
-  local app_repo=""
-  local app_default_branch=""
-  local app_branches_csv=""
 
   if [ -z "${app_label_lookup}" ]; then
     return 1
   fi
 
-  while IFS= read -r entry; do
-    if [ -z "${entry}" ]; then
-      continue
-    fi
-
-    IFS='|' read -r app_id app_label app_repo app_default_branch app_branches_csv <<<"${entry}"
-    if [ "${app_label}" = "${app_label_lookup}" ]; then
-      return 0
-    fi
-  done < <(get_predefined_apps_catalog_entries || true)
-
-  return 1
+  get_predefined_app_field_by_field "label" "${app_label_lookup}" "label" >/dev/null 2>&1
 }
 
 append_predefined_app_catalog_entry() {

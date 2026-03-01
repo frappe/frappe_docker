@@ -120,22 +120,6 @@ get_metadata_string_field() {
   ' "${metadata_path}"
 }
 
-get_metadata_number_field() {
-  local metadata_path="${1}"
-  local field_name="${2}"
-
-  if [ ! -f "${metadata_path}" ]; then
-    return 1
-  fi
-
-  awk -v field_name="${field_name}" '
-    match($0, "\"" field_name "\"[[:space:]]*:[[:space:]]*([0-9]+)", parts) {
-      print parts[1]
-      exit
-    }
-  ' "${metadata_path}"
-}
-
 get_env_file_key_value() {
   local env_file="${1}"
   local key="${2}"
