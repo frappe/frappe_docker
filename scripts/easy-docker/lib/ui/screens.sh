@@ -10,6 +10,8 @@ load_ui_screen_modules() {
   source "${screens_dir}/production.sh"
   # shellcheck source=scripts/easy-docker/lib/ui/screens/environment.sh
   source "${screens_dir}/environment.sh"
+  # shellcheck source=scripts/easy-docker/lib/ui/screens/tools.sh
+  source "${screens_dir}/tools.sh"
 }
 
 load_ui_screen_modules

@@ -50,9 +50,11 @@ handle_single_host_stack_flow() {
     ;;
   esac
 
-  if ! save_single_host_selection "${stack_dir}" "${proxy_mode}" "${database_choice}" "${redis_choice}"; then
+  if save_single_host_selection "${stack_dir}" "${proxy_mode}" "${database_choice}" "${redis_choice}"; then
+    :
+  else
     save_selection_status=$?
-    if [ "${save_selection_status}" -eq 2 ]; then
+    if [ "${save_selection_status}" -eq 2 ] || [ "${save_selection_status}" -eq 130 ]; then
       return "${FLOW_CONTINUE}"
     fi
 
@@ -60,7 +62,9 @@ handle_single_host_stack_flow() {
     return "${FLOW_CONTINUE}"
   fi
 
-  if ! render_stack_compose_from_metadata "${stack_dir}"; then
+  if render_stack_compose_from_metadata "${stack_dir}"; then
+    :
+  else
     render_compose_status=$?
     stack_env_path="$(get_stack_env_path "${stack_dir}")"
     stack_apps_path="${stack_dir}/apps.json"
@@ -73,7 +77,7 @@ handle_single_host_stack_flow() {
   stack_apps_path="${stack_dir}/apps.json"
   generated_compose_path="$(get_stack_generated_compose_path "${stack_dir}")"
   show_warning_and_wait "Single-host selection saved in ${stack_dir}/metadata.json, ${stack_env_path}, and ${stack_apps_path}. Rendered compose: ${generated_compose_path}." 3
-  return "${FLOW_CONTINUE}"
+  return "${FLOW_OPEN_MANAGE_STACK}"
 }
 
 handle_topology_examples_flow() {

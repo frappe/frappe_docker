@@ -37,12 +37,43 @@ handle_stack_topology_flow() {
   local stack_dir="${1}"
   local topology_action=""
   local abort_status=0
+  local single_host_status=0
+  local manage_status=0
+  local stack_name=""
 
   while true; do
     topology_action="$(show_stack_topology_menu "${stack_dir}" || true)"
     case "${topology_action}" in
     "Single-host" | "Single-host (recommended)")
-      handle_single_host_stack_flow "${stack_dir}"
+      if handle_single_host_stack_flow "${stack_dir}"; then
+        single_host_status="${FLOW_CONTINUE}"
+      else
+        single_host_status=$?
+      fi
+
+      case "${single_host_status}" in
+      "${FLOW_OPEN_MANAGE_STACK}")
+        stack_name="${stack_dir##*/}"
+        if handle_manage_selected_stack_flow "${stack_name}"; then
+          manage_status="${FLOW_CONTINUE}"
+        else
+          manage_status=$?
+        fi
+
+        case "${manage_status}" in
+        "${FLOW_EXIT_APP}")
+          return "${FLOW_EXIT_APP}"
+          ;;
+        *)
+          return "${FLOW_CONTINUE}"
+          ;;
+        esac
+        ;;
+      "${FLOW_EXIT_APP}")
+        return "${FLOW_EXIT_APP}"
+        ;;
+      *) ;;
+      esac
       ;;
     "Split services")
       handle_topology_examples_flow "${topology_action}"

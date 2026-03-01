@@ -83,6 +83,67 @@ prompt_stack_name_with_cancel() {
   return "${FLOW_CONTINUE}"
 }
 
+prompt_frappe_branch_with_cancel() {
+  local result_var="${1}"
+  local stack_name="${2}"
+  local options_lines=""
+  local selection=""
+  local selection_status=0
+  local selected_label=""
+  local selected_branch=""
+  local default_branch=""
+  local default_label=""
+  local version_entry=""
+  local version_id=""
+  local version_label=""
+  local version_branch=""
+  local -a version_entries=()
+
+  mapfile -t version_entries < <(get_frappe_versions_catalog_entries || true)
+  for version_entry in "${version_entries[@]}"; do
+    IFS='|' read -r version_id version_label version_branch <<<"${version_entry}"
+    if [ -z "${version_id}" ] || [ -z "${version_label}" ] || [ -z "${version_branch}" ]; then
+      continue
+    fi
+
+    if [ -z "${options_lines}" ]; then
+      options_lines="${version_label}"
+    else
+      options_lines="$(printf '%s\n%s' "${options_lines}" "${version_label}")"
+    fi
+  done
+
+  if [ -z "${options_lines}" ]; then
+    show_warning_and_wait "No Frappe version profiles available in scripts/easy-docker/config/frappe.tsv." 3
+    return 1
+  fi
+
+  default_branch="$(get_default_frappe_branch || true)"
+  default_label="$(get_frappe_version_label_by_branch "${default_branch}" || true)"
+
+  selection="$(show_frappe_version_profile_menu "${stack_name}" "${options_lines}" "${default_label}")"
+  selection_status=$?
+  if [ "${selection_status}" -ne 0 ]; then
+    return "${FLOW_ABORT_INPUT}"
+  fi
+
+  selected_label="$(printf '%s' "${selection}" | tr -d '\r\n')"
+  case "${selected_label}" in
+  "" | "Back")
+    return "${FLOW_ABORT_INPUT}"
+    ;;
+  esac
+
+  selected_branch="$(get_frappe_version_branch_by_label "${selected_label}" || true)"
+  if [ -z "${selected_branch}" ]; then
+    show_warning_and_wait "Could not resolve branch for selected profile: ${selected_label}" 2
+    return 1
+  fi
+
+  printf -v "${result_var}" "%s" "${selected_branch}"
+  return "${FLOW_CONTINUE}"
+}
+
 show_warning_and_wait() {
   local message="${1}"
   local seconds="${2:-1}"

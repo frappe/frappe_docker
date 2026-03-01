@@ -10,6 +10,8 @@ load_easy_docker_wizard_flow_modules() {
   source "${wizard_dir}/flows/manage.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/flows/navigation.sh
   source "${wizard_dir}/flows/navigation.sh"
+  # shellcheck source=scripts/easy-docker/lib/app/wizard/flows/tools.sh
+  source "${wizard_dir}/flows/tools.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/flows/setup.sh
   source "${wizard_dir}/flows/setup.sh"
 }

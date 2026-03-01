@@ -59,6 +59,46 @@ prompt_new_stack_name() {
     --placeholder "my-production-stack"
 }
 
+show_frappe_version_profile_menu() {
+  local stack_name="${1}"
+  local options_lines="${2:-}"
+  local selected_label="${3:-}"
+  local status_text=""
+  local option_line=""
+  local -a menu_options=()
+  local -a gum_args=()
+
+  render_main_screen 1 >&2
+
+  status_text="$(printf "Create stack: %s\n\nSelect the Frappe branch profile from frappe.tsv.\nThis sets the stack default for branch suggestions." "${stack_name}")"
+  render_box_message "${status_text}" "0 2" >&2
+
+  while IFS= read -r option_line; do
+    if [ -z "${option_line}" ]; then
+      continue
+    fi
+    menu_options+=("${option_line}")
+  done <<EOF
+${options_lines}
+EOF
+
+  if [ "${#menu_options[@]}" -eq 0 ]; then
+    return 1
+  fi
+
+  gum_args=(
+    --height 10
+    --header "Frappe branch profile"
+    --cursor.foreground 63
+    --selected.foreground 45
+  )
+  if [ -n "${selected_label}" ]; then
+    gum_args+=(--selected "${selected_label}")
+  fi
+
+  gum choose "${gum_args[@]}" "${menu_options[@]}" "Back"
+}
+
 show_stack_topology_menu() {
   local stack_dir="${1}"
   local stack_name=""
@@ -149,26 +189,45 @@ show_single_host_redis_menu() {
 
 show_custom_modular_apps_multi_select() {
   local stack_dir="${1}"
-  local back_option_label="${2:-Back to topology selection}"
+  local options_lines="${2:-}"
+  local selected_labels_csv="${3:-}"
   local stack_name=""
   local status_text=""
+  local option_line=""
+  local -a menu_options=()
+  local -a gum_args=()
 
   render_main_screen 1 >&2
 
   stack_name="${stack_dir##*/}"
-  status_text="$(printf "Stack: %s\n\nCustom modular apps\nSelect one or more options.\nUse Space to toggle and Enter to confirm." "${stack_name}")"
+  status_text="$(printf "Stack: %s\n\nApps\nUse Space to toggle apps from apps.tsv. Press Enter to continue to branch selection per app.\nUse Ctrl+C to go back." "${stack_name}")"
   render_box_message "${status_text}" "0 2" >&2
 
-  gum choose \
-    --no-limit \
-    --height 10 \
-    --header "Custom modular apps" \
-    --cursor.foreground 63 \
-    --selected.foreground 45 \
-    "ERPNext" \
-    "CRM" \
-    "Custom Git app(s)" \
-    "${back_option_label}"
+  while IFS= read -r option_line; do
+    if [ -z "${option_line}" ]; then
+      continue
+    fi
+    menu_options+=("${option_line}")
+  done <<EOF
+${options_lines}
+EOF
+
+  if [ "${#menu_options[@]}" -eq 0 ]; then
+    return 1
+  fi
+
+  gum_args=(
+    --no-limit
+    --height 14
+    --header "Apps"
+    --cursor.foreground 63
+    --selected.foreground 45
+  )
+  if [ -n "${selected_labels_csv}" ]; then
+    gum_args+=(--selected "${selected_labels_csv}")
+  fi
+
+  gum choose "${gum_args[@]}" "${menu_options[@]}"
 }
 
 prompt_single_host_env_value() {
@@ -324,7 +383,7 @@ show_manage_stack_apps_menu() {
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Generate apps.json" \
-    "Update custom image apps" \
+    "Select apps and branches" \
     "Back" \
     "Exit and close easy-docker"
 }

@@ -34,7 +34,9 @@ collect_single_host_env_lines() {
   fi
   collected_env_lines="$(append_env_line "${collected_env_lines}" "CUSTOM_TAG" "${custom_tag_value}")"
 
-  if ! prompt_custom_modular_apps_data selected_apps_metadata_json_object "${stack_dir}"; then
+  if prompt_custom_modular_apps_data selected_apps_metadata_json_object "${stack_dir}"; then
+    :
+  else
     prompt_status=$?
     return "${prompt_status}"
   fi

@@ -1,0 +1,7 @@
+# id	label	repo	default_branch	branches_csv
+erpnext	ERPNext	https://github.com/frappe/erpnext	develop	version-15,version-16,develop
+crm	CRM	https://github.com/frappe/crm	develop	develop,version-16,version-15
+hrms	HRMS	https://github.com/frappe/hrms	develop	develop,version-16,version-15
+lms	LMS	https://github.com/frappe/lms	develop	develop,version-16,version-15
+helpdesk	Helpdesk	https://github.com/frappe/helpdesk	develop	develop,version-16,version-15
+drive	Drive	https://github.com/frappe/drive	develop	develop,version-16,version-15

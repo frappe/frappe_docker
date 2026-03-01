@@ -155,56 +155,19 @@ persist_single_host_selection_metadata() {
   local database_id="${3}"
   local redis_id="${4}"
   local compose_files_lines="${5}"
-  local apps_json_object="${6}"
-  local env_lines="${7}"
-  local metadata_path=""
-  local metadata_tmp_path=""
-  local schema_version=""
-  local stack_name=""
-  local setup_type=""
-  local created_at=""
+  local env_lines="${6}"
   local updated_at=""
   local compose_files_json=""
   local env_json_object=""
-
-  metadata_path="${stack_dir}/metadata.json"
-  metadata_tmp_path="${metadata_path}.tmp"
-
-  schema_version="$(get_metadata_number_field "${metadata_path}" "schema_version" || true)"
-  if [ -z "${schema_version}" ]; then
-    schema_version="1"
-  fi
-
-  stack_name="$(get_metadata_string_field "${metadata_path}" "stack_name" || true)"
-  if [ -z "${stack_name}" ]; then
-    stack_name="${stack_dir##*/}"
-  fi
-
-  setup_type="$(get_metadata_string_field "${metadata_path}" "setup_type" || true)"
-  if [ -z "${setup_type}" ]; then
-    setup_type="production"
-  fi
-
-  created_at="$(get_metadata_string_field "${metadata_path}" "created_at" || true)"
-  if [ -z "${created_at}" ]; then
-    created_at="$(get_current_utc_timestamp)"
-  fi
+  local wizard_json_object=""
 
   updated_at="$(get_current_utc_timestamp)"
   compose_files_json="$(build_compose_files_json_array "${compose_files_lines}")"
   env_json_object="$(build_env_json_object "${env_lines}")"
-  if [ -z "${apps_json_object}" ]; then
-    return 1
-  fi
 
-  if ! cat >"${metadata_tmp_path}" <<EOF; then
+  if ! wizard_json_object="$(
+    cat <<EOF
 {
-  "schema_version": ${schema_version},
-  "stack_name": "${stack_name}",
-  "setup_type": "${setup_type}",
-  "created_at": "${created_at}",
-  "apps": ${apps_json_object},
-  "wizard": {
     "topology": "single-host",
     "selection": {
       "proxy_mode_id": "${proxy_mode_id}",
@@ -217,14 +180,12 @@ ${compose_files_json}
     ],
     "updated_at": "${updated_at}"
   }
-}
 EOF
-    rm -f -- "${metadata_tmp_path}" >/dev/null 2>&1 || true
+  )"; then
     return 1
   fi
 
-  if ! mv -- "${metadata_tmp_path}" "${metadata_path}"; then
-    rm -f -- "${metadata_tmp_path}" >/dev/null 2>&1 || true
+  if ! persist_stack_metadata_wizard_object "${stack_dir}" "${wizard_json_object}"; then
     return 1
   fi
 
@@ -245,6 +206,8 @@ save_single_host_selection() {
   local compose_files_lines=""
   local env_lines=""
   local apps_metadata_json_object=""
+  local wizard_metadata_status=0
+  local apps_metadata_status=0
   local collect_env_status=0
 
   proxy_mode_id="$(get_single_host_proxy_mode_id "${proxy_mode}")" || return 1
@@ -261,7 +224,9 @@ save_single_host_selection() {
   fi
   compose_files_lines="$(printf '%s\n%s' "${compose_files_lines}" "${proxy_overrides}")"
 
-  if ! collect_single_host_env_lines env_lines apps_metadata_json_object "${stack_dir}" "${proxy_mode_id}" "${database_id}"; then
+  if collect_single_host_env_lines env_lines apps_metadata_json_object "${stack_dir}" "${proxy_mode_id}" "${database_id}"; then
+    :
+  else
     collect_env_status=$?
     return "${collect_env_status}"
   fi
@@ -270,15 +235,28 @@ save_single_host_selection() {
     return 1
   fi
 
-  if ! persist_single_host_selection_metadata \
+  if persist_single_host_selection_metadata \
     "${stack_dir}" \
     "${proxy_mode_id}" \
     "${database_id}" \
     "${redis_id}" \
     "${compose_files_lines}" \
-    "${apps_metadata_json_object}" \
     "${env_lines}"; then
+    :
+  else
+    wizard_metadata_status=$?
+    return "${wizard_metadata_status}"
+  fi
+
+  if [ -z "${apps_metadata_json_object}" ]; then
     return 1
+  fi
+
+  if persist_stack_metadata_apps_object "${stack_dir}" "${apps_metadata_json_object}"; then
+    :
+  else
+    apps_metadata_status=$?
+    return "${apps_metadata_status}"
   fi
 
   if ! persist_stack_apps_json_from_metadata_apps "${stack_dir}"; then

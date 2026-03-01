@@ -25,3 +25,26 @@ bash easy-docker.sh
 - `--no-installation-fallback`
   - Disables GitHub binary fallback for `gum`
   - If package manager installation fails, the script exits with manual installation guidance
+
+## Apps Catalog
+
+- App options in the wizard are read from:
+  - `scripts/easy-docker/config/apps.tsv`
+- Format per line:
+  - `id<TAB>label<TAB>repo<TAB>default_branch<TAB>branches_csv`
+- Example:
+  - `erpnext<TAB>ERPNext<TAB>https://github.com/frappe/erpnext<TAB>version-15<TAB>version-15,version-16,develop`
+- The install selection in the wizard is limited to apps from this catalog.
+- For each selected app, the wizard shows the configured branch list from this catalog and prompts branch selection.
+
+## Frappe Version Profiles
+
+- During new stack creation (after stack name), the wizard asks for a Frappe branch profile from:
+  - `scripts/easy-docker/config/frappe.tsv`
+- Format per line:
+  - `id<TAB>label<TAB>frappe_branch`
+- Example:
+  - `v16<TAB>Frappe v16 (version-16)<TAB>version-16`
+- The selected `frappe_branch` is saved in stack `metadata.json` and used as default branch suggestion for app branch selection.
+- In `metadata.json`, this value is stored top-level as:
+  - `"frappe_branch": "version-16"` (example)

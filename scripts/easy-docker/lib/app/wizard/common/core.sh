@@ -3,7 +3,9 @@
 get_easy_docker_repo_root() {
   local app_lib_dir=""
   app_lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  (cd "${app_lib_dir}/../../../../.." && pwd)
+  # core.sh lives in scripts/easy-docker/lib/app/wizard/common
+  # so we need 6 levels up to reach repository root.
+  (cd "${app_lib_dir}/../../../../../.." && pwd)
 }
 
 get_easy_docker_stacks_dir() {
@@ -35,6 +37,7 @@ create_stack_directory_with_metadata() {
   local stack_dir_var="${1}"
   local stack_name="${2}"
   local setup_type="${3:-production}"
+  local frappe_branch="${4:-}"
   local stacks_dir=""
   local created_stack_dir=""
   local metadata_path=""
@@ -57,11 +60,16 @@ create_stack_directory_with_metadata() {
   fi
 
   created_at="$(get_current_utc_timestamp)"
+  if [ -z "${frappe_branch}" ]; then
+    return 1
+  fi
+
   if ! cat >"${metadata_path}" <<EOF; then
 {
   "schema_version": 1,
   "stack_name": "${stack_name}",
   "setup_type": "${setup_type}",
+  "frappe_branch": "${frappe_branch}",
   "created_at": "${created_at}"
 }
 EOF
@@ -199,8 +207,6 @@ get_default_frappe_branch() {
   local repo_root=""
   local source_env_file=""
   local value=""
-  local erpnext_version=""
-  local major_version=""
 
   if [ -n "${FRAPPE_BRANCH:-}" ]; then
     printf '%s\n' "${FRAPPE_BRANCH}"
@@ -216,19 +222,26 @@ get_default_frappe_branch() {
     fi
   done
 
-  erpnext_version="$(get_default_erpnext_version || true)"
-  case "${erpnext_version}" in
-  v[0-9]*)
-    major_version="${erpnext_version#v}"
-    major_version="${major_version%%.*}"
-    if [[ "${major_version}" =~ ^[0-9]+$ ]]; then
-      printf 'version-%s\n' "${major_version}"
-      return 0
-    fi
-    ;;
-  esac
-
   printf 'version-15\n'
+  return 0
+}
+
+get_stack_frappe_branch() {
+  local stack_dir="${1}"
+  local metadata_path=""
+  local value=""
+
+  metadata_path="${stack_dir}/metadata.json"
+  if [ ! -f "${metadata_path}" ]; then
+    return 1
+  fi
+
+  value="$(get_metadata_string_field "${metadata_path}" "frappe_branch" || true)"
+  if [ -z "${value}" ]; then
+    return 1
+  fi
+
+  printf '%s\n' "${value}"
   return 0
 }
 

@@ -12,6 +12,8 @@ load_easy_docker_wizard_common_modules() {
   source "${wizard_dir}/common/helpers.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/common/compose.sh
   source "${wizard_dir}/common/compose.sh"
+  # shellcheck source=scripts/easy-docker/lib/app/wizard/common/frappe.sh
+  source "${wizard_dir}/common/frappe.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/common/apps.sh
   source "${wizard_dir}/common/apps.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/common/ux.sh

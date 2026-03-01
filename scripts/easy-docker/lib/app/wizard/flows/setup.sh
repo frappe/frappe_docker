@@ -3,9 +3,11 @@
 handle_create_new_stack_flow() {
   local setup_type="${1:-production}"
   local stack_name=""
+  local frappe_branch=""
   local stack_dir=""
   local create_stack_status=0
   local stack_input_status=0
+  local branch_select_status=0
   local topology_status=0
 
   case "${setup_type}" in
@@ -39,8 +41,21 @@ handle_create_new_stack_flow() {
       continue
     fi
 
+    frappe_branch=""
+    if prompt_frappe_branch_with_cancel frappe_branch "${stack_name}"; then
+      :
+    else
+      branch_select_status=$?
+      if [ "${branch_select_status}" -eq "${FLOW_ABORT_INPUT}" ]; then
+        continue
+      fi
+
+      show_warning_and_wait "Could not select Frappe branch profile." 2
+      return "${FLOW_CONTINUE}"
+    fi
+
     stack_dir=""
-    if create_stack_directory_with_metadata stack_dir "${stack_name}" "${setup_type}"; then
+    if create_stack_directory_with_metadata stack_dir "${stack_name}" "${setup_type}" "${frappe_branch}"; then
       handle_stack_topology_flow "${stack_dir}"
       topology_status=$?
       case "${topology_status}" in
@@ -240,6 +255,22 @@ run_easy_docker_app() {
       ;;
     "Development Stack")
       if handle_development_setup_flow; then
+        handler_status="${FLOW_CONTINUE}"
+      else
+        handler_status=$?
+      fi
+      case "${handler_status}" in
+      "${FLOW_BACK_TO_MAIN}")
+        render_main_screen 1
+        ;;
+      "${FLOW_EXIT_APP}")
+        return 0
+        ;;
+      *) ;;
+      esac
+      ;;
+    "Tools")
+      if handle_tools_flow; then
         handler_status="${FLOW_CONTINUE}"
       else
         handler_status=$?
