@@ -689,6 +689,7 @@ build_stack_apps_json_content_from_metadata_apps() {
   local custom_apps_lines=""
   local predefined_branch=""
   local preset_branch=""
+  local catalog_default_branch=""
   local app=""
   local line=""
   local repo=""
@@ -721,8 +722,14 @@ build_stack_apps_json_content_from_metadata_apps() {
       fi
 
       predefined_branch="$(get_metadata_apps_predefined_branch_for_id "${metadata_path}" "${app}" || true)"
+
       if [ -z "${predefined_branch}" ]; then
-        predefined_branch="${preset_branch}"
+        catalog_default_branch="$(get_predefined_app_default_branch_by_id "${app}" || true)"
+        if [ -n "${catalog_default_branch}" ]; then
+          predefined_branch="${catalog_default_branch}"
+        else
+          predefined_branch="${preset_branch}"
+        fi
       fi
 
       escaped_url="$(json_escape_string "${url}")"

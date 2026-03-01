@@ -174,7 +174,6 @@ choose_predefined_app_branch() {
   local status_text=""
   local selection=""
   local default_hint=""
-  local preferred_found=0
   local -a branch_options=()
 
   if ! get_predefined_app_branch_lines_by_id branches_lines "${app_id}"; then
@@ -186,19 +185,10 @@ choose_predefined_app_branch() {
     if [ -z "${branch}" ]; then
       continue
     fi
-    if [ "${branch}" = "${preferred_branch}" ]; then
-      branch_options=("${branch}" "${branch_options[@]}")
-      preferred_found=1
-    else
-      branch_options+=("${branch}")
-    fi
+    branch_options+=("${branch}")
   done <<EOF
 ${branches_lines}
 EOF
-
-  if [ -n "${preferred_branch}" ] && [ "${preferred_found}" -eq 0 ]; then
-    branch_options=("${preferred_branch}" "${branch_options[@]}")
-  fi
 
   if [ "${#branch_options[@]}" -eq 0 ]; then
     show_warning_and_wait "No branches available for ${app_label} (${repo_url})." 3
@@ -254,6 +244,7 @@ prompt_custom_modular_apps_data() {
   local predefined_repo_url=""
   local selected_branch=""
   local preferred_branch=""
+  local available_branch_lines=""
   local existing_branch_lines=""
   local selected_branch_lines=""
   local selected_app_count=0
@@ -369,6 +360,13 @@ EOF
       fi
       if [ -z "${preferred_branch}" ]; then
         preferred_branch="$(get_default_frappe_branch)"
+      fi
+
+      available_branch_lines=""
+      if get_predefined_app_branch_lines_by_id available_branch_lines "${predefined_app_id}"; then
+        if [ -n "${preferred_branch}" ] && ! lines_contains_line "${available_branch_lines}" "${preferred_branch}"; then
+          preferred_branch="$(get_predefined_app_default_branch_by_id "${predefined_app_id}" || true)"
+        fi
       fi
 
       if choose_predefined_app_branch selected_branch "${stack_dir}" "${predefined_app_id}" "${predefined_app_label}" "${predefined_repo_url}" "${preferred_branch}"; then
