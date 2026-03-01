@@ -16,7 +16,7 @@ get_missing_docker_commands() {
   local missing=()
   local subcommand=""
 
-  for subcommand in ps exec inspect cp; do
+  for subcommand in ps exec inspect cp build; do
     if ! docker_supports_command "${subcommand}"; then
       missing+=("docker ${subcommand}")
     fi

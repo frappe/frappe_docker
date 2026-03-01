@@ -11,6 +11,7 @@ handle_manage_selected_stack_flow() {
   local custom_apps_update_status=0
   local persist_apps_status=0
   local render_compose_status=0
+  local build_image_status=0
   local generated_compose_path=""
 
   stack_dir="$(get_stack_dir_by_name "${stack_name}" || true)"
@@ -26,7 +27,7 @@ handle_manage_selected_stack_flow() {
       while true; do
         apps_action="$(show_manage_stack_apps_menu "${stack_name}" "${stack_dir}" || true)"
         case "${apps_action}" in
-        "Generate apps.json")
+        "Regenerate apps.json from metadata")
           stack_metadata_path="${stack_dir}/metadata.json"
           stack_apps_path="${stack_dir}/apps.json"
           if [ ! -f "${stack_metadata_path}" ]; then
@@ -84,6 +85,64 @@ handle_manage_selected_stack_flow() {
       while true; do
         docker_action="$(show_manage_stack_docker_menu "${stack_name}" "${stack_dir}" || true)"
         case "${docker_action}" in
+        "Build custom image")
+          show_warning_message "Starting docker build for stack: ${stack_name}"
+          if build_stack_custom_image "${stack_dir}"; then
+            :
+          else
+            build_image_status=$?
+            case "${build_image_status}" in
+            11)
+              show_warning_and_wait "Custom image build failed: missing metadata.json in ${stack_dir}." 4
+              ;;
+            12)
+              show_warning_and_wait "Custom image build failed: stack env file not found in ${stack_dir}." 4
+              ;;
+            13)
+              show_warning_and_wait "Custom image build failed: CUSTOM_IMAGE is missing in stack env file." 4
+              ;;
+            14)
+              show_warning_and_wait "Custom image build failed: CUSTOM_TAG is missing in stack env file." 4
+              ;;
+            15)
+              show_warning_and_wait "Custom image build failed: frappe_branch missing in metadata.json." 4
+              ;;
+            16)
+              show_warning_and_wait "Custom image build failed: could not generate apps.json from metadata app selection." 4
+              ;;
+            17)
+              show_warning_and_wait "Custom image build failed: apps.json not found after generation." 4
+              ;;
+            18)
+              show_warning_and_wait "Custom image build failed: base64 command is not available in this environment." 4
+              ;;
+            19)
+              show_warning_and_wait "Custom image build failed: apps.json could not be base64-encoded." 4
+              ;;
+            20)
+              show_warning_and_wait "Custom image build failed: images/layered/Containerfile not found." 4
+              ;;
+            21)
+              show_warning_and_wait "Custom image build failed: docker build returned an error. Check the output above." 4
+              ;;
+            22)
+              show_warning_and_wait "Custom image build failed: git is required for app branch precheck (git ls-remote)." 4
+              ;;
+            23)
+              show_warning_and_wait "Custom image build failed: could not parse app entries from apps.json." 4
+              ;;
+            24)
+              show_warning_and_wait "Custom image build failed: app branch precheck failed -> ${EASY_DOCKER_BUILD_ERROR_DETAIL}" 6
+              ;;
+            *)
+              show_warning_and_wait "Custom image build failed (${build_image_status})." 4
+              ;;
+            esac
+            continue
+          fi
+
+          show_warning_and_wait "Custom image build finished successfully for stack: ${stack_name}" 3
+          ;;
         "Generate docker compose from env")
           generated_compose_path="$(get_stack_generated_compose_path "${stack_dir}")"
           if render_stack_compose_from_metadata "${stack_dir}"; then

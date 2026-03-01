@@ -9,7 +9,7 @@ show_tools_menu() {
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
-    --height 8 \
+    --height 9 \
     --header "Tools - App Catalog Utilities" \
     --cursor.foreground 63 \
     --selected.foreground 45 \

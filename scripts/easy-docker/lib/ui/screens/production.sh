@@ -382,7 +382,7 @@ show_manage_stack_apps_menu() {
     --header "Stack apps actions" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
-    "Generate apps.json" \
+    "Regenerate apps.json from metadata" \
     "Select apps and branches" \
     "Back" \
     "Exit and close easy-docker"
@@ -400,10 +400,11 @@ show_manage_stack_docker_menu() {
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
-    --height 7 \
+    --height 8 \
     --header "Stack docker actions" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
+    "Build custom image" \
     "Generate docker compose from env" \
     "Back" \
     "Exit and close easy-docker"
