@@ -150,12 +150,19 @@ get_env_file_key_value() {
       /^[[:space:]]*#/ { next }
       $0 !~ /=/ { next }
       {
-        k = $1
+        line = $0
+        sub(/\r$/, "", line)
+        pos = index(line, "=")
+        if (pos == 0) {
+          next
+        }
+        k = substr(line, 1, pos - 1)
+        sub(/^[[:space:]]*export[[:space:]]+/, "", k)
         gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
         if (k != key) {
           next
         }
-        v = substr($0, index($0, "=") + 1)
+        v = substr(line, pos + 1)
         gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
         print v
         exit
