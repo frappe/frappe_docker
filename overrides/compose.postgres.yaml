@@ -26,7 +26,7 @@ services:
       interval: 5s
       retries: 5
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?No db password set}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     volumes:
       - db-data:/var/lib/postgresql/data
 
