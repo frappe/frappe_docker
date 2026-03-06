@@ -1,0 +1,5 @@
+[
+  { "url":"https://github.com/frappe/erpnext", "branch":"version-15" },
+  { "url":"https://github.com/frappe/print_designer.git", "branch":"main" },
+  { "url":"https://github.com/Bryantant/Hicom-POS.git", "branch":"whitelabel-hicom-pos" }
+]

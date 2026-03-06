@@ -8,7 +8,7 @@ services:
         condition: service_healthy
 
   db:
-    image: mariadb:11.8
+    image: mariadb:10.6
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       start_period: 5s
