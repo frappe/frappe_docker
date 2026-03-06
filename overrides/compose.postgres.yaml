@@ -3,18 +3,6 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: "5432"
-      DB_TYPE: postgres
-    command:
-      - >
-        ls -1 apps > sites/apps.txt;
-        bench set-config -g db_type postgres;
-        bench set-config -g db_host $$DB_HOST;
-        bench set-config -gp db_port $$DB_PORT;
-        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
-        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
-        bench set-config -gp socketio_port $$SOCKETIO_PORT;
-        bench set-config -g chromium_path /usr/bin/chromium-headless-shell;
     depends_on:
       db:
         condition: service_healthy
@@ -26,7 +14,7 @@ services:
       interval: 5s
       retries: 5
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123}
     volumes:
       - db-data:/var/lib/postgresql/data
 
