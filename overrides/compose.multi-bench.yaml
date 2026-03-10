@@ -37,12 +37,10 @@ services:
   redis-cache:
     networks:
       - bench-network
-      - mariadb-network
 
   redis-queue:
     networks:
       - bench-network
-      - mariadb-network
 
 networks:
   traefik-public:
