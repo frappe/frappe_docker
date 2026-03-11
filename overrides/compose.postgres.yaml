@@ -2,15 +2,20 @@ services:
   configurator:
     environment:
       DB_HOST: db
-      DB_PORT: 5432
+      DB_PORT: "5432"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
-    image: postgres:13.5
+    image: postgres:15.17
     command: []
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?No db password set}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123}
     volumes:
       - db-data:/var/lib/postgresql/data
 
