@@ -33,11 +33,11 @@ pnpm install
 pnpm run docs:dev
 ```
 
-4. Open `http://localhost:5173` in your browser to see the development version which will update the preview as you make changes.
+4. Open `http://localhost:5173/frappe_docker` in your browser to see the development version which will update the preview as you make changes.
 
 ## Configurations
 
-1. Public assets related to VitePress site is added in the `docs/public` folder. This folder should not be used for adding images added inside the `.md` file.
+1. Public assets related to VitePress site is added in the `docs/public` folder. This folder should **NOT** be used for adding images added inside the `.md` file.
 2. VitePress uses `index.md` files to do some special things. For example the home page is configured using the `docs/index.md` file. Checkout the file for more details.
 3. VitePress uses 'file based routing', meaning the URL paths mimics the directory and file structure inside the `docs/` directory.
 4. VitePress specific config is `docs/.vitepress/config.mts`.
