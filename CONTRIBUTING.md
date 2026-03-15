@@ -100,11 +100,19 @@ Run pytest:
 pytest
 ```
 
+## Detailed Guidelines
+
+A detailed form management guidelines are available in the [Fork Management](./docs/08-reference/03-fork-management.md)
+
 # Documentation
 
 Documentation is written as markdown files, and placed inside the `docs/` directory. There are multiple sub directories under `docs/`, and be sure to place the `.md` file in the relevant sub directory if you are adding a new page.
 
-If you want to include any image in the markdown file, place them in the `docs/images/` folder, and add a relative link in the `.md` file.
+If you want to include any image in the markdown file, place them in the `docs/images/` folder, and add a relative link in the `.md` file. For example if there is a `diagram.png` in the `docs/images/` directory, which has to be shown in a markdown file called `docs/01-getting-started/01-choosing-a-deployment-method.md` the image has to be referenced as,
+
+```
+![A diagram](../images/diagram.png)
+```
 
 Frappe Docker also have a static site version of the documentation, which is made using the same `.md` files in the `docs/` directory. Build pipeline uses [VitePress](https://vitepress.dev/) as the Static Site builder, which is a JavaScript (TypeScript) static site builder. Note that to contribute to the documentation JavaScript or VitePress knowledge is not needed. Updating the `.md` file is enough.
 
