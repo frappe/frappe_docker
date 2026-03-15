@@ -1,3 +1,7 @@
+---
+title: Caddy with HTTPS
+---
+
 # Caddy reverse proxy (local HTTPS)
 
 This guide shows how to use Caddy as an external reverse proxy in front of the frontend container. It is most useful for local HTTPS or internal networks.

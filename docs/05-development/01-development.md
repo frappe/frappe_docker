@@ -1,3 +1,7 @@
+---
+title: Getting Started
+---
+
 # Getting Started
 
 ## Prerequisites
@@ -95,6 +99,26 @@ To setup frappe framework version 13 bench set `PYENV_VERSION` environment varia
 nvm use v14
 PYENV_VERSION=3.9.17 bench init --skip-redis-config-generation --frappe-branch version-13 frappe-bench
 cd frappe-bench
+```
+
+At this point the the directory structure will be very close to this, if not exact,
+
+```
+development/
+├── frappe-bench/           # Your actual Frappe installation
+│   ├── apps/              # All installed Frappe applications
+│   │   ├── frappe/        # Core framework (don't modify directly)
+│   │   ├── erpnext/       # ERPNext application (if installed)
+│   │   └── my_custom_app/ # Your custom apps (edit freely)
+│   ├── sites/             # Multi-tenant sites
+│   │   ├── development.localhost/     # Default dev site
+│   │   │   ├── site_config.json      # Site-specific config
+│   │   │   └── private/files/        # Uploaded files
+│   │   └── common_site_config.json   # Shared configuration
+│   ├── env/               # Python virtual environment
+│   ├── logs/              # Application logs
+│   └── config/            # Bench-level configuration
+└── .vscode/               # VSCode workspace settings
 ```
 
 ### Setup hosts

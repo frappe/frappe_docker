@@ -1,3 +1,7 @@
+---
+title: Build Setup
+---
+
 This guide walks you through building Frappe images from the repository resources.
 
 # Prerequisites
