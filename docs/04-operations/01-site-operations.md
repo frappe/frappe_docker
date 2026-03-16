@@ -15,17 +15,12 @@ docker-compose exec backend bench new-site --mariadb-user-host-login-scope=% --d
 
 If you need to install some app, specify `--install-app`. To see all options, just run `bench new-site --help`.
 
-To create Postgres site (assuming you already use [Postgres compose override](../02-setup/05-overrides.md)) you need have to do set `root_login` and `root_password` in common config before that:
+To create a Postgres site (assuming you already use [Postgres compose override](../02-setup/05-overrides.md)), the `root_login` and `root_password` are now automatically set by the `configurator`. For major version upgrades, please refer to the [Postgres Migration Guide](../06-migration/03-postgres-major-version-upgrade.md).
+
+To create a new Postgres site:
 
 ```sh
-docker-compose exec backend bench set-config -g root_login <root-login>
-docker-compose exec backend bench set-config -g root_password <root-password>
-```
-
-Also command is slightly different:
-
-```sh
-docker-compose exec backend bench new-site --mariadb-user-host-login-scope=% --db-type postgres --admin-password <admin-password> <site-name>
+docker-compose exec backend bench new-site --db-type postgres --admin-password <admin-password> <site-name>
 ```
 
 ## Push backup to S3 storage
