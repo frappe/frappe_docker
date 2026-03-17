@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 
 from tests.conftest import S3ServiceResult
-from tests.utils import Compose, check_url_content
+from tests.utils import Compose, check_url_content, wait_for_url
 
 BACKEND_SERVICES = (
     "backend",
@@ -79,6 +79,28 @@ def test_files_reachable(frappe_site: str, tmp_path: Path, compose: Compose):
         callback=callback,
         site_name=frappe_site,
     )
+
+
+def test_files_html_security_headers(
+    frappe_site: str, tmp_path: Path, compose: Compose
+):
+    file_path = tmp_path / "testfile.html"
+    file_path.write_text("<html><body>This is a Frappe Docker test html file</body></html>")
+
+    compose(
+        "cp",
+        str(file_path),
+        f"backend:/home/frappe/frappe-bench/sites/{frappe_site}/public/files/",
+    )
+
+    response = wait_for_url(
+        url=f"http://127.0.0.1/files/{file_path.name}",
+        site_name=frappe_site,
+    )
+
+    assert response.headers["Content-Disposition"] == "attachment"
+    assert response.headers["X-Frame-Options"] == "SAMEORIGIN"
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
 
 
 @pytest.mark.parametrize("service", BACKEND_SERVICES)
