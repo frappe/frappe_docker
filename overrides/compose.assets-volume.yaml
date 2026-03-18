@@ -1,0 +1,27 @@
+services:
+  backend:
+    volumes:
+      - assets:/home/frappe/frappe-bench/sites/assets
+
+  frontend:
+    volumes:
+      - assets:/home/frappe/frappe-bench/sites/assets
+
+  websocket:
+    volumes:
+      - assets:/home/frappe/frappe-bench/sites/assets
+
+  scheduler:
+    volumes:
+      - assets:/home/frappe/frappe-bench/sites/assets
+
+  queue-short:
+    volumes:
+      - assets:/home/frappe/frappe-bench/sites/assets
+
+  queue-long:
+    volumes:
+      - assets:/home/frappe/frappe-bench/sites/assets
+
+volumes:
+  assets:
