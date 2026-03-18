@@ -85,7 +85,9 @@ def test_files_html_security_headers(
     frappe_site: str, tmp_path: Path, compose: Compose
 ):
     file_path = tmp_path / "testfile.html"
-    file_path.write_text("<html><body>This is a Frappe Docker test html file</body></html>")
+    file_path.write_text(
+        "<html><body>This is a Frappe Docker test html file</body></html>"
+    )
 
     compose(
         "cp",
