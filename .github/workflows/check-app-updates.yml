@@ -1,0 +1,132 @@
+name: Check App Updates
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # каждый понедельник в 06:00 UTC
+  workflow_dispatch:        # ручной запуск
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for new app versions
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, urllib.request, os, sys
+
+          def gh(path):
+              url = f"https://api.github.com/{path}"
+              req = urllib.request.Request(url, headers={
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "User-Agent": "frappe-update-checker",
+                  "Accept": "application/vnd.github+json"
+              })
+              try:
+                  return json.loads(urllib.request.urlopen(req, timeout=10).read())
+              except Exception as e:
+                  print(f"  API error for {path}: {e}", file=sys.stderr)
+                  return {}
+
+          def latest_tag(owner, repo):
+              """Возвращает последний стабильный тег (не pre-release)."""
+              releases = gh(f"repos/{owner}/{repo}/releases?per_page=10")
+              for r in (releases if isinstance(releases, list) else []):
+                  if not r.get("prerelease") and not r.get("draft"):
+                      return r["tag_name"]
+              return None
+
+          def branch_sha(owner, repo, branch):
+              """SHA последнего коммита ветки."""
+              data = gh(f"repos/{owner}/{repo}/commits/{branch}")
+              return data.get("sha", "")[:8] if data else ""
+
+          apps = json.load(open("apps.json"))
+          updates = []
+          report_lines = []
+
+          for app in apps:
+              url    = app["url"].rstrip("/")
+              branch = app["branch"]
+              name   = url.split("/")[-1]
+              owner  = url.split("/")[-2]
+
+              tag  = latest_tag(owner, name)
+              sha  = branch_sha(owner, name, branch)
+              current = app.get("tag") or app.get("branch")
+
+              status = ""
+              if tag and tag != app.get("tag"):
+                  status = f"NEW TAG {tag}"
+                  if "tag" not in app or app.get("tag") != tag:
+                      app["_new_tag"] = tag
+              else:
+                  status = f"up-to-date (tag={tag or 'none'}, sha={sha})"
+
+              line = f"  {name:20s} branch={branch:12s}  {status}"
+              print(line)
+              report_lines.append(line)
+
+          # Записываем отчёт для следующих шагов
+          report = "\n".join(report_lines)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"report<<EOF\n{report}\nEOF\n")
+
+          # Проверяем есть ли новые теги
+          has_updates = any("_new_tag" in a for a in apps)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"has_updates={'true' if has_updates else 'false'}\n")
+
+          # Обновляем apps.json если есть новые теги
+          if has_updates:
+              for app in apps:
+                  if "_new_tag" in app:
+                      app["branch"] = app.pop("_new_tag")
+                  app.pop("_new_tag", None)
+              with open("apps.json", "w") as f:
+                  json.dump(apps, f, indent=2)
+              print("\n✓ apps.json обновлён")
+          else:
+              print("\n✓ Все приложения актуальны")
+          PYEOF
+
+      - name: Show update report
+        run: |
+          echo "=== Статус приложений ==="
+          echo "${{ steps.check.outputs.report }}"
+
+      - name: Create Pull Request with updates
+        if: steps.check.outputs.has_updates == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update app versions in apps.json"
+          branch: auto/update-apps
+          delete-branch: true
+          title: "🔄 Обновление версий приложений Frappe"
+          body: |
+            Автоматическое обновление версий приложений.
+
+            **Изменения в apps.json:**
+
+            ```
+            ${{ steps.check.outputs.report }}
+            ```
+
+            После merge необходимо:
+            1. `make build` — пересобрать образ
+            2. `make update` — задеплоить с миграциями
+
+            > Создано автоматически workflow `check-app-updates`
+          labels: |
+            dependencies
+            automated

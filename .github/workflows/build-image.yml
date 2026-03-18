@@ -1,0 +1,92 @@
+name: Build frappe-custom image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps.json'
+      - 'images/layered/Containerfile'
+      - 'images/custom/Containerfile'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Docker image tag'
+        required: false
+        default: 'v16'
+      frappe_branch:
+        description: 'Frappe branch'
+        required: false
+        default: 'version-16'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set build variables
+        id: vars
+        run: |
+          TAG="${{ github.event.inputs.tag || 'v16' }}"
+          FRAPPE_BRANCH="${{ github.event.inputs.frappe_branch || 'version-16' }}"
+          APPS_JSON_B64=$(base64 -w 0 apps.json)
+          DATE=$(date +%Y%m%d)
+
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "frappe_branch=${FRAPPE_BRANCH}" >> $GITHUB_OUTPUT
+          echo "apps_json_b64=${APPS_JSON_B64}" >> $GITHUB_OUTPUT
+          echo "date=${DATE}" >> $GITHUB_OUTPUT
+
+          echo "=== Приложения для сборки ==="
+          python3 -c "
+          import json
+          apps = json.load(open('apps.json'))
+          for a in apps:
+              name = a['url'].split('/')[-1]
+              print(f'  - {name} @ {a[\"branch\"]}')
+          "
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: images/layered/Containerfile
+          push: true
+          build-args: |
+            APPS_JSON_BASE64=${{ steps.vars.outputs.apps_json_b64 }}
+            FRAPPE_BRANCH=${{ steps.vars.outputs.frappe_branch }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/frappe-custom:${{ steps.vars.outputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/frappe-custom:${{ steps.vars.outputs.tag }}-${{ steps.vars.outputs.date }}
+            ghcr.io/${{ github.repository_owner }}/frappe-custom:latest
+
+      - name: Summary
+        run: |
+          echo "## ✅ Образ собран" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image** | \`ghcr.io/${{ github.repository_owner }}/frappe-custom:${{ steps.vars.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frappe branch** | \`${{ steps.vars.outputs.frappe_branch }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Date tag** | \`${{ steps.vars.outputs.tag }}-${{ steps.vars.outputs.date }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Приложения" >> $GITHUB_STEP_SUMMARY
+          python3 -c "
+          import json
+          apps = json.load(open('apps.json'))
+          for a in apps:
+              name = a['url'].split('/')[-1]
+              print(f'- \`{name}\` @ \`{a[\"branch\"]}\`')
+          " >> $GITHUB_STEP_SUMMARY
