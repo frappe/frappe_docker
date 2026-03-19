@@ -9,7 +9,11 @@ TAG   ?= v16
 
 COMPOSE_OVERRIDES := \
   -f compose.yaml \
-  -f overrides/compose.assets-volume.yaml
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.assets-volume.yaml \
+  -f overrides/compose.noproxy.yaml \
+  -f overrides/compose.backup-cron.yaml
 
 APPS_JSON_B64 := $(shell base64 -w 0 apps.json)
 
