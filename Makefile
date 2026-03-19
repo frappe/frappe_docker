@@ -13,11 +13,21 @@ COMPOSE_OVERRIDES := \
   -f overrides/compose.redis.yaml \
   -f overrides/compose.assets-volume.yaml \
   -f overrides/compose.noproxy.yaml \
+  -f overrides/compose.local-origin.yaml \
   -f overrides/compose.backup-cron.yaml
 
 APPS_JSON_B64 := $(shell base64 -w 0 apps.json)
 
-.PHONY: help build up down restart update migrate assets backup logs ps shell
+# Приложения с pre-built esbuild-бандлами (public/dist/).
+# Vue SPA (crm, builder, helpdesk, insights, gameplan, drive) используют public/frontend/ —
+# они синхронизируются отдельной веткой внутри sync-assets.
+DIST_APPS := frappe erpnext hrms lms print_designer webshop education lending newsletter
+
+# Имя именованного тома Docker Compose (проект = имя директории)
+COMPOSE_PROJECT := $(notdir $(CURDIR))
+ASSETS_VOL      := $(COMPOSE_PROJECT)_assets
+
+.PHONY: help build up down restart update migrate assets sync-assets backup logs ps shell
 
 # ── Справка ─────────────────────────────────────────────────
 help:
@@ -37,7 +47,8 @@ help:
 	@echo "  Обновление:"
 	@echo "    make update         — rebuild образа + up + migrate + assets"
 	@echo "    make migrate        — bench migrate на сайте $(SITE)"
-	@echo "    make assets         — пересобрать JS/CSS бандлы"
+	@echo "    make assets         — пересобрать JS/CSS бандлы и синхронизировать"
+	@echo "    make sync-assets    — только скопировать dist в assets volume (без rebuild)"
 	@echo ""
 	@echo "  Обслуживание:"
 	@echo "    make backup         — создать резервную копию сайта"
@@ -90,13 +101,52 @@ migrate:
 
 # ── Пересборка JS/CSS ────────────────────────────────────────
 assets:
-	@echo "→ Пересборка assets..."
-	docker compose $(COMPOSE_OVERRIDES) exec backend \
-	  bash -c "cd apps/frappe && node esbuild --production"
-	docker compose $(COMPOSE_OVERRIDES) exec backend \
-	  bench build
-	docker compose $(COMPOSE_OVERRIDES) restart frontend
+	@echo "→ Пересборка assets (bench build --production)..."
+	docker compose $(COMPOSE_OVERRIDES) exec backend bench build --production
+	$(MAKE) sync-assets
 	@echo "✓ Assets пересобраны"
+
+# ── Синхронизация dist → frappe-project_assets volume ────────
+# bench build пишет файлы в overlay-слой backend-контейнера, а nginx
+# читает из именованного тома. Эта цель копирует dist-файлы туда.
+sync-assets:
+	@echo "→ Синхронизация dist-файлов в $(ASSETS_VOL)..."
+	@TMPDIR=$$(mktemp -d) && \
+	trap "rm -rf $$TMPDIR" EXIT && \
+	BACKEND=$$(docker compose $(COMPOSE_OVERRIDES) ps -q backend) && \
+	docker cp $$BACKEND:/home/frappe/frappe-bench/sites/assets/assets.json \
+	  $$TMPDIR/assets.json && \
+	for app in $(DIST_APPS); do \
+	  SRC=/home/frappe/frappe-bench/apps/$$app/$$app/public/dist; \
+	  if docker cp $$BACKEND:$$SRC $$TMPDIR/$$app-dist 2>/dev/null; then \
+	    echo "  ✓ $$app"; \
+	  else \
+	    echo "  - $$app (нет dist, пропущено)"; \
+	  fi; \
+	done && \
+	docker run --rm \
+	  -v $$TMPDIR:/src:ro \
+	  -v $(ASSETS_VOL):/assets \
+	  alpine sh -c ' \
+	    cp -f /src/assets.json /assets/assets.json; \
+	    for d in /src/*-dist; do \
+	      [ -d "$$d" ] || continue; \
+	      app=$$(basename "$$d" -dist); \
+	      rm -f /assets/$$app; \
+	      mkdir -p /assets/$$app/dist; \
+	      cp -rf "$$d/." /assets/$$app/dist/; \
+	    done \
+	  '
+	@echo "→ Сброс кэша assets_json в Redis..."
+	@docker compose $(COMPOSE_OVERRIDES) exec backend \
+	  bench --site $(SITE) clear-cache
+	@docker compose $(COMPOSE_OVERRIDES) exec backend bash -c \
+	  ". /home/frappe/frappe-bench/env/bin/activate && \
+	   python -c \"import redis; r=redis.Redis(host='redis-cache'); \
+	   deleted=r.delete('assets_json'); \
+	   print('assets_json удалён из Redis' if deleted else 'assets_json отсутствовал')\""
+	@docker compose $(COMPOSE_OVERRIDES) restart frontend
+	@echo "✓ Синхронизация завершена"
 
 # ── Резервная копия ──────────────────────────────────────────
 backup:

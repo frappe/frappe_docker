@@ -1,0 +1,18 @@
+services:
+  frontend:
+    # Fix socket.io "Invalid origin" when accessing via localhost.
+    # By default nginx forces "Origin: http://erp.local" for websocket proxying,
+    # but the browser sends Host: localhost:8090 — they don't match.
+    # Strategy: run nginx-entrypoint.sh to generate /etc/nginx/conf.d/frappe.conf,
+    # then patch the generated file (template dir is read-only), then start nginx.
+    entrypoint:
+      - bash
+      - -c
+      - |
+        nginx-entrypoint.sh &
+        NGINX_PID=$$!
+        sleep 1
+        sed -i 's|proxy_set_header Origin .*|proxy_set_header Origin $$http_origin;|' \
+          /etc/nginx/conf.d/frappe.conf
+        nginx -s reload
+        wait $$NGINX_PID
