@@ -56,18 +56,22 @@ bench/
 ### Key Architectural Differences
 
 1. **Multi-tenancy**
+
    - Django: One app = one database (typically)
    - Frappe: One installation = many sites, each with own database
 
 2. **Background Jobs**
+
    - Django: Requires Celery + Redis + worker setup
    - Frappe: Built-in queue system, just use `enqueue()`
 
 3. **Real-time**
+
    - Django: Requires Channels + Redis + ASGI setup
    - Frappe: Socket.IO built-in, automatic for DocType updates
 
 4. **Admin/Management**
+
    - Django: Admin for models, basic CRUD
    - Frappe: Full-featured Desk with reports, dashboards, permissions
 
