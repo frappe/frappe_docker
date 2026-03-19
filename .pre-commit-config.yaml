@@ -27,6 +27,7 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
+        exclude: ^docs/pnpm-lock\.yaml$
         additional_dependencies:
           - prettier@3.5.2
 
