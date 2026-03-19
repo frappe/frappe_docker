@@ -1,3 +1,7 @@
+---
+title: Site Operations
+---
+
 # Site operations
 
 > 💡 You should setup `--project-name` option in `docker-compose` commands if you have non-standard project name.

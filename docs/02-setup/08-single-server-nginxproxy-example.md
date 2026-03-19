@@ -1,3 +1,7 @@
+---
+title: Single Server Example
+---
+
 # Single Server Example (nginx-proxy + acme-companion)
 
 This guide demonstrates a single-server setup using nginx-proxy and acme-companion for HTTPS. It is best for a small number of hostnames and a single bench. If you need multiple benches or advanced routing, use the Traefik-based example instead.

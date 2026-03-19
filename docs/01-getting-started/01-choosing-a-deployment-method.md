@@ -1,3 +1,7 @@
+---
+title: Choosing a Method
+---
+
 # Choosing a Deployment or Development Method
 
 This repository (`frappe_docker`) supports **multiple ways to run Frappe using Docker**.
@@ -45,7 +49,7 @@ If you start with `pwd.yml`, you should expect to **throw the environment away**
 
 ## 2. VS Code Devcontainers – Local Development Setup
 
-The development setup described in [`/docs/05-development`](../05-development)
+The development setup described in [`/docs/05-development/development.md`](../05-development/01-development.md)
 
 uses **VS Code Devcontainers** to provide a **local Frappe development environment**.
 
@@ -103,7 +107,7 @@ It uses:
 - The main `compose.yml`
 - Override files from the `overrides/` directory
 
-Detailed instructions are available in [`/docs/02-setup`](../02-setup)
+Detailed instructions are available in [`/docs/02-setup`](../02-setup/01-overview.md)
 
 ### Characteristics
 

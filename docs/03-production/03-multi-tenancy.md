@@ -1,3 +1,7 @@
+---
+title: Multi Tenancy
+---
+
 WARNING: Do not use this in production if the site is going to be served over plain http.
 
 ### Step 1
