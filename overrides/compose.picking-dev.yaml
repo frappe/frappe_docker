@@ -1,0 +1,20 @@
+services:
+  backend:
+    volumes:
+      - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+
+  websocket:
+    volumes:
+      - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+
+  queue-short:
+    volumes:
+      - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+
+  queue-long:
+    volumes:
+      - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+
+  scheduler:
+    volumes:
+      - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro

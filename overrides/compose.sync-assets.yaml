@@ -1,0 +1,6 @@
+services:
+  backend:
+    volumes:
+      - ./sync-assets.sh:/usr/local/bin/sync-assets.sh:ro
+    command: >
+      /bin/bash -c "/usr/local/bin/sync-assets.sh && bench schedule"

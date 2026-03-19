@@ -16,6 +16,9 @@ COMPOSE_OVERRIDES := \
   -f overrides/compose.local-origin.yaml \
   -f overrides/compose.backup-cron.yaml
 
+COMPOSE_DEV := $(COMPOSE_OVERRIDES) \
+  -f overrides/compose.picking-dev.yaml
+
 APPS_JSON_B64 := $(shell base64 -w 0 apps.json)
 
 # Приложения с pre-built esbuild-бандлами (public/dist/).
@@ -155,9 +158,34 @@ backup:
 	  bench --site $(SITE) backup --with-files
 	@echo "✓ Бэкап создан (см. sites/$(SITE)/private/backups/)"
 
+# ── Разработка picking_app ───────────────────────────────────
+# Монтирует /home/mkr/picking_app как volume — изменения в VS Code
+# сразу видны без пересборки образа.
+dev-up:
+	docker compose $(COMPOSE_DEV) up -d --no-deps --force-recreate \
+	  backend websocket queue-short queue-long scheduler
+	@echo "→ Перезапуск frontend (обновление IP backend в nginx)..."
+	docker compose $(COMPOSE_OVERRIDES) restart frontend
+	@echo "✓ Dev-режим активен. Исходники: /home/mkr/picking_app"
+	@echo "  Страница: http://localhost:8090/app/picking-mobile"
+
+dev-down:
+	docker compose $(COMPOSE_OVERRIDES) up -d --no-deps --force-recreate \
+	  backend websocket queue-short queue-long scheduler
+	docker compose $(COMPOSE_OVERRIDES) restart frontend
+	@echo "✓ Dev-режим выключен, volume-монтирование снято"
+
+dev-reload:
+	@echo "→ Сброс кэша Frappe..."
+	docker compose $(COMPOSE_DEV) exec backend bench --site $(SITE) clear-cache
+	@echo "✓ Кэш сброшен — перезагрузи страницу в браузере"
+
 # ── Логи и отладка ───────────────────────────────────────────
 logs:
 	docker compose $(COMPOSE_OVERRIDES) logs -f backend
+
+logs-picking:
+	docker compose $(COMPOSE_OVERRIDES) logs -f backend | grep -i "picking\|error\|exception\|traceback" --color
 
 shell:
 	docker compose $(COMPOSE_OVERRIDES) exec backend bash
