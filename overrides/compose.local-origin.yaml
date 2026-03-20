@@ -14,5 +14,11 @@ services:
         sleep 1
         sed -i 's|proxy_set_header Origin .*|proxy_set_header Origin $$http_origin;|' \
           /etc/nginx/conf.d/frappe.conf
+        sed -i '/location \/socket\.io/,/proxy_pass/{s|proxy_set_header Host .*|proxy_set_header Host $$http_host;|}' \
+          /etc/nginx/conf.d/frappe.conf
+        sed -i 's|listen 8080;|listen 8080;\n\tresolver 127.0.0.11 valid=30s;|' \
+          /etc/nginx/conf.d/frappe.conf
+        sed -i 's|proxy_pass http://socketio-server;|set $$sock websocket:9000;\n\t\tproxy_pass http://$$sock;|' \
+          /etc/nginx/conf.d/frappe.conf
         nginx -s reload
         wait $$NGINX_PID

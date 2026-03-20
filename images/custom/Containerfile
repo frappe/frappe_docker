@@ -133,7 +133,11 @@ RUN export APP_INSTALL_ARGS="" && \
     /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
   echo "{}" > sites/common_site_config.json && \
-  find apps -mindepth 1 -path "*/.git" | xargs rm -fr
+  find apps -mindepth 1 -path "*/.git" | xargs rm -fr && \
+  # Fix: Frappe bug — missing return after invalid namespace check in socket.io authenticate.js
+  # Without this, next() is called twice causing "Invalid origin" false positives
+  sed -i '/next(new Error("Invalid namespace"))/a\\t\treturn;' \
+    /home/frappe/frappe-bench/apps/frappe/realtime/middlewares/authenticate.js
 
 FROM base AS backend
 

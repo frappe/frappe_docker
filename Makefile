@@ -30,7 +30,7 @@ DIST_APPS := frappe erpnext hrms lms print_designer webshop education lending ne
 COMPOSE_PROJECT := $(notdir $(CURDIR))
 ASSETS_VOL      := $(COMPOSE_PROJECT)_assets
 
-.PHONY: help build up down restart update migrate assets sync-assets backup logs ps shell
+.PHONY: help build up down restart recreate-frontend update migrate assets sync-assets backup logs ps shell
 
 # ── Справка ─────────────────────────────────────────────────
 help:
@@ -51,7 +51,7 @@ help:
 	@echo "    make update         — rebuild образа + up + migrate + assets"
 	@echo "    make migrate        — bench migrate на сайте $(SITE)"
 	@echo "    make assets         — пересобрать JS/CSS бандлы и синхронизировать"
-	@echo "    make sync-assets    — только скопировать dist в assets volume (без rebuild)"
+	@echo "    make sync-assets    — скопировать dist в assets volume (очищает кэш, затем копирует)"
 	@echo ""
 	@echo "  Обслуживание:"
 	@echo "    make backup         — создать резервную копию сайта"
@@ -80,6 +80,9 @@ down:
 
 restart:
 	docker compose $(COMPOSE_OVERRIDES) restart backend frontend websocket
+
+recreate-frontend:
+	docker compose $(COMPOSE_OVERRIDES) up -d --no-deps --force-recreate frontend
 
 ps:
 	docker compose $(COMPOSE_OVERRIDES) ps
@@ -113,6 +116,14 @@ assets:
 # bench build пишет файлы в overlay-слой backend-контейнера, а nginx
 # читает из именованного тома. Эта цель копирует dist-файлы туда.
 sync-assets:
+	@echo "→ Сброс кэша перед синхронизацией (предотвращает пересоздание симлинков)..."
+	@docker compose $(COMPOSE_OVERRIDES) exec backend \
+	  bench --site $(SITE) clear-cache
+	@docker compose $(COMPOSE_OVERRIDES) exec backend bash -c \
+	  ". /home/frappe/frappe-bench/env/bin/activate && \
+	   python -c \"import redis; r=redis.Redis(host='redis-cache'); \
+	   deleted=r.delete('assets_json'); \
+	   print('assets_json удалён из Redis' if deleted else 'assets_json отсутствовал')\""
 	@echo "→ Синхронизация dist-файлов в $(ASSETS_VOL)..."
 	@TMPDIR=$$(mktemp -d) && \
 	trap "rm -rf $$TMPDIR" EXIT && \
@@ -135,20 +146,13 @@ sync-assets:
 	    for d in /src/*-dist; do \
 	      [ -d "$$d" ] || continue; \
 	      app=$$(basename "$$d" -dist); \
-	      rm -f /assets/$$app; \
-	      mkdir -p /assets/$$app/dist; \
-	      cp -rf "$$d/." /assets/$$app/dist/; \
+	      if [ -L "/assets/$$app" ]; then rm -f "/assets/$$app"; \
+	      elif [ -d "/assets/$$app" ]; then rm -rf "/assets/$$app"; fi; \
+	      mkdir -p "/assets/$$app/dist"; \
+	      cp -rf "$$d/." "/assets/$$app/dist/"; \
 	    done \
 	  '
-	@echo "→ Сброс кэша assets_json в Redis..."
-	@docker compose $(COMPOSE_OVERRIDES) exec backend \
-	  bench --site $(SITE) clear-cache
-	@docker compose $(COMPOSE_OVERRIDES) exec backend bash -c \
-	  ". /home/frappe/frappe-bench/env/bin/activate && \
-	   python -c \"import redis; r=redis.Redis(host='redis-cache'); \
-	   deleted=r.delete('assets_json'); \
-	   print('assets_json удалён из Redis' if deleted else 'assets_json отсутствовал')\""
-	@docker compose $(COMPOSE_OVERRIDES) restart frontend
+	@docker compose $(COMPOSE_OVERRIDES) up -d --no-deps --force-recreate frontend
 	@echo "✓ Синхронизация завершена"
 
 # ── Резервная копия ──────────────────────────────────────────
@@ -164,8 +168,8 @@ backup:
 dev-up:
 	docker compose $(COMPOSE_DEV) up -d --no-deps --force-recreate \
 	  backend websocket queue-short queue-long scheduler
-	@echo "→ Перезапуск frontend (обновление IP backend в nginx)..."
-	docker compose $(COMPOSE_OVERRIDES) restart frontend
+	@echo "→ Пересоздаём frontend (сброс кешированных IP backend)..."
+	docker compose $(COMPOSE_OVERRIDES) up -d --no-deps --force-recreate frontend
 	@echo "✓ Dev-режим активен. Исходники: /home/mkr/picking_app"
 	@echo "  Страница: http://localhost:8090/app/picking-mobile"
 

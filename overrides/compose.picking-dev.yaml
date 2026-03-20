@@ -2,19 +2,29 @@ services:
   backend:
     volumes:
       - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+    environment:
+      - PYTHONPATH=/home/frappe/frappe-bench/apps/picking_app
 
   websocket:
     volumes:
       - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+    environment:
+      - PYTHONPATH=/home/frappe/frappe-bench/apps/picking_app
 
   queue-short:
     volumes:
       - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+    environment:
+      - PYTHONPATH=/home/frappe/frappe-bench/apps/picking_app
 
   queue-long:
     volumes:
       - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+    environment:
+      - PYTHONPATH=/home/frappe/frappe-bench/apps/picking_app
 
   scheduler:
     volumes:
       - /home/mkr/picking_app:/home/frappe/frappe-bench/apps/picking_app/picking_app:ro
+    environment:
+      - PYTHONPATH=/home/frappe/frappe-bench/apps/picking_app
