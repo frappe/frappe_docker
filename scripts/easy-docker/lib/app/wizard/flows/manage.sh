@@ -1,5 +1,68 @@
 #!/usr/bin/env bash
 
+run_build_stack_custom_image_with_feedback() {
+  local stack_name="${1}"
+  local stack_dir="${2}"
+  local build_image_status=0
+
+  show_warning_message "Starting docker build for stack: ${stack_name}"
+  if build_stack_custom_image "${stack_dir}"; then
+    show_warning_and_wait "Custom image build finished successfully for stack: ${stack_name}" 3
+    return 0
+  fi
+
+  build_image_status=$?
+  case "${build_image_status}" in
+  11)
+    show_warning_and_wait "Custom image build failed: missing metadata.json in ${stack_dir}." 4
+    ;;
+  12)
+    show_warning_and_wait "Custom image build failed: stack env file not found in ${stack_dir}." 4
+    ;;
+  13)
+    show_warning_and_wait "Custom image build failed: CUSTOM_IMAGE is missing in stack env file." 4
+    ;;
+  14)
+    show_warning_and_wait "Custom image build failed: CUSTOM_TAG is missing in stack env file." 4
+    ;;
+  15)
+    show_warning_and_wait "Custom image build failed: frappe_branch missing in metadata.json." 4
+    ;;
+  16)
+    show_warning_and_wait "Custom image build failed: could not generate apps.json from metadata app selection." 4
+    ;;
+  17)
+    show_warning_and_wait "Custom image build failed: apps.json not found after generation." 4
+    ;;
+  18)
+    show_warning_and_wait "Custom image build failed: base64 command is not available in this environment." 4
+    ;;
+  19)
+    show_warning_and_wait "Custom image build failed: apps.json could not be base64-encoded." 4
+    ;;
+  20)
+    show_warning_and_wait "Custom image build failed: images/layered/Containerfile not found." 4
+    ;;
+  21)
+    show_warning_and_wait "Custom image build failed: docker build returned an error. Check the output above." 4
+    ;;
+  22)
+    show_warning_and_wait "Custom image build failed: git is required for app branch precheck (git ls-remote)." 4
+    ;;
+  23)
+    show_warning_and_wait "Custom image build failed: could not parse app entries from apps.json." 4
+    ;;
+  24)
+    show_warning_and_wait "Custom image build failed: app branch precheck failed -> ${EASY_DOCKER_BUILD_ERROR_DETAIL}" 6
+    ;;
+  *)
+    show_warning_and_wait "Custom image build failed (${build_image_status})." 4
+    ;;
+  esac
+
+  return "${build_image_status}"
+}
+
 handle_manage_selected_stack_flow() {
   local stack_name="${1}"
   local stack_dir=""
@@ -11,10 +74,10 @@ handle_manage_selected_stack_flow() {
   local custom_apps_update_status=0
   local persist_apps_status=0
   local render_compose_status=0
-  local build_image_status=0
   local compose_start_status=0
   local generated_compose_path=""
   local stack_runtime_status=""
+  local missing_custom_image_action=""
 
   stack_dir="$(get_stack_dir_by_name "${stack_name}" || true)"
   if [ -z "${stack_dir}" ]; then
@@ -85,103 +148,87 @@ handle_manage_selected_stack_flow() {
       done
       ;;
     "Start stack in Docker Compose")
-      show_warning_message "Starting stack with docker compose: ${stack_name}"
-      if start_stack_with_compose_from_metadata "${stack_dir}"; then
-        :
-      else
-        compose_start_status=$?
+      while true; do
+        show_warning_message "Starting stack with docker compose: ${stack_name}"
+        if start_stack_with_compose_from_metadata "${stack_dir}"; then
+          show_warning_and_wait "Stack started successfully with docker compose: ${stack_name}" 3
+          break
+        else
+          compose_start_status=$?
+        fi
         case "${compose_start_status}" in
         31)
           show_warning_and_wait "Cannot start stack: metadata.json is missing in ${stack_dir}." 4
+          break
           ;;
         32)
           show_warning_and_wait "Cannot start stack: stack env file not found in ${stack_dir}." 4
+          break
           ;;
         33)
           show_warning_and_wait "Cannot start stack: topology is missing in metadata.json. Re-run the topology wizard for this stack." 4
+          break
           ;;
         34)
           show_warning_and_wait "Cannot start stack via docker compose for topology '${EASY_DOCKER_COMPOSE_ERROR_DETAIL}'. Use the topology-specific runbook path." 5
+          break
           ;;
         35)
           show_warning_and_wait "Cannot start stack: no compose files configured in metadata.json." 4
+          break
           ;;
         36)
           show_warning_and_wait "Cannot start stack: compose file is missing -> ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 4
+          break
           ;;
         37)
           show_warning_and_wait "docker compose up failed. Check the output above for details." 4
+          break
+          ;;
+        38)
+          missing_custom_image_action="$(
+            show_missing_custom_image_start_menu "${stack_name}" "${stack_dir}" "${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" || true
+          )"
+          case "${missing_custom_image_action}" in
+          "Build custom image now")
+            if run_build_stack_custom_image_with_feedback "${stack_name}" "${stack_dir}"; then
+              continue
+            fi
+            break
+            ;;
+          "Back" | "")
+            break
+            ;;
+          "Exit and close easy-docker")
+            return "${FLOW_EXIT_APP}"
+            ;;
+          *)
+            show_warning_and_wait "Unknown missing-image action: ${missing_custom_image_action}" 2
+            break
+            ;;
+          esac
+          ;;
+        39)
+          show_warning_and_wait "Cannot inspect custom image before start. Check Docker and try again. Details: ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 5
+          break
           ;;
         *)
           show_warning_and_wait "Cannot start stack with docker compose (${compose_start_status})." 4
+          break
           ;;
         esac
-        continue
-      fi
-
-      show_warning_and_wait "Stack started successfully with docker compose: ${stack_name}" 3
+      done
       ;;
     "Docker")
       while true; do
         docker_action="$(show_manage_stack_docker_menu "${stack_name}" "${stack_dir}" || true)"
         case "${docker_action}" in
         "Build custom image")
-          show_warning_message "Starting docker build for stack: ${stack_name}"
-          if build_stack_custom_image "${stack_dir}"; then
+          if run_build_stack_custom_image_with_feedback "${stack_name}" "${stack_dir}"; then
             :
           else
-            build_image_status=$?
-            case "${build_image_status}" in
-            11)
-              show_warning_and_wait "Custom image build failed: missing metadata.json in ${stack_dir}." 4
-              ;;
-            12)
-              show_warning_and_wait "Custom image build failed: stack env file not found in ${stack_dir}." 4
-              ;;
-            13)
-              show_warning_and_wait "Custom image build failed: CUSTOM_IMAGE is missing in stack env file." 4
-              ;;
-            14)
-              show_warning_and_wait "Custom image build failed: CUSTOM_TAG is missing in stack env file." 4
-              ;;
-            15)
-              show_warning_and_wait "Custom image build failed: frappe_branch missing in metadata.json." 4
-              ;;
-            16)
-              show_warning_and_wait "Custom image build failed: could not generate apps.json from metadata app selection." 4
-              ;;
-            17)
-              show_warning_and_wait "Custom image build failed: apps.json not found after generation." 4
-              ;;
-            18)
-              show_warning_and_wait "Custom image build failed: base64 command is not available in this environment." 4
-              ;;
-            19)
-              show_warning_and_wait "Custom image build failed: apps.json could not be base64-encoded." 4
-              ;;
-            20)
-              show_warning_and_wait "Custom image build failed: images/layered/Containerfile not found." 4
-              ;;
-            21)
-              show_warning_and_wait "Custom image build failed: docker build returned an error. Check the output above." 4
-              ;;
-            22)
-              show_warning_and_wait "Custom image build failed: git is required for app branch precheck (git ls-remote)." 4
-              ;;
-            23)
-              show_warning_and_wait "Custom image build failed: could not parse app entries from apps.json." 4
-              ;;
-            24)
-              show_warning_and_wait "Custom image build failed: app branch precheck failed -> ${EASY_DOCKER_BUILD_ERROR_DETAIL}" 6
-              ;;
-            *)
-              show_warning_and_wait "Custom image build failed (${build_image_status})." 4
-              ;;
-            esac
             continue
           fi
-
-          show_warning_and_wait "Custom image build finished successfully for stack: ${stack_name}" 3
           ;;
         "Generate docker compose from env")
           generated_compose_path="$(get_stack_generated_compose_path "${stack_dir}")"
