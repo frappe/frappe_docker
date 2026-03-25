@@ -65,13 +65,14 @@ show_manage_stack_actions_menu() {
   menu_header="$(printf "Stack actions | %s" "${stack_runtime_status}")"
 
   gum choose \
-    --height 8 \
+    --height 9 \
     --header "${menu_header}" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Apps" \
     "Docker" \
     "Start stack in Docker Compose" \
+    "Stop stack in Docker Compose" \
     "Back" \
     "Exit and close easy-docker"
 }

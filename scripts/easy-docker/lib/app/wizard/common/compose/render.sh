@@ -11,11 +11,13 @@ render_stack_compose_from_metadata() {
   local source_compose_path=""
   local env_erpnext_version=""
   local fallback_erpnext_version=""
+  local compose_project_name=""
   local repo_root=""
   local -a compose_args=()
 
   metadata_path="${stack_dir}/metadata.json"
   env_path="$(get_stack_env_path "${stack_dir}")"
+  compose_project_name="$(get_stack_compose_project_name "${stack_dir}")"
   generated_compose_path="$(get_stack_generated_compose_path "${stack_dir}")"
   generated_compose_tmp_path="${generated_compose_path}.tmp"
 
@@ -58,11 +60,11 @@ EOF
   fi
 
   if [ -n "${fallback_erpnext_version}" ]; then
-    if ! ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --env-file "${env_path}" "${compose_args[@]}" config >"${generated_compose_tmp_path}"; then
+    if ! ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" config >"${generated_compose_tmp_path}"; then
       rm -f -- "${generated_compose_tmp_path}" >/dev/null 2>&1 || true
       return 1
     fi
-  elif ! docker compose --env-file "${env_path}" "${compose_args[@]}" config >"${generated_compose_tmp_path}"; then
+  elif ! docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" config >"${generated_compose_tmp_path}"; then
     rm -f -- "${generated_compose_tmp_path}" >/dev/null 2>&1 || true
     return 1
   fi

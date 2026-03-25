@@ -15,6 +15,7 @@ start_stack_with_compose_from_metadata() {
   local custom_tag=""
   local image_ref=""
   local image_inspect_error=""
+  local compose_project_name=""
   local stack_topology=""
   local repo_root=""
   local -a compose_args=()
@@ -24,6 +25,7 @@ start_stack_with_compose_from_metadata() {
 
   metadata_path="${stack_dir}/metadata.json"
   env_path="$(get_stack_env_path "${stack_dir}")"
+  compose_project_name="$(get_stack_compose_project_name "${stack_dir}")"
 
   if [ ! -f "${metadata_path}" ]; then
     return 31
@@ -110,19 +112,107 @@ EOF
   fi
 
   if [ -n "${fallback_erpnext_version}" ] && [ -n "${runtime_pull_policy}" ]; then
-    if ! ERPNEXT_VERSION="${fallback_erpnext_version}" PULL_POLICY="${runtime_pull_policy}" docker compose --env-file "${env_path}" "${compose_args[@]}" up -d; then
+    if ! ERPNEXT_VERSION="${fallback_erpnext_version}" PULL_POLICY="${runtime_pull_policy}" docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" up -d; then
       return 37
     fi
   elif [ -n "${fallback_erpnext_version}" ]; then
-    if ! ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --env-file "${env_path}" "${compose_args[@]}" up -d; then
+    if ! ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" up -d; then
       return 37
     fi
   elif [ -n "${runtime_pull_policy}" ]; then
-    if ! PULL_POLICY="${runtime_pull_policy}" docker compose --env-file "${env_path}" "${compose_args[@]}" up -d; then
+    if ! PULL_POLICY="${runtime_pull_policy}" docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" up -d; then
       return 37
     fi
-  elif ! docker compose --env-file "${env_path}" "${compose_args[@]}" up -d; then
+  elif ! docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" up -d; then
     return 37
+  fi
+
+  return 0
+}
+
+stop_stack_with_compose_from_metadata() {
+  local stack_dir="${1}"
+  local metadata_path=""
+  local env_path=""
+  local compose_files_lines=""
+  local compose_file=""
+  local source_compose_path=""
+  local env_erpnext_version=""
+  local fallback_erpnext_version=""
+  local compose_project_name=""
+  local stack_topology=""
+  local repo_root=""
+  local -a compose_args=()
+
+  # shellcheck disable=SC2034 # Read by manage flow after stop_stack_with_compose_from_metadata fails.
+  EASY_DOCKER_COMPOSE_ERROR_DETAIL=""
+
+  metadata_path="${stack_dir}/metadata.json"
+  env_path="$(get_stack_env_path "${stack_dir}")"
+  compose_project_name="$(get_stack_compose_project_name "${stack_dir}")"
+
+  if [ ! -f "${metadata_path}" ]; then
+    return 41
+  fi
+
+  if [ ! -f "${env_path}" ]; then
+    return 42
+  fi
+
+  stack_topology="$(get_stack_topology "${stack_dir}" || true)"
+  if [ -z "${stack_topology}" ]; then
+    # shellcheck disable=SC2034 # Read by manage flow after stop_stack_with_compose_from_metadata returns 43.
+    EASY_DOCKER_COMPOSE_ERROR_DETAIL="metadata.json missing topology"
+    return 43
+  fi
+
+  case "${stack_topology}" in
+  "single-host") ;;
+  *)
+    # shellcheck disable=SC2034 # Read by manage flow after stop_stack_with_compose_from_metadata returns 44.
+    EASY_DOCKER_COMPOSE_ERROR_DETAIL="${stack_topology}"
+    return 44
+    ;;
+  esac
+
+  env_erpnext_version="$(get_env_file_key_value "${env_path}" "ERPNEXT_VERSION" || true)"
+  if [ -z "${env_erpnext_version}" ]; then
+    fallback_erpnext_version="$(get_default_erpnext_version || true)"
+  fi
+
+  compose_files_lines="$(get_metadata_compose_files_lines "${metadata_path}" || true)"
+  if [ -z "${compose_files_lines}" ]; then
+    return 45
+  fi
+
+  repo_root="$(get_easy_docker_repo_root)"
+  while IFS= read -r compose_file; do
+    if [ -z "${compose_file}" ]; then
+      continue
+    fi
+
+    source_compose_path="${repo_root}/${compose_file}"
+    if [ ! -f "${source_compose_path}" ]; then
+      # shellcheck disable=SC2034 # Read by manage flow after stop_stack_with_compose_from_metadata returns 46.
+      EASY_DOCKER_COMPOSE_ERROR_DETAIL="${source_compose_path}"
+      return 46
+    fi
+
+    compose_args+=(-f "${source_compose_path}")
+  done <<EOF
+${compose_files_lines}
+EOF
+
+  if [ "${#compose_args[@]}" -eq 0 ]; then
+    return 45
+  fi
+
+  if [ -n "${fallback_erpnext_version}" ]; then
+    if ! ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" stop; then
+      return 47
+    fi
+  elif ! docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" stop; then
+    return 47
   fi
 
   return 0
@@ -139,15 +229,33 @@ get_stack_compose_runtime_status_label() {
   local source_compose_path=""
   local env_erpnext_version=""
   local fallback_erpnext_version=""
-  local running_services_lines=""
+  local container_ids_lines=""
+  local container_id=""
+  local container_status_lines=""
+  local container_status_line=""
+  local container_state=""
+  local container_status_text=""
+  local first_running_status=""
+  local running_status_excerpt=""
+  local running_status_varies=0
   local compose_status=0
-  local running_services_count=0
+  local total_containers_count=0
+  local running_containers_count=0
+  local exited_containers_count=0
+  local created_containers_count=0
+  local restarting_containers_count=0
+  local paused_containers_count=0
+  local dead_containers_count=0
+  local other_containers_count=0
+  local compose_project_name=""
   local repo_root=""
   local status_label=""
   local -a compose_args=()
+  local -a docker_ps_args=()
 
   metadata_path="${stack_dir}/metadata.json"
   env_path="$(get_stack_env_path "${stack_dir}")"
+  compose_project_name="$(get_stack_compose_project_name "${stack_dir}")"
 
   if [ ! -f "${metadata_path}" ]; then
     printf -v "${result_var}" "%s" "Unknown (metadata missing)"
@@ -207,13 +315,13 @@ EOF
   fi
 
   if [ -n "${fallback_erpnext_version}" ]; then
-    running_services_lines="$(
-      ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --env-file "${env_path}" "${compose_args[@]}" ps --status running --services 2>/dev/null
+    container_ids_lines="$(
+      ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" ps -a -q 2>/dev/null
     )"
     compose_status=$?
   else
-    running_services_lines="$(
-      docker compose --env-file "${env_path}" "${compose_args[@]}" ps --status running --services 2>/dev/null
+    container_ids_lines="$(
+      docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" ps -a -q 2>/dev/null
     )"
     compose_status=$?
   fi
@@ -223,18 +331,125 @@ EOF
     return 0
   fi
 
-  while IFS= read -r compose_file; do
-    if [ -n "${compose_file}" ]; then
-      running_services_count=$((running_services_count + 1))
+  if [ -z "${container_ids_lines}" ]; then
+    printf -v "${result_var}" "%s" "Not created"
+    return 0
+  fi
+
+  docker_ps_args=(-a --no-trunc --format "{{.ID}}|{{.State}}|{{.Status}}")
+  while IFS= read -r container_id; do
+    if [ -n "${container_id}" ]; then
+      docker_ps_args+=(--filter "id=${container_id}")
     fi
   done <<EOF
-${running_services_lines}
+${container_ids_lines}
 EOF
 
-  if [ "${running_services_count}" -gt 0 ]; then
-    status_label="Running (${running_services_count} services)"
+  container_status_lines="$(docker ps "${docker_ps_args[@]}" 2>/dev/null)"
+  compose_status=$?
+  if [ "${compose_status}" -ne 0 ]; then
+    printf -v "${result_var}" "%s" "Unknown (docker ps status failed)"
+    return 0
+  fi
+
+  while IFS= read -r container_status_line; do
+    if [ -z "${container_status_line}" ]; then
+      continue
+    fi
+
+    total_containers_count=$((total_containers_count + 1))
+    IFS='|' read -r container_id container_state container_status_text <<EOF
+${container_status_line}
+EOF
+
+    case "${container_state}" in
+    running)
+      running_containers_count=$((running_containers_count + 1))
+      if [ -z "${first_running_status}" ]; then
+        first_running_status="${container_status_text}"
+      elif [ "${container_status_text}" != "${first_running_status}" ]; then
+        running_status_varies=1
+      fi
+      ;;
+    exited)
+      exited_containers_count=$((exited_containers_count + 1))
+      ;;
+    created)
+      created_containers_count=$((created_containers_count + 1))
+      ;;
+    restarting)
+      restarting_containers_count=$((restarting_containers_count + 1))
+      ;;
+    paused)
+      paused_containers_count=$((paused_containers_count + 1))
+      ;;
+    dead)
+      dead_containers_count=$((dead_containers_count + 1))
+      ;;
+    *)
+      other_containers_count=$((other_containers_count + 1))
+      ;;
+    esac
+  done <<EOF
+${container_status_lines}
+EOF
+
+  if [ "${total_containers_count}" -eq 0 ]; then
+    printf -v "${result_var}" "%s" "Not created"
+    return 0
+  fi
+
+  if [ -n "${first_running_status}" ]; then
+    case "${first_running_status}" in
+    Up\ *)
+      running_status_excerpt="${first_running_status#Up }"
+      ;;
+    *)
+      running_status_excerpt="${first_running_status}"
+      ;;
+    esac
+  fi
+
+  if [ "${running_containers_count}" -eq "${total_containers_count}" ]; then
+    status_label="Running (${running_containers_count}/${total_containers_count} containers"
+    if [ -n "${running_status_excerpt}" ]; then
+      status_label="${status_label}, up ${running_status_excerpt}"
+      if [ "${running_status_varies}" -eq 1 ]; then
+        status_label="${status_label}+"
+      fi
+    fi
+    status_label="${status_label})"
+  elif [ "${running_containers_count}" -gt 0 ]; then
+    status_label="Partial (${running_containers_count}/${total_containers_count} running"
+    if [ "${restarting_containers_count}" -gt 0 ]; then
+      status_label="${status_label}, ${restarting_containers_count} restarting"
+    elif [ "${paused_containers_count}" -gt 0 ]; then
+      status_label="${status_label}, ${paused_containers_count} paused"
+    elif [ "${exited_containers_count}" -gt 0 ]; then
+      status_label="${status_label}, ${exited_containers_count} stopped"
+    elif [ "${created_containers_count}" -gt 0 ]; then
+      status_label="${status_label}, ${created_containers_count} created"
+    elif [ "${dead_containers_count}" -gt 0 ]; then
+      status_label="${status_label}, ${dead_containers_count} dead"
+    elif [ "${other_containers_count}" -gt 0 ]; then
+      status_label="${status_label}, ${other_containers_count} other"
+    fi
+
+    if [ -n "${running_status_excerpt}" ]; then
+      status_label="${status_label}, up ${running_status_excerpt}"
+      if [ "${running_status_varies}" -eq 1 ]; then
+        status_label="${status_label}+"
+      fi
+    fi
+    status_label="${status_label})"
+  elif [ "${restarting_containers_count}" -eq "${total_containers_count}" ]; then
+    status_label="Restarting (${total_containers_count} containers)"
+  elif [ "${paused_containers_count}" -eq "${total_containers_count}" ]; then
+    status_label="Paused (${total_containers_count} containers)"
+  elif [ "${created_containers_count}" -eq "${total_containers_count}" ]; then
+    status_label="Created (${total_containers_count} containers)"
   else
-    status_label="Not running"
+    status_label="Stopped (${total_containers_count} containers)"
   fi
 
   printf -v "${result_var}" "%s" "${status_label}"

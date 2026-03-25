@@ -219,6 +219,41 @@ handle_manage_selected_stack_flow() {
         esac
       done
       ;;
+    "Stop stack in Docker Compose")
+      show_warning_message "Stopping stack with docker compose: ${stack_name}"
+      if stop_stack_with_compose_from_metadata "${stack_dir}"; then
+        show_warning_and_wait "Stack stopped successfully with docker compose: ${stack_name}" 3
+        continue
+      fi
+
+      compose_start_status=$?
+      case "${compose_start_status}" in
+      41)
+        show_warning_and_wait "Cannot stop stack: metadata.json is missing in ${stack_dir}." 4
+        ;;
+      42)
+        show_warning_and_wait "Cannot stop stack: stack env file not found in ${stack_dir}." 4
+        ;;
+      43)
+        show_warning_and_wait "Cannot stop stack: topology is missing in metadata.json. Re-run the topology wizard for this stack." 4
+        ;;
+      44)
+        show_warning_and_wait "Cannot stop stack via docker compose for topology '${EASY_DOCKER_COMPOSE_ERROR_DETAIL}'. Use the topology-specific runbook path." 5
+        ;;
+      45)
+        show_warning_and_wait "Cannot stop stack: no compose files configured in metadata.json." 4
+        ;;
+      46)
+        show_warning_and_wait "Cannot stop stack: compose file is missing -> ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 4
+        ;;
+      47)
+        show_warning_and_wait "docker compose stop failed. Check the output above for details." 4
+        ;;
+      *)
+        show_warning_and_wait "Cannot stop stack with docker compose (${compose_start_status})." 4
+        ;;
+      esac
+      ;;
     "Docker")
       while true; do
         docker_action="$(show_manage_stack_docker_menu "${stack_name}" "${stack_dir}" || true)"

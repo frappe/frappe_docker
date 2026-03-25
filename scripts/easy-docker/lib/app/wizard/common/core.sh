@@ -250,6 +250,30 @@ get_stack_env_path() {
   printf '%s/%s.env\n' "${stack_dir}" "${stack_name}"
 }
 
+get_stack_compose_project_name() {
+  local stack_dir="${1}"
+  local metadata_path=""
+  local stack_name=""
+  local project_name=""
+
+  metadata_path="${stack_dir}/metadata.json"
+  stack_name="$(get_metadata_string_field "${metadata_path}" "stack_name" || true)"
+  if [ -z "${stack_name}" ]; then
+    stack_name="${stack_dir##*/}"
+  fi
+
+  project_name="$(
+    printf '%s' "${stack_name}" |
+      tr '[:upper:]' '[:lower:]' |
+      sed 's/[^a-z0-9_-]/-/g; s/--*/-/g; s/^-*//; s/-*$//'
+  )"
+  if [ -z "${project_name}" ]; then
+    project_name="stack"
+  fi
+
+  printf 'easydocker-%s\n' "${project_name}"
+}
+
 get_stack_generated_compose_path() {
   local stack_dir="${1}"
 
