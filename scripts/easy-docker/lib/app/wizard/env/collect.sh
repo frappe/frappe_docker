@@ -47,7 +47,7 @@ collect_single_host_env_lines() {
 
   case "${proxy_mode_id}" in
   traefik-https)
-    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for Traefik HTTPS routing.\nUse only domains in format sub.domain.tld or sub.sub.domain.tld.\nEnter multiple domains separated by comma or space.\nType /back to return." "erp.example.com crm.eu.example.com" "required" "domains"; then
+    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for Traefik HTTPS routing.\nUse hostnames like example.com, app.example.com, localhost, or dev.localhost.\nEnter multiple domains separated by comma or space.\nLet's Encrypt still requires a public DNS name.\nType /back to return." "erp.example.com dev.localhost" "required" "domains"; then
       :
     else
       prompt_status=$?
@@ -94,7 +94,7 @@ collect_single_host_env_lines() {
     fi
     ;;
   nginxproxy-https)
-    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for nginx-proxy routing.\nUse only domains in format sub.domain.tld or sub.sub.domain.tld.\nEnter multiple domains separated by comma or space.\nType /back to return." "erp.example.com crm.eu.example.com" "required" "domains"; then
+    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for nginx-proxy routing.\nUse hostnames like example.com, app.example.com, localhost, or dev.localhost.\nEnter multiple domains separated by comma or space.\nLet's Encrypt still requires a public DNS name.\nType /back to return." "erp.example.com dev.localhost" "required" "domains"; then
       :
     else
       prompt_status=$?
@@ -141,7 +141,7 @@ collect_single_host_env_lines() {
     fi
     ;;
   nginxproxy-http)
-    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for nginx-proxy routing.\nUse only domains in format sub.domain.tld or sub.sub.domain.tld.\nEnter multiple domains separated by comma or space.\nType /back to return." "erp.example.com crm.eu.example.com" "required" "domains"; then
+    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for nginx-proxy routing.\nUse hostnames like example.com, app.example.com, localhost, or dev.localhost.\nEnter multiple domains separated by comma or space.\nType /back to return." "erp.example.com dev.localhost" "required" "domains"; then
       :
     else
       prompt_status=$?

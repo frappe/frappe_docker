@@ -164,13 +164,17 @@ is_valid_domain_name() {
     ;;
   esac
 
+  if [ "${normalized_domain}" = "localhost" ]; then
+    return 0
+  fi
+
   if [ "${#normalized_domain}" -lt 5 ] || [ "${#normalized_domain}" -gt 253 ]; then
     return 1
   fi
 
   local IFS='.'
   read -r -a labels <<<"${normalized_domain}"
-  if [ "${#labels[@]}" -ne 3 ] && [ "${#labels[@]}" -ne 4 ]; then
+  if [ "${#labels[@]}" -lt 2 ]; then
     return 1
   fi
 
@@ -206,6 +210,10 @@ is_valid_domain_name() {
 
   last_index=$((${#labels[@]} - 1))
   tld="${labels[last_index]}"
+  if [ "${tld}" = "localhost" ]; then
+    return 0
+  fi
+
   if ! [[ "${tld}" =~ ^[A-Za-z]{2,63}$ ]]; then
     return 1
   fi
@@ -395,7 +403,7 @@ prompt_env_value_with_validation() {
         if [ -z "${invalid_domain_input}" ]; then
           invalid_domain_input="${normalized_value}"
         fi
-        validation_feedback="Domain '${invalid_domain_input}' cannot be used for ${variable_name}. Use sub.domain.tld or sub.sub.domain.tld."
+        validation_feedback="Domain '${invalid_domain_input}' cannot be used for ${variable_name}. Use a hostname like example.com, app.example.com, localhost, or dev.localhost."
         continue
       fi
       ;;
