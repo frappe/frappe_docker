@@ -63,6 +63,198 @@ run_build_stack_custom_image_with_feedback() {
   return "${build_image_status}"
 }
 
+prompt_manage_stack_site_name_with_cancel() {
+  local result_var="${1}"
+  local stack_name="${2}"
+  local stack_dir="${3}"
+  local input_site_name=""
+  local suggestion=""
+  local prompt_status=0
+
+  suggestion="$(get_stack_primary_site_name_suggestion "${stack_dir}" || true)"
+  while true; do
+    input_site_name="$(prompt_stack_site_name "${stack_name}" "${suggestion}")"
+    prompt_status=$?
+    if [ "${prompt_status}" -ne 0 ]; then
+      return "${FLOW_ABORT_INPUT}"
+    fi
+
+    input_site_name="$(printf '%s' "${input_site_name}" | tr -d '\r\n')"
+    case "${input_site_name}" in
+    "")
+      show_warning_and_wait "Site name is required." 2
+      ;;
+    /back | /Back | /BACK)
+      return "${FLOW_ABORT_INPUT}"
+      ;;
+    *)
+      if ! is_valid_stack_site_name "${input_site_name}"; then
+        show_warning_and_wait "Site name may only contain letters, numbers, dots, dashes, and underscores." 3
+        continue
+      fi
+      printf -v "${result_var}" "%s" "${input_site_name}"
+      return "${FLOW_CONTINUE}"
+      ;;
+    esac
+  done
+}
+
+prompt_manage_stack_site_admin_password_with_cancel() {
+  local result_var="${1}"
+  local stack_name="${2}"
+  local input_admin_password=""
+  local prompt_status=0
+
+  while true; do
+    input_admin_password="$(prompt_stack_site_admin_password "${stack_name}")"
+    prompt_status=$?
+    if [ "${prompt_status}" -ne 0 ]; then
+      return "${FLOW_ABORT_INPUT}"
+    fi
+
+    input_admin_password="$(printf '%s' "${input_admin_password}" | tr -d '\r\n')"
+    case "${input_admin_password}" in
+    "")
+      show_warning_and_wait "Administrator password is required." 2
+      ;;
+    /back | /Back | /BACK)
+      return "${FLOW_ABORT_INPUT}"
+      ;;
+    *)
+      printf -v "${result_var}" "%s" "${input_admin_password}"
+      return "${FLOW_CONTINUE}"
+      ;;
+    esac
+  done
+}
+
+handle_manage_stack_site_flow() {
+  local stack_name="${1}"
+  local stack_dir="${2}"
+  local site_status_label=""
+  local site_action=""
+  local site_name=""
+  local admin_password=""
+  local site_flow_status=0
+  local existing_site_entry=""
+  local existing_site_name=""
+  local existing_site_created_at=""
+  local existing_site_apps_lines=""
+  local existing_site_apps_csv=""
+  local existing_site_details_action=""
+
+  while true; do
+    get_stack_site_status_label site_status_label "${stack_dir}"
+    existing_site_entry=""
+    get_stack_site_menu_entry existing_site_entry "${stack_dir}" || true
+
+    site_action="$(show_manage_stack_site_menu "${stack_name}" "${stack_dir}" "${site_status_label}" "${existing_site_entry}" || true)"
+    case "${site_action}" in
+    "Create new site")
+      if ! prompt_manage_stack_site_name_with_cancel site_name "${stack_name}" "${stack_dir}"; then
+        continue
+      fi
+
+      if ! prompt_manage_stack_site_admin_password_with_cancel admin_password "${stack_name}"; then
+        continue
+      fi
+
+      show_warning_message "Creating the first site for stack: ${stack_name}"
+      if bootstrap_first_stack_site "${stack_dir}" "${site_name}" "${admin_password}"; then
+        show_warning_and_wait "Site created successfully and selected stack apps were installed: ${site_name}" 3
+        continue
+      else
+        site_flow_status=$?
+      fi
+
+      case "${site_flow_status}" in
+      51)
+        show_warning_and_wait "Cannot manage site: backend service is not running yet. Start the stack first." 4
+        ;;
+      52)
+        show_warning_and_wait "Cannot manage site for this topology yet. Only single-host stacks are supported." 4
+        ;;
+      53)
+        show_warning_and_wait "A site is already configured for this stack. Phase 1 supports one site per stack." 4
+        ;;
+      54)
+        show_warning_and_wait "Cannot manage site because stack metadata, env, or compose inputs are incomplete." 4
+        ;;
+      55)
+        show_warning_and_wait "Could not create the site. Check the output above for bench new-site details." 4
+        ;;
+      56)
+        show_warning_and_wait "The site was created, but app installation failed. Check the output above." 4
+        ;;
+      57)
+        show_warning_and_wait "Site bootstrap currently supports only MariaDB-backed single-host stacks." 4
+        ;;
+      58)
+        show_warning_and_wait "The site state could not be written to metadata.json." 4
+        ;;
+      59)
+        show_warning_and_wait "Cannot create site: stack services are not ready yet. Wait and try again." 4
+        ;;
+      60)
+        show_warning_and_wait "Site creation failed and automatic cleanup could not remove all partial data. Manual cleanup is required." 5
+        ;;
+      61)
+        show_warning_and_wait "Cannot create site because the site name was empty or unsafe for cleanup operations." 4
+        ;;
+      62)
+        show_warning_and_wait "Cannot prepare the stack for site creation because the bench runtime files could not be repaired." 4
+        ;;
+      *)
+        show_warning_and_wait "Site bootstrap failed (${site_flow_status})." 4
+        ;;
+      esac
+      ;;
+    "Back" | "")
+      return "${FLOW_CONTINUE}"
+      ;;
+    "Exit and close easy-docker")
+      return "${FLOW_EXIT_APP}"
+      ;;
+    *)
+      if [ -n "${existing_site_entry}" ] && [ "${site_action}" = "${existing_site_entry}" ]; then
+        existing_site_name="$(get_stack_site_name "${stack_dir}" || true)"
+        existing_site_created_at="$(get_stack_site_created_at "${stack_dir}" || true)"
+        existing_site_apps_lines="$(get_stack_site_apps_installed_lines "${stack_dir}" || true)"
+        if [ -n "${existing_site_apps_lines}" ]; then
+          existing_site_apps_csv="$(printf '%s' "${existing_site_apps_lines}" | tr '\n' ',' | sed 's/,$//')"
+        else
+          existing_site_apps_csv="None"
+        fi
+
+        existing_site_details_action="$(
+          show_manage_stack_site_details \
+            "${stack_name}" \
+            "${stack_dir}" \
+            "${existing_site_name}" \
+            "${site_status_label}" \
+            "${existing_site_created_at}" \
+            "${existing_site_apps_csv}" || true
+        )"
+        case "${existing_site_details_action}" in
+        "Back" | "")
+          continue
+          ;;
+        "Exit and close easy-docker")
+          return "${FLOW_EXIT_APP}"
+          ;;
+        *)
+          show_warning_and_wait "Unknown site details action: ${existing_site_details_action}" 2
+          ;;
+        esac
+        continue
+      fi
+
+      show_warning_and_wait "Unknown site action: ${site_action}" 2
+      ;;
+    esac
+  done
+}
+
 handle_manage_selected_stack_flow() {
   local stack_name="${1}"
   local stack_dir=""
@@ -288,6 +480,21 @@ handle_manage_selected_stack_flow() {
           ;;
         esac
       done
+      ;;
+    "Site")
+      if handle_manage_stack_site_flow "${stack_name}" "${stack_dir}"; then
+        :
+      else
+        compose_start_status=$?
+        case "${compose_start_status}" in
+        "${FLOW_EXIT_APP}")
+          return "${FLOW_EXIT_APP}"
+          ;;
+        *)
+          continue
+          ;;
+        esac
+      fi
       ;;
     "Back" | "")
       return "${FLOW_CONTINUE}"
