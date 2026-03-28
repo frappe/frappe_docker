@@ -741,6 +741,45 @@ cleanup_partial_stack_site() {
   return 0
 }
 
+delete_configured_stack_site() {
+  local stack_dir="${1}"
+  local site_name=""
+  local delete_status=0
+
+  if ! stack_supports_single_site_management "${stack_dir}"; then
+    return 52
+  fi
+
+  site_name="$(get_stack_site_name "${stack_dir}" || true)"
+  if ! is_safe_stack_site_cleanup_name "${site_name}"; then
+    return 61
+  fi
+
+  if ! stack_backend_service_is_running "${stack_dir}"; then
+    return 51
+  fi
+
+  if cleanup_partial_stack_site "${stack_dir}" "${site_name}"; then
+    :
+  else
+    delete_status=$?
+    case "${delete_status}" in
+    54 | 52 | 61)
+      return "${delete_status}"
+      ;;
+    *)
+      return 60
+      ;;
+    esac
+  fi
+
+  if ! clear_stack_site_metadata "${stack_dir}"; then
+    return 58
+  fi
+
+  return 0
+}
+
 create_first_stack_site() {
   local stack_dir="${1}"
   local site_name="${2}"

@@ -65,7 +65,7 @@ show_manage_stack_actions_menu() {
   menu_header="$(printf "Stack actions | %s" "${stack_runtime_status}")"
 
   gum choose \
-    --height 10 \
+    --height 11 \
     --header "${menu_header}" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
@@ -74,6 +74,7 @@ show_manage_stack_actions_menu() {
     "Site" \
     "Start stack in Docker Compose" \
     "Stop stack in Docker Compose" \
+    "Delete stack" \
     "Back" \
     "Exit and close easy-docker"
 }
@@ -205,8 +206,65 @@ show_manage_stack_site_details() {
     --header "Site details" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
+    "Delete site" \
     "Back" \
     "Exit and close easy-docker"
+}
+
+show_manage_stack_site_delete_confirmation() {
+  local stack_name="${1}"
+  local stack_dir="${2}"
+  local site_name="${3}"
+  local status_text=""
+
+  render_main_screen 1 >&2
+
+  status_text="$(printf "Delete site\n\nStack: %s\nDirectory: %s\nSite: %s\n\nAll site data and the site database will be permanently deleted." "${stack_name}" "${stack_dir}" "${site_name}")"
+  render_box_message "${status_text}" "0 2" >&2
+
+  gum choose \
+    --height 8 \
+    --header "Confirm delete site" \
+    --cursor.foreground 63 \
+    --selected.foreground 45 \
+    "Yes" \
+    "No" \
+    "Exit and close easy-docker"
+}
+
+show_manage_stack_delete_confirmation() {
+  local stack_name="${1}"
+  local stack_dir="${2}"
+  local status_text=""
+
+  render_main_screen 1 >&2
+
+  status_text="$(printf "Delete stack\n\nStack: %s\nDirectory: %s\n\nThis will permanently remove the stack directory, Docker containers, networks, volumes, and configured custom image." "${stack_name}" "${stack_dir}")"
+  render_box_message "${status_text}" "0 2" >&2
+
+  gum choose \
+    --height 8 \
+    --header "Confirm delete stack" \
+    --cursor.foreground 63 \
+    --selected.foreground 45 \
+    "Yes" \
+    "No" \
+    "Exit and close easy-docker"
+}
+
+prompt_manage_stack_delete_keyword() {
+  local stack_name="${1}"
+  local status_text=""
+
+  render_main_screen 1 >&2
+
+  status_text="$(printf "Delete stack\n\nStack: %s\n\nFinal confirmation required.\nType delete to permanently remove the stack and all its data.\nType /back or press Ctrl+C to cancel." "${stack_name}")"
+  render_box_message "${status_text}" "0 2" >&2
+
+  gum input \
+    --header "Type delete to confirm" \
+    --prompt "confirm> " \
+    --placeholder "delete"
 }
 
 show_missing_custom_image_start_menu() {

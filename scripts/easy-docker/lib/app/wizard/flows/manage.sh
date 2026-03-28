@@ -128,6 +128,35 @@ prompt_manage_stack_site_admin_password_with_cancel() {
   done
 }
 
+prompt_manage_stack_delete_keyword_with_cancel() {
+  local result_var="${1}"
+  local stack_name="${2}"
+  local delete_confirmation=""
+  local prompt_status=0
+
+  while true; do
+    delete_confirmation="$(prompt_manage_stack_delete_keyword "${stack_name}")"
+    prompt_status=$?
+    if [ "${prompt_status}" -ne 0 ]; then
+      return "${FLOW_ABORT_INPUT}"
+    fi
+
+    delete_confirmation="$(printf '%s' "${delete_confirmation}" | tr -d '\r\n')"
+    case "${delete_confirmation}" in
+    /back | /Back | /BACK | "")
+      return "${FLOW_ABORT_INPUT}"
+      ;;
+    delete)
+      printf -v "${result_var}" "%s" "${delete_confirmation}"
+      return "${FLOW_CONTINUE}"
+      ;;
+    *)
+      show_warning_and_wait "Type exactly delete to confirm stack removal." 3
+      ;;
+    esac
+  done
+}
+
 handle_manage_stack_site_flow() {
   local stack_name="${1}"
   local stack_dir="${2}"
@@ -141,6 +170,7 @@ handle_manage_stack_site_flow() {
   local existing_site_apps_lines=""
   local existing_site_apps_csv=""
   local existing_site_details_action=""
+  local site_delete_confirmation=""
 
   while true; do
     existing_site_entry=""
@@ -239,6 +269,59 @@ handle_manage_stack_site_flow() {
             "${existing_site_apps_csv}" || true
         )"
         case "${existing_site_details_action}" in
+        "Delete site")
+          site_delete_confirmation="$(
+            show_manage_stack_site_delete_confirmation \
+              "${stack_name}" \
+              "${stack_dir}" \
+              "${existing_site_name}" || true
+          )"
+          case "${site_delete_confirmation}" in
+          "Yes")
+            show_warning_message "Deleting site for stack: ${stack_name}"
+            if delete_configured_stack_site "${stack_dir}"; then
+              show_warning_and_wait "Site deleted successfully with its database: ${existing_site_name}" 3
+              continue
+            fi
+
+            site_flow_status=$?
+            case "${site_flow_status}" in
+            51)
+              show_warning_and_wait "Cannot delete site: backend service is not running yet. Start the stack first." 4
+              ;;
+            52)
+              show_warning_and_wait "Cannot delete site for this topology yet. Only single-host stacks are supported." 4
+              ;;
+            54)
+              show_warning_and_wait "Cannot delete site because stack metadata, env, or compose inputs are incomplete." 4
+              ;;
+            58)
+              show_warning_and_wait "The cleared site state could not be written to metadata.json." 4
+              ;;
+            60)
+              show_warning_and_wait "Site deletion could not remove all site or database data automatically. Manual cleanup is required." 5
+              ;;
+            61)
+              show_warning_and_wait "Cannot delete site because the configured site name was empty or unsafe for cleanup operations." 4
+              ;;
+            *)
+              show_warning_and_wait "Site deletion failed (${site_flow_status})." 4
+              ;;
+            esac
+            continue
+            ;;
+          "No" | "")
+            continue
+            ;;
+          "Exit and close easy-docker")
+            return "${FLOW_EXIT_APP}"
+            ;;
+          *)
+            show_warning_and_wait "Unknown site delete confirmation action: ${site_delete_confirmation}" 2
+            continue
+            ;;
+          esac
+          ;;
         "Back" | "")
           continue
           ;;
@@ -273,6 +356,8 @@ handle_manage_selected_stack_flow() {
   local generated_compose_path=""
   local stack_runtime_status=""
   local missing_custom_image_action=""
+  local delete_stack_confirmation_action=""
+  local delete_stack_keyword=""
 
   stack_dir="$(get_stack_dir_by_name "${stack_name}" || true)"
   if [ -z "${stack_dir}" ]; then
@@ -446,6 +531,70 @@ handle_manage_selected_stack_flow() {
         ;;
       *)
         show_warning_and_wait "Cannot stop stack with docker compose (${compose_start_status})." 4
+        ;;
+      esac
+      ;;
+    "Delete stack")
+      delete_stack_confirmation_action="$(
+        show_manage_stack_delete_confirmation "${stack_name}" "${stack_dir}" || true
+      )"
+      case "${delete_stack_confirmation_action}" in
+      "Yes")
+        if ! prompt_manage_stack_delete_keyword_with_cancel delete_stack_keyword "${stack_name}"; then
+          continue
+        fi
+        if [ "${delete_stack_keyword}" != "delete" ]; then
+          continue
+        fi
+
+        show_warning_message "Deleting stack with docker compose resources: ${stack_name}"
+        if delete_stack_with_compose_from_metadata "${stack_dir}"; then
+          show_warning_and_wait "Stack deleted successfully with containers, networks, volumes, image, and stack directory: ${stack_name}" 5
+          return "${FLOW_CONTINUE}"
+        fi
+
+        compose_start_status=$?
+        case "${compose_start_status}" in
+        48)
+          show_warning_and_wait "Cannot delete stack: metadata.json is missing in ${stack_dir}." 4
+          ;;
+        49)
+          show_warning_and_wait "Cannot delete stack: stack env file not found in ${stack_dir}." 4
+          ;;
+        50)
+          show_warning_and_wait "Cannot delete stack: topology is missing in metadata.json. Re-run the topology wizard for this stack." 4
+          ;;
+        51)
+          show_warning_and_wait "Cannot delete stack via docker compose for topology '${EASY_DOCKER_COMPOSE_ERROR_DETAIL}'. Use the topology-specific runbook path." 5
+          ;;
+        52)
+          show_warning_and_wait "Cannot delete stack: no compose files configured in metadata.json." 4
+          ;;
+        53)
+          show_warning_and_wait "Cannot delete stack: compose file is missing -> ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 4
+          ;;
+        54)
+          show_warning_and_wait "docker compose down failed. Check the output above for details." 4
+          ;;
+        55)
+          show_warning_and_wait "Stack resources were removed, but the configured custom image could not be deleted -> ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 5
+          ;;
+        56)
+          show_warning_and_wait "Docker resources were removed, but the stack directory could not be deleted -> ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 5
+          ;;
+        *)
+          show_warning_and_wait "Cannot delete stack with docker compose (${compose_start_status})." 4
+          ;;
+        esac
+        ;;
+      "No" | "")
+        continue
+        ;;
+      "Exit and close easy-docker")
+        return "${FLOW_EXIT_APP}"
+        ;;
+      *)
+        show_warning_and_wait "Unknown delete-stack action: ${delete_stack_confirmation_action}" 2
         ;;
       esac
       ;;

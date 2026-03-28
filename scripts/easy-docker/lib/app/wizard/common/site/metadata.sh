@@ -352,3 +352,11 @@ mark_stack_site_failed() {
   updated_at="$(get_current_utc_timestamp)"
   persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "failed" "${apps_installed_lines}" "${last_action}" "${last_error}" "${error_log_path}" "${created_at}" "${updated_at}"
 }
+
+clear_stack_site_metadata() {
+  local stack_dir="${1}"
+  local updated_at=""
+
+  updated_at="$(get_current_utc_timestamp)"
+  persist_stack_site_metadata "${stack_dir}" "single-site" "" "not_created" "" "delete-site" "" "" "" "${updated_at}"
+}
