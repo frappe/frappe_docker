@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+EASY_DOCKER_SITE_ERROR_DETAIL=""
+EASY_DOCKER_SITE_ERROR_LOG_PATH=""
+
 load_easy_docker_site_modules() {
   local site_dir=""
   site_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/site"

@@ -131,7 +131,6 @@ prompt_manage_stack_site_admin_password_with_cancel() {
 handle_manage_stack_site_flow() {
   local stack_name="${1}"
   local stack_dir="${2}"
-  local site_status_label=""
   local site_action=""
   local site_name=""
   local admin_password=""
@@ -144,11 +143,10 @@ handle_manage_stack_site_flow() {
   local existing_site_details_action=""
 
   while true; do
-    get_stack_site_status_label site_status_label "${stack_dir}"
     existing_site_entry=""
     get_stack_site_menu_entry existing_site_entry "${stack_dir}" || true
 
-    site_action="$(show_manage_stack_site_menu "${stack_name}" "${stack_dir}" "${site_status_label}" "${existing_site_entry}" || true)"
+    site_action="$(show_manage_stack_site_menu "${stack_name}" "${stack_dir}" "${existing_site_entry}" || true)"
     case "${site_action}" in
     "Create new site")
       if ! prompt_manage_stack_site_name_with_cancel site_name "${stack_name}" "${stack_dir}"; then
@@ -181,10 +179,10 @@ handle_manage_stack_site_flow() {
         show_warning_and_wait "Cannot manage site because stack metadata, env, or compose inputs are incomplete." 4
         ;;
       55)
-        show_warning_and_wait "Could not create the site. Check the output above for bench new-site details." 4
+        show_warning_and_wait "Could not create the site. ${EASY_DOCKER_SITE_ERROR_DETAIL:-Check the output above for bench new-site details.} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 6
         ;;
       56)
-        show_warning_and_wait "The site was created, but app installation failed. Check the output above." 4
+        show_warning_and_wait "The site was created, but app installation failed. ${EASY_DOCKER_SITE_ERROR_DETAIL:-Check the output above.} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 6
         ;;
       57)
         show_warning_and_wait "Site bootstrap currently supports only MariaDB-backed single-host stacks." 4
@@ -204,6 +202,9 @@ handle_manage_stack_site_flow() {
       62)
         show_warning_and_wait "Cannot prepare the stack for site creation because the bench runtime files could not be repaired." 4
         ;;
+      63)
+        show_warning_and_wait "Cannot install the selected stack apps because at least one app is missing from the backend image. ${EASY_DOCKER_SITE_ERROR_DETAIL} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 7
+        ;;
       *)
         show_warning_and_wait "Site bootstrap failed (${site_flow_status})." 4
         ;;
@@ -220,6 +221,9 @@ handle_manage_stack_site_flow() {
         existing_site_name="$(get_stack_site_name "${stack_dir}" || true)"
         existing_site_created_at="$(get_stack_site_created_at "${stack_dir}" || true)"
         existing_site_apps_lines="$(get_stack_site_apps_installed_lines "${stack_dir}" || true)"
+        if stack_backend_service_is_running "${stack_dir}" >/dev/null 2>&1; then
+          get_stack_site_runtime_selected_apps_lines existing_site_apps_lines "${stack_dir}" "${existing_site_name}" || true
+        fi
         if [ -n "${existing_site_apps_lines}" ]; then
           existing_site_apps_csv="$(printf '%s' "${existing_site_apps_lines}" | tr '\n' ',' | sed 's/,$//')"
         else
@@ -231,7 +235,6 @@ handle_manage_stack_site_flow() {
             "${stack_name}" \
             "${stack_dir}" \
             "${existing_site_name}" \
-            "${site_status_label}" \
             "${existing_site_created_at}" \
             "${existing_site_apps_csv}" || true
         )"

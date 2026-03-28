@@ -190,11 +190,98 @@ EOF
   wrapped_backend_command="$(printf "cd /home/frappe/frappe-bench && %s" "${backend_command}")"
 
   if [ -n "${fallback_erpnext_version}" ]; then
-    ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" exec -T backend bash -lc "${wrapped_backend_command}"
+    ERPNEXT_VERSION="${fallback_erpnext_version}" docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" exec -T backend bash -lc "${wrapped_backend_command}" </dev/null
     return $?
   fi
 
-  docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" exec -T backend bash -lc "${wrapped_backend_command}"
+  docker compose --project-name "${compose_project_name}" --env-file "${env_path}" "${compose_args[@]}" exec -T backend bash -lc "${wrapped_backend_command}" </dev/null
+}
+
+reset_easy_docker_site_error_state() {
+  EASY_DOCKER_SITE_ERROR_DETAIL=""
+  EASY_DOCKER_SITE_ERROR_LOG_PATH=""
+}
+
+build_stack_site_error_log_relative_path() {
+  local result_var="${1}"
+  local action_name="${2:-site-error}"
+  local raw_timestamp=""
+  local safe_timestamp=""
+  local relative_path=""
+
+  raw_timestamp="$(get_current_utc_timestamp)"
+  safe_timestamp="$(printf '%s' "${raw_timestamp}" | tr ':' '-')"
+  relative_path="$(printf 'logs/%s-%s.log' "${action_name}" "${safe_timestamp}")"
+  printf -v "${result_var}" "%s" "${relative_path}"
+}
+
+write_stack_site_error_log() {
+  local result_var="${1}"
+  local stack_dir="${2}"
+  local action_name="${3:-site-error}"
+  local error_output="${4:-}"
+  local relative_path=""
+  local log_dir=""
+  local absolute_path=""
+
+  if [ -z "${error_output}" ]; then
+    printf -v "${result_var}" "%s" ""
+    return 0
+  fi
+
+  build_stack_site_error_log_relative_path relative_path "${action_name}"
+  log_dir="${stack_dir}/logs"
+  absolute_path="${stack_dir}/${relative_path}"
+
+  if ! mkdir -p "${log_dir}"; then
+    return 1
+  fi
+
+  if ! printf '%s\n' "${error_output}" >"${absolute_path}"; then
+    return 1
+  fi
+
+  printf -v "${result_var}" "%s" "${relative_path}"
+  return 0
+}
+
+run_stack_backend_bash_command_capture() {
+  local result_var="${1}"
+  local stack_dir="${2}"
+  local backend_command="${3}"
+  local command_output=""
+  local command_status=0
+
+  reset_easy_docker_site_error_state
+  command_output="$(run_stack_backend_bash_command "${stack_dir}" "${backend_command}" 2>&1)"
+  command_status=$?
+
+  if [ -n "${command_output}" ]; then
+    printf '%s\n' "${command_output}"
+  fi
+
+  printf -v "${result_var}" "%s" "${command_output}"
+  return "${command_status}"
+}
+
+capture_stack_site_error_log() {
+  local stack_dir="${1}"
+  local action_name="${2:-site-error}"
+  local error_output="${3:-}"
+  local log_path=""
+
+  EASY_DOCKER_SITE_ERROR_LOG_PATH=""
+  if [ -z "${error_output}" ]; then
+    return 0
+  fi
+
+  if ! write_stack_site_error_log log_path "${stack_dir}" "${action_name}" "${error_output}"; then
+    EASY_DOCKER_SITE_ERROR_DETAIL="${EASY_DOCKER_SITE_ERROR_DETAIL:-Failed to write site error log.}"
+    return 1
+  fi
+
+  EASY_DOCKER_SITE_ERROR_LOG_PATH="${log_path}"
+  return 0
 }
 
 stack_backend_service_is_running() {
@@ -357,6 +444,76 @@ EOF
   )"
 
   run_stack_backend_bash_command "${stack_dir}" "${read_command}"
+}
+
+get_stack_site_runtime_app_names_lines() {
+  local stack_dir="${1}"
+  local site_name="${2}"
+  local list_apps_command=""
+
+  if ! is_safe_stack_site_cleanup_name "${site_name}"; then
+    return 61
+  fi
+
+  list_apps_command="$(
+    printf "bench --site %s list-apps | awk 'NF { print \$1 }'" \
+      "$(shell_quote_site_command_arg "${site_name}")"
+  )"
+
+  run_stack_backend_bash_command "${stack_dir}" "${list_apps_command}"
+}
+
+get_stack_runtime_available_app_lines() {
+  local stack_dir="${1}"
+
+  run_stack_backend_bash_command "${stack_dir}" "ls -1 apps"
+}
+
+get_stack_site_runtime_selected_apps_lines() {
+  local result_var="${1}"
+  local stack_dir="${2}"
+  local site_name="${3}"
+  local selected_app_lines=""
+  local runtime_app_lines=""
+  local selected_app_name=""
+  local installed_app_lines=""
+
+  if ! get_stack_selected_installable_apps selected_app_lines "${stack_dir}"; then
+    printf -v "${result_var}" "%s" ""
+    return 0
+  fi
+
+  if [ -z "${selected_app_lines}" ]; then
+    printf -v "${result_var}" "%s" ""
+    return 0
+  fi
+
+  runtime_app_lines="$(get_stack_site_runtime_app_names_lines "${stack_dir}" "${site_name}" || true)"
+  if [ -z "${runtime_app_lines}" ]; then
+    printf -v "${result_var}" "%s" ""
+    return 1
+  fi
+
+  while IFS= read -r selected_app_name; do
+    if [ -z "${selected_app_name}" ]; then
+      continue
+    fi
+
+    if ! printf '%s\n' "${runtime_app_lines}" | grep -F -x -- "${selected_app_name}" >/dev/null 2>&1; then
+      continue
+    fi
+
+    if [ -z "${installed_app_lines}" ]; then
+      installed_app_lines="${selected_app_name}"
+    else
+      installed_app_lines="${installed_app_lines}"$'\n'"${selected_app_name}"
+    fi
+  done <<EOF
+${selected_app_lines}
+EOF
+
+  printf -v "${result_var}" "%s" "${installed_app_lines}"
+  return 0
 }
 
 repair_stack_site_runtime_state() {
@@ -589,6 +746,7 @@ create_first_stack_site() {
   local site_name="${2}"
   local admin_password="${3}"
   local create_site_command=""
+  local create_site_output=""
 
   create_site_command="$(
     printf "bench new-site %s --mariadb-user-host-login-scope='%%' --admin-password %s --db-root-username root --db-root-password %s" \
@@ -597,7 +755,9 @@ create_first_stack_site() {
       "$(shell_quote_site_command_arg "$(get_stack_database_root_password "${stack_dir}")")"
   )"
 
-  if ! run_stack_backend_bash_command "${stack_dir}" "${create_site_command}"; then
+  if ! run_stack_backend_bash_command_capture create_site_output "${stack_dir}" "${create_site_command}"; then
+    EASY_DOCKER_SITE_ERROR_DETAIL="bench new-site failed."
+    capture_stack_site_error_log "${stack_dir}" "site-create-error" "${create_site_output}" >/dev/null 2>&1 || true
     return 55
   fi
 
@@ -612,15 +772,41 @@ install_stack_apps_on_site() {
   local installed_app_lines=""
   local app_name=""
   local install_app_command=""
+  local install_app_output=""
+  local available_app_lines=""
+  local -a selected_apps=()
 
   if ! get_stack_selected_installable_apps selected_app_lines "${stack_dir}"; then
     printf -v "${result_var}" "%s" ""
     return 0
   fi
 
-  while IFS= read -r app_name; do
+  if [ -z "${selected_app_lines}" ]; then
+    printf -v "${result_var}" "%s" ""
+    return 0
+  fi
+
+  available_app_lines="$(get_stack_runtime_available_app_lines "${stack_dir}" || true)"
+  if [ -z "${available_app_lines}" ]; then
+    EASY_DOCKER_SITE_ERROR_DETAIL="Could not inspect available apps in the backend image."
+    capture_stack_site_error_log "${stack_dir}" "site-install-apps-error" "easy-docker could not list /home/frappe/frappe-bench/apps before install-app." >/dev/null 2>&1 || true
+    return 63
+  fi
+
+  mapfile -t selected_apps <<<"${selected_app_lines}"
+  for app_name in "${selected_apps[@]}"; do
     if [ -z "${app_name}" ]; then
       continue
+    fi
+
+    if ! printf '%s\n' "${available_app_lines}" | grep -F -x -- "${app_name}" >/dev/null 2>&1; then
+      EASY_DOCKER_SITE_ERROR_DETAIL="$(printf "Selected app '%s' is not available in the backend image." "${app_name}")"
+      capture_stack_site_error_log "${stack_dir}" "site-install-apps-error" "$(printf "Selected app '%s' was requested in stack metadata but is missing from /home/frappe/frappe-bench/apps.\nAvailable apps:\n%s" "${app_name}" "${available_app_lines}")" >/dev/null 2>&1 || true
+      if [ -n "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" ]; then
+        printf 'Details written to %s\n' "${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}" >&2
+      fi
+      printf -v "${result_var}" "%s" "${installed_app_lines}"
+      return 63
     fi
 
     install_app_command="$(
@@ -629,7 +815,9 @@ install_stack_apps_on_site() {
         "$(shell_quote_site_command_arg "${app_name}")"
     )"
 
-    if ! run_stack_backend_bash_command "${stack_dir}" "${install_app_command}"; then
+    if ! run_stack_backend_bash_command_capture install_app_output "${stack_dir}" "${install_app_command}"; then
+      EASY_DOCKER_SITE_ERROR_DETAIL="$(printf "bench install-app failed for '%s'." "${app_name}")"
+      capture_stack_site_error_log "${stack_dir}" "site-install-apps-error" "${install_app_output}" >/dev/null 2>&1 || true
       printf -v "${result_var}" "%s" "${installed_app_lines}"
       return 56
     fi
@@ -648,13 +836,12 @@ install_stack_apps_on_site() {
       "${installed_app_lines}" \
       "install-apps" \
       "" \
+      "" \
       "$(get_stack_site_created_at "${stack_dir}" || true)" \
       "$(get_current_utc_timestamp)"; then
       return 58
     fi
-  done <<EOF
-${selected_app_lines}
-EOF
+  done
 
   printf -v "${result_var}" "%s" "${installed_app_lines}"
   return 0
@@ -701,7 +888,7 @@ bootstrap_first_stack_site() {
 
   created_at="$(get_current_utc_timestamp)"
   updated_at="${created_at}"
-  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "requested" "" "create-site" "" "${created_at}" "${updated_at}"; then
+  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "requested" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
     return 58
   fi
 
@@ -714,18 +901,18 @@ bootstrap_first_stack_site() {
       return "${cleanup_status}"
       ;;
     60)
-      mark_stack_site_failed "${stack_dir}" "${site_name}" "" "cleanup-partial-site" "Partial site artifacts could not be removed automatically. Manual cleanup is required." "" >/dev/null 2>&1 || true
+      mark_stack_site_failed "${stack_dir}" "${site_name}" "" "cleanup-partial-site" "Partial site artifacts could not be removed automatically. Manual cleanup is required." "" "" >/dev/null 2>&1 || true
       return 60
       ;;
     *)
-      mark_stack_site_failed "${stack_dir}" "${site_name}" "" "cleanup-partial-site" "Unexpected cleanup failure before create-site." "${created_at}" >/dev/null 2>&1 || true
+      mark_stack_site_failed "${stack_dir}" "${site_name}" "" "cleanup-partial-site" "Unexpected cleanup failure before create-site." "" "${created_at}" >/dev/null 2>&1 || true
       return 60
       ;;
     esac
   fi
 
   updated_at="${created_at}"
-  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "creating" "" "create-site" "" "${created_at}" "${updated_at}"; then
+  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "creating" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
     return 58
   fi
 
@@ -734,12 +921,12 @@ bootstrap_first_stack_site() {
   else
     site_create_status=$?
     if cleanup_partial_stack_site "${stack_dir}" "${site_name}"; then
-      mark_stack_site_failed "${stack_dir}" "${site_name}" "" "create-site" "bench new-site failed. Partial site data was cleaned up automatically." "${created_at}" >/dev/null 2>&1 || true
+      mark_stack_site_failed "${stack_dir}" "${site_name}" "" "create-site" "bench new-site failed. Partial site data was cleaned up automatically." "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
       return "${site_create_status}"
     fi
 
     cleanup_status=$?
-    mark_stack_site_failed "${stack_dir}" "${site_name}" "" "create-site" "bench new-site failed and partial site data could not be cleaned up automatically. Manual cleanup is required." "${created_at}" >/dev/null 2>&1 || true
+    mark_stack_site_failed "${stack_dir}" "${site_name}" "" "create-site" "bench new-site failed and partial site data could not be cleaned up automatically. Manual cleanup is required." "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
     case "${cleanup_status}" in
     54 | 52)
       return "${cleanup_status}"
@@ -751,7 +938,7 @@ bootstrap_first_stack_site() {
   fi
 
   updated_at="$(get_current_utc_timestamp)"
-  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "created" "" "create-site" "" "${created_at}" "${updated_at}"; then
+  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "created" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
     return 58
   fi
 
@@ -760,12 +947,12 @@ bootstrap_first_stack_site() {
   else
     app_install_status=$?
     case "${app_install_status}" in
-    56)
+    56 | 63)
       if cleanup_partial_stack_site "${stack_dir}" "${site_name}"; then
-        mark_stack_site_failed "${stack_dir}" "${site_name}" "${installed_app_lines}" "install-apps" "App installation failed. Partial site data was cleaned up automatically." "${created_at}" >/dev/null 2>&1 || true
+        mark_stack_site_failed "${stack_dir}" "${site_name}" "${installed_app_lines}" "install-apps" "${EASY_DOCKER_SITE_ERROR_DETAIL:-App installation failed. Partial site data was cleaned up automatically.}" "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
       else
         cleanup_status=$?
-        mark_stack_site_failed "${stack_dir}" "${site_name}" "${installed_app_lines}" "install-apps" "App installation failed and partial site data could not be cleaned up automatically. Manual cleanup is required." "${created_at}" >/dev/null 2>&1 || true
+        mark_stack_site_failed "${stack_dir}" "${site_name}" "${installed_app_lines}" "install-apps" "${EASY_DOCKER_SITE_ERROR_DETAIL:-App installation failed and partial site data could not be cleaned up automatically. Manual cleanup is required.}" "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
         case "${cleanup_status}" in
         54 | 52)
           return "${cleanup_status}"
@@ -780,14 +967,14 @@ bootstrap_first_stack_site() {
       return 58
       ;;
     *)
-      mark_stack_site_failed "${stack_dir}" "${site_name}" "${installed_app_lines}" "install-apps" "Unknown app installation failure." "${created_at}" >/dev/null 2>&1 || true
+      mark_stack_site_failed "${stack_dir}" "${site_name}" "${installed_app_lines}" "install-apps" "Unknown app installation failure." "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
       ;;
     esac
     return "${app_install_status}"
   fi
 
   updated_at="$(get_current_utc_timestamp)"
-  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "ready" "${installed_app_lines}" "install-apps" "" "${created_at}" "${updated_at}"; then
+  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "ready" "${installed_app_lines}" "install-apps" "" "" "${created_at}" "${updated_at}"; then
     return 58
   fi
 

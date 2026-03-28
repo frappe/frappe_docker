@@ -125,13 +125,12 @@ show_manage_stack_docker_menu() {
 show_manage_stack_site_menu() {
   local stack_name="${1}"
   local stack_dir="${2}"
-  local site_status="${3:-Not configured}"
-  local existing_site_entry="${4:-}"
+  local existing_site_entry="${3:-}"
   local status_text=""
 
   render_main_screen 1 >&2
 
-  status_text="$(printf "Manage stack site\n\nStack: %s\nDirectory: %s\nSite status: %s\n\nCreate a new site or select an existing site for this stack." "${stack_name}" "${stack_dir}" "${site_status}")"
+  status_text="$(printf "Manage stack site\n\nStack: %s\nDirectory: %s\n\nCreate a new site or select an existing site for this stack." "${stack_name}" "${stack_dir}")"
   render_box_message "${status_text}" "0 2" >&2
 
   if [ -n "${existing_site_entry}" ]; then
@@ -192,18 +191,17 @@ show_manage_stack_site_details() {
   local stack_name="${1}"
   local stack_dir="${2}"
   local site_name="${3}"
-  local site_status="${4:-Unknown}"
-  local created_at="${5:-}"
-  local installed_apps="${6:-None}"
+  local created_at="${4:-}"
+  local installed_apps="${5:-None}"
   local status_text=""
 
   render_main_screen 1 >&2
 
-  status_text="$(printf "Manage existing site\n\nStack: %s\nDirectory: %s\nSite: %s\nStatus: %s\nCreated at: %s\nInstalled apps: %s" "${stack_name}" "${stack_dir}" "${site_name}" "${site_status}" "${created_at:-n/a}" "${installed_apps}")"
+  status_text="$(printf "Manage existing site\n\nStack: %s\nDirectory: %s\nSite: %s\nCreated at: %s\nInstalled apps: %s" "${stack_name}" "${stack_dir}" "${site_name}" "${created_at:-n/a}" "${installed_apps}")"
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
-    --height 7 \
+    --height 8 \
     --header "Site details" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
