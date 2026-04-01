@@ -32,7 +32,7 @@ handle_manage_stack_site_flow() {
 
       show_warning_message "Creating the first site for stack: ${stack_name}"
       if bootstrap_first_stack_site "${stack_dir}" "${site_name}" "${admin_password}"; then
-        show_warning_and_wait "Site created successfully and selected stack apps were installed: ${site_name}" 3
+        show_warning_and_wait "Site created successfully, selected stack apps were installed, and bench migrate completed: ${site_name}" 3
         continue
       else
         site_flow_status=$?
@@ -61,7 +61,7 @@ handle_manage_stack_site_flow() {
         show_warning_and_wait "Site bootstrap currently supports only MariaDB-backed single-host stacks." 4
         ;;
       58)
-        show_warning_and_wait "The site state could not be written to metadata.json." 4
+        show_warning_and_wait "The site metadata could not be written to metadata.json." 4
         ;;
       59)
         show_warning_and_wait "Cannot create site: stack services are not ready yet. Wait and try again." 4
@@ -77,6 +77,9 @@ handle_manage_stack_site_flow() {
         ;;
       63)
         show_warning_and_wait "Cannot install the selected stack apps because at least one app is missing from the backend image. ${EASY_DOCKER_SITE_ERROR_DETAIL} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 7
+        ;;
+      64)
+        show_warning_and_wait "The site was created and apps were installed, but bench migrate failed. ${EASY_DOCKER_SITE_ERROR_DETAIL:-Check the output above.} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 7
         ;;
       *)
         show_warning_and_wait "Site bootstrap failed (${site_flow_status})." 4
@@ -139,7 +142,7 @@ handle_manage_stack_site_flow() {
               show_warning_and_wait "Cannot delete site because stack metadata, env, or compose inputs are incomplete." 4
               ;;
             58)
-              show_warning_and_wait "The cleared site state could not be written to metadata.json." 4
+              show_warning_and_wait "The cleared site metadata could not be written to metadata.json." 4
               ;;
             60)
               show_warning_and_wait "Site deletion could not remove all site or database data automatically. Manual cleanup is required." 5

@@ -33,21 +33,19 @@ build_stack_site_metadata_json_object() {
   local result_var="${1}"
   local site_mode="${2:-single-site}"
   local site_name="${3:-}"
-  local site_state="${4:-not_created}"
-  local apps_installed_lines="${5:-}"
-  local last_action="${6:-}"
-  local last_error="${7:-}"
-  local error_log_path="${8:-}"
-  local created_at="${9:-}"
-  local updated_at="${10:-}"
+  local apps_installed_lines="${4:-}"
+  local last_action="${5:-}"
+  local last_error="${6:-}"
+  local error_log_path="${7:-}"
+  local created_at="${8:-}"
+  local updated_at="${9:-}"
   local apps_installed_json_array=""
 
   build_stack_site_apps_installed_json_array apps_installed_json_array "${apps_installed_lines}"
 
-  printf -v "${result_var}" '{\n      "mode": "%s",\n      "name": "%s",\n      "state": "%s",\n      "apps_installed": %s,\n      "last_action": "%s",\n      "last_error": "%s",\n      "error_log_path": "%s",\n      "created_at": "%s",\n      "updated_at": "%s"\n    }' \
+  printf -v "${result_var}" '{\n      "mode": "%s",\n      "name": "%s",\n      "apps_installed": %s,\n      "last_action": "%s",\n      "last_error": "%s",\n      "error_log_path": "%s",\n      "created_at": "%s",\n      "updated_at": "%s"\n    }' \
     "$(json_escape_string "${site_mode}")" \
     "$(json_escape_string "${site_name}")" \
-    "$(json_escape_string "${site_state}")" \
     "${apps_installed_json_array}" \
     "$(json_escape_string "${last_action}")" \
     "$(json_escape_string "${last_error}")" \
@@ -60,13 +58,12 @@ persist_stack_site_metadata() {
   local stack_dir="${1}"
   local site_mode="${2:-single-site}"
   local site_name="${3:-}"
-  local site_state="${4:-not_created}"
-  local apps_installed_lines="${5:-}"
-  local last_action="${6:-}"
-  local last_error="${7:-}"
-  local error_log_path="${8:-}"
-  local created_at="${9:-}"
-  local updated_at="${10:-}"
+  local apps_installed_lines="${4:-}"
+  local last_action="${5:-}"
+  local last_error="${6:-}"
+  local error_log_path="${7:-}"
+  local created_at="${8:-}"
+  local updated_at="${9:-}"
   local metadata_path=""
   local metadata_tmp_path=""
   local site_json_object=""
@@ -77,7 +74,7 @@ persist_stack_site_metadata() {
     return 1
   fi
 
-  build_stack_site_metadata_json_object site_json_object "${site_mode}" "${site_name}" "${site_state}" "${apps_installed_lines}" "${last_action}" "${last_error}" "${error_log_path}" "${created_at}" "${updated_at}"
+  build_stack_site_metadata_json_object site_json_object "${site_mode}" "${site_name}" "${apps_installed_lines}" "${last_action}" "${last_error}" "${error_log_path}" "${created_at}" "${updated_at}"
 
   if ! awk -v site_object="${site_json_object}" '
     BEGIN {
@@ -167,7 +164,7 @@ mark_stack_site_failed() {
   local updated_at=""
 
   updated_at="$(get_current_utc_timestamp)"
-  persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "failed" "${apps_installed_lines}" "${last_action}" "${last_error}" "${error_log_path}" "${created_at}" "${updated_at}"
+  persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "${apps_installed_lines}" "${last_action}" "${last_error}" "${error_log_path}" "${created_at}" "${updated_at}"
 }
 
 clear_stack_site_metadata() {
@@ -175,5 +172,5 @@ clear_stack_site_metadata() {
   local updated_at=""
 
   updated_at="$(get_current_utc_timestamp)"
-  persist_stack_site_metadata "${stack_dir}" "single-site" "" "not_created" "" "delete-site" "" "" "" "${updated_at}"
+  persist_stack_site_metadata "${stack_dir}" "single-site" "" "" "delete-site" "" "" "" "${updated_at}"
 }

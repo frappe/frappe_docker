@@ -75,10 +75,10 @@ get_stack_site_name() {
   get_metadata_site_string_field "${stack_dir}/metadata.json" "name"
 }
 
-get_stack_site_state() {
+get_stack_site_last_error() {
   local stack_dir="${1}"
 
-  get_metadata_site_string_field "${stack_dir}/metadata.json" "state"
+  get_metadata_site_string_field "${stack_dir}/metadata.json" "last_error"
 }
 
 get_stack_site_created_at() {
@@ -107,78 +107,29 @@ stack_has_site_record() {
 
 stack_has_site_configured() {
   local stack_dir="${1}"
-  local site_state=""
-
-  site_state="$(get_stack_site_state "${stack_dir}" || true)"
-  case "${site_state}" in
-  created | apps_installing | ready)
-    return 0
-    ;;
-  *)
-    return 1
-    ;;
-  esac
-}
-
-get_stack_site_status_label() {
-  local result_var="${1}"
-  local stack_dir="${2}"
-  local site_state=""
   local site_name=""
-  local site_status_label=""
+  local last_error=""
 
-  site_state="$(get_stack_site_state "${stack_dir}" || true)"
   site_name="$(get_stack_site_name "${stack_dir}" || true)"
+  last_error="$(get_stack_site_last_error "${stack_dir}" || true)"
 
-  case "${site_state}" in
-  "")
-    site_status_label="Not configured"
-    ;;
-  requested)
-    site_status_label="Requested"
-    ;;
-  creating)
-    site_status_label="Creating"
-    ;;
-  created)
-    site_status_label="Created"
-    ;;
-  apps_installing)
-    site_status_label="Installing apps"
-    ;;
-  ready)
-    site_status_label="Ready"
-    ;;
-  failed)
-    site_status_label="Failed"
-    ;;
-  *)
-    site_status_label="${site_state}"
-    ;;
-  esac
-
-  if [ -n "${site_name}" ]; then
-    site_status_label="${site_status_label} (${site_name})"
+  if [ -n "${site_name}" ] && [ -z "${last_error}" ]; then
+    return 0
   fi
 
-  printf -v "${result_var}" "%s" "${site_status_label}"
-  return 0
+  return 1
 }
 
 get_stack_site_menu_entry() {
   local result_var="${1}"
   local stack_dir="${2}"
   local site_name=""
-  local site_status_label=""
-  local menu_entry=""
 
   site_name="$(get_stack_site_name "${stack_dir}" || true)"
   if [ -z "${site_name}" ]; then
     return 1
   fi
 
-  get_stack_site_status_label site_status_label "${stack_dir}"
-  menu_entry="$(printf "%s | %s" "${site_name}" "${site_status_label}")"
-  printf -v "${result_var}" "%s" "${menu_entry}"
+  printf -v "${result_var}" "%s" "${site_name}"
   return 0
 }

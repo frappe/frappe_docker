@@ -259,7 +259,6 @@ install_stack_apps_on_site() {
       "${stack_dir}" \
       "single-site" \
       "${site_name}" \
-      "apps_installing" \
       "${installed_app_lines}" \
       "install-apps" \
       "" \
@@ -274,6 +273,26 @@ install_stack_apps_on_site() {
   return 0
 }
 
+run_stack_site_migrate() {
+  local stack_dir="${1}"
+  local site_name="${2}"
+  local migrate_command=""
+  local migrate_output=""
+
+  migrate_command="$(
+    printf "bench --site %s migrate" \
+      "$(shell_quote_site_command_arg "${site_name}")"
+  )"
+
+  if ! run_stack_backend_bash_command_capture migrate_output "${stack_dir}" "${migrate_command}"; then
+    EASY_DOCKER_SITE_ERROR_DETAIL="$(printf "bench migrate failed for '%s'." "${site_name}")"
+    capture_stack_site_error_log "${stack_dir}" "site-migrate-error" "${migrate_output}" >/dev/null 2>&1 || true
+    return 64
+  fi
+
+  return 0
+}
+
 bootstrap_first_stack_site() {
   local stack_dir="${1}"
   local site_name="${2}"
@@ -283,6 +302,7 @@ bootstrap_first_stack_site() {
   local installed_app_lines=""
   local site_create_status=0
   local app_install_status=0
+  local site_migrate_status=0
   local cleanup_status=0
 
   if ! is_safe_stack_site_cleanup_name "${site_name}"; then
@@ -315,7 +335,7 @@ bootstrap_first_stack_site() {
 
   created_at="$(get_current_utc_timestamp)"
   updated_at="${created_at}"
-  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "requested" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
+  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
     return 58
   fi
 
@@ -339,7 +359,7 @@ bootstrap_first_stack_site() {
   fi
 
   updated_at="${created_at}"
-  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "creating" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
+  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
     return 58
   fi
 
@@ -365,7 +385,7 @@ bootstrap_first_stack_site() {
   fi
 
   updated_at="$(get_current_utc_timestamp)"
-  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "created" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
+  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "" "create-site" "" "" "${created_at}" "${updated_at}"; then
     return 58
   fi
 
@@ -400,8 +420,23 @@ bootstrap_first_stack_site() {
     return "${app_install_status}"
   fi
 
+  if run_stack_site_migrate "${stack_dir}" "${site_name}"; then
+    :
+  else
+    site_migrate_status=$?
+    case "${site_migrate_status}" in
+    64)
+      mark_stack_site_failed "${stack_dir}" "${site_name}" "${installed_app_lines}" "migrate-site" "${EASY_DOCKER_SITE_ERROR_DETAIL:-Site migration failed.}" "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
+      ;;
+    *)
+      mark_stack_site_failed "${stack_dir}" "${site_name}" "${installed_app_lines}" "migrate-site" "Unknown site migration failure." "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
+      ;;
+    esac
+    return "${site_migrate_status}"
+  fi
+
   updated_at="$(get_current_utc_timestamp)"
-  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "ready" "${installed_app_lines}" "install-apps" "" "" "${created_at}" "${updated_at}"; then
+  if ! persist_stack_site_metadata "${stack_dir}" "single-site" "${site_name}" "${installed_app_lines}" "migrate-site" "" "" "${created_at}" "${updated_at}"; then
     return 58
   fi
 
