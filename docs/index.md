@@ -14,7 +14,7 @@ hero:
       link: /getting-started
     - theme: alt
       text: Single Compose Setup
-      link: /01-getting-started/02-single-compose-setup
+      link: /01-getting-started/04-single-compose-setup
 
 features:
   - title: Containerised
