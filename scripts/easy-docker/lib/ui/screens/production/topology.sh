@@ -8,7 +8,7 @@ show_stack_topology_menu() {
   render_main_screen 1 >&2
 
   stack_name="${stack_dir##*/}"
-  status_text="$(printf "Stack created: %s\nDirectory: %s\n\nChoose the deployment topology.\n\n- Single-host: easiest setup on one server.\n- Split services: separate app and infra stacks for more control." "${stack_name}" "${stack_dir}")"
+  status_text="$(printf "Stack created: %s\nDirectory: %s\n\nChoose the deployment topology.\n\n- Single-host: easiest setup on one server.\n- Split services: separate app and infra stacks for more control (currently in development)." "${stack_name}" "${stack_dir}")"
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
@@ -17,7 +17,7 @@ show_stack_topology_menu() {
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Single-host (recommended)" \
-    "Split services" \
+    "Split services (in development)" \
     "Abort wizard to main menu"
 }
 
