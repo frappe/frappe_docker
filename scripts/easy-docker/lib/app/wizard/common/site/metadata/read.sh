@@ -87,6 +87,12 @@ get_stack_site_created_at() {
   get_metadata_site_string_field "${stack_dir}/metadata.json" "created_at"
 }
 
+get_stack_site_last_backup_at() {
+  local stack_dir="${1}"
+
+  get_metadata_site_string_field "${stack_dir}/metadata.json" "last_backup_at"
+}
+
 get_stack_site_apps_installed_lines() {
   local stack_dir="${1}"
 

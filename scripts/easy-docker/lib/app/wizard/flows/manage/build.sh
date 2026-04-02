@@ -9,9 +9,9 @@ run_build_stack_custom_image_with_feedback() {
   if build_stack_custom_image "${stack_dir}"; then
     show_warning_and_wait "Custom image build finished successfully for stack: ${stack_name}" 3
     return 0
+  else
+    build_image_status=$?
   fi
-
-  build_image_status=$?
   case "${build_image_status}" in
   11)
     show_warning_and_wait "Custom image build failed: missing metadata.json in ${stack_dir}." 4

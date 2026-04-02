@@ -11,6 +11,8 @@ load_easy_docker_site_modules() {
   source "${site_dir}/metadata.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/common/site/bootstrap.sh
   source "${site_dir}/bootstrap.sh"
+  # shellcheck source=scripts/easy-docker/lib/app/wizard/common/site/backup.sh
+  source "${site_dir}/backup.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/common/site/apps.sh
   source "${site_dir}/apps.sh"
 }

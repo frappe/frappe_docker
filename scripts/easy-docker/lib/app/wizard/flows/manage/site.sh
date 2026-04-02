@@ -12,6 +12,7 @@ handle_manage_stack_site_flow() {
   local existing_site_created_at=""
   local existing_site_apps_lines=""
   local existing_site_apps_csv=""
+  local existing_site_last_backup_at=""
   local existing_site_details_action=""
   local site_delete_confirmation=""
 
@@ -97,6 +98,7 @@ handle_manage_stack_site_flow() {
         existing_site_name="$(get_stack_site_name "${stack_dir}" || true)"
         existing_site_created_at="$(get_stack_site_created_at "${stack_dir}" || true)"
         existing_site_apps_lines="$(get_stack_site_apps_installed_lines "${stack_dir}" || true)"
+        existing_site_last_backup_at="$(get_stack_site_last_backup_at "${stack_dir}" || true)"
         if stack_backend_service_is_running "${stack_dir}" >/dev/null 2>&1; then
           get_stack_site_runtime_selected_apps_lines existing_site_apps_lines "${stack_dir}" "${existing_site_name}" || true
         fi
@@ -112,9 +114,44 @@ handle_manage_stack_site_flow() {
             "${stack_dir}" \
             "${existing_site_name}" \
             "${existing_site_created_at}" \
-            "${existing_site_apps_csv}" || true
+            "${existing_site_apps_csv}" \
+            "${existing_site_last_backup_at}" || true
         )"
         case "${existing_site_details_action}" in
+        "Backup site now")
+          show_warning_message "Creating backup for site: ${existing_site_name}"
+          if backup_configured_stack_site "${stack_dir}"; then
+            existing_site_last_backup_at="$(get_stack_site_last_backup_at "${stack_dir}" || true)"
+            show_warning_and_wait "Site backup completed successfully: ${existing_site_name}${existing_site_last_backup_at:+ (last backup at ${existing_site_last_backup_at})}" 4
+            continue
+          fi
+
+          site_flow_status=$?
+          case "${site_flow_status}" in
+          71)
+            show_warning_and_wait "Cannot back up site: backend service is not running yet. Start the stack first." 4
+            ;;
+          72)
+            show_warning_and_wait "Cannot back up site for this topology yet. Only single-host stacks are supported." 4
+            ;;
+          73)
+            show_warning_and_wait "Cannot back up site because no configured site was found in metadata.json." 4
+            ;;
+          74)
+            show_warning_and_wait "Cannot back up site because stack metadata, env, or compose inputs are incomplete." 4
+            ;;
+          75)
+            show_warning_and_wait "Site backup failed. ${EASY_DOCKER_SITE_ERROR_DETAIL:-Check the output above.} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 6
+            ;;
+          76)
+            show_warning_and_wait "The backup command finished, but the backup metadata could not be written to metadata.json." 5
+            ;;
+          *)
+            show_warning_and_wait "Site backup failed (${site_flow_status})." 4
+            ;;
+          esac
+          continue
+          ;;
         "Delete site")
           site_delete_confirmation="$(
             show_manage_stack_site_delete_confirmation \
@@ -128,9 +165,9 @@ handle_manage_stack_site_flow() {
             if delete_configured_stack_site "${stack_dir}"; then
               show_warning_and_wait "Site deleted successfully with its database: ${existing_site_name}" 3
               continue
+            else
+              site_flow_status=$?
             fi
-
-            site_flow_status=$?
             case "${site_flow_status}" in
             51)
               show_warning_and_wait "Cannot delete site: backend service is not running yet. Start the stack first." 4

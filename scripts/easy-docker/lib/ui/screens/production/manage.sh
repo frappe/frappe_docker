@@ -65,7 +65,7 @@ show_manage_stack_actions_menu() {
   menu_header="$(printf "Stack actions | %s" "${stack_runtime_status}")"
 
   gum choose \
-    --height 11 \
+    --height 12 \
     --header "${menu_header}" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
@@ -73,6 +73,7 @@ show_manage_stack_actions_menu() {
     "Docker" \
     "Site" \
     "Start stack in Docker Compose" \
+    "Restart stack in Docker Compose" \
     "Stop stack in Docker Compose" \
     "Delete stack" \
     "Back" \
@@ -194,18 +195,20 @@ show_manage_stack_site_details() {
   local site_name="${3}"
   local created_at="${4:-}"
   local installed_apps="${5:-None}"
+  local last_backup_at="${6:-}"
   local status_text=""
 
   render_main_screen 1 >&2
 
-  status_text="$(printf "Manage existing site\n\nStack: %s\nDirectory: %s\nSite: %s\nCreated at: %s\nInstalled apps: %s" "${stack_name}" "${stack_dir}" "${site_name}" "${created_at:-n/a}" "${installed_apps}")"
+  status_text="$(printf "Manage existing site\n\nStack: %s\nDirectory: %s\nSite: %s\nCreated at: %s\nInstalled apps: %s\nLast backup: %s" "${stack_name}" "${stack_dir}" "${site_name}" "${created_at:-n/a}" "${installed_apps}" "${last_backup_at:-n/a}")"
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
-    --height 8 \
+    --height 9 \
     --header "Site details" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
+    "Backup site now" \
     "Delete site" \
     "Back" \
     "Exit and close easy-docker"

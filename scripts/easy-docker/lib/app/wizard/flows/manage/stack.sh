@@ -158,14 +158,86 @@ handle_manage_selected_stack_flow() {
         esac
       done
       ;;
+    "Restart stack in Docker Compose")
+      while true; do
+        show_warning_message "Restarting stack with docker compose: ${stack_name}"
+        if restart_stack_with_compose_from_metadata "${stack_dir}"; then
+          show_warning_and_wait "Stack restarted successfully with docker compose: ${stack_name}" 3
+          break
+        else
+          compose_start_status=$?
+        fi
+        case "${compose_start_status}" in
+        57)
+          show_warning_and_wait "Cannot restart stack: metadata.json is missing in ${stack_dir}." 4
+          break
+          ;;
+        58)
+          show_warning_and_wait "Cannot restart stack: stack env file not found in ${stack_dir}." 4
+          break
+          ;;
+        59)
+          show_warning_and_wait "Cannot restart stack: topology is missing in metadata.json. Re-run the topology wizard for this stack." 4
+          break
+          ;;
+        60)
+          show_warning_and_wait "Cannot restart stack via docker compose for topology '${EASY_DOCKER_COMPOSE_ERROR_DETAIL}'. Use the topology-specific runbook path." 5
+          break
+          ;;
+        61)
+          show_warning_and_wait "Cannot restart stack: no compose files configured in metadata.json." 4
+          break
+          ;;
+        62)
+          show_warning_and_wait "Cannot restart stack: compose file is missing -> ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 4
+          break
+          ;;
+        63)
+          show_warning_and_wait "docker compose restart failed. Check the output above for details." 4
+          break
+          ;;
+        64)
+          missing_custom_image_action="$(
+            show_missing_custom_image_start_menu "${stack_name}" "${stack_dir}" "${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" || true
+          )"
+          case "${missing_custom_image_action}" in
+          "Build custom image now")
+            if run_build_stack_custom_image_with_feedback "${stack_name}" "${stack_dir}"; then
+              continue
+            fi
+            break
+            ;;
+          "Back" | "")
+            break
+            ;;
+          "Exit and close easy-docker")
+            return "${FLOW_EXIT_APP}"
+            ;;
+          *)
+            show_warning_and_wait "Unknown missing-image action: ${missing_custom_image_action}" 2
+            break
+            ;;
+          esac
+          ;;
+        65)
+          show_warning_and_wait "Cannot inspect custom image before restart. Check Docker and try again. Details: ${EASY_DOCKER_COMPOSE_ERROR_DETAIL}" 5
+          break
+          ;;
+        *)
+          show_warning_and_wait "Cannot restart stack with docker compose (${compose_start_status})." 4
+          break
+          ;;
+        esac
+      done
+      ;;
     "Stop stack in Docker Compose")
       show_warning_message "Stopping stack with docker compose: ${stack_name}"
       if stop_stack_with_compose_from_metadata "${stack_dir}"; then
         show_warning_and_wait "Stack stopped successfully with docker compose: ${stack_name}" 3
         continue
+      else
+        compose_start_status=$?
       fi
-
-      compose_start_status=$?
       case "${compose_start_status}" in
       41)
         show_warning_and_wait "Cannot stop stack: metadata.json is missing in ${stack_dir}." 4
@@ -210,9 +282,9 @@ handle_manage_selected_stack_flow() {
         if delete_stack_with_compose_from_metadata "${stack_dir}"; then
           show_warning_and_wait "Stack deleted successfully with containers, networks, volumes, image, and stack directory: ${stack_name}" 5
           return "${FLOW_CONTINUE}"
+        else
+          compose_start_status=$?
         fi
-
-        compose_start_status=$?
         case "${compose_start_status}" in
         48)
           show_warning_and_wait "Cannot delete stack: metadata.json is missing in ${stack_dir}." 4
