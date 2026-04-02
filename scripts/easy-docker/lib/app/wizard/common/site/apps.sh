@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+load_easy_docker_site_apps_modules() {
+  local apps_dir=""
+  apps_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/apps"
+
+  # shellcheck source=scripts/easy-docker/lib/app/wizard/common/site/apps/lifecycle.sh
+  source "${apps_dir}/lifecycle.sh"
+}
+
 append_stack_installable_app_line() {
   local result_var="${1}"
   local existing_lines="${2:-}"
@@ -74,3 +82,5 @@ get_stack_selected_installable_apps() {
   printf -v "${result_var}" "%s" "${ordered_app_lines}"
   return 0
 }
+
+load_easy_docker_site_apps_modules

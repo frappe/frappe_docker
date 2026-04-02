@@ -204,13 +204,96 @@ show_manage_stack_site_details() {
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
-    --height 9 \
+    --height 10 \
     --header "Site details" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
+    "Manage apps on this site" \
     "Backup site now" \
     "Delete site" \
     "Back" \
+    "Exit and close easy-docker"
+}
+
+show_manage_stack_site_apps_menu() {
+  local stack_name="${1}"
+  local stack_dir="${2}"
+  local site_name="${3}"
+  local status_text=""
+
+  render_main_screen 1 >&2
+
+  status_text="$(printf "Manage site apps\n\nStack: %s\nDirectory: %s\nSite: %s\n\nInstall or uninstall apps for this existing site." "${stack_name}" "${stack_dir}" "${site_name}")"
+  render_box_message "${status_text}" "0 2" >&2
+
+  gum choose \
+    --height 9 \
+    --header "Site app actions" \
+    --cursor.foreground 63 \
+    --selected.foreground 45 \
+    "Install app on this site" \
+    "Uninstall app from this site" \
+    "Back" \
+    "Exit and close easy-docker"
+}
+
+show_manage_stack_site_app_selection() {
+  local stack_name="${1}"
+  local stack_dir="${2}"
+  local site_name="${3}"
+  local action_label="${4}"
+  local app_lines="${5:-}"
+  local status_text=""
+  local app_name=""
+  local -a menu_options=()
+
+  render_main_screen 1 >&2
+
+  status_text="$(printf "%s\n\nStack: %s\nDirectory: %s\nSite: %s\n\nSelect one app." "${action_label}" "${stack_name}" "${stack_dir}" "${site_name}")"
+  render_box_message "${status_text}" "0 2" >&2
+
+  while IFS= read -r app_name; do
+    if [ -z "${app_name}" ]; then
+      continue
+    fi
+    menu_options+=("${app_name}")
+  done <<EOF
+${app_lines}
+EOF
+
+  if [ "${#menu_options[@]}" -eq 0 ]; then
+    return 1
+  fi
+
+  gum choose \
+    --height 12 \
+    --header "${action_label}" \
+    --cursor.foreground 63 \
+    --selected.foreground 45 \
+    "${menu_options[@]}" \
+    "Back" \
+    "Exit and close easy-docker"
+}
+
+show_manage_stack_site_app_uninstall_confirmation() {
+  local stack_name="${1}"
+  local stack_dir="${2}"
+  local site_name="${3}"
+  local app_name="${4}"
+  local status_text=""
+
+  render_main_screen 1 >&2
+
+  status_text="$(printf "Uninstall app from site\n\nStack: %s\nDirectory: %s\nSite: %s\nApp: %s\n\nThis removes the app from the site. frappe itself cannot be removed here." "${stack_name}" "${stack_dir}" "${site_name}" "${app_name}")"
+  render_box_message "${status_text}" "0 2" >&2
+
+  gum choose \
+    --height 8 \
+    --header "Confirm uninstall app" \
+    --cursor.foreground 63 \
+    --selected.foreground 45 \
+    "Yes" \
+    "No" \
     "Exit and close easy-docker"
 }
 
