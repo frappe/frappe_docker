@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+stack_directory_contains_only_metadata() {
+  local stack_dir="${1}"
+  local metadata_path="${2}"
+  local remaining_entry=""
+
+  remaining_entry="$(
+    find "${stack_dir}" -mindepth 1 ! -path "${metadata_path}" -print -quit 2>/dev/null || true
+  )"
+  if [ -n "${remaining_entry}" ]; then
+    return 1
+  fi
+
+  return 0
+}
+
 delete_stack_with_compose_from_metadata() {
   local stack_dir="${1}"
   local metadata_path=""
@@ -29,6 +44,13 @@ delete_stack_with_compose_from_metadata() {
   fi
 
   if [ ! -f "${env_path}" ]; then
+    if stack_directory_contains_only_metadata "${stack_dir}" "${metadata_path}"; then
+      if ! rollback_stack_directory "${stack_dir}"; then
+        EASY_DOCKER_COMPOSE_ERROR_DETAIL="${stack_dir}"
+        return 56
+      fi
+      return 0
+    fi
     return 49
   fi
 
