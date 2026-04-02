@@ -1,7 +1,3 @@
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/frappe-bench/env/bin/python",
-  "editor.detectIndentation": false,
-  "files.eol": "\n",
-  "files.insertFinalNewline": true,
-  "files.trimTrailingWhitespace": true
+  "python.defaultInterpreterPath": "${workspaceFolder}/frappe-bench/env/bin/python"
 }
