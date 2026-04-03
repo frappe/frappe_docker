@@ -1,5 +1,64 @@
 #!/usr/bin/env bash
 
+migrate_configured_stack_site() {
+  local stack_dir="${1}"
+  local site_name=""
+  local current_site_apps_lines=""
+  local created_at=""
+  local updated_at=""
+  local backend_status=0
+
+  reset_easy_docker_site_error_state
+
+  if ! stack_supports_single_site_management "${stack_dir}"; then
+    return 52
+  fi
+
+  site_name="$(get_stack_site_name "${stack_dir}" || true)"
+  if ! is_safe_stack_site_cleanup_name "${site_name}"; then
+    return 53
+  fi
+
+  if stack_backend_service_is_running "${stack_dir}"; then
+    :
+  else
+    backend_status=$?
+    case "${backend_status}" in
+    54)
+      return 54
+      ;;
+    52)
+      return 52
+      ;;
+    *)
+      return 51
+      ;;
+    esac
+  fi
+
+  if ! run_stack_site_migrate "${stack_dir}" "${site_name}"; then
+    return $?
+  fi
+
+  current_site_apps_lines="$(get_stack_site_apps_installed_lines "${stack_dir}" || true)"
+  created_at="$(get_stack_site_created_at "${stack_dir}" || true)"
+  updated_at="$(get_current_utc_timestamp)"
+  if ! persist_stack_site_metadata \
+    "${stack_dir}" \
+    "single-site" \
+    "${site_name}" \
+    "${current_site_apps_lines}" \
+    "migrate-site" \
+    "" \
+    "" \
+    "${created_at}" \
+    "${updated_at}"; then
+    return 65
+  fi
+
+  return 0
+}
+
 handle_manage_stack_site_flow() {
   local stack_name="${1}"
   local stack_dir="${2}"
@@ -15,6 +74,7 @@ handle_manage_stack_site_flow() {
   local existing_site_last_backup_at=""
   local existing_site_details_action=""
   local existing_site_apps_action=""
+  local existing_site_migrate_confirm=""
   local existing_site_app_lines=""
   local existing_site_app_selection=""
   local existing_site_app_confirmation=""
@@ -345,6 +405,59 @@ handle_manage_stack_site_flow() {
             esac
           done
           continue
+          ;;
+        "Migrate site now")
+          existing_site_migrate_confirm="$(
+            show_manage_stack_site_migrate_confirmation \
+              "${stack_name}" \
+              "${stack_dir}" \
+              "${existing_site_name}" || true
+          )"
+          case "${existing_site_migrate_confirm}" in
+          "Yes")
+            show_warning_message "Migrating site for stack: ${stack_name}"
+            if migrate_configured_stack_site "${stack_dir}"; then
+              show_warning_and_wait "Site migrated successfully: ${existing_site_name}" 3
+              continue
+            fi
+
+            site_flow_status=$?
+            case "${site_flow_status}" in
+            51)
+              show_warning_and_wait "Cannot migrate site: backend service is not running yet. Start the stack first." 4
+              ;;
+            52)
+              show_warning_and_wait "Cannot migrate site for this topology yet. Only single-host stacks are supported." 4
+              ;;
+            53)
+              show_warning_and_wait "Cannot migrate site because the configured site name was empty or unsafe for cleanup operations." 4
+              ;;
+            54)
+              show_warning_and_wait "Cannot migrate site because stack metadata, env, or compose inputs are incomplete." 4
+              ;;
+            64)
+              show_warning_and_wait "Site migration failed. ${EASY_DOCKER_SITE_ERROR_DETAIL:-Check the output above.} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 6
+              ;;
+            65)
+              show_warning_and_wait "The migrate command finished, but the site metadata could not be written to metadata.json." 5
+              ;;
+            *)
+              show_warning_and_wait "Site migration failed (${site_flow_status})." 4
+              ;;
+            esac
+            continue
+            ;;
+          "No" | "")
+            continue
+            ;;
+          "Exit and close easy-docker")
+            return "${FLOW_EXIT_APP}"
+            ;;
+          *)
+            show_warning_and_wait "Unknown site migrate confirmation action: ${existing_site_migrate_confirm}" 2
+            continue
+            ;;
+          esac
           ;;
         "Backup site now")
           show_warning_message "Creating backup for site: ${existing_site_name}"

@@ -212,6 +212,7 @@ show_manage_stack_site_details() {
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Manage apps on this site" \
+    "Migrate site now" \
     "Backup site now" \
     "Delete site" \
     "Back" \
@@ -293,6 +294,27 @@ show_manage_stack_site_app_uninstall_confirmation() {
   gum choose \
     --height 8 \
     --header "Confirm uninstall app" \
+    --cursor.foreground 63 \
+    --selected.foreground 45 \
+    "Yes" \
+    "No" \
+    "Exit and close easy-docker"
+}
+
+show_manage_stack_site_migrate_confirmation() {
+  local stack_name="${1}"
+  local stack_dir="${2}"
+  local site_name="${3}"
+  local status_text=""
+
+  render_main_screen 1 >&2
+
+  status_text="$(printf "Migrate site\n\nStack: %s\nDirectory: %s\nSite: %s\n\nRun bench migrate for this existing site now?" "${stack_name}" "${stack_dir}" "${site_name}")"
+  render_box_message "${status_text}" "0 2" >&2
+
+  gum choose \
+    --height 8 \
+    --header "Confirm migrate site" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Yes" \
