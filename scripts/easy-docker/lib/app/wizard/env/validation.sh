@@ -342,6 +342,16 @@ is_valid_domains_value() {
   return 0
 }
 
+is_valid_image_tag_value() {
+  local value="${1}"
+
+  if ! is_valid_docker_image_tag "${value}"; then
+    return 1
+  fi
+
+  return 0
+}
+
 prompt_env_value_with_validation() {
   local result_var="${1}"
   local stack_dir="${2}"
@@ -410,6 +420,12 @@ prompt_env_value_with_validation() {
     nginx_hosts)
       if ! is_valid_domains_value "${normalized_value}"; then
         validation_feedback="Invalid ${variable_name}. Use domains separated by comma or space."
+        continue
+      fi
+      ;;
+    image_tag)
+      if ! is_valid_image_tag_value "${normalized_value}"; then
+        validation_feedback="Invalid image tag for ${variable_name}. Use letters, numbers, dots, dashes, or underscores."
         continue
       fi
       ;;

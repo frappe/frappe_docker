@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+refresh_stack_generated_compose_with_feedback() {
+  local stack_dir="${1}"
+  local generated_compose_path=""
+  local render_compose_status=0
+
+  generated_compose_path="$(get_stack_generated_compose_path "${stack_dir}")"
+  if render_stack_compose_from_metadata "${stack_dir}"; then
+    show_warning_and_wait "Generated compose refreshed successfully: ${generated_compose_path}" 3
+    return 0
+  fi
+
+  render_compose_status=$?
+  show_warning_and_wait "The image build succeeded, but generated compose could not be refreshed (${render_compose_status}) for ${generated_compose_path}." 4
+  return "${render_compose_status}"
+}
+
 run_build_stack_custom_image_with_feedback() {
   local stack_name="${1}"
   local stack_dir="${2}"
@@ -8,6 +24,7 @@ run_build_stack_custom_image_with_feedback() {
   show_warning_message "Starting docker build for stack: ${stack_name}"
   if build_stack_custom_image "${stack_dir}"; then
     show_warning_and_wait "Custom image build finished successfully for stack: ${stack_name}" 3
+    refresh_stack_generated_compose_with_feedback "${stack_dir}" || true
     return 0
   else
     build_image_status=$?

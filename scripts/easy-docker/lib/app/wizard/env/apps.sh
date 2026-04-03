@@ -431,3 +431,124 @@ update_stack_custom_modular_apps() {
 
   return 0
 }
+
+prompt_selected_stack_app_branches_data() {
+  local result_apps_metadata_var="${1}"
+  local stack_dir="${2}"
+  local metadata_path=""
+  local selected_predefined_csv=""
+  local predefined_app_id=""
+  local predefined_app_label=""
+  local predefined_repo_url=""
+  local selected_branch=""
+  local preferred_branch=""
+  local available_branch_lines=""
+  local existing_branch_lines=""
+  local selected_branch_lines=""
+  local selected_app_count=0
+  local built_apps_metadata_json_object=""
+  local prompt_status=0
+  local -a selected_predefined_ids=()
+
+  metadata_path="${stack_dir}/metadata.json"
+  if [ ! -f "${metadata_path}" ]; then
+    return 3
+  fi
+
+  selected_predefined_csv="$(get_metadata_apps_predefined_csv "${metadata_path}" || true)"
+  existing_branch_lines="$(get_metadata_apps_predefined_branch_lines "${metadata_path}" || true)"
+  if [ -z "${selected_predefined_csv}" ]; then
+    return 4
+  fi
+
+  selected_branch_lines=""
+  IFS=',' read -r -a selected_predefined_ids <<<"${selected_predefined_csv}"
+  for predefined_app_id in "${selected_predefined_ids[@]}"; do
+    if [ -z "${predefined_app_id}" ]; then
+      continue
+    fi
+
+    predefined_app_label="$(get_predefined_app_label_by_id "${predefined_app_id}" || true)"
+    if [ -z "${predefined_app_label}" ]; then
+      predefined_app_label="${predefined_app_id}"
+    fi
+
+    predefined_repo_url="$(get_predefined_app_repo_by_id "${predefined_app_id}" || true)"
+    if [ -z "${predefined_repo_url}" ]; then
+      show_warning_and_wait "Missing repo URL for app '${predefined_app_id}'." 3
+      return 1
+    fi
+
+    preferred_branch="$(get_predefined_branch_from_lines "${existing_branch_lines}" "${predefined_app_id}" || true)"
+    if [ -z "${preferred_branch}" ]; then
+      preferred_branch="$(get_stack_frappe_branch "${stack_dir}" || true)"
+    fi
+    if [ -z "${preferred_branch}" ]; then
+      preferred_branch="$(get_predefined_app_default_branch_by_id "${predefined_app_id}" || true)"
+    fi
+    if [ -z "${preferred_branch}" ]; then
+      preferred_branch="$(get_default_frappe_branch)"
+    fi
+
+    available_branch_lines=""
+    if get_predefined_app_branch_lines_by_id available_branch_lines "${predefined_app_id}"; then
+      if [ -n "${preferred_branch}" ] && ! lines_contains_line "${available_branch_lines}" "${preferred_branch}"; then
+        preferred_branch="$(get_predefined_app_default_branch_by_id "${predefined_app_id}" || true)"
+      fi
+    fi
+
+    if choose_predefined_app_branch selected_branch "${stack_dir}" "${predefined_app_id}" "${predefined_app_label}" "${predefined_repo_url}" "${preferred_branch}"; then
+      :
+    else
+      prompt_status=$?
+      if [ "${prompt_status}" -eq 2 ]; then
+        return 2
+      fi
+      return "${prompt_status}"
+    fi
+
+    append_line_unique selected_branch_lines "${selected_branch_lines}" "${predefined_app_id}|${selected_branch}"
+    selected_app_count=$((selected_app_count + 1))
+  done
+
+  if [ "${selected_app_count}" -eq 0 ]; then
+    return 4
+  fi
+
+  build_predefined_apps_metadata_json_object built_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}"
+  printf -v "${result_apps_metadata_var}" "%s" "${built_apps_metadata_json_object}"
+  return 0
+}
+
+update_stack_selected_app_branches() {
+  local stack_dir="${1}"
+  local metadata_path=""
+  local apps_metadata_json_object=""
+  local prompt_status=0
+
+  metadata_path="${stack_dir}/metadata.json"
+  if [ ! -f "${metadata_path}" ]; then
+    return 3
+  fi
+
+  if prompt_selected_stack_app_branches_data apps_metadata_json_object "${stack_dir}"; then
+    :
+  else
+    prompt_status=$?
+    return "${prompt_status}"
+  fi
+
+  if [ -z "${apps_metadata_json_object}" ]; then
+    return 1
+  fi
+
+  if ! persist_stack_metadata_apps_object "${stack_dir}" "${apps_metadata_json_object}"; then
+    return 1
+  fi
+
+  if ! persist_stack_apps_json_from_metadata_apps "${stack_dir}"; then
+    return 1
+  fi
+
+  return 0
+}

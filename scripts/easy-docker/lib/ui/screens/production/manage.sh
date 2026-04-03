@@ -70,7 +70,7 @@ show_manage_stack_actions_menu() {
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Apps" \
-    "Docker" \
+    "Updates" \
     "Site" \
     "Start stack in Docker Compose" \
     "Restart stack in Docker Compose" \
@@ -83,11 +83,12 @@ show_manage_stack_actions_menu() {
 show_manage_stack_apps_menu() {
   local stack_name="${1}"
   local stack_dir="${2}"
+  local frappe_branch="${3:-n/a}"
   local status_text=""
 
   render_main_screen 1 >&2
 
-  status_text="$(printf "Manage stack apps\n\nStack: %s\nDirectory: %s\n\nChoose an app-related action for this stack." "${stack_name}" "${stack_dir}")"
+  status_text="$(printf "Manage stack apps\n\nStack: %s\nDirectory: %s\nFrappe branch: %s\n\nChoose an app-related action for this stack." "${stack_name}" "${stack_dir}" "${frappe_branch}")"
 
   render_box_message "${status_text}" "0 2" >&2
 
@@ -96,30 +97,32 @@ show_manage_stack_apps_menu() {
     --header "Stack apps actions" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
-    "Regenerate apps.json from metadata" \
     "Select apps and branches" \
     "Back" \
     "Exit and close easy-docker"
 }
 
-show_manage_stack_docker_menu() {
+show_manage_stack_updates_menu() {
   local stack_name="${1}"
   local stack_dir="${2}"
+  local frappe_branch="${3:-n/a}"
+  local custom_image_ref="${4:-n/a}"
   local status_text=""
 
   render_main_screen 1 >&2
 
-  status_text="$(printf "Manage stack docker\n\nStack: %s\nDirectory: %s\n\nChoose a docker-related action for this stack." "${stack_name}" "${stack_dir}")"
+  status_text="$(printf "Manage stack updates\n\nStack: %s\nDirectory: %s\nFrappe branch: %s\nCustom image: %s\n\nChoose an update-related action for this stack." "${stack_name}" "${stack_dir}" "${frappe_branch}" "${custom_image_ref}")"
 
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
-    --height 8 \
-    --header "Stack docker actions" \
+    --height 9 \
+    --header "Stack update actions" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
-    "Build custom image" \
-    "Generate docker compose from env" \
+    "Update selected app branches" \
+    "Set next custom image tag" \
+    "Build updated image" \
     "Back" \
     "Exit and close easy-docker"
 }

@@ -5,15 +5,18 @@ handle_manage_selected_stack_flow() {
   local stack_dir=""
   local stack_action=""
   local apps_action=""
-  local docker_action=""
+  local updates_action=""
   local stack_metadata_path=""
   local stack_apps_path=""
+  local stack_env_path=""
   local custom_apps_update_status=0
-  local persist_apps_status=0
-  local render_compose_status=0
   local compose_start_status=0
-  local generated_compose_path=""
   local stack_runtime_status=""
+  local stack_frappe_branch=""
+  local stack_custom_image_ref=""
+  local stack_custom_tag=""
+  local custom_tag_prompt_status=0
+  local custom_tag_update_status=0
   local missing_custom_image_action=""
   local delete_stack_confirmation_action=""
   local delete_stack_keyword=""
@@ -26,30 +29,14 @@ handle_manage_selected_stack_flow() {
 
   while true; do
     get_stack_compose_runtime_status_label stack_runtime_status "${stack_dir}"
+    stack_frappe_branch="$(get_stack_frappe_branch "${stack_dir}" || true)"
+    stack_custom_image_ref="$(get_stack_custom_image_ref "${stack_dir}" || true)"
     stack_action="$(show_manage_stack_actions_menu "${stack_name}" "${stack_dir}" "${stack_runtime_status}" || true)"
     case "${stack_action}" in
     "Apps")
       while true; do
-        apps_action="$(show_manage_stack_apps_menu "${stack_name}" "${stack_dir}" || true)"
+        apps_action="$(show_manage_stack_apps_menu "${stack_name}" "${stack_dir}" "${stack_frappe_branch}" || true)"
         case "${apps_action}" in
-        "Regenerate apps.json from metadata")
-          stack_metadata_path="${stack_dir}/metadata.json"
-          stack_apps_path="${stack_dir}/apps.json"
-          if [ ! -f "${stack_metadata_path}" ]; then
-            show_warning_and_wait "Cannot generate apps.json because metadata is missing: ${stack_metadata_path}" 3
-            continue
-          fi
-
-          if persist_stack_apps_json_from_metadata_apps "${stack_dir}"; then
-            :
-          else
-            persist_apps_status=$?
-            show_warning_and_wait "Could not generate ${stack_apps_path} (${persist_apps_status})." 3
-            continue
-          fi
-
-          show_warning_and_wait "apps.json generated successfully: ${stack_apps_path}" 3
-          ;;
         "Select apps and branches")
           if update_stack_custom_modular_apps "${stack_dir}"; then
             :
@@ -82,6 +69,112 @@ handle_manage_selected_stack_flow() {
           ;;
         *)
           show_warning_and_wait "Unknown apps action: ${apps_action}"
+          ;;
+        esac
+      done
+      ;;
+    "Updates")
+      while true; do
+        stack_custom_image_ref="$(get_stack_custom_image_ref "${stack_dir}" || true)"
+        updates_action="$(show_manage_stack_updates_menu "${stack_name}" "${stack_dir}" "${stack_frappe_branch}" "${stack_custom_image_ref}" || true)"
+        case "${updates_action}" in
+        "Update selected app branches")
+          if update_stack_selected_app_branches "${stack_dir}"; then
+            stack_apps_path="${stack_dir}/apps.json"
+            show_warning_and_wait "Selected app branches updated in ${stack_dir}/metadata.json and ${stack_apps_path}. Set the next custom image tag, build the updated image, restart the stack, and migrate the site to apply the update." 6
+          else
+            custom_apps_update_status=$?
+            case "${custom_apps_update_status}" in
+            2 | 130)
+              continue
+              ;;
+            3)
+              stack_metadata_path="${stack_dir}/metadata.json"
+              show_warning_and_wait "Cannot update selected app branches because metadata is missing: ${stack_metadata_path}" 3
+              continue
+              ;;
+            4)
+              show_warning_and_wait "No selected stack apps were found for branch updates. Select apps for the stack first." 4
+              continue
+              ;;
+            *)
+              show_warning_and_wait "Could not update selected app branches (${custom_apps_update_status}) for stack: ${stack_name}" 3
+              continue
+              ;;
+            esac
+          fi
+          ;;
+        "Set next custom image tag")
+          stack_env_path="$(get_stack_env_path "${stack_dir}")"
+          if [ ! -f "${stack_env_path}" ]; then
+            show_warning_and_wait "Cannot update CUSTOM_TAG because the stack env file is missing: ${stack_env_path}" 4
+            continue
+          fi
+
+          if [ -z "$(get_stack_custom_image_name "${stack_dir}" || true)" ]; then
+            show_warning_and_wait "Cannot update CUSTOM_TAG because CUSTOM_IMAGE is missing in the stack env file." 4
+            continue
+          fi
+
+          if prompt_stack_custom_image_tag_with_cancel stack_custom_tag "${stack_dir}"; then
+            :
+          else
+            custom_tag_prompt_status=$?
+            case "${custom_tag_prompt_status}" in
+            2 | 130)
+              continue
+              ;;
+            *)
+              show_warning_and_wait "Could not collect the next custom image tag (${custom_tag_prompt_status})." 3
+              continue
+              ;;
+            esac
+          fi
+
+          if set_stack_custom_image_tag "${stack_dir}" "${stack_custom_tag}"; then
+            stack_custom_image_ref="$(get_stack_custom_image_ref "${stack_dir}" || true)"
+            show_warning_message "Custom image tag updated successfully: ${stack_custom_image_ref:-${stack_custom_tag}}"
+            if run_build_stack_custom_image_with_feedback "${stack_name}" "${stack_dir}"; then
+              :
+            else
+              continue
+            fi
+          else
+            custom_tag_update_status=$?
+            case "${custom_tag_update_status}" in
+            31)
+              show_warning_and_wait "Cannot update CUSTOM_TAG because the stack env file is missing: ${stack_env_path}" 4
+              ;;
+            32)
+              show_warning_and_wait "Cannot update CUSTOM_TAG because the value is not a valid Docker image tag." 4
+              ;;
+            33)
+              show_warning_and_wait "Cannot update CUSTOM_TAG because CUSTOM_IMAGE is missing in the stack env file." 4
+              ;;
+            34)
+              show_warning_and_wait "Could not write the updated CUSTOM_TAG to ${stack_env_path}." 4
+              ;;
+            *)
+              show_warning_and_wait "Could not update CUSTOM_TAG (${custom_tag_update_status})." 4
+              ;;
+            esac
+          fi
+          ;;
+        "Build updated image")
+          if run_build_stack_custom_image_with_feedback "${stack_name}" "${stack_dir}"; then
+            :
+          else
+            continue
+          fi
+          ;;
+        "Back" | "")
+          break
+          ;;
+        "Exit and close easy-docker")
+          return "${FLOW_EXIT_APP}"
+          ;;
+        *)
+          show_warning_and_wait "Unknown update action: ${updates_action}"
           ;;
         esac
       done
@@ -328,41 +421,6 @@ handle_manage_selected_stack_flow() {
         show_warning_and_wait "Unknown delete-stack action: ${delete_stack_confirmation_action}" 2
         ;;
       esac
-      ;;
-    "Docker")
-      while true; do
-        docker_action="$(show_manage_stack_docker_menu "${stack_name}" "${stack_dir}" || true)"
-        case "${docker_action}" in
-        "Build custom image")
-          if run_build_stack_custom_image_with_feedback "${stack_name}" "${stack_dir}"; then
-            :
-          else
-            continue
-          fi
-          ;;
-        "Generate docker compose from env")
-          generated_compose_path="$(get_stack_generated_compose_path "${stack_dir}")"
-          if render_stack_compose_from_metadata "${stack_dir}"; then
-            :
-          else
-            render_compose_status=$?
-            show_warning_and_wait "Could not generate docker compose (${render_compose_status}) for ${generated_compose_path}." 3
-            continue
-          fi
-
-          show_warning_and_wait "Docker compose generated successfully: ${generated_compose_path}" 3
-          ;;
-        "Back" | "")
-          break
-          ;;
-        "Exit and close easy-docker")
-          return "${FLOW_EXIT_APP}"
-          ;;
-        *)
-          show_warning_and_wait "Unknown docker action: ${docker_action}"
-          ;;
-        esac
-      done
       ;;
     "Site")
       if handle_manage_stack_site_flow "${stack_name}" "${stack_dir}"; then
