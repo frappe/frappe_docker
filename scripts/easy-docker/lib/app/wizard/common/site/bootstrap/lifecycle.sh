@@ -2,35 +2,35 @@
 
 drop_stack_site_database() {
   local stack_dir="${1}"
-  local db_name="${2}"
+  local site_name="${2}"
   local db_password=""
-  local db_endpoint=""
-  local db_host=""
-  local db_port=""
+  local db_root_username=""
   local drop_db_command=""
+  local drop_db_output=""
+  local db_drop_status=0
 
   db_password="$(get_stack_database_root_password "${stack_dir}")"
-  db_endpoint="$(get_stack_common_db_endpoint "${stack_dir}" || true)"
-  db_host="${db_endpoint%%|*}"
-  db_port="${db_endpoint#*|}"
-
-  if [ -z "${db_host}" ] || [ -z "${db_port}" ]; then
+  db_root_username="$(get_stack_database_root_username "${stack_dir}" || true)"
+  if [ -z "${db_root_username}" ]; then
     return 1
   fi
 
   drop_db_command="$(
-    printf "mysql --protocol=TCP -h %s -P %s -u root -p%s -e %s" \
-      "$(shell_quote_site_command_arg "${db_host}")" \
-      "$(shell_quote_site_command_arg "${db_port}")" \
-      "$(printf '%s' "${db_password}" | sed "s/'/'\"'\"'/g")" \
-      "$(shell_quote_site_command_arg "DROP DATABASE IF EXISTS \`${db_name}\`; DROP USER IF EXISTS '${db_name}'@'%'; DROP USER IF EXISTS '${db_name}'@'localhost'; FLUSH PRIVILEGES;")"
+    printf "bench drop-site %s --no-backup --force --db-root-username %s --db-root-password %s" \
+      "$(shell_quote_site_command_arg "${site_name}")" \
+      "$(shell_quote_site_command_arg "${db_root_username}")" \
+      "$(shell_quote_site_command_arg "${db_password}")"
   )"
 
-  if ! run_stack_backend_bash_command "${stack_dir}" "${drop_db_command}"; then
-    return 1
+  if run_stack_backend_bash_command_capture drop_db_output "${stack_dir}" "${drop_db_command}"; then
+    return 0
+  else
+    db_drop_status=$?
   fi
 
-  return 0
+  EASY_DOCKER_SITE_ERROR_DETAIL="$(printf "bench drop-site failed for '%s'." "${site_name}")"
+  capture_stack_site_error_log "${stack_dir}" "site-delete-error" "${drop_db_output}" >/dev/null 2>&1 || true
+  return "${db_drop_status}"
 }
 
 remove_stack_site_directory() {
@@ -107,7 +107,7 @@ cleanup_partial_stack_site() {
     fi
   fi
 
-  if [ "${has_site_config}" -eq 1 ] && ! drop_stack_site_database "${stack_dir}" "${db_name}"; then
+  if [ "${has_site_config}" -eq 1 ] && ! drop_stack_site_database "${stack_dir}" "${site_name}"; then
     return 60
   fi
 
@@ -174,13 +174,45 @@ create_first_stack_site() {
   local admin_password="${3}"
   local create_site_command=""
   local create_site_output=""
+  local database_id=""
+  local db_password=""
+  local db_root_username=""
+  local db_host="db"
+  local db_port="3306"
 
-  create_site_command="$(
-    printf "bench new-site %s --mariadb-user-host-login-scope='%%' --admin-password %s --db-root-username root --db-root-password %s" \
-      "$(shell_quote_site_command_arg "${site_name}")" \
-      "$(shell_quote_site_command_arg "${admin_password}")" \
-      "$(shell_quote_site_command_arg "$(get_stack_database_root_password "${stack_dir}")")"
-  )"
+  database_id="$(get_stack_database_id "${stack_dir}" || true)"
+  db_password="$(get_stack_database_root_password "${stack_dir}")"
+  db_root_username="$(get_stack_database_root_username "${stack_dir}" || true)"
+  if [ -z "${db_root_username}" ]; then
+    return 57
+  fi
+
+  case "${database_id}" in
+  mariadb)
+    create_site_command="$(
+      printf "bench new-site %s --mariadb-user-host-login-scope='%%' --admin-password %s --db-root-username %s --db-root-password %s" \
+        "$(shell_quote_site_command_arg "${site_name}")" \
+        "$(shell_quote_site_command_arg "${admin_password}")" \
+        "$(shell_quote_site_command_arg "${db_root_username}")" \
+        "$(shell_quote_site_command_arg "${db_password}")"
+    )"
+    ;;
+  postgres)
+    db_port="5432"
+    create_site_command="$(
+      printf "bench new-site %s --db-type postgres --db-host %s --db-port %s --admin-password %s --db-root-username %s --db-root-password %s" \
+        "$(shell_quote_site_command_arg "${site_name}")" \
+        "$(shell_quote_site_command_arg "${db_host}")" \
+        "$(shell_quote_site_command_arg "${db_port}")" \
+        "$(shell_quote_site_command_arg "${admin_password}")" \
+        "$(shell_quote_site_command_arg "${db_root_username}")" \
+        "$(shell_quote_site_command_arg "${db_password}")"
+    )"
+    ;;
+  *)
+    return 57
+    ;;
+  esac
 
   if ! run_stack_backend_bash_command_capture create_site_output "${stack_dir}" "${create_site_command}"; then
     EASY_DOCKER_SITE_ERROR_DETAIL="bench new-site failed."

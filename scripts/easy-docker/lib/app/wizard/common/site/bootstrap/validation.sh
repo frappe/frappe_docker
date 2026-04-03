@@ -87,13 +87,33 @@ get_stack_database_root_password() {
   return 0
 }
 
-stack_site_bootstrap_supports_database() {
+get_stack_database_root_username() {
   local stack_dir="${1}"
   local database_id=""
 
   database_id="$(get_stack_database_id "${stack_dir}" || true)"
   case "${database_id}" in
   mariadb)
+    printf 'root\n'
+    return 0
+    ;;
+  postgres)
+    printf 'postgres\n'
+    return 0
+    ;;
+  *)
+    return 1
+    ;;
+  esac
+}
+
+stack_site_bootstrap_supports_database() {
+  local stack_dir="${1}"
+  local database_id=""
+
+  database_id="$(get_stack_database_id "${stack_dir}" || true)"
+  case "${database_id}" in
+  mariadb | postgres)
     return 0
     ;;
   *)
