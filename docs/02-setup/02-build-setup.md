@@ -42,23 +42,19 @@ To include custom apps in your image, create an `apps.json` file in the reposito
 ]
 ```
 
-Then generate a base64-encoded string from this file:
-
-```bash
-export APPS_JSON_BASE64=$(base64 -w 0 apps.json)
-```
-
 # Build the image
 
 Choose the appropriate build command based on your container runtime and desired image type. This example builds the `layered` image with the custom `apps.json` you created.
 
+> **Security note:** The `apps.json` file is passed as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repository tokens are **never** stored in image layer metadata. Do not use `--build-arg` for `apps.json` — build arguments are permanently visible via `docker image history`.
+
 `Docker`:
 
 ```bash
-docker build \
+DOCKER_BUILDKIT=1 docker build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
  --build-arg=FRAPPE_BRANCH=version-15 \
- --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+ --secret=id=apps_json,src=apps.json \
  --tag=custom:15 \
  --file=images/layered/Containerfile .
 ```
@@ -69,7 +65,7 @@ docker build \
 podman build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
  --build-arg=FRAPPE_BRANCH=version-15 \
- --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+ --secret=id=apps_json,src=apps.json \
  --tag=custom:15 \
  --file=images/layered/Containerfile .
 ```
@@ -82,7 +78,7 @@ podman build \
 | FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to https://github.com/frappe/frappe |
 | FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-15                                    |
 | **Custom Apps**      |                                                                                               |
-| APPS_JSON_BASE64     | Base64-encoded JSON string from apps.json defining apps to install                            |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.      |
 | **Dependencies**     |                                                                                               |
 | PYTHON_VERSION       | Python version for the base image                                                             |
 | NODE_VERSION         | Node.js version                                                                               |

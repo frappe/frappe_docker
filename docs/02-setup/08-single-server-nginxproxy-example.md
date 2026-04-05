@@ -84,23 +84,15 @@ cat > ~/gitops/apps.json <<'EOF'
 EOF
 ```
 
-Generate the BASE64 value and build:
+Build the image, passing `apps.json` as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repo tokens are never stored in image layers:
 
 ```shell
-export APPS_JSON_BASE64=$(base64 -w 0 ~/gitops/apps.json)
-
-docker build \
+DOCKER_BUILDKIT=1 docker build \
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
   --build-arg=FRAPPE_BRANCH=version-16 \
-  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --secret=id=apps_json,src=$HOME/gitops/apps.json \
   --tag=my-erpnext-prod-image:16.0.0 \
   --file=images/layered/Containerfile .
-```
-
-If `base64 -w 0` is not available on your system, use:
-
-```shell
-export APPS_JSON_BASE64=$(base64 ~/gitops/apps.json | tr -d '\n')
 ```
 
 ### Configure environment
