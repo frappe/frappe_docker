@@ -15,7 +15,7 @@ We will setup the following:
 
 ## Requirements
 
-- A server that can run Docker (recommended: 2 vCPU, 4 GB RAM, 50 GB SSD).
+- A server that can run Docker Engine **v23.0+** (recommended: 2 vCPU, 4 GB RAM, 50 GB SSD). The custom-image build below uses [BuildKit secrets](https://docs.docker.com/build/building/secrets/), which require BuildKit as the default builder (Docker Engine 23.0+).
 - A public domain with DNS control.
 - Two subdomains pointing to your server IP (A/AAAA records):
   - `erp.your-domain.com`
@@ -84,10 +84,10 @@ cat > ~/gitops/apps.json <<'EOF'
 EOF
 ```
 
-Build the image, passing `apps.json` as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repo tokens are never stored in image layers:
+Build the image, passing `apps.json` as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repo tokens are never stored in image layers. This requires **Docker Engine v23.0+**, where BuildKit is the default builder:
 
 ```shell
-DOCKER_BUILDKIT=1 docker build \
+docker build \
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
   --build-arg=FRAPPE_BRANCH=version-16 \
   --secret=id=apps_json,src=$HOME/gitops/apps.json \
