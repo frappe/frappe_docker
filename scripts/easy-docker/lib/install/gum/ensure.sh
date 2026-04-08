@@ -46,7 +46,7 @@ ensure_gum() {
   fi
 
   if should_use_github_fallback; then
-    echo "Trying GitHub release fallback..."
+    echo "Trying pinned GitHub release fallback..."
     if install_gum_from_github_release; then
       hash -r
     fi

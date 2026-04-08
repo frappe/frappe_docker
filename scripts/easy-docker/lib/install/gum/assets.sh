@@ -1,5 +1,122 @@
 #!/usr/bin/env bash
 
+get_gum_checksums_path() {
+  local gum_lib_dir=""
+
+  gum_lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  printf '%s/../../../config/gum-checksums.tsv\n' "${gum_lib_dir}"
+}
+
+get_pinned_gum_version() {
+  local checksums_path=""
+  local release_version=""
+
+  checksums_path="$(get_gum_checksums_path)"
+  if [ ! -f "${checksums_path}" ]; then
+    return 1
+  fi
+
+  release_version="$(
+    awk -F '\t' '
+      /^[[:space:]]*#/ { next }
+      NF < 3 { next }
+      {
+        print $1
+        exit
+      }
+    ' "${checksums_path}"
+  )"
+  if [ -z "${release_version}" ]; then
+    return 1
+  fi
+
+  printf '%s\n' "${release_version}"
+}
+
+get_pinned_gum_asset_checksum() {
+  local release_version="${1}"
+  local asset_name="${2}"
+  local checksums_path=""
+  local expected_checksum=""
+
+  checksums_path="$(get_gum_checksums_path)"
+  if [ ! -f "${checksums_path}" ]; then
+    return 1
+  fi
+
+  expected_checksum="$(
+    awk -F '\t' -v release_version="${release_version}" -v asset_name="${asset_name}" '
+      /^[[:space:]]*#/ { next }
+      NF < 3 { next }
+      $1 == release_version && $2 == asset_name {
+        print $3
+        exit
+      }
+    ' "${checksums_path}"
+  )"
+  if [ -z "${expected_checksum}" ]; then
+    return 1
+  fi
+
+  printf '%s\n' "${expected_checksum}"
+}
+
+sha256_verification_available() {
+  command_exists sha256sum ||
+    command_exists shasum ||
+    command_exists openssl ||
+    command_exists certutil
+}
+
+compute_file_sha256() {
+  local file_path="${1}"
+  local hash_input_path="${file_path}"
+
+  if command_exists sha256sum; then
+    sha256sum "${file_path}" | awk '{print tolower($1)}'
+    return $?
+  fi
+
+  if command_exists shasum; then
+    shasum -a 256 "${file_path}" | awk '{print tolower($1)}'
+    return $?
+  fi
+
+  if command_exists openssl; then
+    openssl dgst -sha256 -r "${file_path}" | awk '{print tolower($1)}'
+    return $?
+  fi
+
+  if command_exists certutil; then
+    if command_exists cygpath; then
+      hash_input_path="$(cygpath -w "${file_path}" 2>/dev/null || printf '%s' "${file_path}")"
+    fi
+
+    certutil -hashfile "${hash_input_path}" SHA256 2>/dev/null |
+      awk 'NR == 2 { gsub(/ /, "", $0); print tolower($0); exit }'
+    return $?
+  fi
+
+  return 1
+}
+
+verify_file_sha256() {
+  local file_path="${1}"
+  local expected_checksum="${2}"
+  local actual_checksum=""
+
+  actual_checksum="$(compute_file_sha256 "${file_path}" || true)"
+  if [ -z "${actual_checksum}" ]; then
+    return 1
+  fi
+
+  if [ "${actual_checksum}" != "$(printf '%s' "${expected_checksum}" | tr '[:upper:]' '[:lower:]')" ]; then
+    return 1
+  fi
+
+  return 0
+}
+
 get_gum_asset_candidates() {
   local release_version="${1}"
   local gum_os="${2}"
@@ -59,24 +176,4 @@ find_gum_binary() {
   fi
 
   return 1
-}
-
-fetch_latest_gum_release_version() {
-  local api_payload=""
-  local tag_name=""
-
-  api_payload="$(curl -fsSL "https://api.github.com/repos/charmbracelet/gum/releases/latest")" || return 1
-
-  if command_exists jq; then
-    tag_name="$(printf '%s' "${api_payload}" | jq -r '.tag_name // empty')"
-  else
-    tag_name="$(printf '%s' "${api_payload}" | sed -n 's/.*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
-  fi
-
-  tag_name="${tag_name#v}"
-  if [ -z "${tag_name}" ]; then
-    return 1
-  fi
-
-  printf '%s\n' "${tag_name}"
 }

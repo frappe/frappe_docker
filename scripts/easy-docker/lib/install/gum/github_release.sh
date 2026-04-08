@@ -10,6 +10,7 @@ cleanup_gum_tmp_dir() {
 
 install_gum_from_github_release() {
   local release_version=""
+  local checksums_path=""
   local asset_name=""
   local asset_path=""
   local download_url=""
@@ -20,6 +21,7 @@ install_gum_from_github_release() {
   local target_binary_name="gum"
   local gum_os=""
   local gum_arch=""
+  local expected_checksum=""
 
   if ! command_exists curl; then
     echo "curl is required for the GitHub fallback."
@@ -31,9 +33,20 @@ install_gum_from_github_release() {
     return 1
   fi
 
-  release_version="$(fetch_latest_gum_release_version || true)"
+  release_version="$(get_pinned_gum_version || true)"
   if [ -z "${release_version}" ]; then
-    echo "Could not determine latest gum release version."
+    echo "Could not determine the pinned gum release version."
+    return 1
+  fi
+
+  checksums_path="$(get_gum_checksums_path)"
+  if [ ! -f "${checksums_path}" ]; then
+    echo "Pinned gum checksum file is missing: ${checksums_path}"
+    return 1
+  fi
+
+  if ! sha256_verification_available; then
+    echo "A SHA256 verification tool is required for the GitHub fallback."
     return 1
   fi
 
@@ -45,10 +58,20 @@ install_gum_from_github_release() {
   extract_dir="${tmp_dir}/extract"
 
   while IFS= read -r asset_name; do
+    expected_checksum="$(get_pinned_gum_asset_checksum "${release_version}" "${asset_name}" || true)"
+    if [ -z "${expected_checksum}" ]; then
+      continue
+    fi
+
     asset_path="${tmp_dir}/${asset_name}"
     download_url="https://github.com/charmbracelet/gum/releases/download/v${release_version}/${asset_name}"
 
     if ! curl -fsSL "${download_url}" -o "${asset_path}"; then
+      continue
+    fi
+
+    if ! verify_file_sha256 "${asset_path}" "${expected_checksum}"; then
+      echo "Checksum verification failed for ${asset_name}."
       continue
     fi
 
@@ -67,7 +90,7 @@ install_gum_from_github_release() {
 
   if [ -z "${gum_binary_path}" ]; then
     cleanup_gum_tmp_dir "${tmp_dir}"
-    echo "No compatible gum binary was found in GitHub release assets."
+    echo "No compatible, verified gum binary was found in the pinned GitHub release assets."
     return 1
   fi
 

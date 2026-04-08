@@ -16,7 +16,8 @@ bash easy-docker.sh
 - Docker Desktop includes Compose v2 by default; on Linux Engine-only setups you may need the `docker-compose-plugin` package
 - Docker daemon must be running before the TUI starts
 - Required docker commands are validated (`docker ps/exec/inspect/cp` and `docker compose config/up/down/logs/exec/pull/ps`)
-- If package manager installation for `gum` fails, the script can use a GitHub binary fallback
+- If package manager installation for `gum` fails, the script can use a pinned GitHub binary fallback
+- The GitHub fallback is pinned to `gum` `v0.17.0` and verifies SHA256 checksums from `scripts/easy-docker/config/gum-checksums.tsv`
 
 ## Options
 
