@@ -305,6 +305,42 @@ install_stack_apps_on_site() {
   return 0
 }
 
+stack_site_should_enable_developer_mode() {
+  local stack_dir="${1}"
+  local setup_type=""
+
+  setup_type="$(get_stack_setup_type "${stack_dir}" || true)"
+  case "${setup_type}" in
+  development)
+    return 0
+    ;;
+  *)
+    return 1
+    ;;
+  esac
+}
+
+enable_stack_site_developer_mode() {
+  local stack_dir="${1}"
+  local site_name="${2}"
+  local developer_mode_command=""
+  local developer_mode_output=""
+
+  developer_mode_command="$(
+    printf "bench --site %s set-config developer_mode 1 && bench --site %s clear-cache" \
+      "$(shell_quote_site_command_arg "${site_name}")" \
+      "$(shell_quote_site_command_arg "${site_name}")"
+  )"
+
+  if run_stack_backend_bash_command_capture developer_mode_output "${stack_dir}" "${developer_mode_command}"; then
+    return 0
+  fi
+
+  EASY_DOCKER_SITE_ERROR_DETAIL="$(printf "Could not enable developer mode for '%s'." "${site_name}")"
+  capture_stack_site_error_log "${stack_dir}" "site-developer-mode-error" "${developer_mode_output}" >/dev/null 2>&1 || true
+  return 66
+}
+
 run_stack_site_migrate() {
   local stack_dir="${1}"
   local site_name="${2}"
@@ -333,6 +369,7 @@ bootstrap_first_stack_site() {
   local updated_at=""
   local installed_app_lines=""
   local site_create_status=0
+  local developer_mode_status=0
   local app_install_status=0
   local site_migrate_status=0
   local cleanup_status=0
@@ -414,6 +451,29 @@ bootstrap_first_stack_site() {
       return 60
       ;;
     esac
+  fi
+
+  if stack_site_should_enable_developer_mode "${stack_dir}"; then
+    if enable_stack_site_developer_mode "${stack_dir}" "${site_name}"; then
+      :
+    else
+      developer_mode_status=$?
+      if cleanup_partial_stack_site "${stack_dir}" "${site_name}"; then
+        mark_stack_site_failed "${stack_dir}" "${site_name}" "" "enable-developer-mode" "${EASY_DOCKER_SITE_ERROR_DETAIL:-Developer mode activation failed. Partial site data was cleaned up automatically.}" "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
+        return "${developer_mode_status}"
+      fi
+
+      cleanup_status=$?
+      mark_stack_site_failed "${stack_dir}" "${site_name}" "" "enable-developer-mode" "${EASY_DOCKER_SITE_ERROR_DETAIL:-Developer mode activation failed and partial site data could not be cleaned up automatically. Manual cleanup is required.}" "${EASY_DOCKER_SITE_ERROR_LOG_PATH}" "${created_at}" >/dev/null 2>&1 || true
+      case "${cleanup_status}" in
+      54 | 52)
+        return "${cleanup_status}"
+        ;;
+      *)
+        return 60
+        ;;
+      esac
+    fi
   fi
 
   updated_at="$(get_current_utc_timestamp)"

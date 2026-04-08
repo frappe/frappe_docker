@@ -25,6 +25,10 @@ Current limitations:
 - site management currently assumes one configured site per stack
 - backup and app management are focused on the configured stack image and site
 
+Current setup-type behavior:
+
+- `development` stacks enable `developer_mode` automatically for newly created sites
+
 The current entrypoint is:
 
 ```bash

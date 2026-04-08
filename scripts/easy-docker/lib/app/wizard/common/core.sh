@@ -331,6 +331,25 @@ get_stack_topology() {
   return 0
 }
 
+get_stack_setup_type() {
+  local stack_dir="${1}"
+  local metadata_path=""
+  local setup_type=""
+
+  metadata_path="${stack_dir}/metadata.json"
+  if [ ! -f "${metadata_path}" ]; then
+    return 1
+  fi
+
+  setup_type="$(get_metadata_string_field "${metadata_path}" "setup_type" || true)"
+  if [ -z "${setup_type}" ]; then
+    return 1
+  fi
+
+  printf '%s\n' "${setup_type}"
+  return 0
+}
+
 get_metadata_compose_files_lines() {
   local metadata_path="${1}"
 

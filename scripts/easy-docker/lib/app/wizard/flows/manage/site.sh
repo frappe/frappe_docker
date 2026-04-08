@@ -123,7 +123,7 @@ handle_manage_stack_site_flow() {
         show_warning_and_wait "The site was created, but app installation failed. ${EASY_DOCKER_SITE_ERROR_DETAIL:-Check the output above.} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 6
         ;;
       57)
-        show_warning_and_wait "Site bootstrap currently supports only MariaDB-backed single-host stacks." 4
+        show_warning_and_wait "Site bootstrap currently supports only supported single-host database stacks." 4
         ;;
       58)
         show_warning_and_wait "The site metadata could not be written to metadata.json." 4
@@ -145,6 +145,9 @@ handle_manage_stack_site_flow() {
         ;;
       64)
         show_warning_and_wait "The site was created and apps were installed, but bench migrate failed. ${EASY_DOCKER_SITE_ERROR_DETAIL:-Check the output above.} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 7
+        ;;
+      66)
+        show_warning_and_wait "Site bootstrap failed while enabling developer mode for this development stack. ${EASY_DOCKER_SITE_ERROR_DETAIL:-Check the output above.} ${EASY_DOCKER_SITE_ERROR_LOG_PATH:+See ${stack_dir}/${EASY_DOCKER_SITE_ERROR_LOG_PATH}}" 7
         ;;
       *)
         show_warning_and_wait "Site bootstrap failed (${site_flow_status})." 4

@@ -21,7 +21,14 @@ show_setup_menu() {
   render_main_screen 1 >&2
 
   setup_label="$(get_setup_display_label "${setup_type}")"
-  status_text="$(printf "%s stack\n\nChoose whether to create a new stack or manage an existing one." "${setup_label}")"
+  case "${setup_type}" in
+  development)
+    status_text="$(printf "%s stack\n\nChoose whether to create a new stack or manage an existing one.\nNew sites created in this stack enable developer mode automatically." "${setup_label}")"
+    ;;
+  *)
+    status_text="$(printf "%s stack\n\nChoose whether to create a new stack or manage an existing one." "${setup_label}")"
+    ;;
+  esac
 
   render_box_message "${status_text}" "0 2" >&2
 
