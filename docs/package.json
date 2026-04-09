@@ -10,6 +10,7 @@
   },
   "pnpm": {
     "overrides": {
+      "vite": "7.3.2",
       "minimatch": "10.2.5",
       "picomatch": "4.0.4"
     }
