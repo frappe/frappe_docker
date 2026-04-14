@@ -40,6 +40,24 @@ frappe_docker/
 
 If you are already familiar with Frappe, you can jump right into the [different deployment methods](docs/01-getting-started/01-choosing-a-deployment-method.md) and select the one best suited to your use case.
 
+### Easy Docker
+
+`easy-docker` is the guided terminal workflow for creating and managing Frappe
+Docker stacks from one place. It helps with stack creation, app and branch
+selection, image builds, runtime actions, and supported site operations without
+requiring users to assemble the Compose and Bench commands manually.
+
+If you want a guided setup path, start with the
+[Easy Docker docs](docs/10-easy-docker/index.md).
+
+Run it from the repository root with:
+
+```bash
+bash easy-docker.sh
+```
+
+![Easy Docker main menu](docs/images/easy-docker/entry/main-menu.png)
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
