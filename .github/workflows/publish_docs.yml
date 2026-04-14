@@ -32,17 +32,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
-          cache-dependency-path: ./docs
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Activate pnpm
+        run: corepack prepare pnpm@10.28.2 --activate
+
+      - name: Show tool versions
+        run: |
+          node --version
+          corepack --version
+          pnpm --version
+          which pnpm
 
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
