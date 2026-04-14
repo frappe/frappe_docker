@@ -32,7 +32,7 @@ easy_docker_compose_get_fallback_erpnext_version() {
   printf -v "${result_var}" "%s" "${fallback_erpnext_version}"
 }
 
-easy_docker_compose_require_single_host_topology() {
+easy_docker_compose_require_supported_topology() {
   local stack_dir="${1}"
   local missing_topology_code="${2}"
   local unsupported_topology_code="${3}"
@@ -46,7 +46,7 @@ easy_docker_compose_require_single_host_topology() {
   fi
 
   case "${stack_topology}" in
-  "single-host")
+  "single-host" | "split-services")
     return 0
     ;;
   *)

@@ -51,9 +51,9 @@ get_stack_compose_runtime_status_label() {
   fi
 
   case "${stack_topology}" in
-  "single-host") ;;
+  "single-host" | "split-services") ;;
   *)
-    printf -v "${result_var}" "%s" "N/A (${stack_topology})"
+    printf -v "${result_var}" "%s" "Unsupported (${stack_topology})"
     return 0
     ;;
   esac

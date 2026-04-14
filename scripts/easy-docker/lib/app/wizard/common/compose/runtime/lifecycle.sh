@@ -27,7 +27,7 @@ start_stack_with_compose_from_metadata() {
     return 32
   fi
 
-  if ! easy_docker_compose_require_single_host_topology "${stack_dir}" 33 34; then
+  if ! easy_docker_compose_require_supported_topology "${stack_dir}" 33 34; then
     return $?
   fi
 
@@ -105,7 +105,7 @@ stop_stack_with_compose_from_metadata() {
     return 42
   fi
 
-  if ! easy_docker_compose_require_single_host_topology "${stack_dir}" 43 44; then
+  if ! easy_docker_compose_require_supported_topology "${stack_dir}" 43 44; then
     return $?
   fi
 
@@ -150,7 +150,7 @@ delete_stack_with_compose_from_metadata() {
     return 49
   fi
 
-  if ! easy_docker_compose_require_single_host_topology "${stack_dir}" 50 51; then
+  if ! easy_docker_compose_require_supported_topology "${stack_dir}" 50 51; then
     return $?
   fi
 

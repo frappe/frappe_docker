@@ -224,7 +224,7 @@ save_single_host_selection() {
   fi
   compose_files_lines="$(printf '%s\n%s' "${compose_files_lines}" "${proxy_overrides}")"
 
-  if collect_single_host_env_lines env_lines apps_metadata_json_object "${stack_dir}" "${proxy_mode_id}" "${database_id}"; then
+  if collect_single_host_env_lines env_lines apps_metadata_json_object "${stack_dir}" "${proxy_mode_id}" "${database_id}" "${redis_id}"; then
     :
   else
     collect_env_status=$?

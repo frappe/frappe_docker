@@ -8,7 +8,7 @@ show_stack_topology_menu() {
   render_main_screen 1 >&2
 
   stack_name="${stack_dir##*/}"
-  status_text="$(printf "Stack created: %s\nDirectory: %s\n\nChoose the deployment topology.\n\n- Single-host: easiest setup on one server.\n- Split services: separate app and infra stacks for more control (currently in development)." "${stack_name}" "${stack_dir}")"
+  status_text="$(printf "Stack created: %s\nDirectory: %s\n\nChoose the deployment topology.\n\n- Single-host: easiest setup on one server.\n- Split services: separate application services, data services, and an optional reverse proxy." "${stack_name}" "${stack_dir}")"
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
@@ -17,7 +17,7 @@ show_stack_topology_menu() {
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Single-host (recommended)" \
-    "Split services (in development)" \
+    "Split services" \
     "Abort wizard to main menu"
 }
 
@@ -29,12 +29,12 @@ show_single_host_proxy_menu() {
   render_main_screen 1 >&2
 
   stack_name="${stack_dir##*/}"
-  status_text="$(printf "Stack: %s\n\nSingle-host setup (step 1/3)\nChoose the proxy mode.\n\n- Traefik and nginx-proxy run inside compose.\n- Caddy is external and uses the no-proxy compose mode." "${stack_name}")"
+  status_text="$(printf "Stack: %s\n\nChoose the reverse proxy mode.\n\n- Traefik and nginx-proxy run inside compose.\n- Caddy is external and uses the no-proxy compose mode." "${stack_name}")"
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
     --height 11 \
-    --header "Single-host: proxy mode" \
+    --header "Reverse proxy mode" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Traefik (HTTP, built-in proxy)" \
@@ -54,12 +54,12 @@ show_single_host_database_menu() {
   render_main_screen 1 >&2
 
   stack_name="${stack_dir##*/}"
-  status_text="$(printf "Stack: %s\n\nSingle-host setup (step 2/3)\nChoose the database service." "${stack_name}")"
+  status_text="$(printf "Stack: %s\n\nChoose the database engine." "${stack_name}")"
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
     --height 8 \
-    --header "Single-host: database" \
+    --header "Database engine" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "MariaDB (recommended)" \
@@ -75,12 +75,12 @@ show_single_host_redis_menu() {
   render_main_screen 1 >&2
 
   stack_name="${stack_dir##*/}"
-  status_text="$(printf "Stack: %s\n\nSingle-host setup (step 3/3)\nChoose whether Redis services should be included." "${stack_name}")"
+  status_text="$(printf "Stack: %s\n\nChoose whether Redis services should be included in this stack." "${stack_name}")"
   render_box_message "${status_text}" "0 2" >&2
 
   gum choose \
     --height 8 \
-    --header "Single-host: redis" \
+    --header "Redis services" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
     "Include Redis (recommended)" \
@@ -167,23 +167,6 @@ prompt_single_host_env_value() {
     --header "${variable_name}" \
     --prompt "value> " \
     --placeholder "${placeholder}"
-}
-
-show_split_services_examples() {
-  local status_text=""
-
-  render_main_screen 1 >&2
-
-  status_text="$(printf "Split services examples\n\n- DB in a separate stack/project.\n- Proxy in a separate stack/project.\n- One or more app stacks referencing shared infra.")"
-  render_box_message "${status_text}" "0 2" >&2
-
-  gum choose \
-    --height 7 \
-    --header "Split services" \
-    --cursor.foreground 63 \
-    --selected.foreground 45 \
-    "Use this topology" \
-    "Back to topology selection"
 }
 
 show_abort_wizard_prompt() {

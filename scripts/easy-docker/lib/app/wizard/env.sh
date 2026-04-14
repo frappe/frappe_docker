@@ -12,6 +12,8 @@ load_easy_docker_wizard_env_modules() {
   source "${wizard_dir}/env/update.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/env/collect.sh
   source "${wizard_dir}/env/collect.sh"
+  # shellcheck source=scripts/easy-docker/lib/app/wizard/env/split_services.sh
+  source "${wizard_dir}/env/split_services.sh"
 }
 
 load_easy_docker_wizard_env_modules

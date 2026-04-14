@@ -37,7 +37,7 @@ stop_stack_with_compose_from_metadata() {
   fi
 
   case "${stack_topology}" in
-  "single-host") ;;
+  "single-host" | "split-services") ;;
   *)
     # shellcheck disable=SC2034 # Read by manage flow after stop_stack_with_compose_from_metadata returns 44.
     EASY_DOCKER_COMPOSE_ERROR_DETAIL="${stack_topology}"

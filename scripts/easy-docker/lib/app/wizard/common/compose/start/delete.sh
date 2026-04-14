@@ -61,7 +61,7 @@ delete_stack_with_compose_from_metadata() {
   fi
 
   case "${stack_topology}" in
-  "single-host") ;;
+  "single-host" | "split-services") ;;
   *)
     EASY_DOCKER_COMPOSE_ERROR_DETAIL="${stack_topology}"
     return 51

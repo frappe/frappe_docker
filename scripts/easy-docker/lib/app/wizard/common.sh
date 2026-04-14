@@ -20,6 +20,8 @@ load_easy_docker_wizard_common_modules() {
   source "${wizard_dir}/common/site.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/common/ux.sh
   source "${wizard_dir}/common/ux.sh"
+  # shellcheck source=scripts/easy-docker/lib/app/wizard/split_services.sh
+  source "${wizard_dir}/split_services.sh"
 }
 
 load_easy_docker_wizard_common_modules

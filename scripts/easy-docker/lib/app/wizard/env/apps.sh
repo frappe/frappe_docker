@@ -249,7 +249,7 @@ prompt_custom_modular_apps_data() {
   local existing_branch_lines=""
   local selected_branch_lines=""
   local selected_app_count=0
-  local built_apps_metadata_json_object=""
+  local assembled_apps_metadata_json_object=""
   local -a predefined_catalog_entries=()
   local -a selected_predefined_ids=()
 
@@ -393,8 +393,8 @@ EOF
       continue
     fi
 
-    build_predefined_apps_metadata_json_object built_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}"
-    printf -v "${result_apps_metadata_var}" "%s" "${built_apps_metadata_json_object}"
+    build_predefined_apps_metadata_json_object assembled_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}"
+    printf -v "${result_apps_metadata_var}" "%s" "${assembled_apps_metadata_json_object}"
     return 0
   done
 }
@@ -446,7 +446,7 @@ prompt_selected_stack_app_branches_data() {
   local existing_branch_lines=""
   local selected_branch_lines=""
   local selected_app_count=0
-  local built_apps_metadata_json_object=""
+  local assembled_apps_metadata_json_object=""
   local prompt_status=0
   local -a selected_predefined_ids=()
 
@@ -515,8 +515,8 @@ prompt_selected_stack_app_branches_data() {
     return 4
   fi
 
-  build_predefined_apps_metadata_json_object built_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}"
-  printf -v "${result_apps_metadata_var}" "%s" "${built_apps_metadata_json_object}"
+  build_predefined_apps_metadata_json_object assembled_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}"
+  printf -v "${result_apps_metadata_var}" "%s" "${assembled_apps_metadata_json_object}"
   return 0
 }
 

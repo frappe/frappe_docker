@@ -38,6 +38,7 @@ handle_stack_topology_flow() {
   local topology_action=""
   local abort_status=0
   local single_host_status=0
+  local split_services_status=0
   local manage_status=0
   local stack_name=""
 
@@ -76,7 +77,38 @@ handle_stack_topology_flow() {
       esac
       ;;
     "Split services")
-      handle_topology_examples_flow "${topology_action}"
+      if handle_split_services_stack_flow "${stack_dir}"; then
+        split_services_status="${FLOW_CONTINUE}"
+      else
+        split_services_status=$?
+      fi
+
+      case "${split_services_status}" in
+      "${FLOW_OPEN_MANAGE_STACK}")
+        stack_name="${stack_dir##*/}"
+        if handle_manage_selected_stack_flow "${stack_name}"; then
+          manage_status="${FLOW_CONTINUE}"
+        else
+          manage_status=$?
+        fi
+
+        case "${manage_status}" in
+        "${FLOW_EXIT_APP}")
+          return "${FLOW_EXIT_APP}"
+          ;;
+        *)
+          return "${FLOW_CONTINUE}"
+          ;;
+        esac
+        ;;
+      "${FLOW_BACK_TO_MAIN}")
+        return "${FLOW_BACK_TO_MAIN}"
+        ;;
+      "${FLOW_EXIT_APP}")
+        return "${FLOW_EXIT_APP}"
+        ;;
+      *) ;;
+      esac
       ;;
     "Abort wizard to main menu")
       handle_abort_wizard_flow "${stack_dir}"

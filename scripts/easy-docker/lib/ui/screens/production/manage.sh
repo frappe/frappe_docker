@@ -53,31 +53,44 @@ show_manage_stack_actions_menu() {
   local stack_name="${1}"
   local stack_dir="${2}"
   local stack_runtime_status="${3:-Unknown}"
+  local stack_topology=""
   local menu_header=""
   local status_text=""
+  local -a menu_options=()
 
   render_main_screen 1 >&2
 
-  status_text="$(printf "Manage stack\n\nStack: %s\nDirectory: %s\nRuntime status: %s\n\nChoose an action for this stack." "${stack_name}" "${stack_dir}" "${stack_runtime_status}")"
+  stack_topology="$(get_stack_topology "${stack_dir}" || true)"
+  status_text="$(printf "Manage stack\n\nStack: %s\nDirectory: %s\nRuntime status: %s\nTopology: %s\n\nChoose an action for this stack." "${stack_name}" "${stack_dir}" "${stack_runtime_status}" "${stack_topology:-unknown}")"
 
   render_box_message "${status_text}" "0 2" >&2
 
   menu_header="$(printf "Stack actions | %s" "${stack_runtime_status}")"
+
+  menu_options=(
+    "Apps"
+    "Updates"
+  )
+  case "${stack_topology}" in
+  single-host)
+    menu_options+=("Site")
+    ;;
+  esac
+  menu_options+=(
+    "Start stack in Docker Compose"
+    "Restart stack in Docker Compose"
+    "Stop stack in Docker Compose"
+    "Delete stack"
+    "Back"
+    "Exit and close easy-docker"
+  )
 
   gum choose \
     --height 12 \
     --header "${menu_header}" \
     --cursor.foreground 63 \
     --selected.foreground 45 \
-    "Apps" \
-    "Updates" \
-    "Site" \
-    "Start stack in Docker Compose" \
-    "Restart stack in Docker Compose" \
-    "Stop stack in Docker Compose" \
-    "Delete stack" \
-    "Back" \
-    "Exit and close easy-docker"
+    "${menu_options[@]}"
 }
 
 show_manage_stack_apps_menu() {

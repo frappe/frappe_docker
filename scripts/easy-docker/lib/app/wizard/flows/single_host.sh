@@ -79,32 +79,3 @@ handle_single_host_stack_flow() {
   show_warning_and_wait "Single-host selection saved in ${stack_dir}/metadata.json, ${stack_env_path}, and ${stack_apps_path}. Rendered compose: ${generated_compose_path}." 3
   return "${FLOW_OPEN_MANAGE_STACK}"
 }
-
-handle_topology_examples_flow() {
-  local topology_name="${1}"
-  local detail_action=""
-
-  case "${topology_name}" in
-  "Split services")
-    detail_action="$(show_split_services_examples || true)"
-    ;;
-  *)
-    show_warning_and_wait "Unknown topology: ${topology_name}"
-    return "${FLOW_CONTINUE}"
-    ;;
-  esac
-
-  case "${detail_action}" in
-  "Use this topology")
-    show_warning_and_wait "Topology '${topology_name}' selected. Next wizard step is coming soon." 2
-    return "${FLOW_CONTINUE}"
-    ;;
-  "Back to topology selection" | "")
-    return "${FLOW_CONTINUE}"
-    ;;
-  *)
-    show_warning_and_wait "Unknown topology action: ${detail_action}"
-    return "${FLOW_CONTINUE}"
-    ;;
-  esac
-}

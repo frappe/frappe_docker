@@ -27,6 +27,74 @@ is_valid_port_number() {
   return 0
 }
 
+is_valid_host_value() {
+  local value="${1}"
+
+  if [ -z "${value}" ] || [ "${#value}" -gt 253 ]; then
+    return 1
+  fi
+
+  if printf '%s' "${value}" | grep -Eq '[[:space:]/,:;?!@#]'; then
+    return 1
+  fi
+
+  case "${value}" in
+  .* | *. | *..*)
+    return 1
+    ;;
+  esac
+
+  case "${value}" in
+  [A-Za-z0-9]*) ;;
+  *)
+    return 1
+    ;;
+  esac
+
+  case "${value}" in
+  *[A-Za-z0-9]) ;;
+  *)
+    return 1
+    ;;
+  esac
+
+  return 0
+}
+
+is_valid_host_port_value() {
+  local value="${1}"
+  local host=""
+  local port=""
+
+  if [ -z "${value}" ]; then
+    return 1
+  fi
+
+  case "${value}" in
+  *:*)
+    host="${value%:*}"
+    port="${value##*:}"
+    ;;
+  *)
+    return 1
+    ;;
+  esac
+
+  if [ -z "${host}" ] || [ -z "${port}" ]; then
+    return 1
+  fi
+
+  if ! is_valid_host_value "${host}"; then
+    return 1
+  fi
+
+  if ! is_valid_port_number "${port}"; then
+    return 1
+  fi
+
+  return 0
+}
+
 EASY_DOCKER_LAST_INVALID_DOMAIN=""
 
 reset_domain_validation_feedback() {
@@ -404,6 +472,18 @@ prompt_env_value_with_validation() {
     port)
       if ! is_valid_port_number "${normalized_value}"; then
         validation_feedback="Invalid port for ${variable_name}. Use 1-65535."
+        continue
+      fi
+      ;;
+    host)
+      if ! is_valid_host_value "${normalized_value}"; then
+        validation_feedback="Invalid host for ${variable_name}. Use a hostname or IP address without spaces."
+        continue
+      fi
+      ;;
+    hostport)
+      if ! is_valid_host_port_value "${normalized_value}"; then
+        validation_feedback="Invalid endpoint for ${variable_name}. Use host:port, for example redis.example.internal:6379."
         continue
       fi
       ;;

@@ -34,7 +34,7 @@ run_stack_backend_bash_command() {
   fi
 
   case "${stack_topology}" in
-  single-host) ;;
+  single-host | split-services) ;;
   *)
     return 52
     ;;

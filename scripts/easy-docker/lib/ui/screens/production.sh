@@ -8,6 +8,8 @@ load_production_screen_modules() {
   source "${screen_dir}/production/setup.sh"
   # shellcheck source=scripts/easy-docker/lib/ui/screens/production/topology.sh
   source "${screen_dir}/production/topology.sh"
+  # shellcheck source=scripts/easy-docker/lib/ui/screens/production/split_services.sh
+  source "${screen_dir}/production/split_services.sh"
   # shellcheck source=scripts/easy-docker/lib/ui/screens/production/manage.sh
   source "${screen_dir}/production/manage.sh"
 }

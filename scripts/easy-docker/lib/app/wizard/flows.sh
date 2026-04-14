@@ -6,6 +6,8 @@ load_easy_docker_wizard_flow_modules() {
 
   # shellcheck source=scripts/easy-docker/lib/app/wizard/flows/single_host.sh
   source "${wizard_dir}/flows/single_host.sh"
+  # shellcheck source=scripts/easy-docker/lib/app/wizard/flows/split_services.sh
+  source "${wizard_dir}/flows/split_services.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/flows/manage.sh
   source "${wizard_dir}/flows/manage.sh"
   # shellcheck source=scripts/easy-docker/lib/app/wizard/flows/navigation.sh
