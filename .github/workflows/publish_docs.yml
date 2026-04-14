@@ -32,11 +32,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.28.2
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
         with:
@@ -44,22 +39,18 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: ./docs/pnpm-lock.yaml
 
-      - name: Debug lockfile on runner
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Activate pnpm
+        run: corepack prepare pnpm@10.28.2 --activate
+
+      - name: Show tool versions
         run: |
-          pwd
-          ls -la
-          echo "sha256 (workspace file):"
-          sha256sum pnpm-lock.yaml
-          echo "sha256 (git blob at HEAD):"
-          git show HEAD:docs/pnpm-lock.yaml | sha256sum
-          echo "lockfileVersion count:"
-          grep -c '^lockfileVersion:' pnpm-lock.yaml || true
-          echo "yaml document markers:"
-          grep -nE '^---$|^\\.\\.\\.$|^<<<<<<<|^=======|^>>>>>>>$' pnpm-lock.yaml || true
-          echo "first 20 lines:"
-          sed -n '1,20p' pnpm-lock.yaml
-          echo "last 20 lines:"
-          tail -n 20 pnpm-lock.yaml
+          node --version
+          corepack --version
+          pnpm --version
+          which pnpm
 
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
