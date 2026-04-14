@@ -41,7 +41,7 @@ get_stack_site_managed_runtime_app_lines() {
   local site_name="${3}"
   local runtime_app_lines=""
   local app_name=""
-  local managed_app_lines=""
+  local resolved_managed_app_lines=""
   local runtime_status=0
 
   if ! is_safe_stack_site_cleanup_name "${site_name}"; then
@@ -67,12 +67,12 @@ get_stack_site_managed_runtime_app_lines() {
       continue
     fi
 
-    append_stack_installable_app_line managed_app_lines "${managed_app_lines}" "${app_name}"
+    append_stack_installable_app_line resolved_managed_app_lines "${resolved_managed_app_lines}" "${app_name}"
   done <<EOF
 ${runtime_app_lines}
 EOF
 
-  printf -v "${result_var}" "%s" "${managed_app_lines}"
+  printf -v "${result_var}" "%s" "${resolved_managed_app_lines}"
   return 0
 }
 
@@ -110,7 +110,7 @@ get_configured_stack_site_installable_app_lines() {
   local available_app_lines=""
   local installed_app_lines=""
   local candidate_app=""
-  local installable_app_lines=""
+  local resolved_installable_app_lines=""
   local inspect_status=0
 
   if ! stack_supports_single_site_management "${stack_dir}"; then
@@ -193,12 +193,12 @@ get_configured_stack_site_installable_app_lines() {
       continue
     fi
 
-    append_stack_installable_app_line installable_app_lines "${installable_app_lines}" "${candidate_app}"
+    append_stack_installable_app_line resolved_installable_app_lines "${resolved_installable_app_lines}" "${candidate_app}"
   done <<EOF
 ${selected_app_lines}
 EOF
 
-  printf -v "${result_var}" "%s" "${installable_app_lines}"
+  printf -v "${result_var}" "%s" "${resolved_installable_app_lines}"
   return 0
 }
 
@@ -207,7 +207,7 @@ get_configured_stack_site_uninstallable_app_lines() {
   local stack_dir="${2}"
   local site_name=""
   local backend_status=0
-  local installed_app_lines=""
+  local resolved_installed_app_lines=""
 
   if ! stack_supports_single_site_management "${stack_dir}"; then
     return 92
@@ -235,7 +235,7 @@ get_configured_stack_site_uninstallable_app_lines() {
     esac
   fi
 
-  if get_stack_site_managed_runtime_app_lines installed_app_lines "${stack_dir}" "${site_name}"; then
+  if get_stack_site_managed_runtime_app_lines resolved_installed_app_lines "${stack_dir}" "${site_name}"; then
     :
   else
     backend_status=$?
@@ -255,7 +255,7 @@ get_configured_stack_site_uninstallable_app_lines() {
     esac
   fi
 
-  printf -v "${result_var}" "%s" "${installed_app_lines}"
+  printf -v "${result_var}" "%s" "${resolved_installed_app_lines}"
   return 0
 }
 
