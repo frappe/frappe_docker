@@ -14,7 +14,8 @@ This getting-started page stays short and focuses on the first steps.
 Current status:
 
 - `single-host` is the primary supported topology
-- `split-services` is still in development
+- `split-services` is available for separated stack setup and Compose runtime control
+- site actions currently remain part of the `single-host` workflow
 - stack, site, app, backup, restart, and update flows are being expanded iteratively
 
 The script entrypoint is:

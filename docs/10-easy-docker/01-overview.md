@@ -53,7 +53,7 @@ Docker commands first. Instead, it asks a small number of questions, writes the
 stack configuration for you, and then gives you a menu for the most common next
 actions.
 
-![Easy Docker main menu](../images/easy-docker/overview/main-menu.png)
+![Easy Docker main menu](../images/easy-docker/entry/main-menu.png)
 
 ## What It Needs
 
@@ -103,9 +103,9 @@ The Frappe version profile is the base version the stack should start from. If
 you are unsure, pick the version you intend to use for the actual project or
 the version your apps are built for.
 
-![Stack name](../images/easy-docker/overview/stack-creation/name.png)
+![Stack name](../images/easy-docker/stack-creation/core/name.png)
 
-![Frappe version profile](../images/easy-docker/overview/stack-creation/frappe-version.png)
+![Frappe version profile](../images/easy-docker/stack-creation/core/frappe-version.png)
 
 2. Choose the deployment topology and the main infrastructure options.
 
@@ -118,11 +118,11 @@ the site data is stored. Even if you do not know every Docker detail yet, the
 important part is that these choices describe how your stack should behave once
 it is running.
 
-![Topology selection](../images/easy-docker/overview/stack-creation/topology.png)
+![Topology selection](../images/easy-docker/stack-creation/topology/topology-menu.png)
 
-![Proxy mode selection](../images/easy-docker/overview/stack-creation/proxy-mode.png)
+![Proxy mode selection](../images/easy-docker/single-host/proxy-mode.png)
 
-![Database selection](../images/easy-docker/overview/stack-creation/database.png)
+![Database selection](../images/easy-docker/single-host/database-engine.png)
 
 3. Define the image naming and versioning that should be used for the stack.
 
@@ -133,9 +133,9 @@ The image name identifies the image, while the image version or tag helps you
 track which build you are currently using. That becomes especially useful when
 you rebuild the stack after changing app branches or updating the setup.
 
-![Custom image naming](../images/easy-docker/overview/stack-creation/image-name.png)
+![Custom image naming](../images/easy-docker/stack-creation/image/image-name.png)
 
-![Custom image version](../images/easy-docker/overview/stack-creation/image-version.png)
+![Custom image version](../images/easy-docker/stack-creation/image/image-version.png)
 
 4. Select the apps and branches that should be built into the stack image.
 
@@ -147,9 +147,9 @@ For new users, the practical rule is simple: only include the apps you really
 need, and choose branches that match the Frappe version profile you selected
 earlier.
 
-![App selection](../images/easy-docker/overview/stack-creation/app-selection.png)
+![App selection](../images/easy-docker/stack-creation/apps/app-selection.png)
 
-![App version selection](../images/easy-docker/overview/stack-creation/app-version.png)
+![App version selection](../images/easy-docker/stack-creation/apps/app-version.png)
 
 After these decisions, `easy-docker` has enough information to write the stack
 files and prepare the next phase. At that point, the workflow moves from
@@ -174,19 +174,23 @@ The build step creates the actual Docker image for the stack you just defined.
 Until that image exists, there is nothing concrete for Docker Compose to start.
 That is why the build action comes before the start action.
 
-![Build image action](../images/easy-docker/overview/stack-management/build-image.png)
+![Build image action](../images/easy-docker/stack-runtime/build-image.png)
 
 Once the image has been built successfully, you can start the stack. This tells
 Docker Compose to create the containers and launch the services that belong to
 your setup.
 
-![Start stack action](../images/easy-docker/overview/stack-management/start-stack.png)
+![Start stack action](../images/easy-docker/stack-runtime/start-stack.png)
 
 After startup, the status view helps you confirm that the stack is actually
 running. This is especially useful for beginners because it gives a visible
 checkpoint before moving on to site creation or later maintenance steps.
 
-![Running stack status](../images/easy-docker/overview/stack-management/running-stack.png)
+![Running stack status](../images/easy-docker/stack-runtime/running-stack.png)
+
+In this example, the one stopped container shown in the status output is the
+`configurator` container. That container is expected to finish and stop after
+its setup work has completed.
 
 From there, the workflow usually continues into site-level actions such as
 creating the first site, installing apps on the site, running migrations, or
