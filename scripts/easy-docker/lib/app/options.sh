@@ -12,13 +12,13 @@ USAGE
 
 parse_cli_options() {
   local result_var="${1}"
-  local disable_installation_fallback=0
+  local disable_installation_fallback_value=0
   shift
 
   while [ "$#" -gt 0 ]; do
     case "$1" in
     --no-installation-fallback)
-      disable_installation_fallback=1
+      disable_installation_fallback_value=1
       ;;
     -h | --help)
       print_usage
@@ -33,6 +33,6 @@ parse_cli_options() {
     shift
   done
 
-  printf -v "${result_var}" "%s" "${disable_installation_fallback}"
+  printf -v "${result_var}" "%s" "${disable_installation_fallback_value}"
   return 0
 }

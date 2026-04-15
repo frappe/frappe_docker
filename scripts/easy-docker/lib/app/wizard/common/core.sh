@@ -2,6 +2,12 @@
 
 get_easy_docker_repo_root() {
   local app_lib_dir=""
+
+  if [ -n "${EASY_DOCKER_REPO_ROOT_OVERRIDE:-}" ]; then
+    printf '%s\n' "${EASY_DOCKER_REPO_ROOT_OVERRIDE}"
+    return 0
+  fi
+
   app_lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   # core.sh lives in scripts/easy-docker/lib/app/wizard/common
   # so we need 6 levels up to reach repository root.
@@ -55,14 +61,15 @@ create_stack_directory_with_metadata() {
     return 2
   fi
 
+  if [ -z "${frappe_branch}" ]; then
+    return 1
+  fi
+
   if ! mkdir -p "${created_stack_dir}"; then
     return 1
   fi
 
   created_at="$(get_current_utc_timestamp)"
-  if [ -z "${frappe_branch}" ]; then
-    return 1
-  fi
 
   if ! cat >"${metadata_path}" <<EOF; then
 {

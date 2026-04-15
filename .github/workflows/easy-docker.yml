@@ -1,0 +1,38 @@
+name: Easy Docker Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "easy-docker.sh"
+      - "scripts/easy-docker/**"
+      - "tests/easy-docker/**"
+      - ".github/workflows/easy-docker.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "easy-docker.sh"
+      - "scripts/easy-docker/**"
+      - "tests/easy-docker/**"
+      - ".github/workflows/easy-docker.yml"
+
+jobs:
+  bats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Bats
+        run: |
+          BATS_VERSION="v1.11.1"
+          curl -fsSL "https://github.com/bats-core/bats-core/archive/refs/tags/${BATS_VERSION}.tar.gz" -o bats-core.tar.gz
+          tar -xzf bats-core.tar.gz
+          sudo "./bats-core-${BATS_VERSION#v}/install.sh" /usr/local
+
+      - name: Run easy-docker Bats tests
+        run: bats -p --recursive tests/easy-docker
