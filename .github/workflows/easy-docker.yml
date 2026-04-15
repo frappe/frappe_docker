@@ -35,4 +35,4 @@ jobs:
           sudo "./bats-core-${BATS_VERSION#v}/install.sh" /usr/local
 
       - name: Run easy-docker Bats tests
-        run: bats -p --recursive tests/easy-docker
+        run: bats --recursive tests/easy-docker
