@@ -5,10 +5,6 @@ FROM frappe/build:${FRAPPE_BRANCH} AS builder
 ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 
-# apps.json is passed as a BuildKit secret so that private repo tokens
-# are never baked into any image layer.  The secret is mounted only for
-# this RUN step and is not present in the final image.
-
 USER frappe
 
 RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=1000 \

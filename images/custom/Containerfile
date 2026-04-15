@@ -113,10 +113,6 @@ RUN apt-get update \
     libbz2-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# apps.json is passed as a BuildKit secret so that private repo tokens
-# are never baked into any image layer.  The secret is mounted only for
-# this RUN step and is not present in the final image.
-
 USER frappe
 
 ARG FRAPPE_BRANCH=version-16
