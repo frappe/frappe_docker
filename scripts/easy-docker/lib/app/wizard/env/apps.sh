@@ -84,12 +84,17 @@ build_predefined_apps_metadata_json_object() {
   local result_var="${1}"
   local predefined_csv="${2}"
   local branch_lines="${3}"
+  local custom_apps_lines="${4:-}"
   local app_id=""
   local app_branch=""
+  local custom_repo=""
+  local custom_branch=""
   local predefined_json_entries=""
   local branch_json_entries=""
+  local custom_json_entries=""
   local escaped_app_id=""
   local escaped_branch=""
+  local escaped_repo=""
   local entry_json=""
   local line=""
   local -a predefined_ids=()
@@ -134,7 +139,30 @@ build_predefined_apps_metadata_json_object() {
 ${branch_lines}
 EOF
 
-  printf -v "${result_var}" '{\n      "predefined": [\n%s\n      ],\n      "predefined_branches": {\n%s\n      },\n      "custom": [\n      ]\n    }' "${predefined_json_entries}" "${branch_json_entries}"
+  while IFS= read -r line; do
+    if [ -z "${line}" ]; then
+      continue
+    fi
+
+    custom_repo="${line%%|*}"
+    custom_branch="${line#*|}"
+    if [ -z "${custom_repo}" ] || [ -z "${custom_branch}" ]; then
+      continue
+    fi
+
+    escaped_repo="$(json_escape_string "${custom_repo}")"
+    escaped_branch="$(json_escape_string "${custom_branch}")"
+    entry_json="$(printf '        {\n          "repo": "%s",\n          "branch": "%s"\n        }' "${escaped_repo}" "${escaped_branch}")"
+    if [ -z "${custom_json_entries}" ]; then
+      custom_json_entries="${entry_json}"
+    else
+      custom_json_entries="${custom_json_entries}"$',\n'"${entry_json}"
+    fi
+  done <<EOF
+${custom_apps_lines}
+EOF
+
+  printf -v "${result_var}" '{\n      "predefined": [\n%s\n      ],\n      "predefined_branches": {\n%s\n      },\n      "custom": [\n%s\n      ]\n    }' "${predefined_json_entries}" "${branch_json_entries}" "${custom_json_entries}"
 }
 
 get_predefined_branch_from_lines() {
@@ -247,6 +275,7 @@ prompt_custom_modular_apps_data() {
   local preferred_branch=""
   local available_branch_lines=""
   local existing_branch_lines=""
+  local existing_custom_lines=""
   local selected_branch_lines=""
   local selected_app_count=0
   local assembled_apps_metadata_json_object=""
@@ -257,6 +286,7 @@ prompt_custom_modular_apps_data() {
   if [ -f "${metadata_path}" ]; then
     selected_predefined_csv="$(get_metadata_apps_predefined_csv "${metadata_path}" || true)"
     existing_branch_lines="$(get_metadata_apps_predefined_branch_lines "${metadata_path}" || true)"
+    existing_custom_lines="$(get_metadata_apps_custom_lines "${metadata_path}" || true)"
   fi
 
   while true; do
@@ -393,7 +423,7 @@ EOF
       continue
     fi
 
-    build_predefined_apps_metadata_json_object assembled_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}"
+    build_predefined_apps_metadata_json_object assembled_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}" "${existing_custom_lines}"
     printf -v "${result_apps_metadata_var}" "%s" "${assembled_apps_metadata_json_object}"
     return 0
   done
@@ -444,6 +474,7 @@ prompt_selected_stack_app_branches_data() {
   local preferred_branch=""
   local available_branch_lines=""
   local existing_branch_lines=""
+  local existing_custom_lines=""
   local selected_branch_lines=""
   local selected_app_count=0
   local assembled_apps_metadata_json_object=""
@@ -457,6 +488,7 @@ prompt_selected_stack_app_branches_data() {
 
   selected_predefined_csv="$(get_metadata_apps_predefined_csv "${metadata_path}" || true)"
   existing_branch_lines="$(get_metadata_apps_predefined_branch_lines "${metadata_path}" || true)"
+  existing_custom_lines="$(get_metadata_apps_custom_lines "${metadata_path}" || true)"
   if [ -z "${selected_predefined_csv}" ]; then
     return 4
   fi
@@ -515,7 +547,7 @@ prompt_selected_stack_app_branches_data() {
     return 4
   fi
 
-  build_predefined_apps_metadata_json_object assembled_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}"
+  build_predefined_apps_metadata_json_object assembled_apps_metadata_json_object "${selected_predefined_csv}" "${selected_branch_lines}" "${existing_custom_lines}"
   printf -v "${result_apps_metadata_var}" "%s" "${assembled_apps_metadata_json_object}"
   return 0
 }
