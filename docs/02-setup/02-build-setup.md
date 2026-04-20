@@ -74,20 +74,20 @@ podman build \
 
 ## Build args
 
-| Arg                  | Purpose                                                                                       |
-| -------------------- | --------------------------------------------------------------------------------------------- |
-| **Frappe Framework** |                                                                                               |
-| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to https://github.com/frappe/frappe |
-| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-15                                    |
-| **Custom Apps**      |                                                                                               |
-| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.      |
-| **Dependencies**     |                                                                                               |
-| PYTHON_VERSION       | Python version for the base image                                                             |
-| NODE_VERSION         | Node.js version                                                                               |
-| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                           |
-| **bench only**       |                                                                                               |
-| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                               |
-| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                            |
+| Arg                  | Purpose                                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------------------- |
+| **Frappe Framework** |                                                                                                 |
+| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe> |
+| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-15                                      |
+| **Custom Apps**      |                                                                                                 |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.        |
+| **Dependencies**     |                                                                                                 |
+| PYTHON_VERSION       | Python version for the base image                                                               |
+| NODE_VERSION         | Node.js version                                                                                 |
+| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                             |
+| **bench only**       |                                                                                                 |
+| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                 |
+| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                              |
 
 # env file
 
