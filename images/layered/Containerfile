@@ -1,21 +1,27 @@
 ARG FRAPPE_BRANCH=version-16
+ARG FRAPPE_BUILD=${FRAPPE_BRANCH}
 ARG FRAPPE_IMAGE_PREFIX=frappe
 
-FROM ${FRAPPE_IMAGE_PREFIX}/build:${FRAPPE_BRANCH} AS builder
+FROM ${FRAPPE_IMAGE_PREFIX}/build:${FRAPPE_BUILD} AS builder
 
-ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 
 USER frappe
 
 RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=1000 \
+    --mount=type=secret,id=frappe_path,target=/tmp/frappe_path,uid=1000,gid=1000 \
   export APP_INSTALL_ARGS="" && \
+  if [ -f /tmp/frappe_path ] && [ -s /tmp/frappe_path ]; then \
+    RESOLVED_PATH=$(cat /tmp/frappe_path); \
+  else \
+    RESOLVED_PATH=${FRAPPE_PATH}; \
+  fi && \
   if [ -f /opt/frappe/apps.json ] && [ -s /opt/frappe/apps.json ]; then \
     export APP_INSTALL_ARGS="--apps_path=/opt/frappe/apps.json"; \
   fi && \
-  bench init ${APP_INSTALL_ARGS}\
+  bench init ${APP_INSTALL_ARGS} \
     --frappe-branch=${FRAPPE_BRANCH} \
-    --frappe-path=${FRAPPE_PATH} \
+    --frappe-path=${RESOLVED_PATH} \
     --no-procfile \
     --no-backups \
     --skip-redis-config-generation \
@@ -25,7 +31,7 @@ RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=1
   echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
-FROM ${FRAPPE_IMAGE_PREFIX}/base:${FRAPPE_BRANCH} AS backend
+FROM ${FRAPPE_IMAGE_PREFIX}/base:${FRAPPE_BUILD} AS backend
 
 USER frappe
 
