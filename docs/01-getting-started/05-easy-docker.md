@@ -21,8 +21,22 @@ Current status:
 The script entrypoint is:
 
 ```bash
-bash easy-docker.sh
+bash ./easy-docker.sh
 ```
+
+Before the wizard opens, `easy-docker` validates its startup dependencies.
+Today that means:
+
+- `gum`
+- `docker`
+- `docker compose`
+- Docker daemon availability
+- `jq`
+
+If `gum` or `jq` is missing, `easy-docker` first tries package-manager
+installation and can then fall back to a pinned GitHub binary when the setup is
+interactive and fallback is not disabled. On Windows, use a real Bash
+environment such as WSL or Git Bash and keep the script path in Bash syntax.
 
 Minimal first use:
 

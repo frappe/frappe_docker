@@ -22,5 +22,11 @@ you can see the base version the stack is built against.
 value on the next start or restart, so the tag change becomes effective once the
 image has been rebuilt and the stack is restarted.
 
+The update flow still rebuilds the image from a regenerated `apps.json`, and
+`metadata.json` remains the source of truth for the stack state. The difference
+is internal: stack metadata and generated app state are now processed through
+`jq` instead of line-based `awk` parsing. No user-visible change in the file
+layout is intended.
+
 For now, this update flow focuses on app branch changes. A separate Frappe base
 version update flow can be added later without changing the overall model.

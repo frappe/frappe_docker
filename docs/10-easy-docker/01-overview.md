@@ -17,6 +17,11 @@ All stack data created by the wizard is written into the repository-local
 `.easy-docker` directory. That includes the generated stack environment files
 and the stack-specific metadata used by the workflow.
 
+Internally, the stack JSON contract is now handled through `jq` instead of
+line-based `awk` parsing. This is meant to improve robustness against harmless
+JSON formatting differences without changing the generated layout of
+`metadata.json` or `apps.json`.
+
 This means `easy-docker` is not a closed system. After the setup has been
 created, you can still inspect the generated files, keep working with them
 manually, and continue outside the wizard if that fits your workflow better.
@@ -63,6 +68,18 @@ To run `easy-docker`, the environment should have:
 - Docker Compose v2 through `docker compose`
 - a running Docker daemon
 - `gum` for the interactive terminal UI
+- `jq` for stack JSON processing
+
+The startup checks happen in this order:
+
+1. CLI option parsing
+2. `gum`
+3. `docker`
+4. `jq`
+5. TUI startup
+
+That means `--help` exits before dependency checks, while missing dependencies
+stop the workflow before the menus open.
 
 When `gum` is already installed, the wizard uses it directly.
 
@@ -80,6 +97,12 @@ This means the usual setup flow is:
 
 The Docker requirements are also checked on startup so the workflow stops early
 with guidance instead of failing later in the middle of stack setup.
+
+`jq` now follows the same install strategy as `gum`: `easy-docker` first checks
+whether it is already available, then tries the system package manager, and can
+finally offer a pinned GitHub binary fallback in interactive sessions.
+Runtime resolution accepts either `jq` or `jq.exe`, which keeps Windows-native
+Bash setups compatible as long as one of them is on `PATH`.
 
 ## Main Areas
 
@@ -210,5 +233,5 @@ the workflow stays consistent when you return to manage it later.
 Run the wizard from the repository root:
 
 ```bash
-bash easy-docker.sh
+bash ./easy-docker.sh
 ```

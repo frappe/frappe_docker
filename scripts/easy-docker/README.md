@@ -5,26 +5,45 @@ Easy installation script for Frappe Docker for development and production
 ## Run
 
 ```bash
-bash easy-docker.sh
+bash ./easy-docker.sh
 ```
+
+Run the entrypoint from a real Bash environment.
+
+- On Linux, use your normal shell session.
+- On Windows, use WSL or Git Bash.
+- If you start `bash` from PowerShell, that usually means WSL, so keep the path
+  in Bash form such as `bash ./easy-docker.sh`, not `bash .\easy-docker.sh`.
 
 ## Dependencies
 
 - `gum` is used for the TUI and is installed automatically when possible
 - `docker` CLI is required and checked on startup
 - `docker compose` (Compose v2 command) is required and checked on startup
+- `jq` is required for stack JSON handling and is checked on startup
 - Docker Desktop includes Compose v2 by default; on Linux Engine-only setups you may need the `docker-compose-plugin` package
 - Docker daemon must be running before the TUI starts
 - Required docker commands are validated (`docker ps/exec/inspect/cp` and `docker compose config/up/down/logs/exec/pull/ps`)
-- If package manager installation for `gum` fails, the script can use a pinned GitHub binary fallback
-- The GitHub fallback is pinned to `gum` `v0.17.0` and verifies SHA256 checksums from `scripts/easy-docker/config/gum-checksums.tsv`
+- Startup validation order is: CLI options, `gum`, `docker`, then `jq`
+- If package manager installation for `gum` or `jq` fails, the script can use a pinned GitHub binary fallback
+- The `gum` fallback is pinned to `gum` `v0.17.0` and verifies SHA256 checksums from `scripts/easy-docker/config/gum-checksums.tsv`
+- The `jq` fallback is pinned to `jq` `1.8.1` and verifies SHA256 checksums from `scripts/easy-docker/config/jq-checksums.tsv`
+- `docker` still has no installation fallback path and must already be present
+- Runtime `jq` resolution accepts either `jq` or `jq.exe`, so Windows-native setups with only `jq.exe` on `PATH` are supported
+
+## JSON Handling
+
+- `metadata.json` remains the source of truth for stack state
+- `apps.json` is still generated from stack metadata and still used for the image build
+- `easy-docker` now reads and writes stack JSON through `jq` instead of line-based `awk` parsing
+- This is an internal robustness change only; the generated layout of `metadata.json` and `apps.json` is intended to stay the same for users
 
 ## Options
 
 - `-h`, `--help`
   - Shows usage and exits without starting the TUI
 - `--no-installation-fallback`
-  - Disables GitHub binary fallback for `gum`
+  - Disables GitHub binary fallback prompts for `gum` and `jq`
   - If package manager installation fails, the script exits with manual installation guidance
 
 ## Apps Catalog

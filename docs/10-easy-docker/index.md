@@ -16,6 +16,11 @@ This section documents the current behavior of the wizard:
 - stack, site, app, and update actions are handled through the wizard
 - the generated Compose output is available as a rendered snapshot
 
+Before the wizard opens, `easy-docker` validates its startup dependencies. That
+includes `gum`, `docker`, `docker compose`, a running Docker daemon, and `jq`.
+`gum` and `jq` can both use package-manager installation and a pinned GitHub
+binary fallback. `docker` still must already be present.
+
 Start here:
 
 - [Overview](./01-overview.md)
