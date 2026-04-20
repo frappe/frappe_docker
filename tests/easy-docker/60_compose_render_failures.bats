@@ -5,6 +5,7 @@ load 'test_helper.bash'
 setup() {
   easy_docker_test_begin
   easy_docker_test_source_core_render_modules
+  easy_docker_test_install_jq_stub
 }
 
 teardown() {

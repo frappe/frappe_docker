@@ -8,27 +8,12 @@ get_metadata_site_string_field() {
     return 1
   fi
 
-  awk -v field_name="${field_name}" '
-    /"site"[[:space:]]*:[[:space:]]*{/ {
-      in_site = 1
-      site_depth = 1
-      next
-    }
-    in_site {
-      if (match($0, "\"" field_name "\"[[:space:]]*:[[:space:]]*\"([^\"]*)\"", parts)) {
-        print parts[1]
-        exit
-      }
+  if ! easy_docker_require_jq; then
+    return 1
+  fi
 
-      line = $0
-      open_count = gsub(/{/, "{", line)
-      close_count = gsub(/}/, "}", line)
-      site_depth += open_count - close_count
-      if (site_depth <= 0) {
-        exit
-      }
-    }
-  ' "${metadata_path}"
+  # shellcheck disable=SC2016
+  easy_docker_run_jq -r --arg field_name "${field_name}" '.site[$field_name] // empty' "${metadata_path}"
 }
 
 get_metadata_site_apps_installed_lines() {
@@ -38,35 +23,11 @@ get_metadata_site_apps_installed_lines() {
     return 1
   fi
 
-  awk '
-    /"site"[[:space:]]*:[[:space:]]*{/ {
-      in_site = 1
-      site_depth = 1
-      next
-    }
-    in_site && /"apps_installed"[[:space:]]*:[[:space:]]*\[/ {
-      in_apps_installed = 1
-      next
-    }
-    in_apps_installed && /\]/ {
-      in_apps_installed = 0
-      next
-    }
-    in_apps_installed {
-      if (match($0, /"([^"]+)"/, parts)) {
-        print parts[1]
-      }
-    }
-    in_site {
-      line = $0
-      open_count = gsub(/{/, "{", line)
-      close_count = gsub(/}/, "}", line)
-      site_depth += open_count - close_count
-      if (site_depth <= 0) {
-        exit
-      }
-    }
-  ' "${metadata_path}"
+  if ! easy_docker_require_jq; then
+    return 1
+  fi
+
+  easy_docker_run_jq -r '(.site.apps_installed // [])[]? | select(type == "string")' "${metadata_path}"
 }
 
 get_stack_site_name() {

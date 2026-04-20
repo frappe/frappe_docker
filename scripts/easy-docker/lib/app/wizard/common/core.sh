@@ -119,12 +119,12 @@ get_metadata_string_field() {
     return 1
   fi
 
-  awk -v field_name="${field_name}" '
-    match($0, "\"" field_name "\"[[:space:]]*:[[:space:]]*\"([^\"]*)\"", parts) {
-      print parts[1]
-      exit
-    }
-  ' "${metadata_path}"
+  if ! easy_docker_require_jq; then
+    return 1
+  fi
+
+  # shellcheck disable=SC2016
+  easy_docker_run_jq -r --arg field_name "${field_name}" '[.. | objects | .[$field_name]? | select(type == "string")][0] // empty' "${metadata_path}"
 }
 
 get_env_file_key_value() {
@@ -364,19 +364,9 @@ get_metadata_compose_files_lines() {
     return 1
   fi
 
-  awk '
-    /"compose_files"[[:space:]]*:[[:space:]]*\[/ {
-      in_compose_files = 1
-      next
-    }
-    in_compose_files && /\]/ {
-      in_compose_files = 0
-      exit
-    }
-    in_compose_files {
-      if (match($0, /"([^"]+)"/, parts)) {
-        print parts[1]
-      }
-    }
-  ' "${metadata_path}"
+  if ! easy_docker_require_jq; then
+    return 1
+  fi
+
+  easy_docker_run_jq -r '([.. | objects | .compose_files? | select(type == "array")] | .[0] // [])[]?' "${metadata_path}"
 }

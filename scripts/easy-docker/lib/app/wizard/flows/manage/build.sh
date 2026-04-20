@@ -72,6 +72,9 @@ run_build_stack_custom_image_with_feedback() {
   24)
     show_warning_and_wait "Custom image build failed: app branch precheck failed -> ${EASY_DOCKER_BUILD_ERROR_DETAIL}" 6
     ;;
+  25)
+    show_warning_and_wait "Custom image build failed: jq is required for stack metadata and apps.json processing." 4
+    ;;
   *)
     show_warning_and_wait "Custom image build failed (${build_image_status})." 4
     ;;

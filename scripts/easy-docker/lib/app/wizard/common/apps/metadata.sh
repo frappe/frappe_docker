@@ -29,33 +29,11 @@ get_metadata_apps_predefined_csv() {
     return 1
   fi
 
-  awk '
-    /"apps"[[:space:]]*:[[:space:]]*{/ {
-      in_apps = 1
-    }
-    in_apps && /"predefined"[[:space:]]*:[[:space:]]*\[/ {
-      in_predefined = 1
-      next
-    }
-    in_predefined && /\]/ {
-      in_predefined = 0
-      next
-    }
-    in_predefined {
-      if (match($0, /"([^"]+)"/, parts)) {
-        if (csv == "") {
-          csv = parts[1]
-        } else {
-          csv = csv "," parts[1]
-        }
-      }
-    }
-    END {
-      if (csv != "") {
-        print csv
-      }
-    }
-  ' "${metadata_path}"
+  if ! easy_docker_require_jq; then
+    return 1
+  fi
+
+  easy_docker_run_jq -r '(.apps.predefined // []) | join(",")' "${metadata_path}"
 }
 
 get_metadata_apps_custom_lines() {
@@ -65,34 +43,11 @@ get_metadata_apps_custom_lines() {
     return 1
   fi
 
-  awk '
-    /"apps"[[:space:]]*:[[:space:]]*{/ {
-      in_apps = 1
-    }
-    in_apps && /"custom"[[:space:]]*:[[:space:]]*\[/ {
-      in_custom = 1
-      next
-    }
-    in_custom && /\]/ {
-      in_custom = 0
-      repo = ""
-      branch = ""
-      next
-    }
-    in_custom {
-      if (match($0, /"repo"[[:space:]]*:[[:space:]]*"([^"]+)"/, repo_parts)) {
-        repo = repo_parts[1]
-      }
-      if (match($0, /"branch"[[:space:]]*:[[:space:]]*"([^"]+)"/, branch_parts)) {
-        branch = branch_parts[1]
-      }
-      if (repo != "" && branch != "") {
-        print repo "|" branch
-        repo = ""
-        branch = ""
-      }
-    }
-  ' "${metadata_path}"
+  if ! easy_docker_require_jq; then
+    return 1
+  fi
+
+  easy_docker_run_jq -r '(.apps.custom // [])[]? | select(has("repo") and has("branch")) | "\(.repo)|\(.branch)"' "${metadata_path}"
 }
 
 get_metadata_apps_predefined_branch_lines() {
@@ -102,32 +57,64 @@ get_metadata_apps_predefined_branch_lines() {
     return 1
   fi
 
-  awk '
-    /"apps"[[:space:]]*:[[:space:]]*{/ {
-      in_apps = 1
-    }
-    in_apps && /"predefined_branches"[[:space:]]*:[[:space:]]*{/ {
-      in_predefined_branches = 1
-      next
-    }
-    in_predefined_branches && /}/ {
-      in_predefined_branches = 0
-      next
-    }
-    in_predefined_branches {
-      if (match($0, /"([^"]+)"[[:space:]]*:[[:space:]]*"([^"]+)"/, parts)) {
-        print parts[1] "|" parts[2]
-      }
-    }
-  ' "${metadata_path}"
+  if ! easy_docker_require_jq; then
+    return 1
+  fi
+
+  easy_docker_run_jq -r '(.apps.predefined_branches // {}) | to_entries[]? | "\(.key)|\(.value)"' "${metadata_path}"
 }
 
 get_metadata_apps_predefined_branch_for_id() {
   local metadata_path="${1}"
   local app_id_lookup="${2}"
-  local line=""
+
+  if [ ! -f "${metadata_path}" ]; then
+    return 1
+  fi
+
+  if ! easy_docker_require_jq; then
+    return 1
+  fi
+
+  # shellcheck disable=SC2016
+  easy_docker_run_jq -r --arg app_id "${app_id_lookup}" '.apps.predefined_branches[$app_id] // empty' "${metadata_path}"
+}
+
+build_metadata_apps_json_object() {
+  local result_var="${1}"
+  local predefined_csv="${2}"
+  local branch_lines="${3}"
+  local custom_apps_lines="${4:-}"
   local app_id=""
   local app_branch=""
+  local custom_repo=""
+  local custom_branch=""
+  local predefined_json_entries=""
+  local branch_json_entries=""
+  local custom_json_entries=""
+  local escaped_app_id=""
+  local escaped_branch=""
+  local escaped_repo=""
+  local entry_json=""
+  local line=""
+  local -a predefined_ids=()
+
+  if [ -n "${predefined_csv}" ]; then
+    IFS=',' read -r -a predefined_ids <<<"${predefined_csv}"
+    for app_id in "${predefined_ids[@]}"; do
+      if [ -z "${app_id}" ]; then
+        continue
+      fi
+
+      escaped_app_id="$(json_escape_string "${app_id}")"
+      entry_json="$(printf '        "%s"' "${escaped_app_id}")"
+      if [ -z "${predefined_json_entries}" ]; then
+        predefined_json_entries="${entry_json}"
+      else
+        predefined_json_entries="${predefined_json_entries}"$',\n'"${entry_json}"
+      fi
+    done
+  fi
 
   while IFS= read -r line; do
     if [ -z "${line}" ]; then
@@ -136,13 +123,61 @@ get_metadata_apps_predefined_branch_for_id() {
 
     app_id="${line%%|*}"
     app_branch="${line#*|}"
-    if [ "${app_id}" = "${app_id_lookup}" ] && [ -n "${app_branch}" ]; then
-      printf '%s\n' "${app_branch}"
-      return 0
+    if [ -z "${app_id}" ] || [ -z "${app_branch}" ]; then
+      continue
     fi
-  done < <(get_metadata_apps_predefined_branch_lines "${metadata_path}" || true)
 
-  return 1
+    escaped_app_id="$(json_escape_string "${app_id}")"
+    escaped_branch="$(json_escape_string "${app_branch}")"
+    entry_json="$(printf '        "%s": "%s"' "${escaped_app_id}" "${escaped_branch}")"
+    if [ -z "${branch_json_entries}" ]; then
+      branch_json_entries="${entry_json}"
+    else
+      branch_json_entries="${branch_json_entries}"$',\n'"${entry_json}"
+    fi
+  done <<EOF
+${branch_lines}
+EOF
+
+  while IFS= read -r line; do
+    if [ -z "${line}" ]; then
+      continue
+    fi
+
+    custom_repo="${line%%|*}"
+    custom_branch="${line#*|}"
+    if [ -z "${custom_repo}" ] || [ -z "${custom_branch}" ]; then
+      continue
+    fi
+
+    escaped_repo="$(json_escape_string "${custom_repo}")"
+    escaped_branch="$(json_escape_string "${custom_branch}")"
+    entry_json="$(printf '        {\n          "repo": "%s",\n          "branch": "%s"\n        }' "${escaped_repo}" "${escaped_branch}")"
+    if [ -z "${custom_json_entries}" ]; then
+      custom_json_entries="${entry_json}"
+    else
+      custom_json_entries="${custom_json_entries}"$',\n'"${entry_json}"
+    fi
+  done <<EOF
+${custom_apps_lines}
+EOF
+
+  printf -v "${result_var}" '{\n      "predefined": [\n%s\n      ],\n      "predefined_branches": {\n%s\n      },\n      "custom": [\n%s\n      ]\n    }' "${predefined_json_entries}" "${branch_json_entries}" "${custom_json_entries}"
+}
+
+render_metadata_apps_json_object_from_metadata() {
+  local result_var="${1}"
+  local metadata_path="${2}"
+  local predefined_csv=""
+  local branch_lines=""
+  local custom_lines=""
+  local apps_json_object=""
+
+  predefined_csv="$(get_metadata_apps_predefined_csv "${metadata_path}" || true)"
+  branch_lines="$(get_metadata_apps_predefined_branch_lines "${metadata_path}" || true)"
+  custom_lines="$(get_metadata_apps_custom_lines "${metadata_path}" || true)"
+  build_metadata_apps_json_object apps_json_object "${predefined_csv}" "${branch_lines}" "${custom_lines}"
+  printf -v "${result_var}" "%s" "${apps_json_object}"
 }
 
 build_stack_apps_json_content_from_metadata_apps() {
@@ -167,6 +202,10 @@ build_stack_apps_json_content_from_metadata_apps() {
 
   metadata_path="${stack_dir}/metadata.json"
   if [ ! -f "${metadata_path}" ]; then
+    return 1
+  fi
+
+  if ! easy_docker_require_jq; then
     return 1
   fi
 

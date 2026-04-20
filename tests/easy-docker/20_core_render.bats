@@ -5,6 +5,7 @@ load 'test_helper.bash'
 setup() {
   easy_docker_test_begin
   easy_docker_test_source_core_render_modules
+  easy_docker_test_install_jq_stub
   unset ERPNEXT_VERSION
   unset FRAPPE_BRANCH
 }
@@ -100,6 +101,38 @@ EOF
 EOF
 
   expected=$'compose.yaml\noverrides/compose.proxy.yaml\noverrides/compose.redis.yaml'
+
+  run get_metadata_compose_files_lines "${stack_dir}/metadata.json"
+  [ "${status}" -eq 0 ]
+  [ "${output}" = "${expected}" ]
+}
+
+@test "get_metadata_compose_files_lines keeps the first compose_files array only" {
+  local sandbox_root=""
+  local stack_dir=""
+  local expected=""
+
+  sandbox_root="$(easy_docker_test_create_repo_sandbox "compose-lines-first-array")"
+  easy_docker_test_override_repo_root "${sandbox_root}"
+  stack_dir="$(easy_docker_test_stack_dir "compose-lines-first-array")"
+  mkdir -p "${stack_dir}"
+
+  cat >"${stack_dir}/metadata.json" <<'EOF'
+{
+  "stack_name": "compose-lines-first-array",
+  "compose_files": [
+    "compose.yaml",
+    "overrides/compose.proxy.yaml"
+  ],
+  "wizard": {
+    "compose_files": [
+      "should-not-appear.yaml"
+    ]
+  }
+}
+EOF
+
+  expected=$'compose.yaml\noverrides/compose.proxy.yaml'
 
   run get_metadata_compose_files_lines "${stack_dir}/metadata.json"
   [ "${status}" -eq 0 ]

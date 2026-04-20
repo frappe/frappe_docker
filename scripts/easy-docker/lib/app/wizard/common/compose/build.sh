@@ -31,6 +31,9 @@ build_stack_custom_image() {
   if [ ! -f "${env_path}" ]; then
     return 12
   fi
+  if ! easy_docker_require_jq; then
+    return 25
+  fi
 
   custom_image="$(get_env_file_key_value "${env_path}" "CUSTOM_IMAGE" || true)"
   custom_tag="$(get_env_file_key_value "${env_path}" "CUSTOM_TAG" || true)"
@@ -58,13 +61,8 @@ build_stack_custom_image() {
   fi
 
   apps_refs_lines="$(
-    awk '
-      match($0, /"url"[[:space:]]*:[[:space:]]*"([^"]+)"/, url_parts) &&
-      match($0, /"branch"[[:space:]]*:[[:space:]]*"([^"]+)"/, branch_parts) {
-        print url_parts[1] "|" branch_parts[1]
-      }
-    ' "${apps_json_path}"
-  )"
+    easy_docker_run_jq -r '.[]? | select((.url // "") != "" and (.branch // "") != "") | "\(.url)|\(.branch)"' "${apps_json_path}"
+  )" || return 23
   if [ -z "${apps_refs_lines}" ]; then
     return 23
   fi

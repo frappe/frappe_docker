@@ -68,11 +68,9 @@ persist_stack_site_metadata() {
   local updated_at="${9:-}"
   local last_backup_at="${10-__KEEP_CURRENT__}"
   local metadata_path=""
-  local metadata_tmp_path=""
   local site_json_object=""
 
   metadata_path="${stack_dir}/metadata.json"
-  metadata_tmp_path="${metadata_path}.tmp"
   if [ ! -f "${metadata_path}" ]; then
     return 1
   fi
@@ -83,77 +81,7 @@ persist_stack_site_metadata() {
 
   build_stack_site_metadata_json_object site_json_object "${site_mode}" "${site_name}" "${apps_installed_lines}" "${last_action}" "${last_error}" "${error_log_path}" "${created_at}" "${updated_at}" "${last_backup_at}"
 
-  if ! awk -v site_object="${site_json_object}" '
-    BEGIN {
-      in_site = 0
-      inserted = 0
-      site_depth = 0
-      prev = ""
-    }
-    function flush_prev() {
-      if (prev != "") {
-        print prev
-        prev = ""
-      }
-    }
-    {
-      if (!in_site && $0 ~ /^  "site"[[:space:]]*:[[:space:]]*{/) {
-        in_site = 1
-        site_depth = 1
-        next
-      }
-
-      if (in_site) {
-        line = $0
-        open_count = gsub(/{/, "{", line)
-        close_count = gsub(/}/, "}", line)
-        site_depth += open_count - close_count
-        if (site_depth <= 0) {
-          in_site = 0
-        }
-        next
-      }
-
-      if (!inserted && $0 ~ /^}$/) {
-        if (prev != "") {
-          if (prev ~ /,$/) {
-            print prev
-          } else {
-            print prev ","
-          }
-          prev = ""
-        }
-        print "  \"site\": " site_object
-        print "}"
-        inserted = 1
-        next
-      }
-
-      flush_prev()
-      prev = $0
-    }
-    END {
-      if (!inserted) {
-        if (prev != "") {
-          if (prev ~ /,$/) {
-            print prev
-          } else {
-            print prev ","
-          }
-        }
-        print "  \"site\": " site_object
-        print "}"
-      } else if (prev != "") {
-        print prev
-      }
-    }
-  ' "${metadata_path}" >"${metadata_tmp_path}"; then
-    rm -f -- "${metadata_tmp_path}" >/dev/null 2>&1 || true
-    return 1
-  fi
-
-  if ! mv -- "${metadata_tmp_path}" "${metadata_path}"; then
-    rm -f -- "${metadata_tmp_path}" >/dev/null 2>&1 || true
+  if ! persist_stack_metadata_top_level_object "${stack_dir}" "site" "${site_json_object}"; then
     return 1
   fi
 
