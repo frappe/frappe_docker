@@ -130,17 +130,6 @@ This generates `compose.custom.yaml`, which you'll use to start all containers. 
 
 > **NOTE**: podman compose is just a wrapper, it uses docker-compose if it is available or podman-compose if not. podman-compose have an issue reading .env files ([Issue](https://github.com/containers/podman-compose/issues/475)) and might create an issue when running the containers.
 
-# Upgrading from images with a nested sites/assets volume
-
-Previous images declared `VOLUME /home/frappe/frappe-bench/sites/assets` separately. This created an implicit nested mountpoint inside the `sites` volume, which could cause Docker to attach different anonymous volumes per container in multi-container setups.
-That declaration has been removed. `sites` is now the single shared mount, consistent with the compose setup and docs.
-
-**After pulling the updated image:**
-
-- Recreate all containers (`docker compose up --force-recreate`). Without this, Docker may keep the old anonymous `sites/assets` volume
-  attached from before the change.
-- No `bench build` is needed — this only fixes mount consistency, not the asset workflow.
-
 ---
 
 **Next:** [Start Setup →](03-start-setup.md)
