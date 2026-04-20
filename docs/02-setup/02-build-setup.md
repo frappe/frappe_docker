@@ -74,20 +74,20 @@ podman build \
 
 ## Build args
 
-| Arg                  | Purpose                                                                                       |
-| -------------------- | --------------------------------------------------------------------------------------------- |
-| **Frappe Framework** |                                                                                               |
-| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to https://github.com/frappe/frappe |
-| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-15                                    |
-| **Custom Apps**      |                                                                                               |
-| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.      |
-| **Dependencies**     |                                                                                               |
-| PYTHON_VERSION       | Python version for the base image                                                             |
-| NODE_VERSION         | Node.js version                                                                               |
-| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                           |
-| **bench only**       |                                                                                               |
-| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                               |
-| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                            |
+| Arg                  | Purpose                                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------------------- |
+| **Frappe Framework** |                                                                                                 |
+| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe> |
+| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-15                                      |
+| **Custom Apps**      |                                                                                                 |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.        |
+| **Dependencies**     |                                                                                                 |
+| PYTHON_VERSION       | Python version for the base image                                                               |
+| NODE_VERSION         | Node.js version                                                                                 |
+| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                             |
+| **bench only**       |                                                                                                 |
+| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                 |
+| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                              |
 
 # env file
 
@@ -129,6 +129,17 @@ docker compose --env-file custom.env \
 This generates `compose.custom.yaml`, which you'll use to start all containers. Customize the overrides and environment variables according to your requirements.
 
 > **NOTE**: podman compose is just a wrapper, it uses docker-compose if it is available or podman-compose if not. podman-compose have an issue reading .env files ([Issue](https://github.com/containers/podman-compose/issues/475)) and might create an issue when running the containers.
+
+# Upgrading from images with a nested sites/assets volume
+
+Previous images declared `VOLUME /home/frappe/frappe-bench/sites/assets` separately. This created an implicit nested mountpoint inside the `sites` volume, which could cause Docker to attach different anonymous volumes per container in multi-container setups.
+That declaration has been removed. `sites` is now the single shared mount, consistent with the compose setup and docs.
+
+**After pulling the updated image:**
+
+- Recreate all containers (`docker compose up --force-recreate`). Without this, Docker may keep the old anonymous `sites/assets` volume
+  attached from before the change.
+- No `bench build` is needed — this only fixes mount consistency, not the asset workflow.
 
 ---
 
