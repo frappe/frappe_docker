@@ -8,10 +8,14 @@ load_easy_docker_modules() {
   source "${lib_dir}/core/commands.sh"
   # shellcheck source=scripts/easy-docker/lib/core/messages.sh
   source "${lib_dir}/core/messages.sh"
+  # shellcheck source=scripts/easy-docker/lib/core/json.sh
+  source "${lib_dir}/core/json.sh"
   # shellcheck source=scripts/easy-docker/lib/install/gum/load.sh
   source "${lib_dir}/install/gum/load.sh"
   # shellcheck source=scripts/easy-docker/lib/checks/docker.sh
   source "${lib_dir}/checks/docker.sh"
+  # shellcheck source=scripts/easy-docker/lib/checks/jq.sh
+  source "${lib_dir}/checks/jq.sh"
   # shellcheck source=scripts/easy-docker/lib/ui/screens.sh
   source "${lib_dir}/ui/screens.sh"
   # shellcheck source=scripts/easy-docker/lib/app/screen.sh

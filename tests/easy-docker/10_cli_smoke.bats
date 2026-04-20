@@ -84,3 +84,23 @@ write_passthrough_stub() {
   [[ "${output}" == *"docker is not installed."* ]]
   [[ "${output}" == *"Install Docker first:"* ]]
 }
+
+@test "missing jq stops after gum and docker dependencies succeed" {
+  write_stub gum 'exit 0'
+  # shellcheck disable=SC2016
+  write_stub docker \
+    'if [ "${1:-}" = "compose" ] && [ "${2:-}" = "version" ]; then exit 0; fi' \
+    'if [ "${1:-}" = "info" ]; then exit 0; fi' \
+    'case "$*" in' \
+    '  "ps --help"| "exec --help"| "inspect --help"| "cp --help"| "build --help"| "compose config --help"| "compose up --help"| "compose down --help"| "compose logs --help"| "compose exec --help"| "compose pull --help"| "compose ps --help") exit 0 ;;' \
+    'esac' \
+    'exit 0'
+
+  run "${SYSTEM_ENV}" "PATH=${STUB_BIN}" "${SYSTEM_BASH}" "${MAIN_SCRIPT}" --no-installation-fallback
+
+  [ "${status}" -eq 1 ]
+  [[ "${output}" == *"jq is not installed. Trying package manager installation..."* ]]
+  [[ "${output}" == *"No supported package manager was found."* ]]
+  [[ "${output}" == *"Installation fallback is disabled."* ]]
+  [[ "${output}" == *"Install jq first:"* ]]
+}

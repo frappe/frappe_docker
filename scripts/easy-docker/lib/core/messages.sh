@@ -27,3 +27,13 @@ print_docker_command_support_guidance() {
   echo "Update Docker to a recent version and ensure Compose v2 is available as 'docker compose'."
   echo "Standard 'docker' and 'docker compose' commands are required."
 }
+
+print_jq_install_guidance() {
+  print_manual_jq_install_guidance
+}
+
+print_manual_jq_install_guidance() {
+  echo "Install jq first: https://jqlang.org/download/"
+  echo "On Windows, you can also use: winget install jqlang.jq"
+  echo "Ensure the 'jq' or 'jq.exe' command is available on PATH before running easy-docker."
+}

@@ -25,6 +25,10 @@ if ! ensure_docker; then
   exit 1
 fi
 
+if ! ensure_jq "${disable_installation_fallback}"; then
+  exit 1
+fi
+
 trap 'leave_alt_screen; exit 0' INT TERM
 trap 'leave_alt_screen' EXIT
 
