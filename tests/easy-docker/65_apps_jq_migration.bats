@@ -214,7 +214,7 @@ EOF
   [ "${status}" -eq 25 ]
 }
 
-@test "build_stack_custom_image parses apps.json with jq before git branch checks" {
+@test "build_stack_custom_image parses apps.json with jq before git branch checks and passes apps.json as a build secret" {
   local sandbox_root=""
   local stack_dir=""
   local env_path=""
@@ -252,10 +252,6 @@ EOF
     "printf '%s\n' \"docker \$*\" >>\"${docker_log}\"" \
     'exit 0'
 
-  easy_docker_test_write_bin_command base64 \
-    'set -euo pipefail' \
-    'printf "%s\n" "W3sidXJsIjogImh0dHBzOi8vZXhhbXBsZS5pbnZhbGlkL2FwcCIsICJicmFuY2giOiAidmVyc2lvbi0xNiJ9XQ=="'
-
   easy_docker_test_prepend_bin_dir
 
   run build_stack_custom_image "${stack_dir}"
@@ -270,4 +266,5 @@ EOF
   run cat "${docker_log}"
   [ "${status}" -eq 0 ]
   [[ "${output}" == *'docker build -f '* ]]
+  [[ "${output}" == *"--secret id=apps_json,src=${stack_dir}/apps.json"* ]]
 }

@@ -51,12 +51,6 @@ run_build_stack_custom_image_with_feedback() {
   17)
     show_warning_and_wait "Custom image build failed: apps.json not found after generation." 4
     ;;
-  18)
-    show_warning_and_wait "Custom image build failed: base64 command is not available in this environment." 4
-    ;;
-  19)
-    show_warning_and_wait "Custom image build failed: apps.json could not be base64-encoded." 4
-    ;;
   20)
     show_warning_and_wait "Custom image build failed: images/layered/Containerfile not found." 4
     ;;

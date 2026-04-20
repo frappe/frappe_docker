@@ -11,7 +11,6 @@ build_stack_custom_image() {
   local frappe_path="https://github.com/frappe/frappe"
   local repo_root=""
   local containerfile_path=""
-  local apps_json_base64=""
   local apps_refs_lines=""
   local app_ref_line=""
   local app_url=""
@@ -89,15 +88,6 @@ build_stack_custom_image() {
 ${apps_refs_lines}
 EOF
 
-  if ! command_exists base64; then
-    return 18
-  fi
-
-  apps_json_base64="$(base64 "${apps_json_path}" | tr -d '\r\n')"
-  if [ -z "${apps_json_base64}" ]; then
-    return 19
-  fi
-
   repo_root="$(get_easy_docker_repo_root)"
   containerfile_path="${repo_root}/images/layered/Containerfile"
   if [ ! -f "${containerfile_path}" ]; then
@@ -110,7 +100,7 @@ EOF
     -f "${containerfile_path}" \
     --build-arg "FRAPPE_BRANCH=${frappe_branch}" \
     --build-arg "FRAPPE_PATH=${frappe_path}" \
-    --build-arg "APPS_JSON_BASE64=${apps_json_base64}" \
+    --secret "id=apps_json,src=${apps_json_path}" \
     -t "${image_ref}" \
     "${repo_root}" || return 21
 
