@@ -13,7 +13,6 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-changeit}
       MARIADB_AUTO_UPGRADE: 1
