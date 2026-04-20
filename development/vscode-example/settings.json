@@ -1,3 +1,20 @@
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/frappe-bench/env/bin/python"
+  "python.defaultInterpreterPath": "${workspaceFolder}/frappe-bench/env/bin/python",
+  "files.watcherExclude": {
+    // --- Node modules ---
+    "**/node_modules/**": true,
+
+    // --- Frappe bench core dirs ---
+    "**/env/**": true,
+    "**/config/**": true,
+
+    // --- Build artifacts ---
+    "**/__pycache__/**": true,
+    "**/*.pyc": true
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.git": false
+  }
 }

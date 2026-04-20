@@ -7,10 +7,12 @@ This guide walks you through building Frappe images from the repository resource
 # Prerequisites
 
 - git
-- docker or podman
+- docker (Engine **v23.0+**) or podman
 - docker compose v2 or podman compose
 
 > Install containerization software according to the official maintainer documentation. Avoid package managers when not recommended, as they frequently cause compatibility issues.
+
+> **Why Docker Engine v23+?** The build uses [BuildKit secrets](https://docs.docker.com/build/building/secrets/) (`--secret`) to keep `apps.json` tokens out of image layers. BuildKit is the default builder starting with Docker Engine 23.0 — older releases will fail or silently fall back to the legacy builder, which does not support secret mounts.
 
 # Clone this repo
 
@@ -42,15 +44,11 @@ To include custom apps in your image, create an `apps.json` file in the reposito
 ]
 ```
 
-Then generate a base64-encoded string from this file:
-
-```bash
-export APPS_JSON_BASE64=$(base64 -w 0 apps.json)
-```
-
 # Build the image
 
 Choose the appropriate build command based on your container runtime and desired image type. This example builds the `layered` image with the custom `apps.json` you created.
+
+> **Security note:** The `apps.json` file is passed as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repository tokens are **never** stored in image layer metadata. Do not use `--build-arg` for `apps.json` — build arguments are permanently visible via `docker image history`. This requires **Docker Engine v23.0+** (where BuildKit is the default builder).
 
 `Docker`:
 
@@ -58,7 +56,7 @@ Choose the appropriate build command based on your container runtime and desired
 docker build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
  --build-arg=FRAPPE_BRANCH=version-15 \
- --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+ --secret=id=apps_json,src=apps.json \
  --tag=custom:15 \
  --file=images/layered/Containerfile .
 ```
@@ -69,27 +67,27 @@ docker build \
 podman build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
  --build-arg=FRAPPE_BRANCH=version-15 \
- --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+ --secret=id=apps_json,src=apps.json \
  --tag=custom:15 \
  --file=images/layered/Containerfile .
 ```
 
 ## Build args
 
-| Arg                  | Purpose                                                                                       |
-| -------------------- | --------------------------------------------------------------------------------------------- |
-| **Frappe Framework** |                                                                                               |
-| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to https://github.com/frappe/frappe |
-| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-15                                    |
-| **Custom Apps**      |                                                                                               |
-| APPS_JSON_BASE64     | Base64-encoded JSON string from apps.json defining apps to install                            |
-| **Dependencies**     |                                                                                               |
-| PYTHON_VERSION       | Python version for the base image                                                             |
-| NODE_VERSION         | Node.js version                                                                               |
-| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                           |
-| **bench only**       |                                                                                               |
-| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                               |
-| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                            |
+| Arg                  | Purpose                                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------------------- |
+| **Frappe Framework** |                                                                                                 |
+| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe> |
+| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-15                                      |
+| **Custom Apps**      |                                                                                                 |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.        |
+| **Dependencies**     |                                                                                                 |
+| PYTHON_VERSION       | Python version for the base image                                                               |
+| NODE_VERSION         | Node.js version                                                                                 |
+| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                             |
+| **bench only**       |                                                                                                 |
+| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                 |
+| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                              |
 
 # env file
 
