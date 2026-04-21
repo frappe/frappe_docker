@@ -62,6 +62,10 @@ group "default" {
     targets = ["erpnext", "base", "build"]
 }
 
+group "base-images" {
+    targets = ["base", "build"]
+}
+
 function "tag" {
     params = [repo, version]
     result = [

@@ -1,4 +1,4 @@
-name: Bench
+name: Core / Build Bench
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
     paths:
       - images/bench/**
       - docker-bake.hcl
-      - .github/workflows/build_bench.yml
+      - .github/workflows/core-build-bench.yml
 
   schedule:
     # Every day at 12:00 pm

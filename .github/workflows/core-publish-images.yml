@@ -1,0 +1,92 @@
+name: Core / Publish Images
+
+on:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+        description: "'erpnext' or 'frappe'"
+      frappe_version:
+        required: true
+        type: string
+        description: "Resolved frappe image tag"
+      erpnext_version:
+        required: false
+        type: string
+        description: "Resolved erpnext image tag"
+      python_version:
+        required: true
+        type: string
+        description: Python Version
+      node_version:
+        required: true
+        type: string
+        description: NodeJS Version
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v4
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Set resolved versions
+        run: |
+          echo "FRAPPE_VERSION=${{ inputs.frappe_version }}" >> "$GITHUB_ENV"
+          if [ -n "${{ inputs.erpnext_version }}" ]; then
+            echo "ERPNEXT_VERSION=${{ inputs.erpnext_version }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set build args
+        run: |
+          echo "PYTHON_VERSION=${{ inputs.python_version }}" >> "$GITHUB_ENV"
+          echo "NODE_VERSION=${{ inputs.node_version }}" >> "$GITHUB_ENV"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker Hub images
+        uses: docker/bake-action@v7.1.0
+        with:
+          push: true
+          set: "*.platform=linux/amd64,linux/arm64"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push GHCR base images
+        uses: docker/bake-action@v7.1.0
+        with:
+          targets: base-images
+          push: true
+          set: "*.platform=linux/amd64,linux/arm64"
+        env:
+          REGISTRY_USER: ghcr.io/${{ github.repository_owner }}
