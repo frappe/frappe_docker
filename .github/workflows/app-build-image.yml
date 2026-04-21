@@ -47,7 +47,7 @@ on:
       builder_repository:
         required: false
         type: string
-        default: Rocket-Quack/frappe_docker
+        default: frappe/frappe_docker
         description: "Repository that contains the Containerfile and helper scripts"
       builder_ref:
         required: false
