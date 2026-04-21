@@ -82,7 +82,7 @@ services:
     networks:
       - frappe_network
     healthcheck:
-      test: mysqladmin ping -h localhost --password=admin
+      test: mariadb-admin ping -h localhost --password=admin
       interval: 1s
       retries: 20
     deploy:
