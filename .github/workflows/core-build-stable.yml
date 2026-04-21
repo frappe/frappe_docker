@@ -1,4 +1,8 @@
-name: Stable build
+name: Core / Build Stable
+
+permissions:
+  contents: read
+  packages: write
 
 on:
   pull_request:
@@ -11,7 +15,9 @@ on:
       - compose.yaml
       - docker-bake.hcl
       - example.env
-      - .github/workflows/build_stable.yml
+      - .github/workflows/core-build-stable.yml
+      - .github/workflows/core-build-test-images.yml
+      - .github/workflows/core-publish-images.yml
 
   push:
     branches:
@@ -23,6 +29,9 @@ on:
       - compose.yaml
       - docker-bake.hcl
       - example.env
+      - .github/workflows/core-build-stable.yml
+      - .github/workflows/core-build-test-images.yml
+      - .github/workflows/core-publish-images.yml
 
   # Triggered from frappe/frappe and frappe/erpnext on releases
   repository_dispatch:
@@ -30,24 +39,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  v15:
-    uses: ./.github/workflows/docker-build-push.yml
+  v15_test:
+    uses: ./.github/workflows/core-build-test-images.yml
     with:
       repo: erpnext
       version: "15"
-      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+      python_version: 3.11.6
+      node_version: 20.19.2
+
+  v15_publish:
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    needs: v15_test
+    uses: ./.github/workflows/core-publish-images.yml
+    with:
+      repo: erpnext
+      frappe_version: ${{ needs.v15_test.outputs.frappe_version }}
+      erpnext_version: ${{ needs.v15_test.outputs.erpnext_version }}
       python_version: 3.11.6
       node_version: 20.19.2
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  v16:
-    uses: ./.github/workflows/docker-build-push.yml
+  v16_test:
+    uses: ./.github/workflows/core-build-test-images.yml
     with:
       repo: erpnext
       version: "16"
-      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+      python_version: 3.14.2
+      node_version: 24.12.0
+  v16_publish:
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    needs: v16_test
+    uses: ./.github/workflows/core-publish-images.yml
+    with:
+      repo: erpnext
+      frappe_version: ${{ needs.v16_test.outputs.frappe_version }}
+      erpnext_version: ${{ needs.v16_test.outputs.erpnext_version }}
       python_version: 3.14.2
       node_version: 24.12.0
     secrets:
@@ -58,7 +86,7 @@ jobs:
     name: Update example.env and pwd.yml
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-    needs: v16
+    needs: v16_publish
 
     steps:
       - name: Checkout
@@ -96,7 +124,7 @@ jobs:
     name: Release Helm
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-    needs: v16
+    needs: v16_publish
 
     steps:
       - name: Setup deploy key

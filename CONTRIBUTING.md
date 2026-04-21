@@ -143,4 +143,4 @@ In case of new release of Debian. e.g. bullseye to bookworm. Change following fi
 
 Change following files on release of ERPNext
 
-- `.github/workflows/build_stable.yml`: Add the new release step under `jobs` and remove the unmaintained one. e.g. In case v12, v13 available, v14 will be added and v12 will be removed on release of v14. Also change the `needs:` for later steps to `v14` from `v13`.
+- `.github/workflows/core-build-stable.yml`: Add the new release step under `jobs` and remove the unmaintained one. e.g. In case v12, v13 available, v14 will be added and v12 will be removed on release of v14. Also change the `needs:` for later steps to `v14` from `v13`.

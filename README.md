@@ -1,7 +1,7 @@
 # Frappe Docker
 
-[![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
-[![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
+[![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/core-build-stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/core-build-stable.yml)
+[![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/core-build-develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/core-build-develop.yml)
 
 Docker images and orchestration for Frappe applications.
 
