@@ -73,22 +73,6 @@ docker compose -f pwd.yml up -d
 
 Wait for a couple of minutes for ERPNext site to be created or check `create-site` container logs before opening browser on port `8080`. (username: `Administrator`, password: `admin`)
 
-## Documentation Links
-
-### [Getting Started Guide](docs/getting-started.md)
-
-### [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
-
-### [Getting Started](#getting-started)
-
-### [Deployment Methods](docs/01-getting-started/01-choosing-a-deployment-method.md)
-
-### [ARM64](docs/01-getting-started/03-arm64.md)
-
-### [Container Setup Overview](docs/02-setup/01-overview.md)
-
-### [Development](docs/05-development/01-development.md)
-
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
