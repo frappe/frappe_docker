@@ -50,17 +50,13 @@ If you are already familiar with Frappe, you can jump right into the [different 
 
 ## Demo setup
 
-The fastest way to try Frappe is to play in an already set up sandbox, in your browser, click the button below:
-
-<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
-  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
-</a>
+The fastest way to try Frappe locally is with the single-file demo setup in `pwd.yml`.
 
 ### Try on your environment
 
 > **⚠️ Disposable demo only**
 >
-> **This setup is intended for quick evaluation. Expect to throw the environment away.** You will not be able to install custom apps to this setup. For production deployments, custom configurations, and detailed explanations, see the full documentation.
+> **This setup is intended for short-lived evaluation only.** You will not be able to install custom apps to this setup. For production deployments, custom configurations, and detailed explanations, see the full documentation.
 
 First clone the repo:
 
