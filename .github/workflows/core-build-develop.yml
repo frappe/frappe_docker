@@ -35,7 +35,7 @@ jobs:
       node_version: 24.12.0
 
   publish:
-    if: ${{ contains(fromJSON('["frappe/frappe_docker","Rocket-Quack/frappe_docker"]'), github.repository) && github.event_name != 'pull_request' }}
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: test
     uses: ./.github/workflows/core-publish-images.yml
     with:
