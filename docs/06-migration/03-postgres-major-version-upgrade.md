@@ -1,3 +1,7 @@
+---
+title: Postgres Major Version Upgrade
+---
+
 # PostgreSQL Major Version Upgrade (v13 to v15)
 
 Upgrading PostgreSQL from version 13 to 15 is a major version jump. Since PostgreSQL does not support in-place data directory upgrades, existing users must manually migrate their data using `pg_dump`.
