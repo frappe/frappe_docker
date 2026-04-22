@@ -8,11 +8,11 @@ services:
       - redis-queue
 
   redis-cache:
-    image: redis:6.2-alpine
+    image: redis:8.6-alpine
     restart: unless-stopped
 
   redis-queue:
-    image: redis:6.2-alpine
+    image: redis:8.6-alpine
     restart: unless-stopped
     volumes:
       - redis-queue-data:/data
