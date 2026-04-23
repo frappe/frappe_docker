@@ -10,6 +10,8 @@ x-depends-on-configurator: &depends_on_configurator
   depends_on:
     configurator:
       condition: service_completed_successfully
+    update-assets:
+      condition: service_completed_successfully
 
 x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
@@ -17,6 +19,13 @@ x-backend-defaults: &backend_defaults
     - sites:/home/frappe/frappe-bench/sites
 
 services:
+  update-assets:
+    <<: *customizable_image
+    command: >
+      bash -c "rm -rf /mnt/sites/assets/ && cp -r /home/frappe/frappe-bench/sites/assets /mnt/sites/"
+    volumes:
+      - sites:/mnt/sites # mounted at a different path!
+    restart: on-failure
   configurator:
     <<: *backend_defaults
     platform: linux/amd64
