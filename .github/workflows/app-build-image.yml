@@ -130,7 +130,7 @@ jobs:
           PY
 
       - name: Build smoke-test image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ env.BUILDER_DIR }}
           file: ${{ env.BUILDER_DIR }}/images/layered/Containerfile
@@ -172,7 +172,7 @@ jobs:
 
       - name: Push multi-arch image
         if: ${{ inputs.push }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ env.BUILDER_DIR }}
           file: ${{ env.BUILDER_DIR }}/images/layered/Containerfile
