@@ -136,6 +136,26 @@ easy_docker_test_source_gum_modules() {
   source "${repo_root}/scripts/easy-docker/lib/install/gum/ensure.sh"
 }
 
+easy_docker_test_source_screen_modules() {
+  local repo_root=""
+
+  repo_root="$(easy_docker_test_repo_root)"
+
+  easy_docker_test_source_common_modules
+
+  # shellcheck source=scripts/easy-docker/lib/app/screen.sh
+  source "${repo_root}/scripts/easy-docker/lib/app/screen.sh"
+}
+
+easy_docker_test_source_screen_modules_with_tty_stdout() {
+  easy_docker_test_source_screen_modules
+
+  # shellcheck disable=SC2317
+  stdout_is_terminal() {
+    return 0
+  }
+}
+
 easy_docker_test_create_repo_sandbox() {
   local sandbox_name="${1}"
   local sandbox_root=""
