@@ -31,16 +31,18 @@ jobs:
             image: ubuntu:24.04
             install_cmd: |
               apt-get update
-              DEBIAN_FRONTEND=noninteractive apt-get install -y bash ca-certificates curl git gzip tar ncurses-bin
+              DEBIAN_FRONTEND=noninteractive apt-get install -y bash ca-certificates curl gawk git gzip tar ncurses-bin
+              update-alternatives --set awk /usr/bin/gawk
           - name: Debian 12
             image: debian:12
             install_cmd: |
               apt-get update
-              DEBIAN_FRONTEND=noninteractive apt-get install -y bash ca-certificates curl git gzip tar ncurses-bin
+              DEBIAN_FRONTEND=noninteractive apt-get install -y bash ca-certificates curl gawk git gzip tar ncurses-bin
+              update-alternatives --set awk /usr/bin/gawk
           - name: Fedora 43
             image: fedora:43
             install_cmd: |
-              dnf install -y bash ca-certificates curl git gzip tar ncurses
+              dnf install -y bash ca-certificates curl gawk git gzip tar ncurses
     container:
       image: ${{ matrix.image }}
     env:
