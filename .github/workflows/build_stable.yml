@@ -7,6 +7,6 @@ jobs:
   delegate:
     uses: ./.github/workflows/core-build-stable.yml
     permissions:
-      contents: read
+      contents: write
       packages: write
     secrets: inherit
