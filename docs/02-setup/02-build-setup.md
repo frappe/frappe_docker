@@ -7,7 +7,7 @@ This guide walks you through building Frappe images from the repository resource
 # Prerequisites
 
 - git
-- docker (Engine **v23.0+**) or podman
+- docker (Engine **v23.0+** with buildx) or podman
 - docker compose v2 or podman compose
 
 > Install containerization software according to the official maintainer documentation. Avoid package managers when not recommended, as they frequently cause compatibility issues.
@@ -23,7 +23,7 @@ cd frappe_docker
 
 # Define custom apps
 
-If you dont want to install specific apps to the image skip this section.
+If you don't want to include custom apps in the image, skip this section.
 
 To include custom apps in your image, create an `apps.json` file in the repository root:
 
@@ -31,11 +31,11 @@ To include custom apps in your image, create an `apps.json` file in the reposito
 [
   {
     "url": "https://github.com/frappe/erpnext",
-    "branch": "version-15"
+    "branch": "version-16"
   },
   {
     "url": "https://github.com/frappe/hrms",
-    "branch": "version-15"
+    "branch": "version-16"
   },
   {
     "url": "https://github.com/frappe/helpdesk",
@@ -44,7 +44,9 @@ To include custom apps in your image, create an `apps.json` file in the reposito
 ]
 ```
 
-# Build the image
+# Build custom images
+
+## Manually
 
 Choose the appropriate build command based on your container runtime and desired image type. This example builds the `layered` image with the custom `apps.json` you created.
 
@@ -55,9 +57,10 @@ Choose the appropriate build command based on your container runtime and desired
 ```bash
 docker build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
- --build-arg=FRAPPE_BRANCH=version-15 \
+ --build-arg=FRAPPE_BRANCH=version-16 \
+ --build-arg=APPS_JSON_HASH="$(sha256sum apps.json | awk '{print $1}')" \
  --secret=id=apps_json,src=apps.json \
- --tag=custom:15 \
+ --tag=custom:16 \
  --file=images/layered/Containerfile .
 ```
 
@@ -66,30 +69,51 @@ docker build \
 ```bash
 podman build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
- --build-arg=FRAPPE_BRANCH=version-15 \
+ --build-arg=FRAPPE_BRANCH=version-16 \
+ --build-arg=APPS_JSON_HASH="$(sha256sum apps.json | awk '{print $1}')" \
  --secret=id=apps_json,src=apps.json \
- --tag=custom:15 \
+ --tag=custom:16 \
  --file=images/layered/Containerfile .
 ```
 
-## Build args
+## CI/CD pipelines
 
-| Arg                  | Purpose                                                                                         |
-| -------------------- | ----------------------------------------------------------------------------------------------- |
-| **Frappe Framework** |                                                                                                 |
-| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe> |
-| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-15                                      |
-| **Custom Apps**      |                                                                                                 |
-| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.        |
-| **Dependencies**     |                                                                                                 |
-| PYTHON_VERSION       | Python version for the base image                                                               |
-| NODE_VERSION         | Node.js version                                                                                 |
-| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                             |
-| **bench only**       |                                                                                                 |
-| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                 |
-| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                              |
+Example:
 
-# env file
+```yaml
+- name: Build Docker image
+  shell: sh
+  run: |
+    docker build \
+    --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+    --build-arg=FRAPPE_BRANCH=version-16 \
+    --build-arg=APPS_JSON_HASH="$(sha256sum apps.json | awk '{print $1}')" \
+    --secret=id=apps_json,src=apps.json \
+    --tag=custom:16 \
+    --file=images/layered/Containerfile .
+```
+
+## Build args, secrets and flags
+
+| Variable             | Purpose                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------ |
+| **Frappe Framework** |                                                                                                  |
+| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe>  |
+| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-16                                       |
+| **Custom Apps**      |                                                                                                  |
+| APPS_JSON_HASH       | Hash of `apps.json`, used to invalidate the cached layer when `apps_json` is passed as a secret. |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.         |
+| **Dependencies**     |                                                                                                  |
+| PYTHON_VERSION       | Python version for the base image                                                                |
+| NODE_VERSION         | Node.js version                                                                                  |
+| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                              |
+| **bench only**       |                                                                                                  |
+| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                  |
+| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                               |
+
+# Deploy the stack
+
+## env file
 
 The compose file requires several environment variables. You can either export them on your system or create a `.env` file.
 
@@ -103,7 +127,7 @@ For this setup, make sure **at least** the following values are added to `custom
 
 ```txt
 CUSTOM_IMAGE=custom
-CUSTOM_TAG=15
+CUSTOM_TAG=16
 PULL_POLICY=missing
 ```
 
@@ -113,7 +137,7 @@ PULL_POLICY=missing
 **⚠️ This is not meant to be a complete `.env` configuration guide. These are only the minimal additions required for this example.
 Please have a look at [env-variables.md](04-env-variables.md) for a full description of all available variables and adjust them according to your needs.**
 
-# Creating the final compose file
+## Creating the final compose file
 
 Combine the base compose file with appropriate overrides for your use case. This example adds MariaDB, Redis, and exposes ports on `:8080`:
 
