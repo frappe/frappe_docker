@@ -35,11 +35,11 @@ This allows you to:
 
 Installing apps into a running container is **not supported**.
 
-`bench get-app` is an examples of an common but unsupported action.
+`bench get-app` and `bench build` are examples of common but unsupported actions.
 
 ### Why?
 
-- Apps are part of the **Docker image**
+- Apps and assets are part of the **Docker image**
 - Runtime changes are lost on container recreation
 - This ensures reproducibility and stability
 
