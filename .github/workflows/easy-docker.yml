@@ -20,10 +20,36 @@ on:
 
 jobs:
   bats:
+    name: Bats (${{ matrix.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 24.04
+            image: ubuntu:24.04
+            install_cmd: |
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y bash ca-certificates curl git gzip tar ncurses-bin
+          - name: Debian 12
+            image: debian:12
+            install_cmd: |
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y bash ca-certificates curl git gzip tar ncurses-bin
+          - name: Fedora 43
+            image: fedora:43
+            install_cmd: |
+              dnf install -y bash ca-certificates curl git gzip tar ncurses
+    container:
+      image: ${{ matrix.image }}
+    env:
+      TERM: xterm-256color
 
     steps:
+      - name: Install distro dependencies
+        run: ${{ matrix.install_cmd }}
+
       - name: Checkout
         uses: actions/checkout@v6
 
@@ -32,7 +58,7 @@ jobs:
           BATS_VERSION="v1.11.1"
           curl -fsSL "https://github.com/bats-core/bats-core/archive/refs/tags/${BATS_VERSION}.tar.gz" -o bats-core.tar.gz
           tar -xzf bats-core.tar.gz
-          sudo "./bats-core-${BATS_VERSION#v}/install.sh" /usr/local
+          "./bats-core-${BATS_VERSION#v}/install.sh" /usr/local
 
       - name: Run easy-docker Bats tests
         run: bats --recursive tests/easy-docker
