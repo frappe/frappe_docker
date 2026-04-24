@@ -89,6 +89,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v16_publish
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
