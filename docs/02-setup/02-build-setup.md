@@ -56,9 +56,9 @@ Choose the appropriate build command based on your container runtime and desired
 
 ```bash
 docker build \
+ --no-cache \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
  --build-arg=FRAPPE_BRANCH=version-16 \
- --build-arg=APPS_JSON_HASH="$(sha256sum apps.json | awk '{print $1}')" \
  --secret=id=apps_json,src=apps.json \
  --tag=custom:16 \
  --file=images/layered/Containerfile .
@@ -68,9 +68,9 @@ docker build \
 
 ```bash
 podman build \
+ --no-cache \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
  --build-arg=FRAPPE_BRANCH=version-16 \
- --build-arg=APPS_JSON_HASH="$(sha256sum apps.json | awk '{print $1}')" \
  --secret=id=apps_json,src=apps.json \
  --tag=custom:16 \
  --file=images/layered/Containerfile .
@@ -78,38 +78,64 @@ podman build \
 
 ## CI/CD pipelines
 
-Example:
+When using automated builds, `CACHE_BUST` can be used to control cache invalidation of the frappe layer in order to rebuild it.
+
+Possible techniques:
+
+- No override: normal Docker layer caching is used
+- Timestamp: force a rebuild on every pipeline run
+- Pipeline run ID: rebuild once per CI run
+- Commit SHA: rebuild once per commit
+- apps.json hash: rebuild only when the custom app definition changes
+
+Examples:
+Commit SHA from GitHub
 
 ```yaml
 - name: Build Docker image
   shell: sh
   run: |
     docker build \
-    --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-    --build-arg=FRAPPE_BRANCH=version-16 \
-    --build-arg=APPS_JSON_HASH="$(sha256sum apps.json | awk '{print $1}')" \
-    --secret=id=apps_json,src=apps.json \
-    --tag=custom:16 \
-    --file=images/layered/Containerfile .
+      --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+      --build-arg=FRAPPE_BRANCH=version-16 \
+      --build-arg=CACHE_BUST="$GITHUB_SHA" \
+      --secret=id=apps_json,src=apps.json \
+      --tag=custom:16 \
+      --file=images/layered/Containerfile .
+```
+
+apps.json hash
+
+```yaml
+- name: Build Docker image
+  shell: sh
+  run: |
+    docker build \
+      --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+      --build-arg=FRAPPE_BRANCH=version-16 \
+      --build-arg=CACHE_BUST="$(sha256sum apps.json | awk '{print $1}')" \
+      --secret=id=apps_json,src=apps.json \
+      --tag=custom:16 \
+      --file=images/layered/Containerfile .
 ```
 
 ## Build args, secrets and flags
 
-| Variable             | Purpose                                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------------------ |
-| **Frappe Framework** |                                                                                                  |
-| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe>  |
-| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-16                                       |
-| **Custom Apps**      |                                                                                                  |
-| APPS_JSON_HASH       | Hash of `apps.json`, used to invalidate the cached layer when `apps_json` is passed as a secret. |
-| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.         |
-| **Dependencies**     |                                                                                                  |
-| PYTHON_VERSION       | Python version for the base image                                                                |
-| NODE_VERSION         | Node.js version                                                                                  |
-| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                              |
-| **bench only**       |                                                                                                  |
-| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                  |
-| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                               |
+| Variable             | Purpose                                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------------------- |
+| **Frappe Framework** |                                                                                                 |
+| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe> |
+| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-16                                      |
+| **Custom Apps**      |                                                                                                 |
+| CACHE_BUST           | Can be used to invalidate the cached layer when `apps_json` is passed as a secret.              |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.        |
+| **Dependencies**     |                                                                                                 |
+| PYTHON_VERSION       | Python version for the base image                                                               |
+| NODE_VERSION         | Node.js version                                                                                 |
+| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                             |
+| **bench only**       |                                                                                                 |
+| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                 |
+| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                              |
 
 # Deploy the stack
 
