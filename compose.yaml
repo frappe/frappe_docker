@@ -46,6 +46,10 @@ services:
   backend:
     <<: *backend_defaults
     platform: linux/amd64
+    environment:
+      GUNICORN_THREADS: ${GUNICORN_THREADS:-4}
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
+      GUNICORN_TIMEOUT: ${GUNICORN_TIMEOUT:-120}
 
   frontend:
     <<: *customizable_image

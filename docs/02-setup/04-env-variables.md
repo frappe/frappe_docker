@@ -122,6 +122,16 @@ If your site is named `example.com` and you access it via that domain, no need t
 
 ---
 
+## Backend (Gunicorn) Configuration
+
+| Variable           | Purpose                                                        | Default | When to Set / Allowed Values                                                     |
+| :----------------- | :------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------- |
+| `GUNICORN_WORKERS` | Number of worker processes handling web requests               | `2`     | Scale up for multi-core CPUs. Formula: `(2 x Cores) + 1`                         |
+| `GUNICORN_THREADS` | Number of concurrent threads per worker process                | `4`     | Increase to handle more simultaneous I/O-bound requests without high memory cost |
+| `GUNICORN_TIMEOUT` | Max time a worker can spend on a single request before restart | `120`   | Increase if long-running reports or data imports time out                        |
+
+---
+
 ## Frontend Nginx Configuration (inside the frontend container)
 
 | Variable               | Purpose                            | Default        | Allowed Values                               |
