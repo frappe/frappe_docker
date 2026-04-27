@@ -84,21 +84,21 @@ See [Automated Builds and Deployment](../03-production/06-automated-builds-and-d
 
 ## Build args, secrets and flags
 
-| Variable             | Purpose                                                                                         |
-| -------------------- | ----------------------------------------------------------------------------------------------- |
-| **Frappe Framework** |                                                                                                 |
-| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe> |
-| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-16                                      |
-| **Custom Apps**      |                                                                                                 |
-| CACHE_BUST           | Can be used to invalidate the cached layer when `apps_json` is passed as a secret.              |
-| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.        |
-| **Dependencies**     |                                                                                                 |
-| PYTHON_VERSION       | Python version for the base image                                                               |
-| NODE_VERSION         | Node.js version                                                                                 |
-| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                             |
-| **bench only**       |                                                                                                 |
-| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                 |
-| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                              |
+| Variable             | Purpose                                                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Frappe Framework** |                                                                                                                                   |
+| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe>                                   |
+| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-16                                                                        |
+| **Custom Apps**      |                                                                                                                                   |
+| CACHE_BUST           | Can be used to invalidate the cached layer. See [Build Cache](../03-production/06-automated-builds-and-deployment.md#build-cache) |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.                                          |
+| **Dependencies**     |                                                                                                                                   |
+| PYTHON_VERSION       | Python version for the base image                                                                                                 |
+| NODE_VERSION         | Node.js version                                                                                                                   |
+| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                                                               |
+| **bench only**       |                                                                                                                                   |
+| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                                                   |
+| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                                                                |
 
 # Deploy the stack
 
