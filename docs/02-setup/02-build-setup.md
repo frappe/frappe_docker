@@ -76,48 +76,11 @@ podman build \
  --file=images/layered/Containerfile .
 ```
 
-## CI/CD pipelines
+## Automated
 
-When using automated builds, `CACHE_BUST` can be used to control cache invalidation of the frappe layer in order to rebuild it.
+This repository is fully suited for automated builds, i.e. using CI/CD pipelines.
 
-Possible techniques:
-
-- No override: normal Docker layer caching is used
-- Timestamp: force a rebuild on every pipeline run
-- Pipeline run ID: rebuild once per CI run
-- Commit SHA: rebuild once per commit
-- apps.json hash: rebuild only when the custom app definition changes
-
-Examples:
-Commit SHA from GitHub
-
-```yaml
-- name: Build Docker image
-  shell: sh
-  run: |
-    docker build \
-      --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-      --build-arg=FRAPPE_BRANCH=version-16 \
-      --build-arg=CACHE_BUST="$GITHUB_SHA" \
-      --secret=id=apps_json,src=apps.json \
-      --tag=custom:16 \
-      --file=images/layered/Containerfile .
-```
-
-apps.json hash
-
-```yaml
-- name: Build Docker image
-  shell: sh
-  run: |
-    docker build \
-      --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-      --build-arg=FRAPPE_BRANCH=version-16 \
-      --build-arg=CACHE_BUST="$(sha256sum apps.json | awk '{print $1}')" \
-      --secret=id=apps_json,src=apps.json \
-      --tag=custom:16 \
-      --file=images/layered/Containerfile .
-```
+See [Automated Builds and Deployment](../03-production/06-automated-builds-and-deployment.md) for more information.
 
 ## Build args, secrets and flags
 
