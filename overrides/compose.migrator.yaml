@@ -1,0 +1,45 @@
+# Provides a service for automated migration of a given site.
+# Add SITE_NAME to .env
+
+# Compose extension fields of base compose.yaml. See https://github.com/frappe/frappe_docker/blob/main/compose.yaml
+# Needed for merging compose files.
+x-customizable-image: &customizable_image
+  # By default the image used only contains the `frappe` and `erpnext` apps.
+  # See https://github.com/frappe/frappe_docker/blob/main/docs/02-setup/02-build-setup.md#define-custom-apps
+  # about using custom images.
+  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+  pull_policy: ${PULL_POLICY:-always}
+  restart: ${RESTART_POLICY:-unless-stopped}
+
+x-depends-on-configurator: &depends_on_configurator
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
+
+x-backend-defaults: &backend_defaults
+  <<: [*depends_on_configurator, *customizable_image]
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+
+services:
+  migrator:
+    <<: *backend_defaults
+    platform: linux/amd64
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        if [ -z "$$SITE_NAME" ]; then
+          echo "[migrator] SITE_NAME is not set";
+          exit 1;
+        fi;
+        if [ -d "sites/$$SITE_NAME" ]; then
+          echo "[migrator] Migrating $$SITE_NAME";
+          bench --site $$SITE_NAME migrate;
+        else
+          echo "[migrator] Site $$SITE_NAME not found, skipping migrate";
+        fi
+    environment:
+      SITE_NAME: ${SITE_NAME}
+    restart: on-failure
