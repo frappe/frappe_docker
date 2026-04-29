@@ -146,20 +146,23 @@ COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe
 
 WORKDIR /home/frappe/frappe-bench
 
+# Gunicorn configuration defaults
+ENV GUNICORN_WORKERS=2
+ENV GUNICORN_THREADS=4
+ENV GUNICORN_TIMEOUT=120
+
 VOLUME [ \
   "/home/frappe/frappe-bench/sites", \
   "/home/frappe/frappe-bench/logs" \
 ]
 
-CMD [ \
-  "/home/frappe/frappe-bench/env/bin/gunicorn", \
-  "--chdir=/home/frappe/frappe-bench/sites", \
-  "--bind=0.0.0.0:8000", \
-  "--threads=4", \
-  "--workers=2", \
-  "--worker-class=gthread", \
-  "--worker-tmp-dir=/dev/shm", \
-  "--timeout=120", \
-  "--preload", \
-  "frappe.app:application" \
-]
+CMD /home/frappe/frappe-bench/env/bin/gunicorn \
+  --chdir=/home/frappe/frappe-bench/sites \
+  --bind=0.0.0.0:8000 \
+  --threads=${GUNICORN_THREADS} \
+  --workers=${GUNICORN_WORKERS} \
+  --worker-class=gthread \
+  --worker-tmp-dir=/dev/shm \
+  --timeout=${GUNICORN_TIMEOUT} \
+  --preload \
+  frappe.app:application
