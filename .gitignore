@@ -32,3 +32,6 @@ node_modules
 # VitePress
 **/.vitepress/dist
 **/.vitepress/cache
+
+# easy-docker local runtime data (contains secrets)
+.easy-docker/
