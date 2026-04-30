@@ -1,5 +1,4 @@
 # Provides a service for automated migration of a given site.
-# Add SITE_NAME to .env
 
 # Compose extension fields of base compose.yaml. See https://github.com/frappe/frappe_docker/blob/main/compose.yaml
 # Needed for merging compose files.
@@ -30,16 +29,16 @@ services:
       - -c
     command:
       - >
-        if [ -z "$$SITE_NAME" ]; then
-          echo "[migrator] SITE_NAME is not set";
-          exit 1;
+        if [ "$$MIGRATE_SITES" != "true" ]; then
+          echo "[migrator] Migration disabled";
+          exit 0;
         fi;
-        if [ -d "sites/$$SITE_NAME" ]; then
-          echo "[migrator] Migrating $$SITE_NAME";
-          bench --site $$SITE_NAME migrate;
-        else
-          echo "[migrator] Site $$SITE_NAME not found, skipping migrate";
-        fi
+        if [ -z "$$(find sites -mindepth 2 -maxdepth 2 -name site_config.json 2>/dev/null)" ]; then
+          echo "[migrator] No sites found, skipping migration";
+          exit 0;
+        fi;
+        echo "[migrator] Migrating all sites";
+        bench --site all migrate;
     environment:
-      SITE_NAME: ${SITE_NAME}
-    restart: on-failure
+      MIGRATE_SITES: ${MIGRATE_SITES:-true}
+    restart: on-failure:5
