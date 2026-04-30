@@ -1,0 +1,44 @@
+# Provides a service for automated migration of a given site.
+
+# Compose extension fields of base compose.yaml. See https://github.com/frappe/frappe_docker/blob/main/compose.yaml
+# Needed for merging compose files.
+x-customizable-image: &customizable_image
+  # By default the image used only contains the `frappe` and `erpnext` apps.
+  # See https://github.com/frappe/frappe_docker/blob/main/docs/02-setup/02-build-setup.md#define-custom-apps
+  # about using custom images.
+  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+  pull_policy: ${PULL_POLICY:-always}
+  restart: ${RESTART_POLICY:-unless-stopped}
+
+x-depends-on-configurator: &depends_on_configurator
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
+
+x-backend-defaults: &backend_defaults
+  <<: [*depends_on_configurator, *customizable_image]
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+
+services:
+  migrator:
+    <<: *backend_defaults
+    platform: linux/amd64
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        if [ "$$MIGRATE_SITES" != "true" ]; then
+          echo "[migrator] Migration disabled";
+          exit 0;
+        fi;
+        if [ -z "$$(find sites -mindepth 2 -maxdepth 2 -name site_config.json 2>/dev/null)" ]; then
+          echo "[migrator] No sites found, skipping migration";
+          exit 0;
+        fi;
+        echo "[migrator] Migrating all sites";
+        bench --site all migrate;
+    environment:
+      MIGRATE_SITES: ${MIGRATE_SITES:-true}
+    restart: on-failure:5

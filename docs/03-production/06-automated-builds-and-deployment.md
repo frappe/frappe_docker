@@ -126,3 +126,22 @@ Note: When using branch references in `apps.json`, the hash only changes when th
       --tag=custom:16 \
       --file=images/layered/Containerfile .
 ```
+
+## Automated deployment
+
+### Automate site migration
+
+After updating a custom image or deploying new app versions, a database migration
+must be executed using `bench migrate`.
+
+Without running migrations, the site may become inconsistent or fail to start properly.
+
+For automated deployments, this step should not be performed manually.
+
+Consider using the dedicated `migrator` service provided as a Compose override.
+It ensures that migrations are executed automatically when the stack starts.
+
+This approach is especially useful in CI/CD pipelines where no interactive access
+to the backend container is available.
+
+See [Compose override](../../overrides/compose.migrator.yaml)
