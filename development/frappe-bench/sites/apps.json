@@ -1,0 +1,21 @@
+{
+    "frappe": {
+        "resolution": {
+            "commit_hash": null,
+            "branch": null
+        },
+        "required": [],
+        "idx": 1,
+        "version": "15.107.1"
+    },
+    "chatwoot_erp": {
+        "is_repo": true,
+        "resolution": {
+            "commit_hash": "9002f55a62a1b1777da6fa23b5c94c9a8b5463ac",
+            "branch": "develop"
+        },
+        "required": [],
+        "idx": 2,
+        "version": "0.0.1"
+    },
+}

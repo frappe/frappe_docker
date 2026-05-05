@@ -8,7 +8,6 @@ This is a **frappe-bench** — a containerized development workspace that manage
 
 **Installed apps** (under `apps/`):
 - `frappe/` — core framework (v15.x)
-- `frappe_whatsapp/` — WhatsApp Cloud API integration (direct Meta API)
 - `chatwoot_erp/` — Chatwoot customer support integration
 
 ## Commands
@@ -119,5 +118,5 @@ JavaScript/Vue: ESLint + Prettier (config in `apps/frappe/.eslintrc` / `prettier
 | Frappe Python entry point | `apps/frappe/frappe/app.py` |
 | CLI commands | `apps/frappe/frappe/commands/` |
 | Core DocType controllers | `apps/frappe/frappe/core/` |
-| WhatsApp webhook utils | `apps/frappe_whatsapp/frappe_whatsapp/utils/` |
 | Chatwoot hooks | `apps/chatwoot_erp/chatwoot_erp/hooks.py` |
+
