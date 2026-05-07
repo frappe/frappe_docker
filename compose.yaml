@@ -25,6 +25,7 @@ services:
       - -c
     # add redis_socketio for backward compatibility
     command:
+      # chromium_binary_path: Temporary compatibility fix for Print Designer until https://github.com/frappe/print_designer/pull/523
       - >
         ls -1 apps > sites/apps.txt;
         bench set-config -g db_host $$DB_HOST;
@@ -34,6 +35,7 @@ services:
         bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
         bench set-config -g chromium_path /usr/bin/chromium-headless-shell;
+        bench set-config -g chromium_binary_path /usr/bin/chromium-headless-shell;
     environment:
       DB_HOST: ${DB_HOST:-}
       DB_PORT: ${DB_PORT:-}
