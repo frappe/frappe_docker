@@ -75,7 +75,7 @@ RUN apt-get update \
     # For MIME type detection
     media-types \
     # Chromium
-    && if [ "$INSTALL_CHROMIUM" = "true" ]; then \
+    && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         chromium-headless-shell; \
     fi \
