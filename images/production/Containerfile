@@ -82,6 +82,7 @@ RUN useradd -ms /bin/bash frappe \
 COPY resources/core/nginx/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/core/nginx/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
 COPY resources/core/nginx/security_headers.conf /etc/nginx/snippets/security_headers.conf
+RUN chmod 755 /usr/local/bin/nginx-entrypoint.sh
 
 FROM base AS build
 
@@ -153,7 +154,7 @@ VOLUME [ \
 USER root
 # This entrypoint script link build assets of the image to the mounted sites volume at container initialization
 COPY resources/core/main-entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod 755 /usr/local/bin/entrypoint.sh
 
 USER frappe
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
