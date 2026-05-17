@@ -93,7 +93,8 @@ services:
 ```
 
 > Without this, Docker may pull amd64 images and emulate them via Rosetta — things will work but be noticeably slower.
-> 
+> Few users did note that the version of mariadb causes an error while creating a new site so in case you do encouter it change the version from `11.8` to `10.8`
+
 ---
 
 ## Step 5 — Start the Containers
