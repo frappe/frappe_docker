@@ -6,6 +6,9 @@ title: Docker Development Setup
 
 A complete guide for setting up a Frappe development environment on x86 and ARM based computers running UNIX based OSes by running containers directly and working inside them via the terminal. No VS Code Dev Containers extension needed.
 
+> [!IMPORTANT]
+> Devcontainers are the intended development setup for Frappe Framework but in case you don't want to use that method follow these instructions to use the CLI directly instead
+
 ---
 
 ## Prerequisites
@@ -93,7 +96,7 @@ services:
 ```
 
 > Without this, Docker may pull amd64 images and emulate them via Rosetta — things will work but be noticeably slower.
-> Few users did note that the version of mariadb causes an error while creating a new site so in case you do encouter it change the version from `11.8` to `10.8`
+> Ensure mariadb version is set to `10.8` since Frappe Framework is not yet tested for the default version `11.8`
 
 ---
 
