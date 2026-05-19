@@ -96,7 +96,6 @@ services:
 ```
 
 > Without this, Docker may pull amd64 images and emulate them via Rosetta — things will work but be noticeably slower.
-> Ensure mariadb version is set to `10.8` since Frappe Framework is not yet tested for the default version `11.8`
 
 ---
 
