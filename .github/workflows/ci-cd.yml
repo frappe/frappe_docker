@@ -41,13 +41,16 @@ jobs:
     outputs:
       image: ${{ steps.image.outputs.name }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: docker/setup-qemu-action@v3
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - uses: docker/setup-buildx-action@v3
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GHCR
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -56,7 +59,8 @@ jobs:
 
       - name: Resolve lowercase image name
         id: image
-        run: echo "name=${REGISTRY}/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "name=${REGISTRY}/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
         env:
           REGISTRY: ${{ env.REGISTRY }}
 
@@ -78,28 +82,29 @@ jobs:
           cat > /tmp/apps.json <<EOF
           [
             {"url": "https://github.com/frappe/erpnext",    "branch": "version-16"},
-            {"url": "https://github.com/frappe/hrms",        "branch": "version-16"},
-            {"url": "${PREFIX}/ipstc.git",                   "branch": "${CUSTOM_BRANCH}"},
-            {"url": "${PREFIX}/ipstc-hrms.git",              "branch": "${CUSTOM_BRANCH}"}
+            {"url": "https://github.com/frappe/hrms",       "branch": "version-16"},
+            {"url": "${PREFIX}/ipstc.git",                  "branch": "${CUSTOM_BRANCH}"},
+            {"url": "${PREFIX}/ipstc-hrms.git",             "branch": "${CUSTOM_BRANCH}"}
           ]
           EOF
 
-          # Fetch latest commit SHAs from custom app repos to bust cache when they change
           IPSTC_SHA=$(curl -fsSL -H "${AUTH_HEADER}" \
             "https://api.github.com/repos/TIVOK-SOLUTIONS/ipstc/commits/${CUSTOM_BRANCH}" \
             | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
+
           IPSTC_HRMS_SHA=$(curl -fsSL -H "${AUTH_HEADER}" \
             "https://api.github.com/repos/TIVOK-SOLUTIONS/ipstc-hrms/commits/${CUSTOM_BRANCH}" \
             | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
 
           HASH=$(echo "${IPSTC_SHA}${IPSTC_HRMS_SHA}" | sha256sum | cut -d' ' -f1)
+
           echo "hash=${HASH}" >> "$GITHUB_OUTPUT"
-          echo "apps.json written (branch: ${CUSTOM_BRANCH})"
+          echo "apps.json written"
           echo "ipstc SHA: ${IPSTC_SHA}"
           echo "ipstc-hrms SHA: ${IPSTC_HRMS_SHA}"
-          echo "cache bust hash: ${HASH}"
+          echo "cache hash: ${HASH}"
 
-      - name: Build and push
+      - name: Build and Push Image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -124,17 +129,19 @@ jobs:
     permissions:
       packages: read
     steps:
-      - name: Log in to GHCR
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify all apps are installed
+      - name: Verify installed apps
         run: |
           IMAGE="${{ needs.build-and-push.outputs.image }}:${{ github.sha }}"
+
           docker pull "$IMAGE"
+
           docker run --rm --entrypoint bash "$IMAGE" -lc '
             for app in frappe erpnext hrms ipstc ipstc_hrms; do
               dir="/home/frappe/frappe-bench/apps/$app"
@@ -153,28 +160,58 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'develop' && 'dev' || 'staging' }}
     steps:
-      - name: Deploy to server
+      - name: Deploy to Server
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -e
+
             cd ${{ secrets.DEPLOY_PATH }}
-            docker compose pull
+
             if [ "${{ github.ref_name }}" = "main" ]; then
               PROXY_OVERRIDE="-f overrides/compose.https.yaml"
             else
               PROXY_OVERRIDE="-f overrides/compose.noproxy.yaml"
             fi
-            docker compose \
+
+            COMPOSE="docker compose \
               -f compose.yaml \
               -f overrides/compose.mariadb.yaml \
               -f overrides/compose.redis.yaml \
-              ${PROXY_OVERRIDE} \
-              up -d --remove-orphans
-            sleep 30
-            docker compose stop queue-short queue-long scheduler
-            docker compose exec -T backend bench --site ${{ secrets.SITE_NAME }} clear-cache
-            docker compose exec -T backend bench --site ${{ secrets.SITE_NAME }} migrate
-            docker compose start queue-short queue-long scheduler
+              ${PROXY_OVERRIDE}"
+
+            echo "Pulling latest images..."
+            $COMPOSE pull
+
+            echo "Starting containers..."
+            $COMPOSE up -d --remove-orphans
+
+            echo "Waiting for DB connection..."
+            until $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} list-apps > /dev/null 2>&1; do
+              echo "DB not ready, retrying in 5s..."
+              sleep 5
+            done
+
+            echo "Stopping workers..."
+            $COMPOSE stop queue-short queue-long scheduler
+
+            echo "Running migrations..."
+            $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} migrate
+
+            echo "Clearing cache..."
+            $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} clear-cache
+            $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} clear-website-cache
+
+            echo "Building assets..."
+            $COMPOSE exec -T backend bench build
+
+            echo "Restarting services..."
+            $COMPOSE start queue-short queue-long scheduler
+
+            echo "Restarting frontend..."
+            $COMPOSE restart frontend
+
+            echo "Deployment complete."
