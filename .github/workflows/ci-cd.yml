@@ -167,6 +167,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'develop' && 'dev' || 'staging' }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Encode email setup script
+        id: email_script
+        run: echo "b64=$(base64 -w0 .github/scripts/configure_email.py)" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1
         env:
@@ -176,11 +183,12 @@ jobs:
           MAIL_LOGIN: ${{ secrets.MAIL_LOGIN }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_DEFAULT_SENDER: ${{ secrets.MAIL_DEFAULT_SENDER }}
+          EMAIL_SCRIPT_B64: ${{ steps.email_script.outputs.b64 }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: MAIL_SERVER,MAIL_PORT,MAIL_USE_TLS,MAIL_LOGIN,MAIL_PASSWORD,MAIL_DEFAULT_SENDER
+          envs: MAIL_SERVER,MAIL_PORT,MAIL_USE_TLS,MAIL_LOGIN,MAIL_PASSWORD,MAIL_DEFAULT_SENDER,EMAIL_SCRIPT_B64
           script: |
             set -e
 
@@ -233,55 +241,16 @@ jobs:
 
             if [ -n "$MAIL_SERVER" ]; then
               echo "Configuring default outgoing email account..."
-              $COMPOSE exec -T \
-                -e SITE_NAME="${{ secrets.SITE_NAME }}" \
-                -e MAIL_SERVER="$MAIL_SERVER" \
-                -e MAIL_PORT="${MAIL_PORT:-587}" \
-                -e MAIL_USE_TLS="${MAIL_USE_TLS:-1}" \
-                -e MAIL_LOGIN="$MAIL_LOGIN" \
-                -e MAIL_PASSWORD="$MAIL_PASSWORD" \
-                -e MAIL_DEFAULT_SENDER="${MAIL_DEFAULT_SENDER:-$MAIL_LOGIN}" \
-                backend python3 - <<'PYEOF'
-import frappe, os, sys
-
-site    = os.environ.get('SITE_NAME', '')
-login   = os.environ.get('MAIL_LOGIN', '')
-server  = os.environ.get('MAIL_SERVER', '')
-port    = int(os.environ.get('MAIL_PORT', '587'))
-use_tls = int(os.environ.get('MAIL_USE_TLS', '1'))
-password = os.environ.get('MAIL_PASSWORD', '')
-sender  = os.environ.get('MAIL_DEFAULT_SENDER') or login
-
-if not (site and login and server):
-    sys.exit(0)
-
-frappe.init(site=site, sites_path='sites')
-frappe.connect()
-
-existing = frappe.db.get_value('Email Account', {'email_id': login}, 'name')
-if existing:
-    doc = frappe.get_doc('Email Account', existing)
-else:
-    doc = frappe.new_doc('Email Account')
-    doc.email_account_name = 'System Notifications'
-    doc.email_id = login
-
-doc.smtp_server = server
-doc.smtp_port = port
-doc.use_tls = use_tls
-doc.password = password
-doc.enable_outgoing = 1
-doc.default_outgoing = 1
-
-if existing:
-    doc.save(ignore_permissions=True)
-else:
-    doc.insert(ignore_permissions=True)
-
-frappe.db.commit()
-frappe.destroy()
-print('Email account configured as default outgoing.')
-PYEOF
+              echo "$EMAIL_SCRIPT_B64" | base64 -d | \
+                $COMPOSE exec -T \
+                  -e SITE_NAME="${{ secrets.SITE_NAME }}" \
+                  -e MAIL_SERVER="$MAIL_SERVER" \
+                  -e MAIL_PORT="${MAIL_PORT:-587}" \
+                  -e MAIL_USE_TLS="${MAIL_USE_TLS:-1}" \
+                  -e MAIL_LOGIN="$MAIL_LOGIN" \
+                  -e MAIL_PASSWORD="$MAIL_PASSWORD" \
+                  -e MAIL_DEFAULT_SENDER="${MAIL_DEFAULT_SENDER:-$MAIL_LOGIN}" \
+                  backend python3 -
             fi
 
             echo "Clearing cache..."
