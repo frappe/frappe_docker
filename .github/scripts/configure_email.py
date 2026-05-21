@@ -1,11 +1,5 @@
 import os, sys
 
-# bench creates these on startup; raw Python does not
-for _p in ('/home/frappe/logs', '/home/frappe/frappe-bench/logs'):
-    os.makedirs(_p, exist_ok=True)
-
-import frappe
-
 site     = os.environ.get('SITE_NAME', '')
 login    = os.environ.get('MAIL_LOGIN', '')
 server   = os.environ.get('MAIL_SERVER', '')
@@ -17,7 +11,14 @@ sender   = os.environ.get('MAIL_DEFAULT_SENDER') or login
 if not (site and login and server):
     sys.exit(0)
 
-frappe.init(site=site, sites_path='/home/frappe/frappe-bench/sites')
+import frappe
+
+# Force re-init so our sites_path is used even if frappe was partially initialised
+frappe.init(site=site, sites_path='/home/frappe/frappe-bench/sites', force=True)
+
+# Create the log directory using the actual resolved path (before connect triggers the logger)
+os.makedirs(os.path.join(frappe.local.sites_path, site, 'logs'), exist_ok=True)
+
 frappe.connect()
 
 existing = frappe.db.get_value('Email Account', {'email_id': login}, 'name')
