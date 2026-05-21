@@ -243,6 +243,7 @@ jobs:
               echo "Configuring default outgoing email account..."
               echo "$EMAIL_SCRIPT_B64" | base64 -d | \
                 $COMPOSE exec -T \
+                  -w /home/frappe/frappe-bench \
                   -e SITE_NAME="${{ secrets.SITE_NAME }}" \
                   -e MAIL_SERVER="$MAIL_SERVER" \
                   -e MAIL_PORT="${MAIL_PORT:-587}" \

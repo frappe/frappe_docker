@@ -11,7 +11,7 @@ sender   = os.environ.get('MAIL_DEFAULT_SENDER') or login
 if not (site and login and server):
     sys.exit(0)
 
-frappe.init(site=site, sites_path='sites')
+frappe.init(site=site, sites_path='/home/frappe/frappe-bench/sites')
 frappe.connect()
 
 existing = frappe.db.get_value('Email Account', {'email_id': login}, 'name')
