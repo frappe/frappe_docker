@@ -70,6 +70,15 @@ Add these secrets to **each** environment:
 | `SSH_KEY` | `-----BEGIN OPENSSH...` | Private SSH key for the server |
 | `DEPLOY_PATH` | `/opt/frappe-docker` | Path to frappe-docker on the server |
 | `SITE_NAME` | `167.99.231.229` | Frappe site name (used for migrations) |
+| `MAIL_SERVER` | `smtp.gmail.com` | SMTP hostname — leave empty to skip email setup |
+| `MAIL_PORT` | `587` | SMTP port (default: 587) |
+| `MAIL_USE_TLS` | `1` | `1` for TLS, `0` for plain (default: 1) |
+| `MAIL_LOGIN` | `noreply@example.com` | SMTP username / From address |
+| `MAIL_PASSWORD` | `app-password` | SMTP password or app password |
+| `MAIL_DEFAULT_SENDER` | `noreply@example.com` | Display From address (defaults to `MAIL_LOGIN`) |
+
+> **Gmail** requires an [App Password](https://myaccount.google.com/apppasswords), not your login password.
+> Leave `MAIL_SERVER` empty in an environment to skip email configuration entirely for that environment.
 
 ### 4. Make the GHCR package public (recommended)
 
@@ -195,9 +204,11 @@ The pipeline runs these steps on the server automatically after a successful bui
 1. `docker compose pull` — pulls the new image
 2. `docker compose up -d --remove-orphans` — restarts containers with the new image
 3. Stops workers (queue-short, queue-long, scheduler) to prevent document lock conflicts during migration
-4. `bench clear-cache` — clears Redis cache and document locks
-5. `bench migrate` — applies any pending DB migrations for all installed apps in order (frappe → erpnext → hrms → ipstc → ipstc_hrms)
-6. Restarts workers
+4. `bench migrate` — applies any pending DB migrations for all installed apps in order (frappe → erpnext → hrms → ipstc → ipstc_hrms)
+5. Creates or updates the **default outgoing Email Account** in the database (skipped if `MAIL_SERVER` secret is not set)
+6. `bench clear-cache` + `bench clear-website-cache`
+7. `bench build --force` — rebuilds frontend assets
+8. Restarts workers and frontend
 
 No SSH access needed after the first-time setup.
 
@@ -274,6 +285,12 @@ pulls the latest commit on the matching branch at build time.
 | `SSH_KEY` | Private key for SSH access |
 | `DEPLOY_PATH` | frappe-docker directory on the server |
 | `SITE_NAME` | Frappe site name for migrations |
+| `MAIL_SERVER` | SMTP hostname (leave empty to skip email setup) |
+| `MAIL_PORT` | SMTP port (default: 587) |
+| `MAIL_USE_TLS` | TLS toggle — `1` or `0` (default: 1) |
+| `MAIL_LOGIN` | SMTP username / From address |
+| `MAIL_PASSWORD` | SMTP password or app password |
+| `MAIL_DEFAULT_SENDER` | From address shown on outgoing emails |
 
 ### Server credentials
 
