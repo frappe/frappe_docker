@@ -1,4 +1,10 @@
-import frappe, os, sys
+import os, sys
+
+# bench creates these on startup; raw Python does not
+for _p in ('/home/frappe/logs', '/home/frappe/frappe-bench/logs'):
+    os.makedirs(_p, exist_ok=True)
+
+import frappe
 
 site     = os.environ.get('SITE_NAME', '')
 login    = os.environ.get('MAIL_LOGIN', '')
