@@ -250,7 +250,7 @@ jobs:
                   -e MAIL_LOGIN="$MAIL_LOGIN" \
                   -e MAIL_PASSWORD="$MAIL_PASSWORD" \
                   -e MAIL_DEFAULT_SENDER="${MAIL_DEFAULT_SENDER:-$MAIL_LOGIN}" \
-                  backend python3 -
+                  backend /home/frappe/frappe-bench/env/bin/python -
             fi
 
             echo "Clearing cache..."
