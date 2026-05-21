@@ -167,47 +167,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'develop' && 'dev' || 'staging' }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Encode email setup script
-        id: email_script
-        run: echo "b64=$(base64 -w0 .github/scripts/configure_email.py)" >> "$GITHUB_OUTPUT"
-
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1
-        env:
-          MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
-          MAIL_PORT: ${{ secrets.MAIL_PORT || '587' }}
-          MAIL_USE_TLS: ${{ secrets.MAIL_USE_TLS || '1' }}
-          MAIL_LOGIN: ${{ secrets.MAIL_LOGIN }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          MAIL_DEFAULT_SENDER: ${{ secrets.MAIL_DEFAULT_SENDER }}
-          EMAIL_SCRIPT_B64: ${{ steps.email_script.outputs.b64 }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: MAIL_SERVER,MAIL_PORT,MAIL_USE_TLS,MAIL_LOGIN,MAIL_PASSWORD,MAIL_DEFAULT_SENDER,EMAIL_SCRIPT_B64
           script: |
             set -e
 
             cd ${{ secrets.DEPLOY_PATH }}
-
-            update_env() {
-              local var="$1" val="$2"
-              if grep -q "^${var}=" .env 2>/dev/null; then
-                sed -i "s|^${var}=.*|${var}=${val}|" .env
-              else
-                echo "${var}=${val}" >> .env
-              fi
-            }
-            update_env MAIL_SERVER      "${MAIL_SERVER}"
-            update_env MAIL_PORT        "${MAIL_PORT:-587}"
-            update_env MAIL_USE_TLS     "${MAIL_USE_TLS:-1}"
-            update_env MAIL_LOGIN       "${MAIL_LOGIN}"
-            update_env MAIL_PASSWORD    "${MAIL_PASSWORD}"
-            update_env MAIL_DEFAULT_SENDER "${MAIL_DEFAULT_SENDER}"
 
             if [ "${{ github.ref_name }}" = "main" ]; then
               PROXY_OVERRIDE="-f overrides/compose.https.yaml"
@@ -238,21 +207,6 @@ jobs:
 
             echo "Running migrations..."
             $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} migrate
-
-            if [ -n "$MAIL_SERVER" ]; then
-              echo "Configuring default outgoing email account..."
-              echo "$EMAIL_SCRIPT_B64" | base64 -d | \
-                $COMPOSE exec -T \
-                  -w /home/frappe/frappe-bench \
-                  -e SITE_NAME="${{ secrets.SITE_NAME }}" \
-                  -e MAIL_SERVER="$MAIL_SERVER" \
-                  -e MAIL_PORT="${MAIL_PORT:-587}" \
-                  -e MAIL_USE_TLS="${MAIL_USE_TLS:-1}" \
-                  -e MAIL_LOGIN="$MAIL_LOGIN" \
-                  -e MAIL_PASSWORD="$MAIL_PASSWORD" \
-                  -e MAIL_DEFAULT_SENDER="${MAIL_DEFAULT_SENDER:-$MAIL_LOGIN}" \
-                  backend /home/frappe/frappe-bench/env/bin/python -
-            fi
 
             echo "Clearing cache..."
             $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} clear-cache
