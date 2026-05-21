@@ -258,9 +258,6 @@ jobs:
             $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} clear-cache
             $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} clear-website-cache
 
-            echo "Building assets..."
-            $COMPOSE exec -T backend bench build --force
-
             echo "Restarting services..."
             $COMPOSE start queue-short queue-long scheduler
 
