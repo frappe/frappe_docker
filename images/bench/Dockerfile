@@ -81,7 +81,7 @@ RUN apt-get update \
         chromium-headless-shell; \
     fi \
     # Install cups 
-    && if [ "$INSTALL_PYCUPS" != "false" ]; then apt-get install --no-install-recommends -y libcups2-dev cups-client fi \
+    && if [ "$INSTALL_PYCUPS" != "false" ]; then apt-get install --no-install-recommends -y libcups2-dev cups-client; fi \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
