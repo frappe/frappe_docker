@@ -155,7 +155,7 @@ RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | 
     && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> ~/.bashrc
 
 # Install pycups
-RUN if [ "$INSTALL_PYCUPS" != "false" ]; then RUN /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir pycups; fi
+RUN if [ "$INSTALL_PYCUPS" != "false" ]; then /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir pycups; fi
 
 EXPOSE 8000-8005 9000-9005 6787
 
