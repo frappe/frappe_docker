@@ -16,3 +16,4 @@ jobs:
           stale-pr-message: This PR has been automatically marked as stale. You have a week to explain why you believe this is an error.
           stale-issue-label: no-issue-activity
           stale-pr-label: no-pr-activity
+          exempt-issue-labels: keep-open

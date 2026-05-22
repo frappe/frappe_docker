@@ -8,6 +8,8 @@ COPY resources/core/nginx/security_headers.conf /etc/nginx/snippets/security_hea
 
 ARG WKHTMLTOPDF_VERSION=0.12.6.1-3
 ARG WKHTMLTOPDF_DISTRO=bookworm
+ARG INSTALL_CHROMIUM=true
+
 ARG NODE_VERSION=24.13.0
 ENV NVM_DIR=/home/frappe/.nvm
 ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
@@ -27,8 +29,6 @@ RUN useradd -ms /bin/bash frappe \
     libharfbuzz0b \
     libpangoft2-1.0-0 \
     libpangocairo-1.0-0 \
-    #Chromium
-    chromium-headless-shell \
     # For backups
     restic \
     gpg \
@@ -65,6 +65,11 @@ RUN useradd -ms /bin/bash frappe \
     && rm $downloaded_file \
     # Install cups 
     && if [ "${INSTALL_PYCUPS}" != "false" ]; then apt-get install --no-install-recommends -y libcups2-dev cups-client fi \
+    # Chromium
+    && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
+        DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+        chromium-headless-shell; \
+    fi \
     # Clean up
     && rm -rf /var/lib/apt/lists/* \
     && rm -fr /etc/nginx/sites-enabled/default \
@@ -161,20 +166,12 @@ VOLUME [ \
 USER root
 # This entrypoint script link build assets of the image to the mounted sites volume at container initialization
 COPY resources/core/main-entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod 755 /usr/local/bin/entrypoint.sh
+
+COPY resources/core/start.sh /usr/local/bin/start.sh
+RUN chmod 755 /usr/local/bin/start.sh
 
 USER frappe
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-CMD [ \
-  "/home/frappe/frappe-bench/env/bin/gunicorn", \
-  "--chdir=/home/frappe/frappe-bench/sites", \
-  "--bind=0.0.0.0:8000", \
-  "--threads=4", \
-  "--workers=2", \
-  "--worker-class=gthread", \
-  "--worker-tmp-dir=/dev/shm", \
-  "--timeout=120", \
-  "--preload", \
-  "frappe.app:application" \
-]
+CMD ["start.sh"]
