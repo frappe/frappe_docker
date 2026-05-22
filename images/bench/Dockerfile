@@ -124,6 +124,10 @@ RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
     && echo 'eval "$(pyenv init --path)"' >>~/.profile \
     && echo 'eval "$(pyenv init -)"' >>~/.bashrc
 
+
+    # Install pycups
+RUN if [ "$INSTALL_PYCUPS" != "false" ]; then pip install --no-cache-dir pycups; fi \
+
 # Clone and install bench in the local user home directory
 # For development, bench source is located in ~/.bench
 ENV PATH=/home/frappe/.local/bin:$PATH
