@@ -64,7 +64,7 @@ RUN useradd -ms /bin/bash frappe \
     && apt-get install -y ./$downloaded_file \
     && rm $downloaded_file \
     # Install cups 
-    && if [ "$INSTALL_PYCUPS" != "false" ]; then apt-get install --no-install-recommends -y libcups2-dev cups-client; fi \
+    && if [ "$INSTALL_PYCUPS" != "false" ]; then apt-get install -y libcups2-dev; fi \
     # Chromium
     && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
