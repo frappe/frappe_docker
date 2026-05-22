@@ -122,6 +122,9 @@ RUN apt-get update \
     libbz2-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Install pycups
+RUN if [ "${INSTALL_PYCUPS}" != "false" ]; then RUN /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir pycups fi \
+
 USER frappe
 
 ARG FRAPPE_BRANCH=version-16
