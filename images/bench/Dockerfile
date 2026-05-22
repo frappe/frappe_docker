@@ -81,7 +81,7 @@ RUN apt-get update \
         chromium-headless-shell; \
     fi \
     # Install cups 
-    && if [ "${INSTALL_PYCUPS}" != "false" ]; then apt-get install --no-install-recommends -y libcups2-dev cups-client fi \
+    && if [ "$INSTALL_PYCUPS" != "false" ]; then apt-get install --no-install-recommends -y libcups2-dev cups-client fi \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
@@ -155,7 +155,7 @@ RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | 
     && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> ~/.bashrc
 
 # Install pycups
-RUN if [ "${INSTALL_PYCUPS}" != "false" ]; then RUN /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir pycups fi \
+RUN if [ "$INSTALL_PYCUPS" != "false" ]; then RUN /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir pycups fi \
 
 EXPOSE 8000-8005 9000-9005 6787
 

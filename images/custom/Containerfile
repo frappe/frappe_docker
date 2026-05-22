@@ -64,7 +64,7 @@ RUN useradd -ms /bin/bash frappe \
     && apt-get install -y ./$downloaded_file \
     && rm $downloaded_file \
     # Install cups 
-    && if [ "${INSTALL_PYCUPS}" != "false" ]; then apt-get install --no-install-recommends -y libcups2-dev cups-client fi \
+    && if [ "$INSTALL_PYCUPS" != "false" ]; then apt-get install --no-install-recommends -y libcups2-dev cups-client fi \
     # Chromium
     && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -123,7 +123,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pycups
-RUN if [ "${INSTALL_PYCUPS}" != "false" ]; then RUN /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir pycups fi \
+RUN if [ "$INSTALL_PYCUPS" != "false" ]; then RUN /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir pycups fi \
 
 USER frappe
 
