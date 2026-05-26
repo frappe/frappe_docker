@@ -196,11 +196,25 @@ jobs:
             echo "Starting containers..."
             $COMPOSE up -d --remove-orphans
 
-            echo "Waiting for DB connection..."
-            until $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} list-apps > /dev/null 2>&1; do
-              echo "DB not ready, retrying in 5s..."
+            echo "Waiting for MariaDB to be ready..."
+            until $COMPOSE exec -T db mysql -uroot -p"${DB_ROOT_PASSWORD:-123}" -e "SELECT 1" > /dev/null 2>&1; do
+              echo "MariaDB not ready, retrying in 5s..."
               sleep 5
             done
+
+            echo "Ensuring DB user exists..."
+            SITE_CONFIG="/home/frappe/frappe-bench/sites/${{ secrets.SITE_NAME }}/site_config.json"
+            if $COMPOSE exec -T backend test -f "$SITE_CONFIG" 2>/dev/null; then
+              DB_NAME=$($COMPOSE exec -T backend python3 -c "import json; c=json.load(open('$SITE_CONFIG')); print(c['db_name'])")
+              DB_USER=$($COMPOSE exec -T backend python3 -c "import json; c=json.load(open('$SITE_CONFIG')); print(c.get('db_user', c['db_name']))")
+              DB_PASS=$($COMPOSE exec -T backend python3 -c "import json; c=json.load(open('$SITE_CONFIG')); print(c['db_password'])")
+              $COMPOSE exec -T db mysql -uroot -p"${DB_ROOT_PASSWORD:-123}" -e "
+                CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+                GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%';
+                FLUSH PRIVILEGES;
+              "
+              echo "DB user ensured: ${DB_USER}"
+            fi
 
             echo "Stopping workers..."
             $COMPOSE stop queue-short queue-long scheduler
