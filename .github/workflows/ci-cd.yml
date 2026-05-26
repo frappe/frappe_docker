@@ -226,6 +226,10 @@ jobs:
             echo "Clearing cache..."
             $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} clear-cache
             $COMPOSE exec -T backend bench --site ${{ secrets.SITE_NAME }} clear-website-cache
+            $COMPOSE exec -T redis-cache redis-cli FLUSHALL
+
+            echo "Restarting backend..."
+            $COMPOSE restart backend websocket
 
             echo "Restarting services..."
             $COMPOSE start queue-short queue-long scheduler
