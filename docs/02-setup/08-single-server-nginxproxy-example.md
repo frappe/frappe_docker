@@ -149,7 +149,7 @@ docker compose --project-name erpnext exec backend \
 
 # crm.your-domain.com
 docker compose --project-name erpnext exec backend \
-  bench new-site --mariadb-user-host-login-scope=% --db-root-password changeit --install-app erpnext --admin-password changeit crm.your-domain.com
+  bench new-site --mariadb-user-host-login-scope=% --db-root-password changeit --install-app crm --admin-password changeit crm.your-domain.com
 ```
 
 ### Notes
