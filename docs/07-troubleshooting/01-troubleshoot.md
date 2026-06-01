@@ -4,6 +4,7 @@ title: Troubleshoot
 
 - [Fixing MariaDB issues after rebuilding the container](#fixing-mariadb-issues-after-rebuilding-the-container)
 - [docker-compose does not recognize variables from `.env` file](#docker-compose-does-not-recognize-variables-from-env-file)
+- [easy-docker dependency checks](#easy-docker-dependency-checks)
 - [Windows Based Installation](#windows-based-installation)
 - [Redo installation](#redo-installation)
 
@@ -68,6 +69,33 @@ Note: For MariaDB 10.3 and older use `mysql.user` instead of `mysql.global_priv`
 ### docker-compose does not recognize variables from `.env` file
 
 If you are using old version of `docker-compose` the .env file needs to be located in directory from where the docker-compose command is executed. There may also be difference in official `docker-compose` and the one packaged by distro. Use `--env-file=.env` if available to explicitly specify the path to file.
+
+### easy-docker dependency checks
+
+`easy-docker` now validates its startup dependencies before the TUI opens.
+
+The check order is:
+
+1. CLI options
+2. `gum`
+3. `docker`
+4. `jq`
+
+If `gum` or `jq` is missing, the wizard first tries package-manager
+installation. If that does not work and the session is interactive, it can then
+offer a pinned GitHub binary fallback unless `--no-installation-fallback` is
+set.
+
+If `jq` is still missing after those steps, startup stops with install guidance
+instead of continuing into the menus.
+
+On Windows, pay attention to which Bash runtime you are actually using:
+
+- `bash` from PowerShell usually means WSL
+- Git Bash is a separate runtime
+- use Bash path syntax such as `bash ./easy-docker.sh`
+
+Windows-native Bash setups can use either `jq` or `jq.exe` on `PATH`.
 
 ### Windows Based Installation
 
