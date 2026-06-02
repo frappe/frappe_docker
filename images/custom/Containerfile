@@ -13,6 +13,7 @@ ARG INSTALL_CHROMIUM=true
 ARG NODE_VERSION=24.13.0
 ENV NVM_DIR=/home/frappe/.nvm
 ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
+ARG INSTALL_PYCUPS=false
 
 RUN useradd -ms /bin/bash frappe \
     && apt-get update \
@@ -62,6 +63,8 @@ RUN useradd -ms /bin/bash frappe \
     && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
     && apt-get install -y ./$downloaded_file \
     && rm $downloaded_file \
+    # Install cups 
+    && if [ "$INSTALL_PYCUPS" != "false" ]; then apt-get install -y libcups2-dev; fi \
     # Chromium
     && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -72,6 +75,8 @@ RUN useradd -ms /bin/bash frappe \
     && rm -fr /etc/nginx/sites-enabled/default \
     && mkdir -p /etc/nginx/snippets \
     && pip3 install frappe-bench \
+    # Install pycups
+    && if [ "$INSTALL_PYCUPS" != "false" ]; then pip install --no-cache-dir pycups; fi \
     # Fixes for non-root nginx and logs to stdout
     && sed -i '/user www-data/d' /etc/nginx/nginx.conf \
     && ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log \
@@ -118,6 +123,8 @@ RUN apt-get update \
     build-essential \
     libbz2-dev \
     && rm -rf /var/lib/apt/lists/*
+
+
 
 USER frappe
 

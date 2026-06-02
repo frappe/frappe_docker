@@ -5,6 +5,7 @@ LABEL author=frappé
 ARG GIT_REPO=https://github.com/frappe/bench.git
 ARG GIT_BRANCH=v5.x
 ARG INSTALL_CHROMIUM=true
+ARG INSTALL_PYCUPS=false
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -79,6 +80,8 @@ RUN apt-get update \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         chromium-headless-shell; \
     fi \
+    # Install cups 
+    && if [ "$INSTALL_PYCUPS" != "false" ]; then apt-get install -y libcups2-dev; fi \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
@@ -121,6 +124,10 @@ RUN git clone --depth 1 https://github.com/pyenv/pyenv.git .pyenv \
     && echo 'eval "$(pyenv init --path)"' >>~/.profile \
     && echo 'eval "$(pyenv init -)"' >>~/.bashrc
 
+
+    # Install pycups
+RUN if [ "$INSTALL_PYCUPS" != "false" ]; then pip install --no-cache-dir pycups; fi \
+
 # Clone and install bench in the local user home directory
 # For development, bench source is located in ~/.bench
 ENV PATH=/home/frappe/.local/bin:$PATH
@@ -151,6 +158,8 @@ RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | 
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc \
     && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> ~/.bashrc
 
+# Install pycups
+RUN if [ "$INSTALL_PYCUPS" != "false" ]; then /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir pycups; fi
 
 EXPOSE 8000-8005 9000-9005 6787
 
