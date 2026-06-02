@@ -1,0 +1,189 @@
+name: App / Build Image
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        required: true
+        type: string
+        description: "App module and image name, for example 'crm'"
+      app_repo:
+        required: true
+        type: string
+        description: "Git URL or GitHub slug for the app repository"
+      app_ref:
+        required: true
+        type: string
+        description: "Git branch or tag to install for the app"
+      frappe_ref:
+        required: true
+        type: string
+        description: "Tag of the existing frappe/base and frappe/build images, for example version-16"
+      frappe_image_prefix:
+        required: false
+        type: string
+        default: frappe
+        description: "Image prefix for existing base and build images, for example 'frappe' or 'ghcr.io/frappe'"
+      image_name:
+        required: true
+        type: string
+        description: "Full image name, for example ghcr.io/frappe/crm"
+      image_tag:
+        required: true
+        type: string
+        description: "Image tag, for example develop or v16.0.0"
+      push:
+        required: true
+        type: boolean
+      registry:
+        required: false
+        type: string
+        default: docker.io
+      frappe_repo:
+        required: false
+        type: string
+        default: https://github.com/frappe/frappe
+        description: "Git URL for the Frappe framework repository"
+      builder_repository:
+        required: false
+        type: string
+        default: frappe/frappe_docker
+        description: "Repository that contains the Containerfile and helper scripts"
+      builder_ref:
+        required: false
+        type: string
+        default: main
+        description: "Ref to checkout from the builder repository"
+      platforms:
+        required: false
+        type: string
+        default: linux/amd64
+        description: "Docker platforms for the final build"
+    secrets:
+      REGISTRY_USERNAME:
+        required: false
+      REGISTRY_PASSWORD:
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: app-image-${{ github.repository }}-${{ inputs.app_name }}-${{ inputs.app_ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BUILDER_DIR: builder
+      APPS_JSON_PATH: builder/.github/tmp/apps.json
+      CACHE_SCOPE: app-image-${{ inputs.app_name }}-${{ inputs.frappe_ref }}
+      TEST_IMAGE: local/${{ inputs.app_name }}:${{ github.run_id }}-${{ github.run_attempt }}
+      FINAL_IMAGE: ${{ inputs.image_name }}:${{ inputs.image_tag }}
+
+    steps:
+      - name: Checkout builder repository
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.builder_repository }}
+          ref: ${{ inputs.builder_ref }}
+          path: ${{ env.BUILDER_DIR }}
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v4
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Create apps.json
+        env:
+          APP_REPO: ${{ inputs.app_repo }}
+          APP_REF: ${{ inputs.app_ref }}
+          APPS_JSON_PATH: ${{ env.APPS_JSON_PATH }}
+        run: |
+          mkdir -p "$(dirname "$APPS_JSON_PATH")"
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          repo = os.environ["APP_REPO"].strip()
+          ref = os.environ["APP_REF"].strip()
+
+          if repo.count("/") == 1 and not repo.startswith(("https://", "http://")):
+              repo = f"https://github.com/{repo}"
+
+          for prefix in ("refs/heads/", "refs/tags/"):
+              if ref.startswith(prefix):
+                  ref = ref.removeprefix(prefix)
+
+          Path(os.environ["APPS_JSON_PATH"]).write_text(
+              json.dumps([{"url": repo, "branch": ref}], indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Build smoke-test image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ env.BUILDER_DIR }}
+          file: ${{ env.BUILDER_DIR }}/images/layered/Containerfile
+          build-args: |
+            FRAPPE_IMAGE_PREFIX=${{ inputs.frappe_image_prefix }}
+            FRAPPE_PATH=${{ inputs.frappe_repo }}
+            FRAPPE_BRANCH=${{ inputs.frappe_ref }}
+          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
+          cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
+          load: true
+          platforms: linux/amd64
+          secrets: |
+            id=apps_json,src=${{ env.APPS_JSON_PATH }}
+          tags: ${{ env.TEST_IMAGE }}
+
+      - name: Smoke test image contents
+        env:
+          APP_NAME: ${{ inputs.app_name }}
+          TEST_IMAGE: ${{ env.TEST_IMAGE }}
+        run: |
+          docker run --rm --entrypoint bash "$TEST_IMAGE" -lc \
+            "test -d /home/frappe/frappe-bench/apps/frappe && test -d /home/frappe/frappe-bench/apps/${APP_NAME}"
+
+      - name: Login to GHCR
+        if: ${{ inputs.push && inputs.registry == 'ghcr.io' }}
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Login to target registry
+        if: ${{ inputs.push && inputs.registry != 'ghcr.io' }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push multi-arch image
+        if: ${{ inputs.push }}
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ env.BUILDER_DIR }}
+          file: ${{ env.BUILDER_DIR }}/images/layered/Containerfile
+          build-args: |
+            FRAPPE_IMAGE_PREFIX=${{ inputs.frappe_image_prefix }}
+            FRAPPE_PATH=${{ inputs.frappe_repo }}
+            FRAPPE_BRANCH=${{ inputs.frappe_ref }}
+          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
+          cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
+          platforms: ${{ inputs.platforms }}
+          push: true
+          secrets: |
+            id=apps_json,src=${{ env.APPS_JSON_PATH }}
+          tags: ${{ env.FINAL_IMAGE }}

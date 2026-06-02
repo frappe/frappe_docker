@@ -1,21 +1,18 @@
-ARG FRAPPE_BRANCH=version-15
+ARG FRAPPE_BRANCH=version-16
+ARG FRAPPE_IMAGE_PREFIX=frappe
 
-FROM frappe/build:${FRAPPE_BRANCH} AS builder
+FROM ${FRAPPE_IMAGE_PREFIX}/build:${FRAPPE_BRANCH} AS builder
 
-ARG FRAPPE_BRANCH=version-15
+ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
-ARG APPS_JSON_BASE64
-
-USER root
-
-RUN if [ -n "${APPS_JSON_BASE64}" ]; then \
-    mkdir /opt/frappe && echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; \
-  fi
+ARG CACHE_BUST=""
 
 USER frappe
 
-RUN export APP_INSTALL_ARGS="" && \
-  if [ -n "${APPS_JSON_BASE64}" ]; then \
+RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=1000 \
+  : "${CACHE_BUST}" && \
+  export APP_INSTALL_ARGS="" && \
+  if [ -f /opt/frappe/apps.json ] && [ -s /opt/frappe/apps.json ]; then \
     export APP_INSTALL_ARGS="--apps_path=/opt/frappe/apps.json"; \
   fi && \
   bench init ${APP_INSTALL_ARGS}\
@@ -30,7 +27,7 @@ RUN export APP_INSTALL_ARGS="" && \
   echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
-FROM frappe/base:${FRAPPE_BRANCH} AS backend
+FROM ${FRAPPE_IMAGE_PREFIX}/base:${FRAPPE_BRANCH} AS backend
 
 USER frappe
 
@@ -38,21 +35,24 @@ COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe
 
 WORKDIR /home/frappe/frappe-bench
 
+# Move assets to image-layer storage
+RUN cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
+  rm -rf /home/frappe/frappe-bench/sites/assets
+
 VOLUME [ \
   "/home/frappe/frappe-bench/sites", \
-  "/home/frappe/frappe-bench/sites/assets", \
   "/home/frappe/frappe-bench/logs" \
 ]
 
-CMD [ \
-  "/home/frappe/frappe-bench/env/bin/gunicorn", \
-  "--chdir=/home/frappe/frappe-bench/sites", \
-  "--bind=0.0.0.0:8000", \
-  "--threads=4", \
-  "--workers=2", \
-  "--worker-class=gthread", \
-  "--worker-tmp-dir=/dev/shm", \
-  "--timeout=120", \
-  "--preload", \
-  "frappe.app:application" \
-]
+USER root
+# This entrypoint script link build assets of the image to the mounted sites volume at container initialization
+COPY resources/core/main-entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod 755 /usr/local/bin/entrypoint.sh
+
+COPY resources/core/start.sh /usr/local/bin/start.sh
+RUN chmod 755 /usr/local/bin/start.sh
+
+USER frappe
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+CMD ["start.sh"]

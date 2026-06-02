@@ -5,10 +5,10 @@ services:
       - traefik.http.services.frontend.loadbalancer.server.port=8080
       - traefik.http.routers.frontend-http.entrypoints=websecure
       - traefik.http.routers.frontend-http.tls.certresolver=main-resolver
-      - traefik.http.routers.frontend-http.rule=Host(${SITES:?List of sites not set})
+      - traefik.http.routers.frontend-http.rule=${SITES_RULE:?SITES_RULE not set}
 
   proxy:
-    image: traefik:v2.11
+    image: traefik:v3.6
     restart: unless-stopped
     command:
       - --providers.docker=true

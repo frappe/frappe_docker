@@ -1,0 +1,153 @@
+---
+title: Build Setup
+---
+
+This guide walks you through building Frappe images from the repository resources.
+
+# Prerequisites
+
+- git
+- docker (Engine **v23.0+** with buildx) or podman
+- docker compose v2 or podman compose
+
+> Install containerization software according to the official maintainer documentation. Avoid package managers when not recommended, as they frequently cause compatibility issues.
+
+> **Why Docker Engine v23+?** The build uses [BuildKit secrets](https://docs.docker.com/build/building/secrets/) (`--secret`) to keep `apps.json` tokens out of image layers. BuildKit is the default builder starting with Docker Engine 23.0 — older releases will fail or silently fall back to the legacy builder, which does not support secret mounts.
+
+# Clone this repo
+
+```bash
+git clone https://github.com/frappe/frappe_docker
+cd frappe_docker
+```
+
+# Define custom apps
+
+If you don't want to include custom apps in the image, skip this section.
+
+To include custom apps in your image, create an `apps.json` file in the repository root:
+
+```json
+[
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "version-16"
+  },
+  {
+    "url": "https://github.com/frappe/hrms",
+    "branch": "version-16"
+  },
+  {
+    "url": "https://github.com/frappe/helpdesk",
+    "branch": "main"
+  }
+]
+```
+
+# Build custom images
+
+## Manually
+
+Choose the appropriate build command based on your container runtime and desired image type. This example builds the `layered` image with the custom `apps.json` you created.
+
+> **Security note:** The `apps.json` file is passed as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repository tokens are **never** stored in image layer metadata. Do not use `--build-arg` for `apps.json` — build arguments are permanently visible via `docker image history`. This requires **Docker Engine v23.0+** (where BuildKit is the default builder).
+
+`Docker`:
+
+```bash
+docker build \
+ --no-cache \
+ --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+ --build-arg=FRAPPE_BRANCH=version-16 \
+ --secret=id=apps_json,src=apps.json \
+ --tag=custom:16 \
+ --file=images/layered/Containerfile .
+```
+
+`Podman`:
+
+```bash
+podman build \
+ --no-cache \
+ --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+ --build-arg=FRAPPE_BRANCH=version-16 \
+ --secret=id=apps_json,src=apps.json \
+ --tag=custom:16 \
+ --file=images/layered/Containerfile .
+```
+
+## Automated
+
+This repository is fully suited for automated builds, i.e. using CI/CD pipelines.
+
+See [Automated Builds and Deployment](../03-production/06-automated-builds-and-deployment.md) for more information.
+
+## Build args, secrets and flags
+
+| Variable             | Purpose                                                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Frappe Framework** |                                                                                                                                   |
+| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe>                                   |
+| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-16                                                                        |
+| **Custom Apps**      |                                                                                                                                   |
+| CACHE_BUST           | Can be used to invalidate the cached layer. See [Build Cache](../03-production/06-automated-builds-and-deployment.md#build-cache) |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.                                          |
+| **Dependencies**     |                                                                                                                                   |
+| PYTHON_VERSION       | Python version for the base image                                                                                                 |
+| NODE_VERSION         | Node.js version                                                                                                                   |
+| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                                                               |
+| INSTALL_CHROMIUM     | Configure chromium installation, defaults to `true` - needed for Frappe Workbench version >15                                     |
+| **bench only**       |                                                                                                                                   |
+| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                                                   |
+| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                                                                |
+
+# Deploy the stack
+
+## env file
+
+The compose file requires several environment variables. You can either export them on your system or create a `.env` file.
+
+```bash
+cp example.env custom.env
+```
+
+Edit `custom.env` to customize variables for your setup. The template includes common variables, but you can add, modify, or remove any as needed. See [env-variables.md](04-env-variables.md) for detailed descriptions of all available variables.
+
+For this setup, make sure **at least** the following values are added to `custom.env`:
+
+```txt
+CUSTOM_IMAGE=custom
+CUSTOM_TAG=16
+PULL_POLICY=missing
+```
+
+> The `CUSTOM_*` variables ensure the image reference points to the recently built image.
+> `PULL_POLICY` ensures Docker does not attempt to pull the image, but instead uses the locally built one (the default pull policy is `always`).
+
+**⚠️ This is not meant to be a complete `.env` configuration guide. These are only the minimal additions required for this example.
+Please have a look at [env-variables.md](04-env-variables.md) for a full description of all available variables and adjust them according to your needs.**
+
+## Creating the final compose file
+
+Combine the base compose file with appropriate overrides for your use case. This example adds MariaDB, Redis, and exposes ports on `:8080`:
+
+```bash
+docker compose --env-file custom.env \
+    -f compose.yaml \
+    -f overrides/compose.mariadb.yaml \
+    -f overrides/compose.redis.yaml \
+    -f overrides/compose.noproxy.yaml \
+    config > compose.custom.yaml
+```
+
+This generates `compose.custom.yaml`, which you'll use to start all containers. Customize the overrides and environment variables according to your requirements.
+
+> **NOTE**: podman compose is just a wrapper, it uses docker-compose if it is available or podman-compose if not. podman-compose have an issue reading .env files ([Issue](https://github.com/containers/podman-compose/issues/475)) and might create an issue when running the containers.
+
+---
+
+**Next:** [Start Setup →](03-start-setup.md)
+
+**Back:** [Container Overview ←](01-overview.md)
+
+**See also:** [Setup Examples](06-setup-examples.md) for practical deployment scenarios.

@@ -27,6 +27,7 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
+        exclude: ^docs/pnpm-lock\.yaml$
         additional_dependencies:
           - prettier@3.5.2
 
@@ -34,6 +35,7 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
+        exclude: ^docs/pnpm-lock\.yaml$
         args:
           - -L
           - "ro"

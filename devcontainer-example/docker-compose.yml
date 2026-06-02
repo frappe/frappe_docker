@@ -1,21 +1,19 @@
-version: "3.7"
 services:
   mariadb:
-    image: docker.io/mariadb:10.6
-    platform: linux/amd64
+    image: docker.io/mariadb:11.8
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
       MYSQL_ROOT_PASSWORD: 123
+      MARIADB_AUTO_UPGRADE: 1
     volumes:
       - mariadb-data:/var/lib/mysql
 
   # Enable PostgreSQL only if you use it, see development/README.md for more information.
   # postgresql:
-  #   image: postgres:11.8
+  #   image: postgres:14
   #   environment:
   #     POSTGRES_PASSWORD: 123
   #   volumes:
@@ -38,15 +36,14 @@ services:
 
   redis-cache:
     image: docker.io/redis:alpine
-    platform: linux/amd64
 
   redis-queue:
     image: docker.io/redis:alpine
-    platform: linux/amd64
 
   frappe:
     image: docker.io/frappe/bench:latest
-    platform: linux/amd64
+    # If you want to build the current bench image the Containerfile is in this Repo.
+    # build: ../images/bench
     command: sleep infinity
     environment:
       - SHELL=/bin/bash

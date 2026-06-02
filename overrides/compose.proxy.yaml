@@ -4,10 +4,10 @@ services:
       - traefik.enable=true
       - traefik.http.services.frontend.loadbalancer.server.port=8080
       - traefik.http.routers.frontend-http.entrypoints=web
-      - traefik.http.routers.frontend-http.rule=HostRegexp(`{any:.+}`)
+      - traefik.http.routers.frontend-http.rule=HostRegexp(`^.+$`)
 
   proxy:
-    image: traefik:v2.11
+    image: traefik:v3.6
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false

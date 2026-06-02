@@ -1,0 +1,108 @@
+name: Core / Build and Test Images
+
+on:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+        description: "'erpnext' or 'frappe'"
+      version:
+        required: true
+        type: string
+        description: "Major version, git tags should match 'v{version}.*'; or 'develop'"
+      python_version:
+        required: true
+        type: string
+        description: Python Version
+      node_version:
+        required: true
+        type: string
+        description: NodeJS Version
+    outputs:
+      frappe_version:
+        description: "Resolved frappe image tag"
+        value: ${{ jobs.resolve.outputs.frappe_version }}
+      erpnext_version:
+        description: "Resolved erpnext image tag"
+        value: ${{ jobs.resolve.outputs.erpnext_version }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    name: Resolve Versions
+    runs-on: ubuntu-latest
+    outputs:
+      frappe_version: ${{ steps.resolve.outputs.frappe_version }}
+      erpnext_version: ${{ steps.resolve.outputs.erpnext_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Resolve image versions
+        id: resolve
+        run: python3 ./.github/scripts/get_latest_tags.py --repo ${{ inputs.repo }} --version ${{ inputs.version }}
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: resolve
+    services:
+      registry:
+        image: docker.io/registry:2
+        ports:
+          - 5000:5000
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v4
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver-opts: network=host
+          platforms: linux/${{ matrix.arch }}
+
+      - name: Set resolved versions
+        run: |
+          echo "FRAPPE_VERSION=${{ needs.resolve.outputs.frappe_version }}" >> "$GITHUB_ENV"
+          if [ -n "${{ needs.resolve.outputs.erpnext_version }}" ]; then
+            echo "ERPNEXT_VERSION=${{ needs.resolve.outputs.erpnext_version }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set build args
+        run: |
+          echo "PYTHON_VERSION=${{ inputs.python_version }}" >> "$GITHUB_ENV"
+          echo "NODE_VERSION=${{ inputs.node_version }}" >> "$GITHUB_ENV"
+
+      - name: Build
+        uses: docker/bake-action@v7.2.0
+        with:
+          source: .
+          push: true
+        env:
+          REGISTRY_USER: localhost:5000/frappe
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          venv/bin/pip install -r requirements-test.txt
+
+      - name: Test
+        run: venv/bin/pytest --color=yes
