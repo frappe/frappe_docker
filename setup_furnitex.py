@@ -28,6 +28,23 @@ def get_abbr():
 def exists(doctype, name):
     return frappe.db.exists(doctype, name)
 
+def exists_filter(doctype, filters):
+    """Existence check by filters (for docs where name includes company abbr)."""
+    return frappe.db.get_value(doctype, filters, "name")
+
+def safe_insert(doc):
+    """Insert and return True, or skip silently on duplicate and return False."""
+    try:
+        doc.flags.ignore_permissions = True
+        doc.insert()
+        return True
+    except frappe.DuplicateEntryError:
+        return False
+    except Exception as e:
+        if "Duplicate entry" in str(e):
+            return False
+        raise
+
 def ok(msg):
     print(f"  [OK]   {msg}")
 
@@ -59,10 +76,11 @@ def create_uoms():
                 "uom_name": uom_name,
                 "must_be_whole_number": whole,
             })
-            d.flags.ignore_permissions = True
-            d.flags.ignore_mandatory   = True
-            d.insert()
-            ok(f"UOM: {uom_name}")
+            d.flags.ignore_mandatory = True
+            if safe_insert(d):
+                ok(f"UOM: {uom_name}")
+            else:
+                skip(f"UOM: {uom_name} (duplicate)")
         else:
             skip(f"UOM: {uom_name}")
     frappe.db.commit()
@@ -91,9 +109,10 @@ def create_item_groups():
                 "parent_item_group": parent,
                 "is_group":          0,
             })
-            d.flags.ignore_permissions = True
-            d.insert()
-            ok(f"Item Group: {name}")
+            if safe_insert(d):
+                ok(f"Item Group: {name}")
+            else:
+                skip(f"Item Group: {name} (duplicate)")
         else:
             skip(f"Item Group: {name}")
     frappe.db.commit()
@@ -117,9 +136,10 @@ def create_supplier_groups():
                 "supplier_group_name":   name,
                 "parent_supplier_group": parent,
             })
-            d.flags.ignore_permissions = True
-            d.insert()
-            ok(f"Supplier Group: {name}")
+            if safe_insert(d):
+                ok(f"Supplier Group: {name}")
+            else:
+                skip(f"Supplier Group: {name} (duplicate)")
         else:
             skip(f"Supplier Group: {name}")
     frappe.db.commit()
@@ -157,9 +177,10 @@ def create_warehouses():
                 "company":          COMPANY,
                 "is_group":         is_group,
             })
-            d.flags.ignore_permissions = True
-            d.insert()
-            ok(f"Warehouse: {w_full}")
+            if safe_insert(d):
+                ok(f"Warehouse: {w_full}")
+            else:
+                skip(f"Warehouse: {w_full} (duplicate)")
         else:
             skip(f"Warehouse: {w_full}")
     frappe.db.commit()
@@ -197,68 +218,81 @@ def _find_account(account_name_fragment, root_type=None, account_type=None):
 
 def create_tax_templates():
     print("\n[5/9] Creating Tax Templates...")
+    # ERPNext stores tax templates as "{title} - {abbr}", so we check by title+company
 
     # ── No GST (URD Purchase) ──
-    urd = "No GST - URD Purchase"
-    if not exists("Purchase Taxes and Charges Template", urd):
+    urd_title = "No GST - URD Purchase"
+    if not exists_filter("Purchase Taxes and Charges Template",
+                         {"title": urd_title, "company": COMPANY}):
         d = frappe.get_doc({
             "doctype":    "Purchase Taxes and Charges Template",
-            "title":      urd,
+            "title":      urd_title,
             "company":    COMPANY,
             "is_default": 0,
-            "taxes":      [],   # zero rows = zero tax, clean COGS booking
+            "taxes":      [],
         })
-        d.flags.ignore_permissions = True
-        d.insert()
-        ok(f"Purchase Tax Template: {urd}")
+        if safe_insert(d):
+            ok(f"Purchase Tax Template: {urd_title}")
+        else:
+            skip(f"Purchase Tax Template: {urd_title} (duplicate)")
     else:
-        skip(f"Purchase Tax Template: {urd}")
+        skip(f"Purchase Tax Template: {urd_title}")
 
     # ── GST 18% Purchase ──
-    gst18_p = "GST 18% - Purchase"
-    if not exists("Purchase Taxes and Charges Template", gst18_p):
+    gst18_p_title = "GST 18% - Purchase"
+    if not exists_filter("Purchase Taxes and Charges Template",
+                         {"title": gst18_p_title, "company": COMPANY}):
         cgst = _find_account("CGST")
         sgst = _find_account("SGST")
         taxes = []
         if cgst:
-            taxes.append({"charge_type": "On Net Total", "account_head": cgst, "rate": 9, "description": "CGST @ 9%"})
+            taxes.append({"charge_type": "On Net Total", "account_head": cgst,
+                          "rate": 9, "description": "CGST @ 9%"})
         if sgst:
-            taxes.append({"charge_type": "On Net Total", "account_head": sgst, "rate": 9, "description": "SGST @ 9%"})
+            taxes.append({"charge_type": "On Net Total", "account_head": sgst,
+                          "rate": 9, "description": "SGST @ 9%"})
         d = frappe.get_doc({
             "doctype":    "Purchase Taxes and Charges Template",
-            "title":      gst18_p,
+            "title":      gst18_p_title,
             "company":    COMPANY,
             "is_default": 0,
             "taxes":      taxes,
         })
-        d.flags.ignore_permissions = True
-        d.insert()
-        ok(f"Purchase Tax Template: {gst18_p}" + (" (no accounts found, empty)" if not taxes else ""))
+        if safe_insert(d):
+            ok(f"Purchase Tax Template: {gst18_p_title}" +
+               (" (no GST accounts in CoA, left empty)" if not taxes else ""))
+        else:
+            skip(f"Purchase Tax Template: {gst18_p_title} (duplicate)")
     else:
-        skip(f"Purchase Tax Template: {gst18_p}")
+        skip(f"Purchase Tax Template: {gst18_p_title}")
 
     # ── GST 18% Sales ──
-    gst18_s = "GST 18% - Sales"
-    if not exists("Sales Taxes and Charges Template", gst18_s):
+    gst18_s_title = "GST 18% - Sales"
+    if not exists_filter("Sales Taxes and Charges Template",
+                         {"title": gst18_s_title, "company": COMPANY}):
         cgst = _find_account("CGST")
         sgst = _find_account("SGST")
         taxes = []
         if cgst:
-            taxes.append({"charge_type": "On Net Total", "account_head": cgst, "rate": 9, "description": "CGST @ 9%"})
+            taxes.append({"charge_type": "On Net Total", "account_head": cgst,
+                          "rate": 9, "description": "CGST @ 9%"})
         if sgst:
-            taxes.append({"charge_type": "On Net Total", "account_head": sgst, "rate": 9, "description": "SGST @ 9%"})
+            taxes.append({"charge_type": "On Net Total", "account_head": sgst,
+                          "rate": 9, "description": "SGST @ 9%"})
         d = frappe.get_doc({
             "doctype":    "Sales Taxes and Charges Template",
-            "title":      gst18_s,
+            "title":      gst18_s_title,
             "company":    COMPANY,
             "is_default": 0,
             "taxes":      taxes,
         })
-        d.flags.ignore_permissions = True
-        d.insert()
-        ok(f"Sales Tax Template: {gst18_s}" + (" (no accounts found, empty)" if not taxes else ""))
+        if safe_insert(d):
+            ok(f"Sales Tax Template: {gst18_s_title}" +
+               (" (no GST accounts in CoA, left empty)" if not taxes else ""))
+        else:
+            skip(f"Sales Tax Template: {gst18_s_title} (duplicate)")
     else:
-        skip(f"Sales Tax Template: {gst18_s}")
+        skip(f"Sales Tax Template: {gst18_s_title}")
 
     frappe.db.commit()
 
@@ -289,7 +323,8 @@ def create_service_items():
 
     for code, name, uom, desc in items:
         if not exists("Item", code):
-            d_dict = {
+            # Non-stock service items: no warehouse needed in item_defaults
+            d = frappe.get_doc({
                 "doctype":          "Item",
                 "item_code":        code,
                 "item_name":        name,
@@ -301,16 +336,12 @@ def create_service_items():
                 "is_purchase_item": 0,
                 "is_sales_item":    1,
                 "standard_rate":    0,
-            }
-            if income_acct:
-                d_dict["item_defaults"] = [{
-                    "company":        COMPANY,
-                    "income_account": income_acct,
-                }]
-            d = frappe.get_doc(d_dict)
-            d.flags.ignore_permissions = True
-            d.insert()
-            ok(f"Service Item: {code} [{uom}]")
+                # No item_defaults row — avoids warehouse company-mismatch validation
+            })
+            if safe_insert(d):
+                ok(f"Service Item: {code} [{uom}]")
+            else:
+                skip(f"Service Item: {code} (duplicate)")
         else:
             skip(f"Service Item: {code}")
 
@@ -370,17 +401,20 @@ def create_raw_material_items():
                 "is_sales_item":     0,
                 "valuation_method":  "FIFO",
             }
-            defaults = {"company": COMPANY}
-            if default_wh:
-                defaults["default_warehouse"] = default_wh
-            if cogs_acct:
-                defaults["expense_account"] = cogs_acct
-            d_dict["item_defaults"] = [defaults]
+            # Only add item_defaults if we have a valid Furnitex warehouse
+            if default_wh or cogs_acct:
+                defaults = {"company": COMPANY}
+                if default_wh:
+                    defaults["default_warehouse"] = default_wh
+                if cogs_acct:
+                    defaults["expense_account"] = cogs_acct
+                d_dict["item_defaults"] = [defaults]
 
             d = frappe.get_doc(d_dict)
-            d.flags.ignore_permissions = True
-            d.insert()
-            ok(f"Raw Material: {code} [{uom}]")
+            if safe_insert(d):
+                ok(f"Raw Material: {code} [{uom}]")
+            else:
+                skip(f"Raw Material: {code} (duplicate)")
         else:
             skip(f"Raw Material: {code}")
 
@@ -414,17 +448,20 @@ def create_suppliers():
                 "gst_category":     gst_cat,
                 "default_currency": "INR",
             })
-            d.flags.ignore_permissions = True
-            d.insert()
-            ok(f"Supplier: {name} [{gst_cat}]")
+            if safe_insert(d):
+                ok(f"Supplier: {name} [{gst_cat}]")
+            else:
+                skip(f"Supplier: {name} (duplicate)")
         else:
             skip(f"Supplier: {name}")
 
     frappe.db.commit()
 
-    # Set URD tax default on all Unregistered suppliers
+    # Set URD tax default — look up by title+company (name includes abbr)
     urd_template = "No GST - URD Purchase"
-    if exists("Purchase Taxes and Charges Template", urd_template):
+    urd_full = exists_filter("Purchase Taxes and Charges Template",
+                             {"title": urd_template, "company": COMPANY})
+    if urd_full:
         urd_suppliers = frappe.db.sql(
             """SELECT name FROM `tabSupplier`
                WHERE supplier_group = 'Local Market Vendor (Unregistered)'""",
@@ -433,10 +470,10 @@ def create_suppliers():
         for s in urd_suppliers:
             frappe.db.set_value(
                 "Supplier", s.name,
-                "default_purchase_taxes_and_charges_template", urd_template
+                "default_purchase_taxes_and_charges_template", urd_full
             )
         frappe.db.commit()
-        ok(f"Set '{urd_template}' as default tax on {len(urd_suppliers)} URD supplier(s)")
+        ok(f"Set '{urd_full}' as default tax on {len(urd_suppliers)} URD supplier(s)")
 
 
 # ─────────────────────────────────────────────────────────────
