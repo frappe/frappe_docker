@@ -12,6 +12,13 @@ import frappe.defaults
 
 COMPANY   = "Furnitex"
 SITE      = "frontend"
+ABBR      = None   # resolved at runtime via get_abbr()
+
+def get_abbr():
+    global ABBR
+    if not ABBR:
+        ABBR = frappe.db.get_value("Company", COMPANY, "abbr") or "F"
+    return ABBR
 
 
 # ─────────────────────────────────────────────────────────────
@@ -124,22 +131,24 @@ def create_supplier_groups():
 
 def create_warehouses():
     print("\n[4/9] Creating Warehouses...")
+    abbr = get_abbr()
 
     # Find the company's root warehouse group
     root_wh = frappe.db.get_value(
         "Warehouse",
-        {"company": COMPANY, "is_group": 1, "parent_warehouse": ["in", ["", None]]},
+        {"company": COMPANY, "is_group": 1},
         "name"
     )
     if not root_wh:
-        root_wh = f"All Warehouses - {COMPANY}"
+        root_wh = f"All Warehouses - {abbr}"
 
     warehouses = [
-        ("Main Store",    root_wh, "Transit", 0),
-        ("Rejected Stock",root_wh, "Transit", 0),
+        ("Main Store",     root_wh, 0),
+        ("Rejected Stock", root_wh, 0),
     ]
-    for w_short, parent, w_type, is_group in warehouses:
-        w_full = f"{w_short} - {COMPANY}"
+    for w_short, parent, is_group in warehouses:
+        # ERPNext appends company abbr: "Main Store - F"
+        w_full = f"{w_short} - {abbr}"
         if not exists("Warehouse", w_full):
             d = frappe.get_doc({
                 "doctype":          "Warehouse",
@@ -319,7 +328,7 @@ def create_raw_material_items():
                  _find_account("Stock Expenses",      root_type="Expense") or
                  _find_account("Expenses Included",   root_type="Expense"))
 
-    default_wh = f"Main Store - {COMPANY}"
+    default_wh = f"Main Store - {get_abbr()}"
     if not exists("Warehouse", default_wh):
         default_wh = frappe.db.get_value(
             "Warehouse", {"company": COMPANY, "is_group": 0}, "name"
@@ -492,22 +501,24 @@ def create_server_scripts():
 # Auto-fires after a new Project is saved
 # Creates "{Project Name} - OnSite WIP" warehouse automatically
 
-project_name  = doc.project_name or doc.name
-company       = doc.company or "Furnitex"
-warehouse_name = project_name + " - OnSite WIP"
+project_name   = doc.project_name or doc.name
+company        = doc.company or "Furnitex"
+abbr           = frappe.db.get_value("Company", company, "abbr") or "F"
+# OnSite WIP name uses company abbr so ERPNext accepts it
+wh_short_name  = project_name + " - OnSite WIP"
+warehouse_name = wh_short_name + " - " + abbr
 
-# Find root warehouse for this company
+# Find root warehouse group for this company
 root_wh = frappe.db.get_value(
     "Warehouse",
-    {"company": company, "is_group": 1,
-     "parent_warehouse": ["in", ["", None]]},
+    {"company": company, "is_group": 1},
     "name"
-) or ("All Warehouses - " + company)
+) or ("All Warehouses - " + abbr)
 
 if not frappe.db.exists("Warehouse", warehouse_name):
     wh = frappe.get_doc({
         "doctype":          "Warehouse",
-        "warehouse_name":   warehouse_name,
+        "warehouse_name":   wh_short_name,
         "parent_warehouse": root_wh,
         "company":          company,
         "is_group":         0,
