@@ -473,46 +473,46 @@ def create_suppliers():
 def create_custom_fields():
     print("\n[9/9] Creating Custom Fields...")
 
+    # NOTE: Purchase Invoice, Purchase Order, Stock Entry, and Delivery Note
+    # already have a native 'project' field in ERPNext v16 — skip those.
+    # We only add:
+    #   1. is_urd_purchase  (Check)   on Purchase Invoice
+    #   2. project          (Link)    on Journal Entry  (only one missing it)
+
     # (dt, fieldname, label, fieldtype, options, insert_after, in_list_view)
     fields = [
-        ("Purchase Invoice", "is_urd_purchase",  "URD Purchase (No GST)",
-         "Check",  None,      "supplier",         1),
-        ("Purchase Invoice", "furnitex_project",  "Project",
-         "Link",   "Project", "is_urd_purchase",  1),
-        ("Purchase Order",   "furnitex_project",  "Project",
-         "Link",   "Project", "supplier",         1),
-        ("Stock Entry",      "furnitex_project",  "Project",
-         "Link",   "Project", "purpose",          1),
-        ("Delivery Note",    "furnitex_project",  "Project",
-         "Link",   "Project", "customer",         0),
-        ("Journal Entry",    "furnitex_project",  "Project",
-         "Link",   "Project", "voucher_type",     0),
+        ("Purchase Invoice", "is_urd_purchase", "URD Purchase (No GST)",
+         "Check", None,      "supplier",    1),
+        ("Journal Entry",    "project",         "Project",
+         "Link",  "Project", "voucher_type", 0),
     ]
 
     for dt, fn, label, ft, opts, after, in_list in fields:
         cf_name = f"{dt}-{fn}"
         if not exists("Custom Field", cf_name):
             d_dict = {
-                "doctype":      "Custom Field",
-                "dt":           dt,
-                "fieldname":    fn,
-                "label":        label,
-                "fieldtype":    ft,
-                "insert_after": after,
-                "in_list_view": in_list,
+                "doctype":            "Custom Field",
+                "dt":                 dt,
+                "fieldname":          fn,
+                "label":              label,
+                "fieldtype":          ft,
+                "insert_after":       after,
+                "in_list_view":       in_list,
                 "in_standard_filter": 1,
-                "search_index": 1,
+                "search_index":       1,
             }
             if opts:
                 d_dict["options"] = opts
             d = frappe.get_doc(d_dict)
-            d.flags.ignore_permissions = True
-            d.insert()
-            ok(f"Custom Field: {dt}.{fn}")
+            if safe_insert(d):
+                ok(f"Custom Field: {dt}.{fn}")
+            else:
+                skip(f"Custom Field: {dt}.{fn} (duplicate)")
         else:
             skip(f"Custom Field: {dt}.{fn}")
 
     frappe.db.commit()
+    ok("Native 'project' field already present on PI, PO, Stock Entry, DN — no custom fields needed there")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -668,14 +668,14 @@ def get_data(filters):
             pname, as_dict=1)[0].v or 0)
 
         raw_mat = (frappe.db.sql(
-            "SELECT COALESCE(SUM(base_net_total),0) v FROM `tabPurchase Invoice` WHERE furnitex_project=%s AND docstatus=1",
+            "SELECT COALESCE(SUM(base_net_total),0) v FROM `tabPurchase Invoice` WHERE project=%s AND docstatus=1",
             pname, as_dict=1)[0].v or 0)
 
         consumed = (frappe.db.sql(
             """SELECT COALESCE(SUM(sed.amount),0) v
                FROM `tabStock Entry Detail` sed
                JOIN `tabStock Entry` se ON se.name=sed.parent
-               WHERE se.furnitex_project=%s AND se.stock_entry_type='Material Issue' AND se.docstatus=1""",
+               WHERE se.project=%s AND se.stock_entry_type='Material Issue' AND se.docstatus=1""",
             pname, as_dict=1)[0].v or 0)
 
         labour = (frappe.db.sql(
