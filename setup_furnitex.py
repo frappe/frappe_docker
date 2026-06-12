@@ -457,23 +457,13 @@ def create_suppliers():
 
     frappe.db.commit()
 
-    # Set URD tax default — look up by title+company (name includes abbr)
-    urd_template = "No GST - URD Purchase"
-    urd_full = exists_filter("Purchase Taxes and Charges Template",
-                             {"title": urd_template, "company": COMPANY})
-    if urd_full:
-        urd_suppliers = frappe.db.sql(
-            """SELECT name FROM `tabSupplier`
-               WHERE supplier_group = 'Local Market Vendor (Unregistered)'""",
-            as_dict=1
-        )
-        for s in urd_suppliers:
-            frappe.db.set_value(
-                "Supplier", s.name,
-                "default_purchase_taxes_and_charges_template", urd_full
-            )
-        frappe.db.commit()
-        ok(f"Set '{urd_full}' as default tax on {len(urd_suppliers)} URD supplier(s)")
+    # ERPNext v16 removed the per-supplier default tax template field.
+    # URD tax bypass is handled instead by the server script:
+    #   "Furnitex - Clear GST on URD Purchase"  (Before Save on Purchase Invoice)
+    # Tick the "URD Purchase (No GST)" checkbox on any invoice to auto-clear taxes.
+    urd_suppliers_count = frappe.db.count("Supplier",
+        {"supplier_group": "Local Market Vendor (Unregistered)"})
+    ok(f"URD tax via server script — {urd_suppliers_count} URD suppliers registered")
 
 
 # ─────────────────────────────────────────────────────────────
