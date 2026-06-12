@@ -716,7 +716,7 @@ def create_custom_report():
             "ref_doctype": "Project",
             "report_type": "Script Report",
             "is_standard": "No",
-            "module":      "ERPNext",
+            "module":      "Projects",
             "script":      PROFIT_REPORT_SCRIPT,
         })
         d.flags.ignore_permissions = True
