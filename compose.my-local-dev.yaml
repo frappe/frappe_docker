@@ -1,0 +1,20 @@
+x-local-app: &local_app
+  environment:
+    PYTHONPATH: /home/frappe/frappe-bench/apps/testing
+    ERPNEXT_VERSION: v16.22.0
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - ./apps/testing:/home/frappe/frappe-bench/apps/testing
+
+services:
+  backend:
+    <<: *local_app
+
+  queue-short:
+    <<: *local_app
+
+  queue-long:
+    <<: *local_app
+
+  scheduler:
+    <<: *local_app
