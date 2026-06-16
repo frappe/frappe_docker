@@ -6,7 +6,6 @@ Run via: bench --site frontend execute frappe.delete_streetwok.run
 
 import frappe
 
-
 COMPANY = "streetwok (Demo)"
 
 
@@ -47,7 +46,8 @@ def run():
         # Get submitted docs for this company
         docs = frappe.db.sql(
             f"SELECT name FROM `tab{dt}` WHERE company=%s AND docstatus=1",
-            COMPANY, as_dict=1
+            COMPANY,
+            as_dict=1,
         )
         if docs:
             print(f"  Cancelling {len(docs)} submitted {dt}(s)...")
@@ -99,9 +99,9 @@ def run():
 
     # ── STEP 5: Delete child tables that reference the company ────
     child_cleanups = [
-        ("Sales Invoice Item",    "company"),
+        ("Sales Invoice Item", "company"),
         ("Purchase Invoice Item", "company"),
-        ("Payment Entry Reference", None),   # handled via parent delete
+        ("Payment Entry Reference", None),  # handled via parent delete
     ]
 
     # ── STEP 6: Delete Warehouses ─────────────────────────────────
@@ -116,27 +116,28 @@ def run():
 
         for wh in wh_list:
             try:
-                frappe.delete_doc("Warehouse", wh.name,
-                                  ignore_permissions=True, force=True,
-                                  ignore_on_trash=True)
-            except Exception as e:
-                frappe.db.sql(
-                    "DELETE FROM `tabWarehouse` WHERE name=%s", wh.name
+                frappe.delete_doc(
+                    "Warehouse",
+                    wh.name,
+                    ignore_permissions=True,
+                    force=True,
+                    ignore_on_trash=True,
                 )
+            except Exception as e:
+                frappe.db.sql("DELETE FROM `tabWarehouse` WHERE name=%s", wh.name)
         frappe.db.commit()
         print(f"  Deleted {len(wh_list)} Warehouse(s)")
 
     # ── STEP 7: Delete Cost Centers ───────────────────────────────
     cc_list = frappe.db.sql(
         "SELECT name FROM `tabCost Center` WHERE company=%s ORDER BY lft DESC",
-        COMPANY, as_dict=1
+        COMPANY,
+        as_dict=1,
     )
     if cc_list:
         for cc in cc_list:
             try:
-                frappe.db.sql(
-                    "DELETE FROM `tabCost Center` WHERE name=%s", cc.name
-                )
+                frappe.db.sql("DELETE FROM `tabCost Center` WHERE name=%s", cc.name)
             except Exception:
                 pass
         frappe.db.commit()
@@ -149,21 +150,21 @@ def run():
         frappe.db.sql(
             "DELETE FROM `tabAccount` WHERE company=%s AND is_group=0", COMPANY
         )
-        frappe.db.sql(
-            "DELETE FROM `tabAccount` WHERE company=%s", COMPANY
-        )
+        frappe.db.sql("DELETE FROM `tabAccount` WHERE company=%s", COMPANY)
         frappe.db.commit()
         print(f"  Deleted {acct_count} Account(s)")
 
     # ── STEP 9: Delete Fiscal Years linked only to this company ───
     fy_links = frappe.db.sql(
         """SELECT parent FROM `tabFiscal Year Company`
-           WHERE company=%s""", COMPANY, as_dict=1
+           WHERE company=%s""",
+        COMPANY,
+        as_dict=1,
     )
     for fy in fy_links:
         frappe.db.sql(
             "DELETE FROM `tabFiscal Year Company` WHERE company=%s AND parent=%s",
-            (COMPANY, fy.parent)
+            (COMPANY, fy.parent),
         )
         # If this fiscal year has no other company links, delete it too
         remaining = frappe.db.count("Fiscal Year Company", {"parent": fy.parent})
@@ -186,7 +187,8 @@ def run():
            AND NOT EXISTS (
                SELECT 1 FROM `tabSales Order`
                WHERE customer=c.name AND company='Furnitex' AND docstatus < 2
-           )""", as_dict=1
+           )""",
+        as_dict=1,
     )
     if stale_customers:
         for c in stale_customers:
@@ -199,9 +201,13 @@ def run():
 
     # ── STEP 11: Delete the Company record itself ─────────────────
     try:
-        frappe.delete_doc("Company", COMPANY,
-                          ignore_permissions=True, force=True,
-                          ignore_on_trash=True)
+        frappe.delete_doc(
+            "Company",
+            COMPANY,
+            ignore_permissions=True,
+            force=True,
+            ignore_on_trash=True,
+        )
     except Exception:
         frappe.db.sql("DELETE FROM `tabCompany` WHERE name=%s", COMPANY)
     frappe.db.commit()
@@ -219,7 +225,8 @@ def run():
         """SELECT name FROM `tabItem`
            WHERE item_name LIKE '%streetwok%'
               OR item_code LIKE '%streetwok%'
-              OR description LIKE '%streetwok%'""", as_dict=1
+              OR description LIKE '%streetwok%'""",
+        as_dict=1,
     )
     if stale_items:
         for item in stale_items:

@@ -9,10 +9,10 @@ Or directly:
 import frappe
 import frappe.defaults
 
+COMPANY = "Furnitex"
+SITE = "frontend"
+ABBR = None  # resolved at runtime via get_abbr()
 
-COMPANY   = "Furnitex"
-SITE      = "frontend"
-ABBR      = None   # resolved at runtime via get_abbr()
 
 def get_abbr():
     global ABBR
@@ -25,12 +25,15 @@ def get_abbr():
 # HELPERS
 # ─────────────────────────────────────────────────────────────
 
+
 def exists(doctype, name):
     return frappe.db.exists(doctype, name)
+
 
 def exists_filter(doctype, filters):
     """Existence check by filters (for docs where name includes company abbr)."""
     return frappe.db.get_value(doctype, filters, "name")
+
 
 def safe_insert(doc):
     """Insert and return True, or skip silently on duplicate and return False."""
@@ -45,11 +48,14 @@ def safe_insert(doc):
             return False
         raise
 
+
 def ok(msg):
     print(f"  [OK]   {msg}")
 
+
 def skip(msg):
     print(f"  [SKIP] {msg}")
+
 
 def warn(msg):
     print(f"  [WARN] {msg}")
@@ -59,23 +65,26 @@ def warn(msg):
 # 1. UOMs
 # ─────────────────────────────────────────────────────────────
 
+
 def create_uoms():
     print("\n[1/9] Creating UOMs...")
     uoms = [
-        ("SqFt",   0),
-        ("Rft",    0),
-        ("Bag",    1),
-        ("Sheet",  1),
+        ("SqFt", 0),
+        ("Rft", 0),
+        ("Bag", 1),
+        ("Sheet", 1),
         ("Bundle", 1),
         ("Cubic Ft", 0),
     ]
     for uom_name, whole in uoms:
         if not exists("UOM", uom_name):
-            d = frappe.get_doc({
-                "doctype": "UOM",
-                "uom_name": uom_name,
-                "must_be_whole_number": whole,
-            })
+            d = frappe.get_doc(
+                {
+                    "doctype": "UOM",
+                    "uom_name": uom_name,
+                    "must_be_whole_number": whole,
+                }
+            )
             d.flags.ignore_mandatory = True
             if safe_insert(d):
                 ok(f"UOM: {uom_name}")
@@ -90,25 +99,28 @@ def create_uoms():
 # 2. ITEM GROUPS
 # ─────────────────────────────────────────────────────────────
 
+
 def create_item_groups():
     print("\n[2/9] Creating Item Groups...")
     groups = [
-        ("Raw Materials - Furnitex",  "All Item Groups"),
-        ("Plywood & Board",           "Raw Materials - Furnitex"),
-        ("Laminates & Veneer",        "Raw Materials - Furnitex"),
-        ("Hardware & Fittings",       "Raw Materials - Furnitex"),
+        ("Raw Materials - Furnitex", "All Item Groups"),
+        ("Plywood & Board", "Raw Materials - Furnitex"),
+        ("Laminates & Veneer", "Raw Materials - Furnitex"),
+        ("Hardware & Fittings", "Raw Materials - Furnitex"),
         ("Civil & Surface Materials", "Raw Materials - Furnitex"),
-        ("Execution Services",        "All Item Groups"),
-        ("Loose Furniture",           "All Item Groups"),
+        ("Execution Services", "All Item Groups"),
+        ("Loose Furniture", "All Item Groups"),
     ]
     for name, parent in groups:
         if not exists("Item Group", name):
-            d = frappe.get_doc({
-                "doctype":           "Item Group",
-                "item_group_name":   name,
-                "parent_item_group": parent,
-                "is_group":          0,
-            })
+            d = frappe.get_doc(
+                {
+                    "doctype": "Item Group",
+                    "item_group_name": name,
+                    "parent_item_group": parent,
+                    "is_group": 0,
+                }
+            )
             if safe_insert(d):
                 ok(f"Item Group: {name}")
             else:
@@ -122,20 +134,23 @@ def create_item_groups():
 # 3. SUPPLIER GROUPS
 # ─────────────────────────────────────────────────────────────
 
+
 def create_supplier_groups():
     print("\n[3/9] Creating Supplier Groups...")
     groups = [
         ("Local Market Vendor (Unregistered)", "All Supplier Groups"),
-        ("GST Registered Vendor",              "All Supplier Groups"),
-        ("Labour Contractor",                  "All Supplier Groups"),
+        ("GST Registered Vendor", "All Supplier Groups"),
+        ("Labour Contractor", "All Supplier Groups"),
     ]
     for name, parent in groups:
         if not exists("Supplier Group", name):
-            d = frappe.get_doc({
-                "doctype":               "Supplier Group",
-                "supplier_group_name":   name,
-                "parent_supplier_group": parent,
-            })
+            d = frappe.get_doc(
+                {
+                    "doctype": "Supplier Group",
+                    "supplier_group_name": name,
+                    "parent_supplier_group": parent,
+                }
+            )
             if safe_insert(d):
                 ok(f"Supplier Group: {name}")
             else:
@@ -149,34 +164,35 @@ def create_supplier_groups():
 # 4. WAREHOUSES
 # ─────────────────────────────────────────────────────────────
 
+
 def create_warehouses():
     print("\n[4/9] Creating Warehouses...")
     abbr = get_abbr()
 
     # Find the company's root warehouse group
     root_wh = frappe.db.get_value(
-        "Warehouse",
-        {"company": COMPANY, "is_group": 1},
-        "name"
+        "Warehouse", {"company": COMPANY, "is_group": 1}, "name"
     )
     if not root_wh:
         root_wh = f"All Warehouses - {abbr}"
 
     warehouses = [
-        ("Main Store",     root_wh, 0),
+        ("Main Store", root_wh, 0),
         ("Rejected Stock", root_wh, 0),
     ]
     for w_short, parent, is_group in warehouses:
         # ERPNext appends company abbr: "Main Store - F"
         w_full = f"{w_short} - {abbr}"
         if not exists("Warehouse", w_full):
-            d = frappe.get_doc({
-                "doctype":          "Warehouse",
-                "warehouse_name":   w_short,
-                "parent_warehouse": parent,
-                "company":          COMPANY,
-                "is_group":         is_group,
-            })
+            d = frappe.get_doc(
+                {
+                    "doctype": "Warehouse",
+                    "warehouse_name": w_short,
+                    "parent_warehouse": parent,
+                    "company": COMPANY,
+                    "is_group": is_group,
+                }
+            )
             if safe_insert(d):
                 ok(f"Warehouse: {w_full}")
             else:
@@ -190,6 +206,7 @@ def create_warehouses():
 # 5. TAX TEMPLATES
 # ─────────────────────────────────────────────────────────────
 
+
 def _find_account(account_name_fragment, root_type=None, account_type=None):
     """Find an account by partial name match under the company."""
     filters = {"company": COMPANY, "is_group": 0}
@@ -199,8 +216,9 @@ def _find_account(account_name_fragment, root_type=None, account_type=None):
         filters["account_type"] = account_type
 
     # Try exact name match first
-    result = frappe.db.get_value("Account",
-        dict(filters, account_name=account_name_fragment), "name")
+    result = frappe.db.get_value(
+        "Account", dict(filters, account_name=account_name_fragment), "name"
+    )
     if result:
         return result
 
@@ -211,7 +229,8 @@ def _find_account(account_name_fragment, root_type=None, account_type=None):
            WHERE company=%s AND is_group=0
              AND account_name LIKE %s
            LIMIT 1""",
-        (COMPANY, like_pattern), as_dict=0
+        (COMPANY, like_pattern),
+        as_dict=0,
     )
     return result[0][0] if result else None
 
@@ -222,15 +241,18 @@ def create_tax_templates():
 
     # ── No GST (URD Purchase) ──
     urd_title = "No GST - URD Purchase"
-    if not exists_filter("Purchase Taxes and Charges Template",
-                         {"title": urd_title, "company": COMPANY}):
-        d = frappe.get_doc({
-            "doctype":    "Purchase Taxes and Charges Template",
-            "title":      urd_title,
-            "company":    COMPANY,
-            "is_default": 0,
-            "taxes":      [],
-        })
+    if not exists_filter(
+        "Purchase Taxes and Charges Template", {"title": urd_title, "company": COMPANY}
+    ):
+        d = frappe.get_doc(
+            {
+                "doctype": "Purchase Taxes and Charges Template",
+                "title": urd_title,
+                "company": COMPANY,
+                "is_default": 0,
+                "taxes": [],
+            }
+        )
         if safe_insert(d):
             ok(f"Purchase Tax Template: {urd_title}")
         else:
@@ -240,27 +262,45 @@ def create_tax_templates():
 
     # ── GST 18% Purchase ──
     gst18_p_title = "GST 18% - Purchase"
-    if not exists_filter("Purchase Taxes and Charges Template",
-                         {"title": gst18_p_title, "company": COMPANY}):
+    if not exists_filter(
+        "Purchase Taxes and Charges Template",
+        {"title": gst18_p_title, "company": COMPANY},
+    ):
         cgst = _find_account("CGST")
         sgst = _find_account("SGST")
         taxes = []
         if cgst:
-            taxes.append({"charge_type": "On Net Total", "account_head": cgst,
-                          "rate": 9, "description": "CGST @ 9%"})
+            taxes.append(
+                {
+                    "charge_type": "On Net Total",
+                    "account_head": cgst,
+                    "rate": 9,
+                    "description": "CGST @ 9%",
+                }
+            )
         if sgst:
-            taxes.append({"charge_type": "On Net Total", "account_head": sgst,
-                          "rate": 9, "description": "SGST @ 9%"})
-        d = frappe.get_doc({
-            "doctype":    "Purchase Taxes and Charges Template",
-            "title":      gst18_p_title,
-            "company":    COMPANY,
-            "is_default": 0,
-            "taxes":      taxes,
-        })
+            taxes.append(
+                {
+                    "charge_type": "On Net Total",
+                    "account_head": sgst,
+                    "rate": 9,
+                    "description": "SGST @ 9%",
+                }
+            )
+        d = frappe.get_doc(
+            {
+                "doctype": "Purchase Taxes and Charges Template",
+                "title": gst18_p_title,
+                "company": COMPANY,
+                "is_default": 0,
+                "taxes": taxes,
+            }
+        )
         if safe_insert(d):
-            ok(f"Purchase Tax Template: {gst18_p_title}" +
-               (" (no GST accounts in CoA, left empty)" if not taxes else ""))
+            ok(
+                f"Purchase Tax Template: {gst18_p_title}"
+                + (" (no GST accounts in CoA, left empty)" if not taxes else "")
+            )
         else:
             skip(f"Purchase Tax Template: {gst18_p_title} (duplicate)")
     else:
@@ -268,27 +308,44 @@ def create_tax_templates():
 
     # ── GST 18% Sales ──
     gst18_s_title = "GST 18% - Sales"
-    if not exists_filter("Sales Taxes and Charges Template",
-                         {"title": gst18_s_title, "company": COMPANY}):
+    if not exists_filter(
+        "Sales Taxes and Charges Template", {"title": gst18_s_title, "company": COMPANY}
+    ):
         cgst = _find_account("CGST")
         sgst = _find_account("SGST")
         taxes = []
         if cgst:
-            taxes.append({"charge_type": "On Net Total", "account_head": cgst,
-                          "rate": 9, "description": "CGST @ 9%"})
+            taxes.append(
+                {
+                    "charge_type": "On Net Total",
+                    "account_head": cgst,
+                    "rate": 9,
+                    "description": "CGST @ 9%",
+                }
+            )
         if sgst:
-            taxes.append({"charge_type": "On Net Total", "account_head": sgst,
-                          "rate": 9, "description": "SGST @ 9%"})
-        d = frappe.get_doc({
-            "doctype":    "Sales Taxes and Charges Template",
-            "title":      gst18_s_title,
-            "company":    COMPANY,
-            "is_default": 0,
-            "taxes":      taxes,
-        })
+            taxes.append(
+                {
+                    "charge_type": "On Net Total",
+                    "account_head": sgst,
+                    "rate": 9,
+                    "description": "SGST @ 9%",
+                }
+            )
+        d = frappe.get_doc(
+            {
+                "doctype": "Sales Taxes and Charges Template",
+                "title": gst18_s_title,
+                "company": COMPANY,
+                "is_default": 0,
+                "taxes": taxes,
+            }
+        )
         if safe_insert(d):
-            ok(f"Sales Tax Template: {gst18_s_title}" +
-               (" (no GST accounts in CoA, left empty)" if not taxes else ""))
+            ok(
+                f"Sales Tax Template: {gst18_s_title}"
+                + (" (no GST accounts in CoA, left empty)" if not taxes else "")
+            )
         else:
             skip(f"Sales Tax Template: {gst18_s_title} (duplicate)")
     else:
@@ -301,43 +358,92 @@ def create_tax_templates():
 # 6. SERVICE ITEMS (Non-stock billing items)
 # ─────────────────────────────────────────────────────────────
 
+
 def create_service_items():
     print("\n[6/9] Creating Service Items...")
 
-    income_acct = _find_account("Sales", root_type="Income") or \
-                  _find_account("Service", root_type="Income")
+    income_acct = _find_account("Sales", root_type="Income") or _find_account(
+        "Service", root_type="Income"
+    )
 
     items = [
         # (code, name, uom, description)
-        ("SVC-FC-EXEC",    "False Ceiling Execution",         "SqFt",  "Labour + material for false ceiling. Bill per SqFt OR as lumpsum."),
-        ("SVC-WAR-LAM",    "Laminate Wardrobe Fabrication",   "SqFt",  "Laminate wardrobe fabrication per SqFt."),
-        ("SVC-KIT-EXEC",   "Modular Kitchen Execution",       "SqFt",  "Modular kitchen fabrication and installation."),
-        ("SVC-FLOOR",      "Flooring Execution",              "SqFt",  "Vinyl/Wood/Tile flooring supply and installation."),
-        ("SVC-LUMP",       "Lumpsum Contract Work",           "Nos",   "Fixed-price lumpsum milestone. Change qty to 1 always."),
-        ("SVC-DESIGN",     "Interior Design Consultation",    "Nos",   "Design + drawing fee — lumpsum."),
-        ("SVC-CONVEY",     "Site Conveyance & Transport",     "Nos",   "Transport charges to/from site."),
-        ("SVC-LABOUR",     "Direct Site Labour",              "Nos",   "Daily-wage labour charges."),
-        ("SVC-ELECTRIC",   "Electrical Work Execution",       "Nos",   "Electrical points, wiring, fitting."),
-        ("SVC-PAINT",      "Painting & Polish Execution",     "SqFt",  "Wall painting / wood polish per SqFt."),
+        (
+            "SVC-FC-EXEC",
+            "False Ceiling Execution",
+            "SqFt",
+            "Labour + material for false ceiling. Bill per SqFt OR as lumpsum.",
+        ),
+        (
+            "SVC-WAR-LAM",
+            "Laminate Wardrobe Fabrication",
+            "SqFt",
+            "Laminate wardrobe fabrication per SqFt.",
+        ),
+        (
+            "SVC-KIT-EXEC",
+            "Modular Kitchen Execution",
+            "SqFt",
+            "Modular kitchen fabrication and installation.",
+        ),
+        (
+            "SVC-FLOOR",
+            "Flooring Execution",
+            "SqFt",
+            "Vinyl/Wood/Tile flooring supply and installation.",
+        ),
+        (
+            "SVC-LUMP",
+            "Lumpsum Contract Work",
+            "Nos",
+            "Fixed-price lumpsum milestone. Change qty to 1 always.",
+        ),
+        (
+            "SVC-DESIGN",
+            "Interior Design Consultation",
+            "Nos",
+            "Design + drawing fee — lumpsum.",
+        ),
+        (
+            "SVC-CONVEY",
+            "Site Conveyance & Transport",
+            "Nos",
+            "Transport charges to/from site.",
+        ),
+        ("SVC-LABOUR", "Direct Site Labour", "Nos", "Daily-wage labour charges."),
+        (
+            "SVC-ELECTRIC",
+            "Electrical Work Execution",
+            "Nos",
+            "Electrical points, wiring, fitting.",
+        ),
+        (
+            "SVC-PAINT",
+            "Painting & Polish Execution",
+            "SqFt",
+            "Wall painting / wood polish per SqFt.",
+        ),
     ]
 
     for code, name, uom, desc in items:
         if not exists("Item", code):
             # Non-stock service items: no warehouse needed in item_defaults
-            d = frappe.get_doc({
-                "doctype":          "Item",
-                "item_code":        code,
-                "item_name":        name,
-                "item_group":       "Execution Services",
-                "description":      desc,
-                "stock_uom":        uom,
-                "sales_uom":        uom,
-                "is_stock_item":    0,
-                "is_purchase_item": 0,
-                "is_sales_item":    1,
-                "standard_rate":    0,
-                # No item_defaults row — avoids warehouse company-mismatch validation
-            })
+            d = frappe.get_doc(
+                {
+                    "doctype": "Item",
+                    "item_code": code,
+                    "item_name": name,
+                    "item_group": "Execution Services",
+                    "description": desc,
+                    "stock_uom": uom,
+                    "sales_uom": uom,
+                    "is_stock_item": 0,
+                    "is_purchase_item": 0,
+                    "is_sales_item": 1,
+                    "standard_rate": 0,
+                    # No item_defaults row — avoids warehouse company-mismatch validation
+                }
+            )
             if safe_insert(d):
                 ok(f"Service Item: {code} [{uom}]")
             else:
@@ -352,12 +458,15 @@ def create_service_items():
 # 7. RAW MATERIAL ITEMS (Stock items)
 # ─────────────────────────────────────────────────────────────
 
+
 def create_raw_material_items():
     print("\n[7/9] Creating Raw Material Items...")
 
-    cogs_acct = (_find_account("Cost of Goods Sold", root_type="Expense") or
-                 _find_account("Stock Expenses",      root_type="Expense") or
-                 _find_account("Expenses Included",   root_type="Expense"))
+    cogs_acct = (
+        _find_account("Cost of Goods Sold", root_type="Expense")
+        or _find_account("Stock Expenses", root_type="Expense")
+        or _find_account("Expenses Included", root_type="Expense")
+    )
 
     default_wh = f"Main Store - {get_abbr()}"
     if not exists("Warehouse", default_wh):
@@ -367,39 +476,44 @@ def create_raw_material_items():
 
     items = [
         # (code, name, uom, group)
-        ("RM-PLY-19MM",  "Plywood 19mm BWR 8x4",        "Sheet",   "Plywood & Board"),
-        ("RM-PLY-12MM",  "Plywood 12mm BWR 8x4",        "Sheet",   "Plywood & Board"),
-        ("RM-PLY-6MM",   "Plywood 6mm 8x4",             "Sheet",   "Plywood & Board"),
-        ("RM-MDF-18MM",  "MDF Board 18mm 8x4",          "Sheet",   "Plywood & Board"),
-        ("RM-HDF-3MM",   "HDF 3mm 8x4",                 "Sheet",   "Plywood & Board"),
-        ("RM-LAM-1MM",   "Laminate Sheet 1mm 8x4",      "Sheet",   "Laminates & Veneer"),
-        ("RM-VEN-NAT",   "Veneer Sheet Natural Wood",   "Sheet",   "Laminates & Veneer"),
-        ("RM-LAM-ACRY",  "Acrylic Laminate Sheet",      "Sheet",   "Laminates & Veneer"),
-        ("RM-HW-HINGE",  "Concealed Hinge (pair)",      "Nos",     "Hardware & Fittings"),
-        ("RM-HW-CHAN18", "Drawer Channel 18 inch",      "Nos",     "Hardware & Fittings"),
-        ("RM-HW-CHAN24", "Drawer Channel 24 inch",      "Nos",     "Hardware & Fittings"),
-        ("RM-HW-HANDLE", "Cabinet Handle",              "Nos",     "Hardware & Fittings"),
-        ("RM-HW-LOCK",   "Drawer Lock",                 "Nos",     "Hardware & Fittings"),
-        ("RM-HW-SCREW",  "Wood Screw Assorted",         "Bundle",  "Hardware & Fittings"),
-        ("RM-CIV-CEM",   "OPC Cement 53 Grade",         "Bag",     "Civil & Surface Materials"),
-        ("RM-CIV-PUTTY", "Wall Putty White",            "Bag",     "Civil & Surface Materials"),
-        ("RM-CIV-PRIMER","Primer Interior",             "Nos",     "Civil & Surface Materials"),
-        ("RM-CIV-GYPS",  "Gypsum Board 8x4 12.5mm",    "Sheet",   "Civil & Surface Materials"),
-        ("RM-CIV-GYPS-C","Gypsum Cornice / Grid",      "Rft",     "Civil & Surface Materials"),
+        ("RM-PLY-19MM", "Plywood 19mm BWR 8x4", "Sheet", "Plywood & Board"),
+        ("RM-PLY-12MM", "Plywood 12mm BWR 8x4", "Sheet", "Plywood & Board"),
+        ("RM-PLY-6MM", "Plywood 6mm 8x4", "Sheet", "Plywood & Board"),
+        ("RM-MDF-18MM", "MDF Board 18mm 8x4", "Sheet", "Plywood & Board"),
+        ("RM-HDF-3MM", "HDF 3mm 8x4", "Sheet", "Plywood & Board"),
+        ("RM-LAM-1MM", "Laminate Sheet 1mm 8x4", "Sheet", "Laminates & Veneer"),
+        ("RM-VEN-NAT", "Veneer Sheet Natural Wood", "Sheet", "Laminates & Veneer"),
+        ("RM-LAM-ACRY", "Acrylic Laminate Sheet", "Sheet", "Laminates & Veneer"),
+        ("RM-HW-HINGE", "Concealed Hinge (pair)", "Nos", "Hardware & Fittings"),
+        ("RM-HW-CHAN18", "Drawer Channel 18 inch", "Nos", "Hardware & Fittings"),
+        ("RM-HW-CHAN24", "Drawer Channel 24 inch", "Nos", "Hardware & Fittings"),
+        ("RM-HW-HANDLE", "Cabinet Handle", "Nos", "Hardware & Fittings"),
+        ("RM-HW-LOCK", "Drawer Lock", "Nos", "Hardware & Fittings"),
+        ("RM-HW-SCREW", "Wood Screw Assorted", "Bundle", "Hardware & Fittings"),
+        ("RM-CIV-CEM", "OPC Cement 53 Grade", "Bag", "Civil & Surface Materials"),
+        ("RM-CIV-PUTTY", "Wall Putty White", "Bag", "Civil & Surface Materials"),
+        ("RM-CIV-PRIMER", "Primer Interior", "Nos", "Civil & Surface Materials"),
+        (
+            "RM-CIV-GYPS",
+            "Gypsum Board 8x4 12.5mm",
+            "Sheet",
+            "Civil & Surface Materials",
+        ),
+        ("RM-CIV-GYPS-C", "Gypsum Cornice / Grid", "Rft", "Civil & Surface Materials"),
     ]
 
     for code, name, uom, group in items:
         if not exists("Item", code):
             d_dict = {
-                "doctype":           "Item",
-                "item_code":         code,
-                "item_name":         name,
-                "item_group":        group,
-                "stock_uom":         uom,
-                "is_stock_item":     1,
-                "is_purchase_item":  1,
-                "is_sales_item":     0,
-                "valuation_method":  "FIFO",
+                "doctype": "Item",
+                "item_code": code,
+                "item_name": name,
+                "item_group": group,
+                "stock_uom": uom,
+                "is_stock_item": 1,
+                "is_purchase_item": 1,
+                "is_sales_item": 0,
+                "valuation_method": "FIFO",
             }
             # Only add item_defaults if we have a valid Furnitex warehouse
             if default_wh or cogs_acct:
@@ -425,29 +539,52 @@ def create_raw_material_items():
 # 8. SAMPLE SUPPLIERS
 # ─────────────────────────────────────────────────────────────
 
+
 def create_suppliers():
     print("\n[8/9] Creating Sample Suppliers...")
 
     suppliers = [
         # (name, group, gst_category)
-        ("Local Hardware Market - Kolkata",   "Local Market Vendor (Unregistered)", "Unregistered"),
-        ("Burrabazar Plywood Supplier",        "Local Market Vendor (Unregistered)", "Unregistered"),
-        ("Fancy Laminates - Howrah",           "Local Market Vendor (Unregistered)", "Unregistered"),
-        ("Modern Furniture Hardware - BBD Bag","Local Market Vendor (Unregistered)", "Unregistered"),
-        ("Registered Hardware Supplier Ltd",   "GST Registered Vendor",             "Registered Regular"),
-        ("Site Labour Contractor - Ramesh",    "Labour Contractor",                  "Unregistered"),
+        (
+            "Local Hardware Market - Kolkata",
+            "Local Market Vendor (Unregistered)",
+            "Unregistered",
+        ),
+        (
+            "Burrabazar Plywood Supplier",
+            "Local Market Vendor (Unregistered)",
+            "Unregistered",
+        ),
+        (
+            "Fancy Laminates - Howrah",
+            "Local Market Vendor (Unregistered)",
+            "Unregistered",
+        ),
+        (
+            "Modern Furniture Hardware - BBD Bag",
+            "Local Market Vendor (Unregistered)",
+            "Unregistered",
+        ),
+        (
+            "Registered Hardware Supplier Ltd",
+            "GST Registered Vendor",
+            "Registered Regular",
+        ),
+        ("Site Labour Contractor - Ramesh", "Labour Contractor", "Unregistered"),
     ]
 
     for name, group, gst_cat in suppliers:
         if not exists("Supplier", name):
-            d = frappe.get_doc({
-                "doctype":          "Supplier",
-                "supplier_name":    name,
-                "supplier_group":   group,
-                "country":          "India",
-                "gst_category":     gst_cat,
-                "default_currency": "INR",
-            })
+            d = frappe.get_doc(
+                {
+                    "doctype": "Supplier",
+                    "supplier_name": name,
+                    "supplier_group": group,
+                    "country": "India",
+                    "gst_category": gst_cat,
+                    "default_currency": "INR",
+                }
+            )
             if safe_insert(d):
                 ok(f"Supplier: {name} [{gst_cat}]")
             else:
@@ -461,14 +598,16 @@ def create_suppliers():
     # URD tax bypass is handled instead by the server script:
     #   "Furnitex - Clear GST on URD Purchase"  (Before Save on Purchase Invoice)
     # Tick the "URD Purchase (No GST)" checkbox on any invoice to auto-clear taxes.
-    urd_suppliers_count = frappe.db.count("Supplier",
-        {"supplier_group": "Local Market Vendor (Unregistered)"})
+    urd_suppliers_count = frappe.db.count(
+        "Supplier", {"supplier_group": "Local Market Vendor (Unregistered)"}
+    )
     ok(f"URD tax via server script — {urd_suppliers_count} URD suppliers registered")
 
 
 # ─────────────────────────────────────────────────────────────
 # 9. CUSTOM FIELDS
 # ─────────────────────────────────────────────────────────────
+
 
 def create_custom_fields():
     print("\n[9/9] Creating Custom Fields...")
@@ -481,25 +620,31 @@ def create_custom_fields():
 
     # (dt, fieldname, label, fieldtype, options, insert_after, in_list_view)
     fields = [
-        ("Purchase Invoice", "is_urd_purchase", "URD Purchase (No GST)",
-         "Check", None,      "supplier",    1),
-        ("Journal Entry",    "project",         "Project",
-         "Link",  "Project", "voucher_type", 0),
+        (
+            "Purchase Invoice",
+            "is_urd_purchase",
+            "URD Purchase (No GST)",
+            "Check",
+            None,
+            "supplier",
+            1,
+        ),
+        ("Journal Entry", "project", "Project", "Link", "Project", "voucher_type", 0),
     ]
 
     for dt, fn, label, ft, opts, after, in_list in fields:
         cf_name = f"{dt}-{fn}"
         if not exists("Custom Field", cf_name):
             d_dict = {
-                "doctype":            "Custom Field",
-                "dt":                 dt,
-                "fieldname":          fn,
-                "label":              label,
-                "fieldtype":          ft,
-                "insert_after":       after,
-                "in_list_view":       in_list,
+                "doctype": "Custom Field",
+                "dt": dt,
+                "fieldname": fn,
+                "label": label,
+                "fieldtype": ft,
+                "insert_after": after,
+                "in_list_view": in_list,
                 "in_standard_filter": 1,
-                "search_index":       1,
+                "search_index": 1,
             }
             if opts:
                 d_dict["options"] = opts
@@ -512,19 +657,22 @@ def create_custom_fields():
             skip(f"Custom Field: {dt}.{fn}")
 
     frappe.db.commit()
-    ok("Native 'project' field already present on PI, PO, Stock Entry, DN — no custom fields needed there")
+    ok(
+        "Native 'project' field already present on PI, PO, Stock Entry, DN — no custom fields needed there"
+    )
 
 
 # ─────────────────────────────────────────────────────────────
 # 10. SERVER SCRIPTS (Automation)
 # ─────────────────────────────────────────────────────────────
 
+
 def create_server_scripts():
     print("\n[+] Creating Server Scripts...")
 
     # Script 1: Auto-create OnSite WIP Warehouse on Project insert
-    wip_script_name  = "Furnitex - Auto Create OnSite WIP Warehouse"
-    wip_script_code  = """
+    wip_script_name = "Furnitex - Auto Create OnSite WIP Warehouse"
+    wip_script_code = """
 # Auto-fires after a new Project is saved
 # Creates "{Project Name} - OnSite WIP" warehouse automatically
 
@@ -560,15 +708,17 @@ if not frappe.db.exists("Warehouse", warehouse_name):
 """
 
     if not exists("Server Script", wip_script_name):
-        d = frappe.get_doc({
-            "doctype":           "Server Script",
-            "name":              wip_script_name,
-            "script_type":       "DocType Event",
-            "reference_doctype": "Project",
-            "doctype_event":     "After Insert",
-            "enabled":           1,
-            "script":            wip_script_code,
-        })
+        d = frappe.get_doc(
+            {
+                "doctype": "Server Script",
+                "name": wip_script_name,
+                "script_type": "DocType Event",
+                "reference_doctype": "Project",
+                "doctype_event": "After Insert",
+                "enabled": 1,
+                "script": wip_script_code,
+            }
+        )
         d.flags.ignore_permissions = True
         d.insert()
         ok(f"Server Script: {wip_script_name}")
@@ -597,15 +747,17 @@ if doc.is_urd_purchase:
 """
 
     if not exists("Server Script", urd_script_name):
-        d = frappe.get_doc({
-            "doctype":           "Server Script",
-            "name":              urd_script_name,
-            "script_type":       "DocType Event",
-            "reference_doctype": "Purchase Invoice",
-            "doctype_event":     "Before Save",
-            "enabled":           1,
-            "script":            urd_script_code,
-        })
+        d = frappe.get_doc(
+            {
+                "doctype": "Server Script",
+                "name": urd_script_name,
+                "script_type": "DocType Event",
+                "reference_doctype": "Purchase Invoice",
+                "doctype_event": "Before Save",
+                "enabled": 1,
+                "script": urd_script_code,
+            }
+        )
         d.flags.ignore_permissions = True
         d.insert()
         ok(f"Server Script: {urd_script_name}")
@@ -706,19 +858,22 @@ def get_data(filters):
     return rows
 '''
 
+
 def create_custom_report():
     print("\n[+] Creating Custom Report: Furnitex Project Profitability...")
     report_name = "Furnitex Project Profitability"
     if not exists("Report", report_name):
-        d = frappe.get_doc({
-            "doctype":     "Report",
-            "report_name": report_name,
-            "ref_doctype": "Project",
-            "report_type": "Script Report",
-            "is_standard": "No",
-            "module":      "Projects",
-            "script":      PROFIT_REPORT_SCRIPT,
-        })
+        d = frappe.get_doc(
+            {
+                "doctype": "Report",
+                "report_name": report_name,
+                "ref_doctype": "Project",
+                "report_type": "Script Report",
+                "is_standard": "No",
+                "module": "Projects",
+                "script": PROFIT_REPORT_SCRIPT,
+            }
+        )
         d.flags.ignore_permissions = True
         d.insert()
         ok(f"Custom Report: {report_name}")
@@ -730,6 +885,7 @@ def create_custom_report():
 # ─────────────────────────────────────────────────────────────
 # MASTER RUNNER
 # ─────────────────────────────────────────────────────────────
+
 
 def run_all():
     frappe.set_user("Administrator")
@@ -759,6 +915,7 @@ def run_all():
 
 if __name__ == "__main__":
     import sys
+
     frappe.init(site="frontend")
     frappe.connect()
     run_all()

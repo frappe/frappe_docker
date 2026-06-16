@@ -8,20 +8,20 @@ import frappe
 
 COMPANY = "Furnitex"
 
-ADDRESS       = "6/A/108 Mukundapur"
-CITY          = "Kolkata"
-STATE         = "West Bengal"
-PINCODE       = "700099"
-COUNTRY       = "India"
-PHONE         = "+91 62905 91422"
-EMAIL         = "info.furnitex@gmail.com"
-WEBSITE       = "https://furnitex.co.in"
-INSTAGRAM     = "https://www.instagram.com/frunitex"
-LEGAL_NAME    = "Furnitex Atelier Pvt. Ltd."
-TAGLINE       = "Redefine What Surrounds You"
-FULL_ADDR     = f"{ADDRESS}, {CITY} - {PINCODE}, {STATE}, {COUNTRY}"
-REP_NAME      = "Subhankar Dhar"
-OFFICE_HOURS  = "Monday – Saturday, 10:00 AM – 7:00 PM IST"
+ADDRESS = "6/A/108 Mukundapur"
+CITY = "Kolkata"
+STATE = "West Bengal"
+PINCODE = "700099"
+COUNTRY = "India"
+PHONE = "+91 62905 91422"
+EMAIL = "info.furnitex@gmail.com"
+WEBSITE = "https://furnitex.co.in"
+INSTAGRAM = "https://www.instagram.com/frunitex"
+LEGAL_NAME = "Furnitex Atelier Pvt. Ltd."
+TAGLINE = "Redefine What Surrounds You"
+FULL_ADDR = f"{ADDRESS}, {CITY} - {PINCODE}, {STATE}, {COUNTRY}"
+REP_NAME = "Subhankar Dhar"
+OFFICE_HOURS = "Monday – Saturday, 10:00 AM – 7:00 PM IST"
 
 
 def run():
@@ -39,12 +39,13 @@ def run():
 
 # ── 1. Company record ─────────────────────────────────────────────────────────
 
+
 def update_company():
     co = frappe.get_doc("Company", COMPANY)
-    co.phone_no      = PHONE
-    co.email         = EMAIL
-    co.website       = WEBSITE
-    co.company_name  = COMPANY          # keep short name as primary
+    co.phone_no = PHONE
+    co.email = EMAIL
+    co.website = WEBSITE
+    co.company_name = COMPANY  # keep short name as primary
     co.flags.ignore_permissions = True
     co.save()
     print(f"  ✓ Company record updated: phone={PHONE}, email={EMAIL}")
@@ -52,30 +53,26 @@ def update_company():
 
 # ── 2. Address record ─────────────────────────────────────────────────────────
 
+
 def update_address():
     # Check if a Furnitex address already exists
     existing = frappe.db.get_value(
-        "Address",
-        {"address_title": COMPANY, "address_type": "Billing"},
-        "name"
+        "Address", {"address_title": COMPANY, "address_type": "Billing"}, "name"
     )
 
     addr_doc = {
-        "doctype":        "Address",
-        "address_title":  COMPANY,
-        "address_type":   "Billing",
-        "address_line1":  ADDRESS,
-        "city":           CITY,
-        "state":          STATE,
-        "pincode":        PINCODE,
-        "country":        COUNTRY,
-        "phone":          PHONE,
-        "email_id":       EMAIL,
+        "doctype": "Address",
+        "address_title": COMPANY,
+        "address_type": "Billing",
+        "address_line1": ADDRESS,
+        "city": CITY,
+        "state": STATE,
+        "pincode": PINCODE,
+        "country": COUNTRY,
+        "phone": PHONE,
+        "email_id": EMAIL,
         "is_primary_address": 1,
-        "links": [{
-            "link_doctype": "Company",
-            "link_name":    COMPANY
-        }]
+        "links": [{"link_doctype": "Company", "link_name": COMPANY}],
     }
 
     if existing:
@@ -120,6 +117,7 @@ LETTER_HEAD_HTML = f"""
 </div>
 """
 
+
 def update_letter_head():
     lh_name = "Furnitex"
     if frappe.db.exists("Letter Head", lh_name):
@@ -130,12 +128,14 @@ def update_letter_head():
         doc.save()
         print("  ✓ Letter Head updated with real contact details")
     else:
-        doc = frappe.get_doc({
-            "doctype":   "Letter Head",
-            "letter_head_name": lh_name,
-            "content":   LETTER_HEAD_HTML,
-            "is_default": 1,
-        })
+        doc = frappe.get_doc(
+            {
+                "doctype": "Letter Head",
+                "letter_head_name": lh_name,
+                "content": LETTER_HEAD_HTML,
+                "is_default": 1,
+            }
+        )
         doc.flags.ignore_permissions = True
         doc.insert()
         print("  ✓ Letter Head created")
@@ -186,10 +186,11 @@ PO_TC = f"""<div style="font-size:10.5px; line-height:1.8; color:#333;">
 </div>"""
 
 TC_MAP = {
-    "Furnitex - Quotation T&C":     QUOTATION_TC,
-    "Furnitex - Invoice T&C":       INVOICE_TC,
+    "Furnitex - Quotation T&C": QUOTATION_TC,
+    "Furnitex - Invoice T&C": INVOICE_TC,
     "Furnitex - Purchase Order T&C": PO_TC,
 }
+
 
 def update_terms_conditions():
     for title, content in TC_MAP.items():
@@ -200,14 +201,16 @@ def update_terms_conditions():
             doc.save()
             print(f"  ✓ Updated T&C: {title}")
         else:
-            doc = frappe.get_doc({
-                "doctype":  "Terms and Conditions",
-                "title":    title,
-                "terms":    content,
-                "selling":  1,
-                "buying":   1,
-                "hr":       0,
-            })
+            doc = frappe.get_doc(
+                {
+                    "doctype": "Terms and Conditions",
+                    "title": title,
+                    "terms": content,
+                    "selling": 1,
+                    "buying": 1,
+                    "hr": 0,
+                }
+            )
             doc.flags.ignore_permissions = True
             doc.insert()
             print(f"  ✓ Created T&C: {title}")
