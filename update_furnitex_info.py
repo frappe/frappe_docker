@@ -21,7 +21,7 @@ LEGAL_NAME = "Furnitex Atelier Pvt. Ltd."
 TAGLINE = "Redefine What Surrounds You"
 FULL_ADDR = f"{ADDRESS}, {CITY} - {PINCODE}, {STATE}, {COUNTRY}"
 REP_NAME = "Subhankar Dhar"
-OFFICE_HOURS = "Monday – Saturday, 10:00 AM – 7:00 PM IST"
+OFFICE_HOURS = "Monday – Saturday, 10:00 AM – 7:00 PM (India Time)"
 
 
 def run():
