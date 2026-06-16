@@ -552,7 +552,7 @@ if not frappe.db.exists("Warehouse", warehouse_name):
     })
     wh.flags.ignore_permissions = True
     wh.insert()
-    frappe.db.commit()
+    # No frappe.db.commit() — Frappe manages the transaction in server scripts
     frappe.msgprint(
         "OnSite WIP Warehouse created: <b>" + warehouse_name + "</b>",
         alert=True, indicator="green"
