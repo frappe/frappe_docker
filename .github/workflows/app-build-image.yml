@@ -86,7 +86,7 @@ jobs:
 
     steps:
       - name: Checkout builder repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ${{ inputs.builder_repository }}
           ref: ${{ inputs.builder_ref }}
