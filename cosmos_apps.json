@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "v16.23.1"
+  },
+  {
+    "url": "https://github.com/frappe/hrms",
+    "branch": "version-16"
+  },
+  {
+    "url": "https://github.com/saleelhussain-design/CosmoOSERPprotectplastVer1",
+    "branch": "CosmosERPPROTECTed"
+  }
+]
