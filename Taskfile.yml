@@ -1,0 +1,85 @@
+﻿# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  COMPOSE_FILE: pwd.yml
+  COMPOSE: docker compose -f {{.COMPOSE_FILE}}
+
+tasks:
+  default:
+    desc: Show available commands
+    cmds:
+      - task --list
+
+  up:
+    aliases: [start]
+    desc: Start ERPNext in the background
+    preconditions:
+      - sh: docker info
+        msg: Docker is not running. Start Docker Desktop and try again.
+    cmds:
+      - "{{.COMPOSE}} up -d"
+      - task: ps
+    silent: true
+
+  stop:
+    desc: Stop services without removing them
+    cmds:
+      - "{{.COMPOSE}} stop"
+
+  down:
+    desc: Stop and remove containers (data is preserved)
+    cmds:
+      - "{{.COMPOSE}} down"
+
+  restart:
+    desc: Restart all services
+    cmds:
+      - "{{.COMPOSE}} restart"
+
+  ps:
+    aliases: [status]
+    desc: Show service status
+    cmds:
+      - '{{.COMPOSE}} ps --format "table {{`{{.Service}}`}}	{{`{{.Status}}`}}	{{`{{.Ports}}`}}"'
+    silent: true
+
+  logs:
+    desc: Follow logs from all services
+    cmds:
+      - "{{.COMPOSE}} logs -f --tail=100"
+
+  site-logs:
+    desc: Follow the initial site creation logs
+    cmds:
+      - "{{.COMPOSE}} logs -f --tail=100 create-site"
+
+  shell:
+    desc: Open a Bash shell in the backend container
+    cmds:
+      - "{{.COMPOSE}} exec backend bash"
+
+  exec:
+    desc: Run a Bench command (e.g. task exec -- list-sites)
+    requires:
+      vars: [CLI_ARGS]
+    cmds:
+      - "{{.COMPOSE}} exec backend bench {{.CLI_ARGS}}"
+
+  config:
+    desc: Validate and display the Docker Compose configuration
+    cmds:
+      - "{{.COMPOSE}} config"
+
+  pull:
+    desc: Pull the Docker images defined in pwd.yml
+    cmds:
+      - "{{.COMPOSE}} pull"
+
+  reset:
+    desc: Remove containers and all data, then start from scratch
+    prompt: This deletes the database and all volumes. Are you sure?
+    cmds:
+      - "{{.COMPOSE}} down -v --remove-orphans"
+      - task: up
