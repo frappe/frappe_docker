@@ -1,0 +1,84 @@
+{
+  "actions": [],
+  "creation": "2024-06-23 00:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "employee",
+    "employee_name",
+    "salary_mode",
+    "bank_name",
+    "bank_account_no",
+    "iban",
+    "column_break_7",
+    "salary_amount",
+    "remarks"
+  ],
+  "fields": [
+    {
+      "fieldname": "employee",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Employee",
+      "options": "Employee",
+      "reqd": 1
+    },
+    {
+      "fieldname": "employee_name",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Employee Name",
+      "fetch_from": "employee.employee_name",
+      "read_only": 1
+    },
+    {
+      "fieldname": "salary_mode",
+      "fieldtype": "Select",
+      "label": "Salary Mode",
+      "options": "Bank\nWPS",
+      "default": "WPS"
+    },
+    {
+      "fieldname": "bank_name",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Bank Name",
+      "fetch_from": "employee.bank_name"
+    },
+    {
+      "fieldname": "bank_account_no",
+      "fieldtype": "Data",
+      "label": "Bank Account No",
+      "fetch_from": "employee.bank_ac_no"
+    },
+    {
+      "fieldname": "iban",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "IBAN",
+      "fetch_from": "employee.iban"
+    },
+    {
+      "fieldname": "column_break_7",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "salary_amount",
+      "fieldtype": "Currency",
+      "in_list_view": 1,
+      "label": "Salary Amount",
+      "reqd": 1,
+      "options": "currency"
+    },
+    {
+      "fieldname": "remarks",
+      "fieldtype": "Small Text",
+      "label": "Remarks"
+    }
+  ],
+  "istable": 1,
+  "module": "CosmOS",
+  "name": "WPS Salary Detail",
+  "permissions": []
+}

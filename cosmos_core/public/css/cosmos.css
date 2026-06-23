@@ -1,0 +1,86 @@
+/* COSMOS Branding Overrides */
+
+/* Navbar and desk branding */
+.navbar-brand .app-logo,
+.navbar-brand img.app-logo {
+    content: url("/assets/cosmos_core/images/cosmos-icon.png") !important;
+    width: 118px !important;
+    height: 40px !important;
+    max-width: none !important;
+}
+.brand-logo img {
+    content: url("/assets/cosmos_core/images/cosmos-icon.png") !important;
+    width: 118px !important;
+    height: 40px !important;
+}
+.module-category img {
+    content: url("/assets/cosmos_core/images/cosmos-icon.png") !important;
+    width: 118px !important;
+    height: 40px !important;
+}
+.navbar-brand > span:not(.app-logo) {
+    display: none !important;
+}
+
+/* Login page logo - BIG */
+.login-wrapper .app-logo {
+    content: url("/assets/cosmos_core/images/cosmos-logo.png") !important;
+    width: 350px !important;
+    max-width: 350px !important;
+    height: auto !important;
+    margin: 0 auto 20px !important;
+    display: block !important;
+}
+
+/* Login page background watermark */
+body[data-path="login"],
+#page-login {
+    background-color: #f0f4f8 !important;
+}
+#page-login::before,
+body[data-path="login"]::before {
+    content: "" !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 800px !important;
+    height: 269px !important;
+    background: url("/assets/cosmos_core/images/cosmos-watermark.png") no-repeat center !important;
+    background-size: contain !important;
+    opacity: 0.12 !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+}
+.page-card {
+    position: relative !important;
+    z-index: 1 !important;
+}
+.login-wrapper .page-card {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Hide powered by link and replace text */
+footer .footer-powered {
+    visibility: hidden !important;
+}
+footer .footer-powered a {
+    visibility: hidden !important;
+}
+
+/* Hide any Frappe/ERPNext background logos/watermarks */
+.login-wrapper .login-background,
+#page-login .login-background,
+.login-wrapper div[class*="background"],
+body[data-path="login"] div[class*="bg-"],
+.login-wrapper div[style*="background"],
+.login-wrapper .erpnext-watermark,
+.login-wrapper .powered-by {
+    display: none !important;
+}
+
+/* Override favicon dynamically */
+link[rel*="icon"] {
+    display: none !important;
+}
