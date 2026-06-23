@@ -39,7 +39,7 @@ jobs:
       erpnext_version: ${{ steps.resolve.outputs.erpnext_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Resolve image versions
         id: resolve
@@ -60,7 +60,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v4

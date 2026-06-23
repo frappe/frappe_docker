@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Update pre-commit hooks
         uses: vrslev/pre-commit-autoupdate@v1.0.0
