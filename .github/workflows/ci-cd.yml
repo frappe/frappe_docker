@@ -105,7 +105,7 @@ jobs:
             | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
 
           IPSTC_PROCUREMENT_SHA=$(curl -fsSL -H "${AUTH_HEADER}" \
-            "https://api.github.com/repos/TIVOK-SOLUTIONS/ipstc-rocurement/commits/${CUSTOM_BRANCH}" \
+            "https://api.github.com/repos/TIVOK-SOLUTIONS/ipstc-procurement/commits/${CUSTOM_BRANCH}" \
             | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
 
           HASH=$(echo "${IPSTC_SHA}${IPSTC_HRMS_SHA}$${IPSTC_PROCUREMENT_SHA}" | sha256sum | cut -d' ' -f1)
