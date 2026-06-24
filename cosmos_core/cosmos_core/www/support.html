@@ -1,0 +1,92 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block page_content %}
+<div class="container" style="max-width: 900px; margin: 40px auto;">
+    <div class="text-center mb-5">
+        <img src="/assets/cosmos_core/images/cosmos-logo.png" alt="CosmOS" style="height: 70px; margin-bottom: 15px;">
+        <h1 style="color: #24963f; font-size: 2.2em;">CosmOS Support</h1>
+        <p style="color: #666; font-size: 1.1em;">Your complete ERP support portal</p>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 style="color: #24963f;"><i class="fa fa-book"></i> User Manual</h3>
+            <p>Download the complete CosmOS ERP User Manual with step-by-step guides for all modules.</p>
+            <a href="/files/CosmOS_User_Manual.pdf" target="_blank" class="btn btn-success">
+                <i class="fa fa-download"></i> Download User Manual (PDF)
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 style="color: #24963f;"><i class="fa fa-life-ring"></i> Quick Help</h3>
+            <div class="row mt-3">
+                <div class="col-md-6 mb-3">
+                    <strong><i class="fa fa-file-text"></i> Help Articles</strong>
+                    <p class="text-muted">Browse knowledge base articles for detailed module guidance.</p>
+                    <a href="/kb" class="btn btn-outline-success btn-sm">Browse Articles</a>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong><i class="fa fa-question-circle"></i> Keyboard Shortcuts</strong>
+                    <p class="text-muted">Press <kbd>Shift</kbd> + <kbd>/</kbd> to view all available shortcuts in the system.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 style="color: #24963f;"><i class="fa fa-address-card"></i> Contact Us</h3>
+            <div class="row mt-3">
+                <div class="col-md-6 mb-3">
+                    <strong><i class="fa fa-envelope"></i> Email</strong>
+                    <p><a href="mailto:saleelhussain@gmail.com">saleelhussain@gmail.com</a></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong><i class="fa fa-phone"></i> Phone</strong>
+                    <p><a href="tel:+971XXXXXXXXX">+971 XXX XXXXXX</a></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong><i class="fa fa-building"></i> Company</strong>
+                    <p>Protect PLast LLC Middle East</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong><i class="fa fa-globe"></i> Website</strong>
+                    <p><a href="https://cosmoserp.com" target="_blank">cosmoserp.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h3 style="color: #24963f;"><i class="fa fa-info-circle"></i> System Information</h3>
+            <table class="table table-bordered mt-3" style="max-width: 500px;">
+                <tr>
+                    <td style="width: 160px;"><strong>System</strong></td>
+                    <td>CosmOS ERP</td>
+                </tr>
+                <tr>
+                    <td><strong>Version</strong></td>
+                    <td>v16.23.2</td>
+                </tr>
+                <tr>
+                    <td><strong>Site</strong></td>
+                    <td>{{ frappe.local.site if frappe.local.site else "—" }}</td>
+                </tr>
+                <tr>
+                    <td><strong>User</strong></td>
+                    <td>{{ frappe.session.user if frappe.session.user else "—" }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center mt-4 text-muted" style="font-size: 0.85em;">
+        &copy; {{ frappe.utils.nowdate().split("-")[0] }} Protect PLast LLC Middle East. All rights reserved.
+    </div>
+</div>
+{% endblock %}

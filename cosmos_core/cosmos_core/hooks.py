@@ -14,6 +14,34 @@ app_email_splash = "/assets/cosmos_core/images/cosmos-email-logo.png"
 # Replace Frappe brand everywhere
 app_include_css = "/assets/cosmos_core/css/cosmos.css"
 
+# Help dropdown items (replaces Frappe defaults)
+standard_help_items = [
+    {
+        "item_label": "CosmOS Support",
+        "item_type": "Route",
+        "route": "/support",
+        "is_standard": 1,
+    },
+    {
+        "item_label": "About CosmOS",
+        "item_type": "Action",
+        "action": "frappe.ui.toolbar.show_about()",
+        "is_standard": 1,
+    },
+    {
+        "item_label": "Keyboard Shortcuts",
+        "item_type": "Action",
+        "action": "frappe.ui.toolbar.show_shortcuts(event)",
+        "is_standard": 1,
+    },
+    {
+        "item_label": "System Health",
+        "item_type": "Route",
+        "route": "/desk/system-health-report",
+        "is_standard": 1,
+    },
+]
+
 # Scheduled tasks
 scheduler_events = {
     "cron": {
