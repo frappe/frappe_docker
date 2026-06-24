@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2024-01-01 00:00:00",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "device",
+  "status",
+  "start_time",
+  "end_time",
+  "records_fetched",
+  "records_created",
+  "column_break_1",
+  "error_message",
+  "details"
+ ],
+ "fields": [
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Device",
+   "options": "Hikvision Device",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nSuccess\nFailed\nPartial",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Start Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "End Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "records_fetched",
+   "fieldtype": "Int",
+   "label": "Records Fetched",
+   "default": 0
+  },
+  {
+   "fieldname": "records_created",
+   "fieldtype": "Int",
+   "label": "Checkins Created",
+   "default": 0
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "Error Message"
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Code",
+   "label": "Details"
+  }
+ ],
+ "modified": "2024-01-01 00:00:00",
+ "module": "CosmOS",
+ "name": "Hikvision Sync Log",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 0,
+   "print": 1,
+   "report": 1,
+   "select": 1,
+   "share": 1
+  },
+  {
+   "role": "HR Manager",
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "import": 0,
+   "print": 1,
+   "report": 0,
+   "select": 1,
+   "share": 0
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

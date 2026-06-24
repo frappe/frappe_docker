@@ -1,0 +1,118 @@
+{
+ "doctype": "DocType",
+ "name": "Monthly Market Rate",
+ "module": "CosmOS",
+ "autoname": "format:MR-{MM}-{YYYY}-{#####}",
+ "naming_rule": "Expression",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "field_order": [
+  "title",
+  "month",
+  "company",
+  "col_break_main",
+  "amended_from",
+  "section_items",
+  "items",
+  "section_supplier",
+  "supplier_rates"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "month",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Month",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Data",
+   "label": "Amended From",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_items",
+   "fieldtype": "Section Break",
+   "label": "Items"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Market Rate Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_supplier",
+   "fieldtype": "Section Break",
+   "label": "Supplier Material Rates"
+  },
+  {
+   "fieldname": "supplier_rates",
+   "fieldtype": "Table",
+   "label": "Supplier Material Rates",
+   "options": "Supplier Material Rate",
+   "description": "Enter supplier-specific rates for raw materials"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Stock Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Stock User",
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "delete": 0
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  }
+ ],
+ "modified": "2024-01-01 00:00:00",
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

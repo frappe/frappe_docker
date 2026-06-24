@@ -1,0 +1,107 @@
+{
+ "app": "cosmos_core",
+ "charts": [
+  {
+   "chart_name": "Market Rate Trend",
+   "label": "Market Rate Trend"
+  },
+  {
+   "chart_name": "Items with Highest Variation",
+   "label": "Items with Highest Variation"
+  },
+  {
+   "chart_name": "Supplier Rate Trend",
+   "label": "Supplier Rate Trend"
+  },
+  {
+   "chart_name": "Best Supplier per Item",
+   "label": "Best Supplier per Item"
+  }
+ ],
+ "content": "[]",
+ "creation": "2026-06-24 06:56:05.845762",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Analysis Division",
+ "link_type": "DocType",
+ "links": [],
+ "modified": "2026-06-24 07:00:15.389969",
+ "modified_by": "Administrator",
+ "module": "CosmOS",
+ "name": "Analysis Division",
+ "number_cards": [
+  {
+   "label": "Monthly Rate Entries",
+   "number_card_name": "Monthly Rate Entries"
+  }
+ ],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Stock User"
+  }
+ ],
+ "sequence_id": 0.0,
+ "shortcuts": [
+  {
+   "doc_view": "",
+   "label": "Monthly Market Rate",
+   "link_to": "Monthly Market Rate",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Item Master",
+   "link_to": "Item",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Item Price",
+   "link_to": "Item Price",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Stock Ledger",
+   "link_to": "Stock Ledger Entry",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Purchase Receipt",
+   "link_to": "Purchase Receipt",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Supplier Master",
+   "link_to": "Supplier",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Supplier Rates",
+   "link_to": "Supplier Material Rate",
+   "type": "DocType"
+  }
+ ],
+ "title": "Analysis Division",
+ "type": "Workspace"
+}

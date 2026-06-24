@@ -1,0 +1,140 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2024-01-01 00:00:00",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "device",
+  "employee_user_id",
+  "employee_name",
+  "punch_time",
+  "punch_type",
+  "column_break_1",
+  "device_id",
+  "log_id",
+  "attendance_status",
+  "is_synced",
+  "employee_checkin",
+  "error_log"
+ ],
+ "fields": [
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Device",
+   "options": "Hikvision Device",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee_user_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee User ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "punch_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Punch Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "punch_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Punch Type",
+   "options": "\nIN\nOUT\nUnknown"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Data",
+   "label": "Device ID"
+  },
+  {
+   "fieldname": "log_id",
+   "fieldtype": "Data",
+   "label": "Log ID",
+   "unique": 1
+  },
+  {
+   "fieldname": "attendance_status",
+   "fieldtype": "Data",
+   "label": "Attendance Status"
+  },
+  {
+   "default": 0,
+   "fieldname": "is_synced",
+   "fieldtype": "Check",
+   "label": "Synced to Checkin",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee_checkin",
+   "fieldtype": "Link",
+   "label": "Employee Checkin",
+   "options": "Employee Checkin",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error_log",
+   "fieldtype": "Small Text",
+   "label": "Error Log",
+   "read_only": 1
+  }
+ ],
+ "modified": "2024-01-01 00:00:00",
+ "module": "CosmOS",
+ "name": "Hikvision Attendance Log",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 0,
+   "print": 1,
+   "report": 1,
+   "select": 1,
+   "share": 1
+  },
+  {
+   "role": "HR Manager",
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "import": 0,
+   "print": 1,
+   "report": 0,
+   "select": 1,
+   "share": 0
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "search_fields": "employee_user_id,employee_name"
+}
