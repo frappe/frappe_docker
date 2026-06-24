@@ -20,12 +20,6 @@ app_include_css = "/assets/cosmos_core/css/cosmos.css"
 app_include_js = ["/files/pwa/pwa.js"]
 web_include_js = ["/files/pwa/pwa.js"]
 
-# Meta tags for PWA
-website_context = {
-    "manifest": "/manifest.json",
-    "theme_color": "#24963f",
-}
-
 # Help dropdown items (replaces Frappe defaults)
 standard_help_items = [
     {
