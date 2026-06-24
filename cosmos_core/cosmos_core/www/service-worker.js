@@ -33,6 +33,9 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return
+  if (event.request.mode === "navigate") return
+
   const url = new URL(event.request.url);
 
   // Cache-first for static assets
@@ -49,16 +52,4 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
-
-  // Network-first for everything else
-  event.respondWith(
-    fetch(event.request).then((response) => {
-      return caches.open(CACHE_NAME).then((cache) => {
-        cache.put(event.request, response.clone());
-        return response;
-      });
-    }).catch(() => {
-      return caches.match(event.request);
-    })
-  );
 });
