@@ -15,7 +15,10 @@ app_email_splash = "/assets/cosmos_core/images/cosmos-email-logo.png"
 app_include_css = "/assets/cosmos_core/css/cosmos.css"
 
 # PWA (Progressive Web App) - makes CosmOS installable as desktop/mobile app
-app_include_js = ["/assets/cosmos_core/js/pwa.js"]
+# Using /files/pwa/ path so files are served from the shared volume directly by nginx
+# (without relying on symlinks in the volume that point to container filesystem)
+app_include_js = ["/files/pwa/pwa.js"]
+web_include_js = ["/files/pwa/pwa.js"]
 
 # Meta tags for PWA
 website_context = {
