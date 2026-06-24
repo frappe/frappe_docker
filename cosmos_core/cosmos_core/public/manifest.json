@@ -1,0 +1,26 @@
+{
+  "name": "CosmOS ERP",
+  "short_name": "CosmOS",
+  "description": "Enterprise ERP System by Protect PLast LLC Middle East",
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#24963f",
+  "orientation": "any",
+  "lang": "en",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/files/pwa/cosmos-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/files/pwa/cosmos-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "erp"]
+}
