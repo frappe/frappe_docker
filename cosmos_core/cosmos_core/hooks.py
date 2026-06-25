@@ -17,7 +17,7 @@ app_include_css = "/assets/cosmos_core/css/cosmos.css"
 # PWA (Progressive Web App) - makes CosmOS installable as desktop/mobile app
 # Using /files/pwa/ path so files are served from the shared volume directly by nginx
 # (without relying on symlinks in the volume that point to container filesystem)
-app_include_js = ["/files/pwa/pwa.js"]
+app_include_js = ["/files/pwa/pwa.js", "/assets/cosmos_core/pwa-register.js"]
 web_include_js = ["/files/pwa/pwa.js"]
 
 # Help dropdown items (replaces Frappe defaults)
