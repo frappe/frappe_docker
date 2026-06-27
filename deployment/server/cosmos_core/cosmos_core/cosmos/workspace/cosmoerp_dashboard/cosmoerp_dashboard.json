@@ -1,0 +1,130 @@
+{
+ "app": "cosmos_core",
+ "charts": [
+  {
+   "chart_name": "Employees by Department",
+   "label": "Employees by Department"
+  },
+  {
+   "chart_name": "Employees by Employment Type",
+   "label": "Employees by Employment Type"
+  },
+  {
+   "chart_name": "Employee Gender Distribution",
+   "label": "Employee Gender Distribution"
+  },
+  {
+   "chart_name": "Employees by Branch",
+   "label": "Employees by Branch"
+  },
+  {
+   "chart_name": "Biometric Devices Status",
+   "label": "Biometric Devices Status"
+  }
+ ],
+ "content": "[]",
+ "creation": "2026-06-24 06:47:01.649144",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "CosmoERP Dashboard",
+ "link_type": "DocType",
+ "links": [],
+ "modified": "2026-06-24 06:47:01.952683",
+ "modified_by": "Administrator",
+ "module": "CosmOS",
+ "name": "CosmoERP Dashboard",
+ "number_cards": [
+  {
+   "label": "Total Employees",
+   "number_card_name": "Total Employees"
+  },
+  {
+   "label": "Active Employees",
+   "number_card_name": "Active Employees"
+  },
+  {
+   "label": "Employees on Leave Today",
+   "number_card_name": "Employees on Leave Today"
+  },
+  {
+   "label": "Biometric Devices",
+   "number_card_name": "Biometric Devices"
+  },
+  {
+   "label": "Total Users",
+   "number_card_name": "Total Users"
+  }
+ ],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "HR User"
+  }
+ ],
+ "sequence_id": 0.0,
+ "shortcuts": [
+  {
+   "doc_view": "",
+   "label": "Employee Master",
+   "link_to": "Employee",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Attendance",
+   "link_to": "Attendance",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Leave Application",
+   "link_to": "Leave Application",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Payroll Entry",
+   "link_to": "Payroll Entry",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Hikvision Devices",
+   "link_to": "Hikvision Device",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Biometric Logs",
+   "link_to": "Hikvision Attendance Log",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "WPS Salary File",
+   "link_to": "WPS Salary File",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Employee Checkin",
+   "link_to": "Employee Checkin",
+   "type": "DocType"
+  }
+ ],
+ "title": "CosmoERP Dashboard",
+ "type": "Workspace"
+}

@@ -1,0 +1,98 @@
+{
+ "doctype": "DocType",
+ "name": "Market Rate Item",
+ "module": "CosmOS",
+ "istable": 1,
+ "autoname": "hash",
+ "naming_rule": "Random",
+ "field_order": [
+  "item",
+  "item_name",
+  "item_type",
+  "uom",
+  "col_break_1",
+  "market_rate",
+  "valuation_rate",
+  "last_purchase_rate",
+  "standard_rate",
+  "variation_pct",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name",
+   "fetch_from": "item.item_name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Item Type",
+   "options": "\nRaw Material\nProduct\nBoth"
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "UOM",
+   "fetch_from": "item.stock_uom",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "market_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Market Rate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "valuation_rate",
+   "fieldtype": "Currency",
+   "label": "Valuation Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_purchase_rate",
+   "fieldtype": "Currency",
+   "label": "Last Purchase Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "standard_rate",
+   "fieldtype": "Currency",
+   "label": "Standard Selling Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "variation_pct",
+   "fieldtype": "Percent",
+   "label": "Market vs Valuation %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "permissions": [],
+ "modified": "2024-01-01 00:00:00",
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

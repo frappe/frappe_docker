@@ -1,0 +1,153 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-06-23 04:20:46.418363",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "visa_type",
+  "passport_number",
+  "nationality",
+  "visa_number",
+  "issuing_authority",
+  "column_break_1",
+  "issue_date",
+  "expiry_date",
+  "date_of_entry",
+  "duration_of_stay_days",
+  "number_of_entries",
+  "section_sponsor",
+  "sponsored_by",
+  "column_break_2",
+  "status",
+  "section_documents",
+  "attach_visa_document",
+  "section_remarks",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "visa_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Visa Type",
+   "options": "Tourist\nBusiness\nWork\nResident\nStudent\nTransit\nDiplomatic\nVisit\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "passport_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Passport Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "nationality",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Nationality",
+   "options": "Country"
+  },
+  {
+   "fieldname": "visa_number",
+   "fieldtype": "Data",
+   "label": "Visa Number"
+  },
+  {
+   "fieldname": "issuing_authority",
+   "fieldtype": "Data",
+   "label": "Issuing Authority"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Issue Date"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expiry Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "date_of_entry",
+   "fieldtype": "Date",
+   "label": "Date of Entry"
+  },
+  {
+   "fieldname": "duration_of_stay_days",
+   "fieldtype": "Int",
+   "label": "Duration of Stay (Days)"
+  },
+  {
+   "fieldname": "number_of_entries",
+   "fieldtype": "Select",
+   "label": "Number of Entries",
+   "options": "Single\nDouble\nMultiple"
+  },
+  {
+   "fieldname": "section_sponsor",
+   "fieldtype": "Section Break",
+   "label": "Sponsor Details"
+  },
+  {
+   "fieldname": "sponsored_by",
+   "fieldtype": "Data",
+   "label": "Sponsored By"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nExpired\nRevoked\nAbout to Expire"
+  },
+  {
+   "fieldname": "section_documents",
+   "fieldtype": "Section Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "attach_visa_document",
+   "fieldtype": "Attach",
+   "label": "Attach Visa Document"
+  },
+  {
+   "fieldname": "section_remarks",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "idx": 1,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-23 04:20:46.418363",
+ "modified_by": "Administrator",
+ "module": "CosmOS",
+ "name": "Employee Visa Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
