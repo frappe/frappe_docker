@@ -1,0 +1,17 @@
+{
+  "name": "cosmos-erp-desktop",
+  "version": "1.0.0",
+  "description": "CosmOS ERP Desktop Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "electron-builder": "^24.4.0"
+  },
+  "dependencies": {
+    "electron-is-dev": "^2.0.0"
+  }
+}

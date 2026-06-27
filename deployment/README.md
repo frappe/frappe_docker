@@ -22,3 +22,8 @@ This folder contains all necessary files to install the CosmOS ERP server and cl
 
 ## 🔗 Accessing the App
 Open your browser and go to: `http://cosmos.local:8081`
+
+## 🖥️ Native Desktop Option (Electron)
+If you want a true standalone application (no browser tabs, no address bar), use the Electron wrapper.
+
+Refer to [README_ELECTRON.md](./README_ELECTRON.md) for build instructions.
