@@ -96,19 +96,13 @@ jobs:
           ]
           EOF
 
-          IPSTC_SHA=$(curl -fsSL -H "${AUTH_HEADER}" \
-            "https://api.github.com/repos/TIVOK-SOLUTIONS/ipstc/commits/${CUSTOM_BRANCH}" \
-            | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
+          GIT_PREFIX="${PREFIX}"
 
-          IPSTC_HRMS_SHA=$(curl -fsSL -H "${AUTH_HEADER}" \
-            "https://api.github.com/repos/TIVOK-SOLUTIONS/ipstc-hrms/commits/${CUSTOM_BRANCH}" \
-            | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
+          IPSTC_SHA=$(git ls-remote "${GIT_PREFIX}/ipstc.git" "refs/heads/${CUSTOM_BRANCH}" | cut -f1)
+          IPSTC_HRMS_SHA=$(git ls-remote "${GIT_PREFIX}/ipstc-hrms.git" "refs/heads/${CUSTOM_BRANCH}" | cut -f1)
+          IPSTC_PROCUREMENT_SHA=$(git ls-remote "${GIT_PREFIX}/ipstc-procurement.git" "refs/heads/${CUSTOM_BRANCH}" | cut -f1)
 
-          IPSTC_PROCUREMENT_SHA=$(curl -fsSL -H "${AUTH_HEADER}" \
-            "https://api.github.com/repos/TIVOK-SOLUTIONS/ipstc-procurement/commits/${CUSTOM_BRANCH}" \
-            | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
-
-          HASH=$(echo "${IPSTC_SHA}${IPSTC_HRMS_SHA}$${IPSTC_PROCUREMENT_SHA}" | sha256sum | cut -d' ' -f1)
+          HASH=$(echo "${IPSTC_SHA}${IPSTC_HRMS_SHA}${IPSTC_PROCUREMENT_SHA}" | sha256sum | cut -d' ' -f1)
 
           echo "hash=${HASH}" >> "$GITHUB_OUTPUT"
           echo "apps.json written"
