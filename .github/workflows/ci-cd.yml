@@ -92,7 +92,7 @@ jobs:
             {"url": "https://github.com/frappe/hrms",       "branch": "version-16"},
             {"url": "${PREFIX}/ipstc.git",                  "branch": "${CUSTOM_BRANCH}"},
             {"url": "${PREFIX}/ipstc-hrms.git",             "branch": "${CUSTOM_BRANCH}"},
-            {"url": "${PREFIX}/ipstc-procurement.git",             "branch": "${CUSTOM_BRANCH}"}
+            {"url": "${PREFIX}/ipstc-procurement.git",      "branch": "${CUSTOM_BRANCH}"}
           ]
           EOF
 
@@ -156,7 +156,7 @@ jobs:
           docker pull "$IMAGE"
 
           docker run --rm --entrypoint bash "$IMAGE" -lc '
-            for app in frappe erpnext hrms ipstc ipstc_hrms; do
+            for app in frappe erpnext hrms ipstc ipstc_hrms ipstc_procurement; do
               dir="/home/frappe/frappe-bench/apps/$app"
               if [ -d "$dir" ]; then
                 echo "OK  $app"
