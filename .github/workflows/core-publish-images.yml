@@ -70,7 +70,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push Docker Hub images
-        uses: docker/bake-action@v7.2.0
+        uses: docker/bake-action@v7.3.0
         with:
           push: true
           set: "*.platform=linux/amd64,linux/arm64"
@@ -83,7 +83,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push GHCR base images
-        uses: docker/bake-action@v7.2.0
+        uses: docker/bake-action@v7.3.0
         with:
           targets: base-images
           push: true
