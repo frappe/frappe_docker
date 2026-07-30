@@ -1,0 +1,10 @@
+[
+  {
+    "url": "https://github.com/DHI-Partners/habibi-erp",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/DHI-Partners/saas_bridge",
+    "branch": "version-16"
+  }
+]
