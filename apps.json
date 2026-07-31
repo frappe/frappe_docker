@@ -14,5 +14,9 @@
   {
     "url": "https://github.com/TIVOK-SOLUTIONS/ipstc-hrms.git",
     "branch": "main"
+  },
+  {
+    "url": "https://github.com/TIVOK-SOLUTIONS/ipstc-procurement.git",
+    "branch": "main"
   }
 ]
