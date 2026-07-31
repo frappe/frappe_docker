@@ -90,6 +90,8 @@ jobs:
           [
             {"url": "https://github.com/frappe/erpnext",    "branch": "version-16"},
             {"url": "https://github.com/frappe/hrms",       "branch": "version-16"},
+            {"url": "https://github.com/frappe/telephony",       "branch": "develop"},
+            {"url": "https://github.com/frappe/helpdesk",       "branch": "main"},
             {"url": "${PREFIX}/ipstc.git",                  "branch": "${CUSTOM_BRANCH}"},
             {"url": "${PREFIX}/ipstc-hrms.git",             "branch": "${CUSTOM_BRANCH}"},
             {"url": "${PREFIX}/ipstc-procurement.git",      "branch": "${CUSTOM_BRANCH}"},
