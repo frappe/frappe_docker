@@ -7,8 +7,8 @@
 #
 # Каталоги должны существовать и иметь правильного владельца ДО up -d.
 # UID числовые — они захардкожены в образах, пользователь хоста тут ни при чём:
-#   sudo mkdir -p /u01/frappe/{sites,logs,mariadb,backups,redis,traefik}
-#   sudo chown -R 1000:1000 /u01/frappe/{sites,logs,backups}   # frappe в образе habibi
+#   sudo mkdir -p /u01/frappe/{sites,logs,mariadb,redis,traefik}
+#   sudo chown -R 1000:1000 /u01/frappe/{sites,logs}           # frappe в образе habibi
 #   sudo chown -R 999:999   /u01/frappe/{mariadb,redis}        # mysql в mariadb, redis в redis
 #   sudo chown -R 0:0       /u01/frappe/traefik                # traefik работает от root
 #   sudo chmod 700          /u01/frappe/traefik                # acme.json с приватным ключом
@@ -27,12 +27,14 @@ services:
     volumes:
       - logs:/home/frappe/frappe-bench/logs
 
+  # Бэкапы отдельным томом НЕ выносим: bench кладёт их в
+  # sites/<site>/private/backups, то есть внутрь ${DATA_ROOT}/sites — на диске
+  # они и так есть. Монтирование ${DATA_ROOT}/backups поверх этого пути ломает
+  # bench new-site: docker создаёт промежуточные sites/<site>/private от root,
+  # и bench видит уже существующий каталог сайта.
   backend:
     volumes:
       - logs:/home/frappe/frappe-bench/logs
-      # Бэкапы bench кладёт внутрь sites/<site>/private/backups. Монтируем поверх,
-      # чтобы они уехали в ${DATA_ROOT}/backups.
-      - ${DATA_ROOT:?DATA_ROOT not set}/backups:/home/frappe/frappe-bench/sites/${SITE_NAME:?SITE_NAME not set}/private/backups
 
   frontend:
     volumes:
@@ -59,7 +61,6 @@ services:
   scheduler:
     volumes:
       - logs:/home/frappe/frappe-bench/logs
-      - ${DATA_ROOT:?DATA_ROOT not set}/backups:/home/frappe/frappe-bench/sites/${SITE_NAME:?SITE_NAME not set}/private/backups
 
 volumes:
   sites:
