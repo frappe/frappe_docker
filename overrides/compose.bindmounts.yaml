@@ -1,0 +1,100 @@
+# Раскладывает данные стека по каталогам хоста вместо каталога докера
+# (/var/lib/docker/volumes). Тома остаются именованными — меняется только их
+# driver_opts, поэтому compose.yaml и остальные оверрайды не трогаются.
+#
+# Корень задаётся переменной DATA_ROOT в .env .
+# Путь обязан быть АБСОЛЮТНЫМ: driver_opts "o: bind" относительные не понимает.
+#
+# Каталоги должны существовать и иметь правильного владельца ДО up -d.
+# UID числовые — они захардкожены в образах, пользователь хоста тут ни при чём:
+#   sudo mkdir -p /u01/frappe/{sites,logs,mariadb,backups,redis,traefik}
+#   sudo chown -R 1000:1000 /u01/frappe/{sites,logs,backups}   # frappe в образе habibi
+#   sudo chown -R 999:999   /u01/frappe/{mariadb,redis}        # mysql в mariadb, redis в redis
+#   sudo chown -R 0:0       /u01/frappe/traefik                # traefik работает от root
+#   sudo chmod 700          /u01/frappe/traefik                # acme.json с приватным ключом
+#
+# Что остаётся вне ${DATA_ROOT} и так задумано: apps/, env/, assets/ лежат
+# слоями образа, а /tmp и кэши — в writable layer контейнера. Всё это
+# пересоздаётся из образа и состоянием не является.
+#
+# Переключить том с обычного на bind можно только пока он пуст: если стек уже
+# поднимался, docker проигнорирует новые driver_opts у существующего тома.
+# Тогда: docker compose down && docker volume rm <проект>_sites <проект>_db-data
+# (данные при этом теряются).
+
+services:
+  configurator:
+    volumes:
+      - logs:/home/frappe/frappe-bench/logs
+
+  backend:
+    volumes:
+      - logs:/home/frappe/frappe-bench/logs
+      # Бэкапы bench кладёт внутрь sites/<site>/private/backups. Монтируем поверх,
+      # чтобы они уехали в ${DATA_ROOT}/backups.
+      - ${DATA_ROOT:?DATA_ROOT not set}/backups:/home/frappe/frappe-bench/sites/${SITE_NAME:?SITE_NAME not set}/private/backups
+
+  frontend:
+    volumes:
+      - logs:/home/frappe/frappe-bench/logs
+
+  # Требует overrides/compose.migrator.yaml в COMPOSE_FILE: если убрать оттуда
+  # migrator, а этот блок оставить — compose упадёт с "service has no image".
+  migrator:
+    volumes:
+      - logs:/home/frappe/frappe-bench/logs
+
+  websocket:
+    volumes:
+      - logs:/home/frappe/frappe-bench/logs
+
+  queue-short:
+    volumes:
+      - logs:/home/frappe/frappe-bench/logs
+
+  queue-long:
+    volumes:
+      - logs:/home/frappe/frappe-bench/logs
+
+  scheduler:
+    volumes:
+      - logs:/home/frappe/frappe-bench/logs
+      - ${DATA_ROOT:?DATA_ROOT not set}/backups:/home/frappe/frappe-bench/sites/${SITE_NAME:?SITE_NAME not set}/private/backups
+
+volumes:
+  sites:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_ROOT:?DATA_ROOT not set}/sites
+
+  logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_ROOT:?DATA_ROOT not set}/logs
+
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_ROOT:?DATA_ROOT not set}/mariadb
+
+  # acme.json с сертификатом Let's Encrypt. Определён в compose.https.yaml.
+  cert-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_ROOT:?DATA_ROOT not set}/traefik
+
+  # Дамп очередей. Определён в compose.redis.yaml.
+  redis-queue-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_ROOT:?DATA_ROOT not set}/redis
