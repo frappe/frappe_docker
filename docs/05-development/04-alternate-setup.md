@@ -66,6 +66,24 @@ This gives you `.devcontainer/docker-compose.yml` which defines all the services
 - `redis-cache` — cache layer
 - `redis-queue` — background job queue
 
+### Configure ports for CLI-only use
+
+The example configuration is intended for VS Code Dev Containers and forwards development ports through VS Code. Because this setup runs Docker Compose directly, add the following environment variable and loopback-only port mappings to the `frappe` service in `.devcontainer/docker-compose.yml`:
+
+```yaml
+services:
+  frappe:
+    # ... existing config
+    environment:
+      - SHELL=/bin/bash
+      - FRAPPE_BIND_ADDR=0.0.0.0
+    ports:
+      - "127.0.0.1:8000-8005:8000-8005"
+      - "127.0.0.1:9000-9005:9000-9005"
+```
+
+Frappe's development server binds to `127.0.0.1` by default. `FRAPPE_BIND_ADDR=0.0.0.0` makes it reachable through Docker's port mappings, while binding the published ports to `127.0.0.1` keeps them accessible only from your local machine.
+
 ---
 
 ## Step 4 — Add ARM64 Platform to All Services
@@ -121,15 +139,17 @@ Error response from daemon: failed to set up container networking: driver failed
 
 - Check if the port is being used by another service with `lsof -i :PORT`
   > Usually on MacOS ports 8000 and 9000 are usually reserved for system use
-- Go to line 60 and 61 under the `frappe` service and change the ports
+- Change the host-side port ranges under the `frappe` service
 
 Eg:
 
-```
+```yaml
 ports:
-      - 8001-8005:8001-8005
-      - 9002-9005:9002-9005
+  - "127.0.0.1:8100-8105:8000-8005"
+  - "127.0.0.1:9100-9105:9000-9005"
 ```
+
+With this example, open the first site on port `8100` instead of `8000`.
 
 ---
 

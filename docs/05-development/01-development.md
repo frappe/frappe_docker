@@ -378,7 +378,7 @@ The first command can take a few seconds to be executed, this is to be expected.
 
 ## Manually start containers
 
-In case you don't use VSCode, you may start the containers manually with the following command:
+The example configuration forwards development ports through VS Code and does not publish them through Docker. If you don't use VS Code, first follow the [CLI-only port configuration](04-alternate-setup.md#configure-ports-for-cli-only-use), then start the containers manually:
 
 ### Running the containers
 
