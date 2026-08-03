@@ -157,14 +157,14 @@ bench --site dev.localhost install-app my_app
 
 ### apps.json
 
-Создаётся вручную в корне `frappe_docker`, рядом с `compose.yaml`.
-Перечисляем **всё кроме frappe** — фреймворк ставится всегда и задаётся отдельно.
+Лежит в репозитории: [apps.json](apps.json). Перечисляем **всё кроме frappe** —
+фреймворк ставится всегда и задаётся отдельно, через `--build-arg=FRAPPE_PATH`.
 
 ```json
 [
   {
     "url": "https://github.com/DHI-Partners/habibi-erp",
-    "branch": "habibi-v16"
+    "branch": "main"
   },
   {
     "url": "https://github.com/DHI-Partners/saas_bridge",
@@ -175,10 +175,9 @@ bench --site dev.localhost install-app my_app
 
 Порядок важен: приложения ставятся сверху вниз, зависимости идут раньше.
 
-Приватный репозиторий — токен прямо в URL:
-`https://ghp_ТОКЕН@github.com/USER/REPO`
-
-**Добавьте `apps.json` в `.gitignore`** до первого коммита.
+Оба репозитория публичные, поэтому файл хранится в git как есть. **Если какой-то
+станет приватным — токен в закоммиченный файл не вписывать**: собирать из
+временной копии, как описано в [prod-deploy.md](prod-deploy.md#4-сборка-образа).
 
 ### Сборка образа
 
@@ -186,6 +185,7 @@ bench --site dev.localhost install-app my_app
 docker build \
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
   --build-arg=FRAPPE_BRANCH=version-16 \
+  --build-arg=CACHE_BUST="$(date +%s)" \
   --secret=id=apps_json,src=habibi/apps.json \
   --tag=habibi:16 \
   --file=images/layered/Containerfile .
@@ -195,6 +195,11 @@ docker build \
 
 `--secret`, а не `--build-arg`: аргументы сборки навсегда видны в `docker image history`,
 токен бы утёк. Секрет монтируется только на время сборки.
+
+`CACHE_BUST` нужен при **каждой** пересборке. Обратная сторона `--secret`:
+секреты не входят в ключ кэша слоя, поэтому без него docker переиспользует
+старый слой `bench init`, и новые коммиты приложений в образ не попадут —
+сборка пройдёт «успешно» со старым кодом.
 
 `images/layered/` собирает поверх готовых образов `frappe/base` и `frappe/build`
 с Docker Hub — быстро, 5–15 минут. Есть ещё `images/custom/` (с нуля, дольше, но
