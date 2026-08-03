@@ -118,7 +118,7 @@ docker build \
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
   --build-arg=FRAPPE_BRANCH=version-16 \
   --build-arg=CACHE_BUST="$(date +%s)" \
-  --secret=id=apps_json,src=apps.json \
+  --secret=id=apps_json,src=habibi/apps.json \
   --tag=habibi:16 \
   --file=images/layered/Containerfile .
 ```
@@ -144,7 +144,7 @@ docker run --rm --entrypoint bash habibi:16 -lc 'ls -1 apps'
 
 ```bash
 umask 077
-sed "s|https://github.com/|https://x-access-token:${PAT}@github.com/|" apps.json > /tmp/apps.json
+sed "s|https://github.com/|https://x-access-token:${PAT}@github.com/|" habibi/apps.json > /tmp/apps.json
 docker build ... --secret=id=apps_json,src=/tmp/apps.json ...
 rm -f /tmp/apps.json
 ```
@@ -250,7 +250,7 @@ docker build \
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
   --build-arg=FRAPPE_BRANCH=version-16 \
   --build-arg=CACHE_BUST="$(date +%s)" \
-  --secret=id=apps_json,src=apps.json \
+  --secret=id=apps_json,src=habibi/apps.json \
   --tag=habibi:16 \
   --file=images/layered/Containerfile .
 

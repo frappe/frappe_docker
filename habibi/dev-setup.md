@@ -186,7 +186,7 @@ bench --site dev.localhost install-app my_app
 docker build \
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
   --build-arg=FRAPPE_BRANCH=version-16 \
-  --secret=id=apps_json,src=apps.json \
+  --secret=id=apps_json,src=habibi/apps.json \
   --tag=habibi:16 \
   --file=images/layered/Containerfile .
 ```
