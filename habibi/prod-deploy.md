@@ -2,7 +2,7 @@
 
 Разворачивание прод-стека с нуля: Frappe v16 + форк ERPNext + `saas_bridge`,
 MariaDB, Redis, Traefik с Let's Encrypt. Локальная (dev) схема описана в
-[frappe-setup.md](frappe-setup.md), здесь — только сервер.
+[dev-setup.md](dev-setup.md), здесь — только сервер.
 
 ## Что получилось
 
@@ -76,7 +76,7 @@ docker не создаёт `device` сам, контейнер падает с `
 ```bash
 git clone https://github.com/DHI-Partners/habibi_docker.git ~/habibi_docker
 cd ~/habibi_docker
-cp prod.example.env .env
+cp habibi/prod.example.env .env
 nano .env
 ```
 
@@ -100,8 +100,8 @@ overrides/compose.mariadb.yaml
 overrides/compose.redis.yaml
 overrides/compose.https.yaml
 overrides/compose.migrator.yaml
-overrides/compose.bindmounts.yaml
-overrides/compose.platform.yaml
+habibi/overrides/compose.bindmounts.yaml
+habibi/overrides/compose.platform.yaml
 ```
 
 Порядок значим: `compose.platform.yaml` обязан идти **после**
