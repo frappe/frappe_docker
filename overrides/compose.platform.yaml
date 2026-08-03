@@ -1,0 +1,38 @@
+# Снимает жёсткий platform: linux/amd64 из compose.yaml и compose.migrator.yaml.
+# Нужен на ARM-серверах (Oracle Ampere, Graviton, Apple Silicon), где образ
+# собран нативно под arm64 и docker отказывается его запускать:
+#   image with reference habibi:16 was found but does not provide
+#   the specified platform (linux/amd64)
+#
+# Архитектура задаётся в .env:
+#   PLATFORM=linux/arm64
+# Без переменной поведение прежнее — linux/amd64.
+#
+# Подключать ПОСЛЕ compose.migrator.yaml в COMPOSE_FILE, иначе platform
+# у migrator не переопределится.
+
+services:
+  configurator:
+    platform: ${PLATFORM:-linux/amd64}
+
+  backend:
+    platform: ${PLATFORM:-linux/amd64}
+
+  frontend:
+    platform: ${PLATFORM:-linux/amd64}
+
+  websocket:
+    platform: ${PLATFORM:-linux/amd64}
+
+  queue-short:
+    platform: ${PLATFORM:-linux/amd64}
+
+  queue-long:
+    platform: ${PLATFORM:-linux/amd64}
+
+  scheduler:
+    platform: ${PLATFORM:-linux/amd64}
+
+  # Требует overrides/compose.migrator.yaml в COMPOSE_FILE.
+  migrator:
+    platform: ${PLATFORM:-linux/amd64}
