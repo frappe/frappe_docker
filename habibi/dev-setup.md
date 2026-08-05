@@ -138,8 +138,12 @@ ls apps/
 bench --site dev.localhost install-app ИМЯ_ИЗ_LS
 ```
 
-Имя приложения ≠ имя репозитория. Форк `habibi-erp` внутри бенча называется `erpnext` —
-имя берётся из самого приложения. Всегда проверяйте через `ls apps/`.
+Имя приложения ≠ имя репозитория. Имя берётся из самого приложения (`pyproject.toml`,
+`hooks.py`), а не из URL. У наших репозиториев имена совпадают с именами приложений —
+`habibi_core`, `saas_bridge`. Исключение — форк: `habibi_erp` встаёт как `erpnext`,
+потому что так называется приложение внутри него. Всегда проверяйте через `ls apps/`.
+
+Имена приложений всегда через подчёркивание: это python-модули, дефис в них невозможен.
 
 Своё приложение с нуля:
 
@@ -163,7 +167,11 @@ bench --site dev.localhost install-app my_app
 ```json
 [
   {
-    "url": "https://github.com/DHI-Partners/habibi-erp",
+    "url": "https://github.com/DHI-Partners/habibi_erp",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/DHI-Partners/habibi_core",
     "branch": "main"
   },
   {
@@ -175,7 +183,7 @@ bench --site dev.localhost install-app my_app
 
 Порядок важен: приложения ставятся сверху вниз, зависимости идут раньше.
 
-Оба репозитория публичные, поэтому файл хранится в git как есть. **Если какой-то
+Все репозитории публичные, поэтому файл хранится в git как есть. **Если какой-то
 станет приватным — токен в закоммиченный файл не вписывать**: собирать из
 временной копии, как описано в [prod-deploy.md](prod-deploy.md#4-сборка-образа).
 
@@ -277,6 +285,7 @@ dc exec backend bench new-site habibi.localhost \
   --db-root-password 123 \
   --admin-password admin \
   --install-app erpnext \
+  --install-app habibi_core \
   --install-app saas_bridge
 ```
 

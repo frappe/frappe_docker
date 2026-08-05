@@ -12,7 +12,7 @@ MariaDB, Redis, Traefik с Let's Encrypt. Локальная (dev) схема о
 | Домен | `erp.ayntayba.com`, DNS в Cloudflare, проксирование **выключено** |
 | TLS | Let's Encrypt, http-01 challenge через Traefik |
 | Образ | `habibi:16`, собирается **на сервере**, registry не используется |
-| Приложения | `frappe`, `erpnext` (форк `DHI-Partners/habibi-erp`), `saas_bridge` |
+| Приложения | `frappe`, `erpnext` (форк `DHI-Partners/habibi_erp`), `habibi_core`, `saas_bridge` |
 | Данные | bind-mount в `/u01/frappe`, не в `/var/lib/docker/volumes` |
 | Каталог | `~/habibi_docker` |
 
@@ -129,11 +129,14 @@ docker build \
 docker run --rm --entrypoint bash habibi:16 -lc 'ls -1 apps'
 # erpnext
 # frappe
+# habibi_core
 # saas_bridge
 ```
 
-Имена из этого вывода идут в `--install-app` при создании сайта. Форк
-`habibi-erp` встаёт как `erpnext` — так называется приложение в его `hooks.py`.
+Имена из этого вывода идут в `--install-app` при создании сайта. У наших приложений
+они совпадают с именами репозиториев, у форка — нет: `habibi_erp` встаёт как `erpnext`,
+так называется приложение в его `hooks.py`. Поэтому список берём из `ls -1 apps`,
+а не из `apps.json`.
 
 `CACHE_BUST` обязателен при **каждой** пересборке: `apps.json` передаётся
 секретом, а секреты не входят в ключ кэша слоя. Без него docker переиспользует
@@ -207,6 +210,7 @@ docker compose exec backend bench new-site erp.ayntayba.com \
   --db-root-password "$(grep '^DB_PASSWORD=' .env | cut -d= -f2-)" \
   --admin-password '<сильный-пароль>' \
   --install-app erpnext \
+  --install-app habibi_core \
   --install-app saas_bridge
 
 docker compose exec backend bench --site erp.ayntayba.com enable-scheduler
