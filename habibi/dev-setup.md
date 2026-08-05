@@ -177,6 +177,10 @@ bench --site dev.localhost install-app my_app
   {
     "url": "https://github.com/DHI-Partners/saas_bridge",
     "branch": "version-16"
+  },
+  {
+    "url": "https://github.com/DHI-Partners/habibi_telegram",
+    "branch": "master"
   }
 ]
 ```
@@ -286,7 +290,8 @@ dc exec backend bench new-site habibi.localhost \
   --admin-password admin \
   --install-app erpnext \
   --install-app habibi_core \
-  --install-app saas_bridge
+  --install-app saas_bridge \
+  --install-app habibi_telegram
 ```
 
 Сайт создаётся **после** запуска контейнеров, не при сборке.

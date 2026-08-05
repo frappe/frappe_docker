@@ -12,7 +12,7 @@ MariaDB, Redis, Traefik с Let's Encrypt. Локальная (dev) схема о
 | Домен | `erp.ayntayba.com`, DNS в Cloudflare, проксирование **выключено** |
 | TLS | Let's Encrypt, http-01 challenge через Traefik |
 | Образ | `habibi:16`, собирается **на сервере**, registry не используется |
-| Приложения | `frappe`, `erpnext` (форк `DHI-Partners/habibi_erp`), `habibi_core`, `saas_bridge` |
+| Приложения | `frappe`, `erpnext` (форк `DHI-Partners/habibi_erp`), `habibi_core`, `saas_bridge`, `habibi_telegram` |
 | Данные | bind-mount в `/u01/frappe`, не в `/var/lib/docker/volumes` |
 | Каталог | `~/habibi_docker` |
 
@@ -130,6 +130,7 @@ docker run --rm --entrypoint bash habibi:16 -lc 'ls -1 apps'
 # erpnext
 # frappe
 # habibi_core
+# habibi_telegram
 # saas_bridge
 ```
 
@@ -211,8 +212,10 @@ docker compose exec backend bench new-site erp.ayntayba.com \
   --admin-password '<сильный-пароль>' \
   --install-app erpnext \
   --install-app habibi_core \
-  --install-app saas_bridge
+  --install-app saas_bridge \
+  --install-app habibi_telegram
 
+docker compose exec backend bench --site erp.ayntayba.com migrate
 docker compose exec backend bench --site erp.ayntayba.com enable-scheduler
 ```
 
@@ -221,7 +224,40 @@ docker compose exec backend bench --site erp.ayntayba.com enable-scheduler
 (`docker compose down && up`) подсеть меняется, а сайт отваливается с
 `Access denied for user '_xxxx'@'172.18.0.11'`.
 
-## 9. Проверка
+`bench migrate` после создания сайта нужен: `install-app` не всегда синхронизирует
+DocType'ы свежепоставленного приложения, и таблицы появляются только на миграции.
+
+## 9. Телеграм-бот
+
+Делается **после** выпуска сертификата: Telegram регистрирует вебхук только на
+публичном https-адресе и проверяет цепочку сертификатов сам.
+
+1. Взять токен у [@BotFather](https://t.me/BotFather).
+2. В Desk завести **Telegram Bot**, вставить токен, сохранить. Токен проверяется
+   через `getMe`, оттуда же подтянется username.
+3. Нажать **Set Webhook**.
+
+Из консоли то же самое:
+
+```bash
+docker compose exec backend bench --site erp.ayntayba.com telegram list-bots
+docker compose exec backend bench --site erp.ayntayba.com telegram set-webhook <имя-бота>
+docker compose exec backend bench --site erp.ayntayba.com telegram webhook-info <имя-бота>
+```
+
+Адрес вебхука собирается из `host_name` сайта:
+
+```
+https://erp.ayntayba.com/api/method/habibi_telegram.api.webhook?bot=<имя-бота>
+```
+
+Если `host_name` в `site_config.json` не выставлен, адрес соберётся с `http://`
+и `set-webhook` откажется работать — Telegram принимает только https.
+
+Если бот молчит — сначала `telegram webhook-info`: там видно, что о вебхуке
+думает сам Telegram, включая `last_error_message` и число зависших апдейтов.
+
+## 10. Проверка
 
 ```bash
 curl -sI https://erp.ayntayba.com/ | head -1              # HTTP/2 200
@@ -271,6 +307,22 @@ docker compose ps
 Тег `habibi:16` перезаписывается на месте, отдельных версий нет — откатиться
 можно только пересборкой из старого коммита приложений. Если это станет нужно
 регулярно — переходить на GHCR с тегами по SHA (вариант Б в `prod.example.env`).
+
+### Новое приложение на живом сайте
+
+Пересборка выше кладёт приложение в образ, но на существующий сайт его не
+ставит — это отдельный шаг после `up -d`:
+
+```bash
+docker run --rm --entrypoint bash habibi:16 -lc 'ls -1 apps'   # приложение в образе?
+docker compose exec backend bench --site erp.ayntayba.com install-app <приложение>
+docker compose exec backend bench --site erp.ayntayba.com migrate
+docker compose exec backend bench --site erp.ayntayba.com list-apps
+```
+
+Порядок важен: `install-app` обязан выполняться уже в пересозданном `backend`.
+Пока `up -d` не подменил контейнер, внутри старый образ, где приложения нет, и
+команда упадёт с `App not found`.
 
 ## Бэкапы
 

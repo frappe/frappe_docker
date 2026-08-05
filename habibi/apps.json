@@ -10,5 +10,9 @@
   {
     "url": "https://github.com/DHI-Partners/saas_bridge",
     "branch": "version-16"
+  },
+  {
+    "url": "https://github.com/DHI-Partners/habibi_telegram",
+    "branch": "master"
   }
 ]
