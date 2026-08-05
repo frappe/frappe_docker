@@ -232,6 +232,13 @@ DocType'ы свежепоставленного приложения, и таб�
 Делается **после** выпуска сертификата: Telegram регистрирует вебхук только на
 публичном https-адресе и проверяет цепочку сертификатов сам.
 
+Сначала прописать `host_name` — из него собирается адрес вебхука. Без него
+`get_url()` отдаёт `http://`, и регистрация откажет:
+
+```bash
+docker compose exec backend bench --site erp.ayntayba.com set-config host_name https://erp.ayntayba.com
+```
+
 1. Взять токен у [@BotFather](https://t.me/BotFather).
 2. В Desk завести **Telegram Bot**, вставить токен, сохранить. Токен проверяется
    через `getMe`, оттуда же подтянется username.
