@@ -232,13 +232,6 @@ DocType'ы свежепоставленного приложения, и таб�
 Делается **после** выпуска сертификата: Telegram регистрирует вебхук только на
 публичном https-адресе и проверяет цепочку сертификатов сам.
 
-Сначала прописать `host_name` — из него собирается адрес вебхука. Без него
-`get_url()` отдаёт `http://`, и регистрация откажет:
-
-```bash
-docker compose exec backend bench --site erp.ayntayba.com set-config host_name https://erp.ayntayba.com
-```
-
 1. Взять токен у [@BotFather](https://t.me/BotFather).
 2. В Desk завести **Telegram Bot**, вставить токен, сохранить. Токен проверяется
    через `getMe`, оттуда же подтянется username.
@@ -252,14 +245,16 @@ docker compose exec backend bench --site erp.ayntayba.com telegram set-webhook <
 docker compose exec backend bench --site erp.ayntayba.com telegram webhook-info <имя-бота>
 ```
 
-Адрес вебхука собирается из `host_name` сайта:
+Адрес вебхука собирается из имени сайта, отдельно домен нигде не настраивается:
 
 ```
 https://erp.ayntayba.com/api/method/habibi_telegram.api.webhook?bot=<имя-бота>
 ```
 
-Если `host_name` в `site_config.json` не выставлен, адрес соберётся с `http://`
-и `set-webhook` откажется работать — Telegram принимает только https.
+Это работает потому, что имя сайта здесь и есть домен — `FRAPPE_SITE_NAME_HEADER`
+пуст, и nginx резолвит сайт по заголовку `Host`. Схема всегда `https`: TLS
+терминируется на Traefik, сам frappe видит только http. Если сайт и домен когда-то
+разойдутся — адрес переопределяется через `host_name` в `site_config.json`.
 
 Если бот молчит — сначала `telegram webhook-info`: там видно, что о вебхуке
 думает сам Telegram, включая `last_error_message` и число зависших апдейтов.
