@@ -52,9 +52,7 @@ services:
       # Enable if you require git cloning
       # - ${HOME}/.ssh:/home/frappe/.ssh
     working_dir: /workspace/development
-    ports:
-      - 8000-8005:8000-8005
-      - 9000-9005:9000-9005
+    # Development ports are forwarded by devcontainer.json.
   # enable the below service if you need Cypress UI Tests to be executed
   # Before enabling ensure install_x11_deps.sh has been executed and display variable is exported.
   # Run install_x11_deps.sh again if DISPLAY is not set
