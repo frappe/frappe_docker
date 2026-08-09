@@ -6,15 +6,15 @@ MariaDB, Redis, Traefik с Let's Encrypt. Локальная (dev) схема о
 
 ## Что получилось
 
-| | |
-|---|---|
-| Хост | Oracle Cloud, Ampere **ARM** (`aarch64`), Ubuntu, пользователь `ubuntu` |
-| Домен | `erp.ayntayba.com`, DNS в Cloudflare, проксирование **выключено** |
-| TLS | Let's Encrypt, http-01 challenge через Traefik |
-| Образ | `ghcr.io/dhi-partners/habibi`, собирается **в CI**, на сервер приезжает готовым |
+|            |                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------- |
+| Хост       | Oracle Cloud, Ampere **ARM** (`aarch64`), Ubuntu, пользователь `ubuntu`               |
+| Домен      | `erp.ayntayba.com`, DNS в Cloudflare, проксирование **выключено**                     |
+| TLS        | Let's Encrypt, http-01 challenge через Traefik                                        |
+| Образ      | `ghcr.io/dhi-partners/habibi`, собирается **в CI**, на сервер приезжает готовым       |
 | Приложения | `frappe`, `erpnext` (чистый апстрим), `habibi_core`, `saas_bridge`, `habibi_telegram` |
-| Данные | bind-mount в `/u01/frappe`, не в `/var/lib/docker/volumes` |
-| Каталог | `~/habibi_docker` |
+| Данные     | bind-mount в `/u01/frappe`, не в `/var/lib/docker/volumes`                            |
+| Каталог    | `~/habibi_docker`                                                                     |
 
 Сервисы: `proxy` (Traefik), `frontend` (nginx), `backend` (gunicorn),
 `websocket`, `queue-short`, `queue-long`, `scheduler`, `db`, `redis-cache`,
@@ -82,15 +82,15 @@ nano .env
 
 Заполнить руками:
 
-| Переменная | Значение |
-|---|---|
-| `DB_PASSWORD` | `openssl rand -base64 32`. **После создания сайта не меняется** — уходит в `site_config.json` |
-| `LETSENCRYPT_EMAIL` | реальный ящик, туда придут письма об истечении сертификата |
-| `SITES_RULE` | ``Host(`erp.ayntayba.com`)`` |
-| `SITE_NAME` | `erp.ayntayba.com` — должно совпадать с доменом из `SITES_RULE` |
-| `DATA_ROOT` | `/u01/frappe`, абсолютный путь |
-| `PLATFORM` | `linux/arm64` на этом сервере, `linux/amd64` на x86 |
-| `GUNICORN_WORKERS` | `(2 × vCPU) + 1`, каждый воркер ~400 МБ — сверить с `free -h` |
+| Переменная          | Значение                                                                                      |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `DB_PASSWORD`       | `openssl rand -base64 32`. **После создания сайта не меняется** — уходит в `site_config.json` |
+| `LETSENCRYPT_EMAIL` | реальный ящик, туда придут письма об истечении сертификата                                    |
+| `SITES_RULE`        | ``Host(`erp.ayntayba.com`)``                                                                  |
+| `SITE_NAME`         | `erp.ayntayba.com` — должно совпадать с доменом из `SITES_RULE`                               |
+| `DATA_ROOT`         | `/u01/frappe`, абсолютный путь                                                                |
+| `PLATFORM`          | `linux/arm64` на этом сервере, `linux/amd64` на x86                                           |
+| `GUNICORN_WORKERS`  | `(2 × vCPU) + 1`, каждый воркер ~400 МБ — сверить с `free -h`                                 |
 
 `COMPOSE_FILE` уже собран в шаблоне и определяет весь стек:
 

@@ -4,17 +4,17 @@
 лежит здесь. Остальные файлы репозитория — апстримные, их не трогаем, чтобы
 `git pull` из апстрима проходил без конфликтов.
 
-| Файл | Что это |
-|---|---|
-| [prod-deploy.md](prod-deploy.md) | рунбук развёртывания на сервере: с нуля до работающего `https://erp.ayntayba.com` |
-| [dev-setup.md](dev-setup.md) | локальная разработка: bench, кастомные приложения, сборка образа |
-| [prod.example.env](prod.example.env) | шаблон серверного `.env`; копируется в корень репозитория как `.env` |
-| [apps.json](apps.json) | список приложений для сборки образа; передаётся в build как BuildKit-секрет |
-| [build.sh](build.sh) | ручная сборка образа, когда до registry не дотянуться |
-| [overrides/compose.bindmounts.yaml](overrides/compose.bindmounts.yaml) | данные стека в каталоги хоста (`DATA_ROOT`) вместо `/var/lib/docker/volumes` |
-| [overrides/compose.platform.yaml](overrides/compose.platform.yaml) | снимает захардкоженный `platform: linux/amd64`; нужен на ARM |
-| [overrides/compose.backup-offsite.yaml](overrides/compose.backup-offsite.yaml) | вывоз бэкапов с сервера через rclone |
-| [overrides/compose.appmount.yaml](overrides/compose.appmount.yaml) | подмена кода приложения рабочей копией с хоста; только для разработки |
+| Файл                                                                           | Что это                                                                           |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| [prod-deploy.md](prod-deploy.md)                                               | рунбук развёртывания на сервере: с нуля до работающего `https://erp.ayntayba.com` |
+| [dev-setup.md](dev-setup.md)                                                   | локальная разработка: bench, кастомные приложения, сборка образа                  |
+| [prod.example.env](prod.example.env)                                           | шаблон серверного `.env`; копируется в корень репозитория как `.env`              |
+| [apps.json](apps.json)                                                         | список приложений для сборки образа; передаётся в build как BuildKit-секрет       |
+| [build.sh](build.sh)                                                           | ручная сборка образа, когда до registry не дотянуться                             |
+| [overrides/compose.bindmounts.yaml](overrides/compose.bindmounts.yaml)         | данные стека в каталоги хоста (`DATA_ROOT`) вместо `/var/lib/docker/volumes`      |
+| [overrides/compose.platform.yaml](overrides/compose.platform.yaml)             | снимает захардкоженный `platform: linux/amd64`; нужен на ARM                      |
+| [overrides/compose.backup-offsite.yaml](overrides/compose.backup-offsite.yaml) | вывоз бэкапов с сервера через rclone                                              |
+| [overrides/compose.appmount.yaml](overrides/compose.appmount.yaml)             | подмена кода приложения рабочей копией с хоста; только для разработки             |
 
 Вне этого каталога наш только `.github/workflows/habibi-image.yml` — сборка
 образа в CI. Он обязан лежать в `.github/`, туда его требует GitHub.
