@@ -23,7 +23,6 @@ on:
       - habibi-apps-updated
 
 env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/habibi
   FRAPPE_BRANCH: version-16
 
 jobs:
@@ -35,6 +34,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      # Владелец репозитория — DHI-Partners, с заглавными буквами, а docker
+      # требует имя репозитория строго в нижнем регистре:
+      #   invalid tag "ghcr.io/DHI-Partners/habibi:16":
+      #   repository name must be lowercase
+      # Поэтому github.repository_owner подставляем не напрямую, а через tr.
+      - name: Resolve image name
+        run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=ghcr.io/${owner}/habibi" >> "$GITHUB_ENV"
+          echo "образ: ghcr.io/${owner}/habibi"
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
