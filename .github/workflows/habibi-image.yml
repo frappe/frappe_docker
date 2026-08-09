@@ -4,10 +4,15 @@ name: Habibi image
 # в ghcr.io. Перенесено из ветки habibi-deploy, пути приведены к habibi/.
 #
 # Триггеры:
-#   push                — изменился apps.json, скрипт сборки или сам workflow
-#   workflow_dispatch   — вручную из UI
+#   push tag v*         — РЕЛИЗ: собрать образ и ВЫКАТИТЬ на прод (job deploy)
+#   push в main         — только собрать образ (без выката), если изменился
+#                         apps.json, скрипт сборки или сам workflow
+#   workflow_dispatch   — вручную из UI (только сборка)
 #   repository_dispatch — из репозитория приложения при пуше в его ветку,
-#                         тип события habibi-apps-updated
+#                         тип события habibi-apps-updated (только сборка)
+#
+# Выкат на прод происходит ТОЛЬКО по тегу v* — job deploy ниже с
+# if startsWith(github.ref, 'refs/tags/v'). Пуш в main прод не трогает.
 
 on:
   push:
@@ -17,6 +22,8 @@ on:
       - habibi/apps.json
       - habibi/build.sh
       - .github/workflows/habibi-image.yml
+    tags:
+      - 'v*'
   workflow_dispatch:
   repository_dispatch:
     types:
@@ -105,9 +112,22 @@ jobs:
           done < <(jq -r '.[] | "\(.url) \(.branch)"' habibi/apps.json)
           echo "value=$(printf '%s' "$bust" | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
 
-      # Два тега: скользящий :16 и неизменяемый :16-<hash> для отката.
-      # В .env на сервере держите версионный — тогда откат это правка
-      # CUSTOM_TAG и docker compose up -d, без пересборки.
+      # Релизный тег образа = имя git-тега (v1.0.0). Только когда пуш тега;
+      # для пуша в main строка пустая, и build-push-action её пропускает.
+      # Именно этим тегом deploy помечает .env на сервере — читаемый якорь
+      # для отката (v1.0.0, v1.0.1), в отличие от 16-<hash>.
+      - name: Release image tag
+        id: reltag
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "image_tag=${{ env.IMAGE }}:${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_tag=" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Три тега: скользящий :16, неизменяемый :16-<hash> и (для релиза)
+      # :vX.Y.Z. В .env на сервере держим версионный — тогда откат это
+      # правка CUSTOM_TAG и docker compose up -d, без пересборки.
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -120,6 +140,7 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:16
             ${{ env.IMAGE }}:16-${{ steps.bust.outputs.value }}
+            ${{ steps.reltag.outputs.image_tag }}
           build-args: |
             FRAPPE_PATH=https://github.com/frappe/frappe
             FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }}
@@ -134,7 +155,45 @@ jobs:
           echo "архитектура: linux/arm64"
           echo "${{ env.IMAGE }}:16"
           echo "${{ env.IMAGE }}:16-${{ steps.bust.outputs.value }}"
-          echo
-          echo "в .env на сервере:"
-          echo "  CUSTOM_IMAGE=${{ env.IMAGE }}"
-          echo "  CUSTOM_TAG=16-${{ steps.bust.outputs.value }}"
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "${{ env.IMAGE }}:${{ github.ref_name }}   <- релиз, поедет на прод"
+          fi
+
+  # ВЫКАТ НА ПРОД. Только по git-тегу v* (пуш в main сюда не попадает).
+  # Заходит по SSH на сервер, снимает бэкап, переключает CUSTOM_TAG на
+  # имя тега и перезапускает стек. Секреты HABIBI_* — в настройках репозитория.
+  deploy:
+    needs: build
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HABIBI_HOST }}
+          username: ${{ secrets.HABIBI_USER }}
+          key: ${{ secrets.HABIBI_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/habibi_docker
+
+            # Бэкап ПЕРЕД миграцией — обязателен: bench migrate необратим,
+            # откат кода образом схему БД назад не вернёт.
+            docker compose exec -T backend bench --site all backup
+
+            # Резервная копия .env и переключение на релизный тег.
+            cp .env .env.bak-$(date +%Y%m%d-%H%M%S)
+            sed -i "s|^CUSTOM_TAG=.*|CUSTOM_TAG=${{ github.ref_name }}|" .env
+            grep '^CUSTOM_TAG=' .env
+
+            docker compose pull
+            # up -d пересоздаёт контейнеры на новом образе; migrator
+            # прогоняет миграции (в .env MIGRATE_SITES=true).
+            docker compose up -d
+            docker image prune -f
+
+            # Дать backend подняться и проверить, что сайт отвечает.
+            sleep 20
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 20 https://erp.ayntayba.com/ || true)
+            echo "сайт после выката: HTTP $code"
+            test "$code" = "200"
