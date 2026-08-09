@@ -1,0 +1,111 @@
+name: Habibi image
+
+# Собирает layered-образ (frappe + приложения из habibi/apps.json) и пушит
+# в ghcr.io. Перенесено из ветки habibi-deploy, пути приведены к habibi/.
+#
+# Триггеры:
+#   push                — изменился apps.json, скрипт сборки или сам workflow
+#   workflow_dispatch   — вручную из UI
+#   repository_dispatch — из репозитория приложения при пуше в его ветку,
+#                         тип события habibi-apps-updated
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - habibi/apps.json
+      - habibi/build.sh
+      - .github/workflows/habibi-image.yml
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+      - habibi-apps-updated
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/habibi
+  FRAPPE_BRANCH: version-16
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # habibi/apps.json в репозитории содержит только публичные URL. Для
+      # приватных приложений положите готовый файл с токеном в секрет
+      # APPS_JSON — он перезапишет версию из репозитория и не попадёт
+      # в слои образа (передаётся дальше как BuildKit-секрет).
+      - name: Resolve apps.json
+        env:
+          APPS_JSON: ${{ secrets.APPS_JSON }}
+        run: |
+          if [ -n "$APPS_JSON" ]; then
+            printf '%s' "$APPS_JSON" > habibi/apps.json
+            echo "apps.json взят из секрета APPS_JSON"
+          else
+            echo "apps.json взят из репозитория"
+          fi
+          jq empty habibi/apps.json
+
+      # Слой bench init кешируется по build-args, а секреты в ключ кэша
+      # не входят. Без этого шага новые коммиты приложений не попадут
+      # в образ: сборка пройдёт «успешно» со старым кодом.
+      #
+      # Берём фактические SHA всех репозиториев из apps.json. В отличие от
+      # $(date +%s) это детерминированно: те же коммиты — тот же ключ кэша
+      # (пересборки не будет), новые коммиты — гарантированная пересборка.
+      - name: Compute CACHE_BUST from app commits
+        id: bust
+        run: |
+          bust=""
+          while read -r url branch; do
+            sha=$(git ls-remote "$url" "refs/heads/$branch" | cut -f1)
+            if [ -z "$sha" ]; then
+              echo "не удалось разрешить $url @ $branch" >&2
+              exit 1
+            fi
+            echo "$url @ $branch -> $sha"
+            bust="${bust}${sha}"
+          done < <(jq -r '.[] | "\(.url) \(.branch)"' habibi/apps.json)
+          echo "value=$(printf '%s' "$bust" | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+
+      # Два тега: скользящий :16 и неизменяемый :16-<hash> для отката.
+      # В .env на сервере держите версионный — тогда откат это правка
+      # CUSTOM_TAG и docker compose up -d, без пересборки.
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: images/layered/Containerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:16
+            ${{ env.IMAGE }}:16-${{ steps.bust.outputs.value }}
+          build-args: |
+            FRAPPE_PATH=https://github.com/frappe/frappe
+            FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }}
+            CACHE_BUST=${{ steps.bust.outputs.value }}
+          secret-files: |
+            apps_json=./habibi/apps.json
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Итоговые теги
+        run: |
+          echo "${{ env.IMAGE }}:16"
+          echo "${{ env.IMAGE }}:16-${{ steps.bust.outputs.value }}"
