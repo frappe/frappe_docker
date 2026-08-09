@@ -27,7 +27,18 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Нативный ARM-раннер: прод-сервер — Oracle Ampere (aarch64), и образ
+    # обязан быть под ту же архитектуру. На обычном ubuntu-latest (x86)
+    # собирался amd64, и docker на сервере отказывался его запускать:
+    #   image ... does not provide the specified platform (linux/arm64)
+    #
+    # ARM-раннеры бесплатны для публичных репозиториев. Сборка нативная,
+    # без эмуляции QEMU — иначе bench init со сборкой ассетов растянулся бы
+    # на часы.
+    #
+    # Если появится x86-сервер: сюда добавляется матрица из двух раннеров
+    # со сборкой по digest и слиянием в multi-arch манифест отдельной job.
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       packages: write
@@ -103,6 +114,9 @@ jobs:
           context: .
           file: images/layered/Containerfile
           push: true
+          # Явно, а не по архитектуре раннера: иначе замена раннера молча
+          # меняет архитектуру образа, а узнаётся это только на сервере.
+          platforms: linux/arm64
           tags: |
             ${{ env.IMAGE }}:16
             ${{ env.IMAGE }}:16-${{ steps.bust.outputs.value }}
@@ -117,5 +131,10 @@ jobs:
 
       - name: Итоговые теги
         run: |
+          echo "архитектура: linux/arm64"
           echo "${{ env.IMAGE }}:16"
           echo "${{ env.IMAGE }}:16-${{ steps.bust.outputs.value }}"
+          echo
+          echo "в .env на сервере:"
+          echo "  CUSTOM_IMAGE=${{ env.IMAGE }}"
+          echo "  CUSTOM_TAG=16-${{ steps.bust.outputs.value }}"
