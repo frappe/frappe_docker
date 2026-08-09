@@ -1,6 +1,24 @@
 {
   "name": "Frappe Bench",
   "forwardPorts": [8000, 9000, 6787],
+  "portsAttributes": {
+    "8000-8099": {
+      "label": "Frappe web",
+      "protocol": "http",
+      "onAutoForward": "notify"
+    },
+    "9000-9099": {
+      "label": "Frappe realtime",
+      "onAutoForward": "silent"
+    },
+    "6787": {
+      "label": "Frappe asset watcher",
+      "onAutoForward": "silent"
+    }
+  },
+  "otherPortsAttributes": {
+    "onAutoForward": "ignore"
+  },
   "remoteUser": "frappe",
   "customizations": {
     "vscode": {
@@ -15,6 +33,10 @@
         "charliermarsh.ruff"
       ],
       "settings": {
+        "remote.autoForwardPorts": true,
+        "remote.autoForwardPortsSource": "process",
+        "remote.restoreForwardedPorts": true,
+        "remote.localPortHost": "localhost",
         "terminal.integrated.profiles.linux": {
           "frappe bash": {
             "path": "/bin/bash"

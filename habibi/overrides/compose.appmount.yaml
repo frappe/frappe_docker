@@ -1,0 +1,46 @@
+# Подменяет код одного приложения внутри контейнеров рабочей копией с хоста:
+# правки видны без пересборки образа. Только для локальной разработки.
+#
+# Перенесено из ветки habibi-deploy (habibi.override.yml), где путь и имя
+# приложения были захардкожены. Теперь задаются в .env:
+#
+#   APP_NAME=erpnext                       # имя приложения внутри bench
+#   APP_SRC=/Users/me/projects/erpnext     # рабочая копия на хосте, АБСОЛЮТНЫЙ путь
+#
+# Запуск:
+#   docker compose -f compose.yaml ... -f habibi/overrides/compose.appmount.yaml up -d
+#
+# ОГРАНИЧЕНИЕ. Работает только для приложения, которое УЖЕ есть в образе.
+# Установка приложения — это не только код: запись в sites/apps.txt, путь
+# в env/.../site-packages/<app>.pth, собранные ассеты. Монтирование каталога
+# ничего из этого не создаёт. Подменить erpnext рабочей копией — можно;
+# подключить так новое приложение — нельзя, его надо запекать в образ
+# (habibi/build.sh) или ставить bench get-app в dev-окружении.
+#
+# Ветка рабочей копии обязана быть совместима с версией фреймворка в образе:
+# develop (v17) поверх frappe 16 не заведётся.
+#
+# Ассеты (JS/CSS) при подмене не пересобираются — в production-образе нет
+# node и yarn. Правки в .py и .json подхватываются, правки в .js — нет.
+
+x-app-mount: &app-mount
+  - ${APP_SRC:?APP_SRC not set}:/home/frappe/frappe-bench/apps/${APP_NAME:?APP_NAME not set}
+
+services:
+  backend:
+    volumes: *app-mount
+
+  configurator:
+    volumes: *app-mount
+
+  queue-long:
+    volumes: *app-mount
+
+  queue-short:
+    volumes: *app-mount
+
+  scheduler:
+    volumes: *app-mount
+
+  websocket:
+    volumes: *app-mount

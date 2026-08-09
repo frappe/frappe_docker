@@ -1,20 +1,20 @@
 # Развёртывание Habibi на сервере
 
-Разворачивание прод-стека с нуля: Frappe v16 + форк ERPNext + `saas_bridge`,
+Разворачивание прод-стека с нуля: Frappe v16 + ERPNext + `saas_bridge`,
 MariaDB, Redis, Traefik с Let's Encrypt. Локальная (dev) схема описана в
 [dev-setup.md](dev-setup.md), здесь — только сервер.
 
 ## Что получилось
 
-| | |
-|---|---|
-| Хост | Oracle Cloud, Ampere **ARM** (`aarch64`), Ubuntu, пользователь `ubuntu` |
-| Домен | `erp.ayntayba.com`, DNS в Cloudflare, проксирование **выключено** |
-| TLS | Let's Encrypt, http-01 challenge через Traefik |
-| Образ | `habibi:16`, собирается **на сервере**, registry не используется |
-| Приложения | `frappe`, `erpnext` (форк `DHI-Partners/habibi_erp`), `habibi_core`, `saas_bridge`, `habibi_telegram` |
-| Данные | bind-mount в `/u01/frappe`, не в `/var/lib/docker/volumes` |
-| Каталог | `~/habibi_docker` |
+|            |                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------- |
+| Хост       | Oracle Cloud, Ampere **ARM** (`aarch64`), Ubuntu, пользователь `ubuntu`               |
+| Домен      | `erp.ayntayba.com`, DNS в Cloudflare, проксирование **выключено**                     |
+| TLS        | Let's Encrypt, http-01 challenge через Traefik                                        |
+| Образ      | `ghcr.io/dhi-partners/habibi`, собирается **в CI**, на сервер приезжает готовым       |
+| Приложения | `frappe`, `erpnext` (чистый апстрим), `habibi_core`, `saas_bridge`, `habibi_telegram` |
+| Данные     | bind-mount в `/u01/frappe`, не в `/var/lib/docker/volumes`                            |
+| Каталог    | `~/habibi_docker`                                                                     |
 
 Сервисы: `proxy` (Traefik), `frontend` (nginx), `backend` (gunicorn),
 `websocket`, `queue-short`, `queue-long`, `scheduler`, `db`, `redis-cache`,
@@ -82,15 +82,15 @@ nano .env
 
 Заполнить руками:
 
-| Переменная | Значение |
-|---|---|
-| `DB_PASSWORD` | `openssl rand -base64 32`. **После создания сайта не меняется** — уходит в `site_config.json` |
-| `LETSENCRYPT_EMAIL` | реальный ящик, туда придут письма об истечении сертификата |
-| `SITES_RULE` | ``Host(`erp.ayntayba.com`)`` |
-| `SITE_NAME` | `erp.ayntayba.com` — должно совпадать с доменом из `SITES_RULE` |
-| `DATA_ROOT` | `/u01/frappe`, абсолютный путь |
-| `PLATFORM` | `linux/arm64` на этом сервере, `linux/amd64` на x86 |
-| `GUNICORN_WORKERS` | `(2 × vCPU) + 1`, каждый воркер ~400 МБ — сверить с `free -h` |
+| Переменная          | Значение                                                                                      |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `DB_PASSWORD`       | `openssl rand -base64 32`. **После создания сайта не меняется** — уходит в `site_config.json` |
+| `LETSENCRYPT_EMAIL` | реальный ящик, туда придут письма об истечении сертификата                                    |
+| `SITES_RULE`        | ``Host(`erp.ayntayba.com`)``                                                                  |
+| `SITE_NAME`         | `erp.ayntayba.com` — должно совпадать с доменом из `SITES_RULE`                               |
+| `DATA_ROOT`         | `/u01/frappe`, абсолютный путь                                                                |
+| `PLATFORM`          | `linux/arm64` на этом сервере, `linux/amd64` на x86                                           |
+| `GUNICORN_WORKERS`  | `(2 × vCPU) + 1`, каждый воркер ~400 МБ — сверить с `free -h`                                 |
 
 `COMPOSE_FILE` уже собран в шаблоне и определяет весь стек:
 
@@ -110,23 +110,33 @@ habibi/overrides/compose.platform.yaml
 `FRAPPE_SITE_NAME_HEADER` оставляем пустым — тогда nginx резолвит сайт по
 заголовку `Host`, и имя сайта обязано совпадать с доменом.
 
-## 4. Сборка образа
+## 4. Образ
+
+Сервер образ **не собирает**. Его собирает CI — воркфлоу
+`.github/workflows/habibi-image.yml` — и пушит в `ghcr.io` двумя тегами:
+
+- `:16` — скользящий, всегда последний;
+- `:16-<hash>` — неизменяемый, hash из фактических SHA всех приложений
+  из [apps.json](apps.json).
+
+В `.env` держим **версионный** тег. Он и есть механизм отката: вернуться
+на предыдущий код — это правка `CUSTOM_TAG` и `docker compose up -d`.
+Со скользящим `:16` возврата нет, тег уже перезаписан.
+
+Хеш берётся из вывода воркфлоу, шаг «Итоговые теги». Список доступных:
+
+```bash
+docker image ls ghcr.io/dhi-partners/habibi          # локально скачанные
+gh api /orgs/DHI-Partners/packages/container/habibi/versions \
+  --jq '.[].metadata.container.tags[]' | head -20     # все в registry
+```
+
+Забрать и проверить состав:
 
 ```bash
 cd ~/habibi_docker
-docker build \
-  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-  --build-arg=FRAPPE_BRANCH=version-16 \
-  --build-arg=CACHE_BUST="$(date +%s)" \
-  --secret=id=apps_json,src=habibi/apps.json \
-  --tag=habibi:16 \
-  --file=images/layered/Containerfile .
-```
-
-15–30 минут. Проверить, что приложения попали внутрь:
-
-```bash
-docker run --rm --entrypoint bash habibi:16 -lc 'ls -1 apps'
+docker compose pull backend
+docker compose run --rm --entrypoint bash backend -lc 'ls -1 apps'
 # erpnext
 # frappe
 # habibi_core
@@ -134,27 +144,27 @@ docker run --rm --entrypoint bash habibi:16 -lc 'ls -1 apps'
 # saas_bridge
 ```
 
-Имена из этого вывода идут в `--install-app` при создании сайта. У наших приложений
-они совпадают с именами репозиториев, у форка — нет: `habibi_erp` встаёт как `erpnext`,
-так называется приложение в его `hooks.py`. Поэтому список берём из `ls -1 apps`,
-а не из `apps.json`.
+Имена из этого вывода идут в `--install-app` при создании сайта. Они берутся
+из `hooks.py` самих приложений и не обязаны совпадать с именами репозиториев —
+поэтому список смотрим через `ls -1 apps`, а не по `apps.json`.
 
-`CACHE_BUST` обязателен при **каждой** пересборке: `apps.json` передаётся
-секретом, а секреты не входят в ключ кэша слоя. Без него docker переиспользует
-старый слой `bench init`, и новые коммиты приложений в образ не попадут.
+Приватные репозитории приложений: положить готовый `apps.json` с токеном
+в секрет `APPS_JSON` репозитория на GitHub. Воркфлоу подставит его вместо
+версии из git и передаст дальше BuildKit-секретом, так что в слои образа
+токен не попадёт. Через `--build-arg` его передавать нельзя — build-args
+навсегда остаются в `docker image history`.
 
-Репозитории приложений публичные, поэтому токен не нужен. Если станут
-приватными — подставить его в URL во временный файл и скормить как секрет:
+**Если до registry не дотянуться** — сборка на месте:
 
 ```bash
-umask 077
-sed "s|https://github.com/|https://x-access-token:${PAT}@github.com/|" habibi/apps.json > /tmp/apps.json
-docker build ... --secret=id=apps_json,src=/tmp/apps.json ...
-rm -f /tmp/apps.json
+habibi/build.sh
 ```
 
-Через `--build-arg` токен передавать нельзя — build-args навсегда остаются
-в `docker image history`.
+Скрипт считает `CACHE_BUST` из SHA приложений сам. Он обязателен при каждой
+пересборке: `apps.json` передаётся секретом, а секреты не входят в ключ кэша
+слоя, и без него docker переиспользует старый слой `bench init` — сборка
+пройдёт «успешно» со старым кодом. В `.env` тогда вариант Б: `CUSTOM_IMAGE=habibi`,
+`PULL_POLICY=never`.
 
 ## 5. DNS
 
@@ -279,22 +289,17 @@ openssl s_client -connect erp.ayntayba.com:443 -servername erp.ayntayba.com </de
 
 ## Обновление
 
-Приложения обновляются пересборкой образа — исходники лежат внутри него, а не
-на диске:
+Приложения обновляются сменой образа — исходники лежат внутри него, а не
+на диске. Сборку сделал CI, на сервере остаётся забрать и мигрировать:
 
 ```bash
 cd ~/habibi_docker
 git pull                                     # если менялись compose-файлы
 
-docker compose exec backend bench --site all backup   # перед миграцией
+docker compose exec backend bench --site all backup --with-files   # перед миграцией
 
-docker build \
-  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-  --build-arg=FRAPPE_BRANCH=version-16 \
-  --build-arg=CACHE_BUST="$(date +%s)" \
-  --secret=id=apps_json,src=habibi/apps.json \
-  --tag=habibi:16 \
-  --file=images/layered/Containerfile .
+nano .env                                    # CUSTOM_TAG=16-<новый hash>
+docker compose pull
 
 docker compose up -d --force-recreate migrator   # прогнать миграции
 docker compose logs -f migrator                  # дождаться Exited (0)
@@ -306,9 +311,18 @@ docker compose ps
 если ID образа не изменился, обычный `up -d` его не перезапустит и миграции
 молча не выполнятся.
 
-Тег `habibi:16` перезаписывается на месте, отдельных версий нет — откатиться
-можно только пересборкой из старого коммита приложений. Если это станет нужно
-регулярно — переходить на GHCR с тегами по SHA (вариант Б в `prod.example.env`).
+### Откат
+
+```bash
+nano .env                                    # CUSTOM_TAG=16-<предыдущий hash>
+docker compose pull
+docker compose up -d
+```
+
+Важно понимать границы: это откат **кода**, не данных. `bench migrate` уже
+изменил схему базы, и обратной миграции у Frappe нет. Если новая версия
+успела поменять схему несовместимо — поднимать базу из дампа, снятого перед
+обновлением. Поэтому строка с `backup --with-files` выше не факультативная.
 
 ### Новое приложение на живом сайте
 
@@ -316,7 +330,7 @@ docker compose ps
 ставит — это отдельный шаг после `up -d`:
 
 ```bash
-docker run --rm --entrypoint bash habibi:16 -lc 'ls -1 apps'   # приложение в образе?
+docker compose run --rm --entrypoint bash backend -lc 'ls -1 apps'   # приложение в образе?
 docker compose exec backend bench --site erp.ayntayba.com install-app <приложение>
 docker compose exec backend bench --site erp.ayntayba.com migrate
 docker compose exec backend bench --site erp.ayntayba.com list-apps
@@ -329,16 +343,34 @@ docker compose exec backend bench --site erp.ayntayba.com list-apps
 ## Бэкапы
 
 `bench backup` кладёт дампы в `sites/<site>/private/backups`, то есть в
-`/u01/frappe/sites/erp.ayntayba.com/private/backups` — на диске они уже есть.
+`/u01/frappe/sites/erp.ayntayba.com/private/backups`.
 
 ```bash
 docker compose exec backend bench --site all backup             # только БД
 docker compose exec backend bench --site all backup --with-files # + вложения
 ```
 
-Автоматизация — `overrides/compose.backup-cron.yaml` (ofelia, по умолчанию
-каждые 6 часов, интервал в `BACKUP_CRONSTRING`). Добавляется в `COMPOSE_FILE`.
-Вывоз дампов за пределы сервера не настроен.
+По расписанию — `overrides/compose.backup-cron.yaml` (ofelia, интервал
+в `BACKUP_CRONSTRING`, по умолчанию 6 часов). Уже включён в `COMPOSE_FILE`
+шаблона.
+
+**Локальных копий хватает примерно на сутки.** Ежечасная задача Frappe
+`delete_downloadable_backups` оставляет последние `backup_limit` штук —
+это System Settings, по умолчанию 3. При интервале 6 часов история
+получается около 18 часов, и лежит она на том же диске, что и база.
+
+Поэтому вывоз обязателен: `habibi/overrides/compose.backup-offsite.yaml`,
+rclone по расписанию `OFFSITE_CRONSTRING`. Настройка — в шапке файла,
+проверка вручную:
+
+```bash
+docker compose run --rm backup-offsite
+rclone ls "$RCLONE_REMOTE" | tail            # что реально доехало
+```
+
+Раз в месяц полезно проверять не наличие файла, а **восстановимость**:
+поднять дамп на отдельном сайте и открыть его. Бэкап, который никто
+не разворачивал, — это предположение, а не бэкап.
 
 ## Логи
 
@@ -388,11 +420,13 @@ rate limit (5 неудач в час на домен). Выпускать сер
 
 ## Что не сделано
 
-- **CI/CD.** Сборка и деплой руками. Автоматизация требует воркфлоу с пушем
-  образа в GHCR и деплой-скриптом на сервере — в репозитории их сейчас нет.
+- **Автодеплой.** Образ собирается в CI, но на сервер накатывается руками:
+  правка `CUSTOM_TAG`, `pull`, `up -d`. Это осознанно — миграции Frappe
+  необратимы, и шаг с бэкапом перед ними стоит держать под присмотром.
 - **Мониторинг и алерты.** Ни аптайма, ни уведомлений об истечении сертификата
   (кроме писем Let's Encrypt на `LETSENCRYPT_EMAIL`).
-- **Вывоз бэкапов с сервера.** Дампы лежат на том же диске, что и база.
+- **Проверка восстановимости бэкапов.** Вывоз настроен, регулярного
+  тестового восстановления нет.
 - **Реальный IP клиента за Cloudflare.** Если включить проксирование, в
   `X-Forwarded-For` будут адреса Cloudflare; настоящий IP приходит в
   `CF-Connecting-IP` и требует отдельной настройки nginx.

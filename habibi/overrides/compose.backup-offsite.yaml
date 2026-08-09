@@ -1,0 +1,62 @@
+# Вывоз бэкапов за пределы сервера через rclone.
+#
+# Зачем это обязательно, а не «когда-нибудь потом»:
+#
+# 1. Дампы bench лежат в sites/<site>/private/backups, то есть на том же
+#    диске, что и база. Отказ диска уносит и то, и другое.
+# 2. Frappe сам подчищает старые копии: ежечасная задача
+#    delete_downloadable_backups оставляет последние backup_limit штук
+#    (System Settings, по умолчанию 3). При BACKUP_CRONSTRING=@every 6h
+#    это примерно 18 часов истории. Ошибку, замеченную через сутки,
+#    откатывать уже не из чего.
+#
+# Требует overrides/compose.backup-cron.yaml в COMPOSE_FILE — сервис cron
+# (ofelia) определён там, здесь только добавляется job.
+#
+# Настройка:
+#
+#   1. Завести remote в rclone на хосте (S3, B2, Яндекс.Диск, WebDAV — любой):
+#        rclone config
+#        rclone lsd habibi-backup:            # проверить, что удалённая сторона отвечает
+#
+#   2. В .env:
+#        RCLONE_CONFIG_PATH=/home/ubuntu/.config/rclone/rclone.conf
+#        RCLONE_REMOTE=habibi-backup:erp-ayntayba
+#        OFFSITE_CRONSTRING=@every 12h
+#
+#   3. Добавить этот файл в COMPOSE_FILE ПОСЛЕ compose.backup-cron.yaml.
+#
+# Проверка вручную, не дожидаясь расписания:
+#   docker compose run --rm backup-offsite
+#
+# sync, а не copy: на удалённой стороне держим зеркало каталога backups.
+# Ротацию делает Frappe локально, remote следует за ней. Если нужна история
+# глубже — заменить на copy и настроить lifecycle-политику на стороне
+# хранилища, иначе remote будет расти без ограничений.
+
+services:
+  backup-offsite:
+    image: rclone/rclone:latest
+    profiles:
+      - manual
+    volumes:
+      - sites:/data/sites:ro
+      - ${RCLONE_CONFIG_PATH:?RCLONE_CONFIG_PATH not set}:/config/rclone/rclone.conf:ro
+    command: >
+      sync /data/sites
+      ${RCLONE_REMOTE:?RCLONE_REMOTE not set}
+      --include "*/private/backups/**"
+      --stats-one-line
+      --verbose
+
+  # Расписание. Ofelia поднимает одноразовый контейнер и удаляет после
+  # выполнения (delete=true по умолчанию).
+  cron:
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-run.offsite.schedule: "${OFFSITE_CRONSTRING:-@every 12h}"
+      ofelia.job-run.offsite.image: "rclone/rclone:latest"
+      ofelia.job-run.offsite.volume: >-
+        ${DATA_ROOT:?DATA_ROOT not set}/sites:/data/sites:ro,${RCLONE_CONFIG_PATH:?RCLONE_CONFIG_PATH not set}:/config/rclone/rclone.conf:ro
+      ofelia.job-run.offsite.command: >-
+        sync /data/sites ${RCLONE_REMOTE:?RCLONE_REMOTE not set} --include "*/private/backups/**" --stats-one-line
