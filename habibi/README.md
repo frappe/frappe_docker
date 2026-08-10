@@ -1,6 +1,6 @@
 # habibi/
 
-Всё, что добавлено поверх апстрима [frappe/frappe_docker](https://github.com/frappe/frappe_docker),
+Всё, что Добавлено поверх апстрима [frappe/frappe_docker](https://github.com/frappe/frappe_docker),
 лежит здесь. Остальные файлы репозитория — апстримные, их не трогаем, чтобы
 `git pull` из апстрима проходил без конфликтов.
 
