@@ -14,5 +14,9 @@
   {
     "url": "https://github.com/DHI-Partners/habibi_telegram",
     "branch": "master"
+  },
+  {
+    "url": "https://github.com/DHI-Partners/habibi_whatsapp",
+    "branch": "master"
   }
 ]
