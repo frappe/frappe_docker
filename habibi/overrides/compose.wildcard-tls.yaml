@@ -54,10 +54,19 @@ services:
       # dns-01 вместо httpChallenge из compose.https.yaml. Держать оба
       # челленджа на одном резолвере нельзя — Traefik не стартует.
       - --certificatesResolvers.main-resolver.acme.dnsChallenge.provider=cloudflare
-      # Сверять появление TXT-записи у публичных резолверов, а не у того,
-      # что прописан на хосте: иначе Traefik ждёт, пока запись протухнет
-      # в кеше провайдера, и упирается в таймаут проверки.
-      - --certificatesResolvers.main-resolver.acme.dnsChallenge.resolvers=1.1.1.1:53,8.8.8.8:53
+      # Проверять появление TXT-записи ТОЛЬКО у авторитативных серверов зоны.
+      #
+      # Любой кеширующий резолвер здесь ломает выпуск: lego кладёт запись и
+      # тут же спрашивает, есть ли она, а получает закешированный ответ без
+      # неё — TTL записи 300 секунд. Попытка выходит по таймауту, прерванная
+      # попытка оставляет в зоне осиротевшую TXT, и дальше кеш отдаёт уже её.
+      # Ровно так провалились варианты с 1.1.1.1/8.8.8.8 и с резолвером по
+      # умолчанию (127.0.0.11 — внутренний DNS докера, тоже кеширующий).
+      #
+      # Имена ниже выданы Cloudflare этому аккаунту при подключении зоны.
+      # Если Cloudflare их когда-нибудь переназначит (видно в Overview зоны),
+      # поправить здесь.
+      - --certificatesResolvers.main-resolver.acme.dnsChallenge.resolvers=bryce.ns.cloudflare.com:53,kim.ns.cloudflare.com:53
       - --certificatesResolvers.main-resolver.acme.email=${LETSENCRYPT_EMAIL:?No Let's Encrypt email set}
       - --certificatesResolvers.main-resolver.acme.storage=/letsencrypt/acme.json
     environment:
