@@ -1,0 +1,65 @@
+# Один wildcard-сертификат на *.<домен> вместо сертификата на каждый хост.
+#
+# Зачем. Со штатным compose.https.yaml роутер матчит перечисленные в
+# SITES_RULE хосты, а Let's Encrypt выпускает по http-01 отдельный
+# сертификат на каждый из них. Каждый новый клиент — это правка .env и
+# пересоздание контейнера frontend, то есть ручная работа в проде на
+# ровном месте. Плюс потолок: 50 сертификатов в неделю на домен.
+#
+# Здесь правило становится регуляркой, а сертификат — один wildcard.
+# Новый сайт вида client1.<домен> начинает отвечать сразу после
+# bench new-site: ни конфигов, ни рестартов, ни выпуска сертификата.
+#
+# Цена решения: wildcard Let's Encrypt выдаёт ТОЛЬКО по dns-01, то есть
+# Traefik обязан уметь править DNS-зону через API. Отсюда два требования:
+#   * зону домена обслуживает Cloudflare (регистратор роли не играет);
+#   * в .env лежит CF_DNS_API_TOKEN с правами Zone:DNS:Edit на эту зону.
+#
+# Подключать в COMPOSE_FILE ПОСЛЕ overrides/compose.https.yaml.
+#
+# .env:
+#   BASE_DOMAIN=habibi-erp.com
+#   SITES_RULE=HostRegexp(`^[a-z0-9-]+\.habibi-erp\.com$`)
+#   CF_DNS_API_TOKEN=<токен Cloudflare>
+#
+# Wildcard покрывает ровно один уровень: client1.<домен> — да,
+# a.b.<домен> — нет. Регулярка это повторяет: [a-z0-9-]+ точку не матчит,
+# и расширять её не надо — сертификата на второй уровень всё равно нет.
+#
+# ВАЖНО: proxy.command переопределяется ЦЕЛИКОМ. Списки docker compose не
+# сливает, а заменяет, поэтому сюда скопирован весь набор флагов Traefik из
+# compose.https.yaml. Если апстрим их поменяет, продублировать изменения
+# здесь — иначе они молча потеряются. Лейблы, в отличие от command,
+# сливаются по ключу, поэтому у frontend ниже добавляется только новый.
+
+services:
+  frontend:
+    labels:
+      # Домен для ACME. Правило роутера берётся из SITES_RULE и тут не
+      # трогается, но из HostRegexp Traefik домен вытащить не может, и без
+      # явного tls.domains сертификат не будет заказан вообще — сайт
+      # поднимется с самоподписанным.
+      - traefik.http.routers.frontend-http.tls.domains[0].main=*.${BASE_DOMAIN:?BASE_DOMAIN not set}
+
+  proxy:
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # entrypoint web оставлен не ради ACME (dns-01 порт 80 не использует),
+      # а ради редиректа http -> https. Закрывать 80 не надо.
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      # dns-01 вместо httpChallenge из compose.https.yaml. Держать оба
+      # челленджа на одном резолвере нельзя — Traefik не стартует.
+      - --certificatesResolvers.main-resolver.acme.dnsChallenge.provider=cloudflare
+      # Сверять появление TXT-записи у публичных резолверов, а не у того,
+      # что прописан на хосте: иначе Traefik ждёт, пока запись протухнет
+      # в кеше провайдера, и упирается в таймаут проверки.
+      - --certificatesResolvers.main-resolver.acme.dnsChallenge.resolvers=1.1.1.1:53,8.8.8.8:53
+      - --certificatesResolvers.main-resolver.acme.email=${LETSENCRYPT_EMAIL:?No Let's Encrypt email set}
+      - --certificatesResolvers.main-resolver.acme.storage=/letsencrypt/acme.json
+    environment:
+      # Токен читает lego внутри Traefik. Имя переменной фиксированное.
+      CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN:?CF_DNS_API_TOKEN not set}

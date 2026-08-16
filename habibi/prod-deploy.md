@@ -9,8 +9,9 @@ MariaDB, Redis, Traefik с Let's Encrypt. Локальная (dev) схема о
 |            |                                                                                       |
 | ---------- | ------------------------------------------------------------------------------------- |
 | Хост       | Oracle Cloud, Ampere **ARM** (`aarch64`), Ubuntu, пользователь `ubuntu`               |
-| Домен      | `erp.ayntayba.com`, DNS в Cloudflare, проксирование **выключено**                     |
-| TLS        | Let's Encrypt, http-01 challenge через Traefik                                        |
+| Домен      | `habibi-erp.com`, регистратор Dynadot, зона в Cloudflare, проксирование **выключено** |
+| Сайты      | поддомен на клиента (`erp.`, `client1.`…) по wildcard-записи `*`                      |
+| TLS        | Let's Encrypt, один wildcard `*.habibi-erp.com`, dns-01 через API Cloudflare          |
 | Образ      | `ghcr.io/dhi-partners/habibi`, собирается **в CI**, на сервер приезжает готовым       |
 | Приложения | `frappe`, `erpnext` (чистый апстрим), `habibi_core`, `saas_bridge`, `habibi_telegram` |
 | Данные     | bind-mount в `/u01/frappe`, не в `/var/lib/docker/volumes`                            |
@@ -86,8 +87,10 @@ nano .env
 | ------------------- | --------------------------------------------------------------------------------------------- |
 | `DB_PASSWORD`       | `openssl rand -base64 32`. **После создания сайта не меняется** — уходит в `site_config.json` |
 | `LETSENCRYPT_EMAIL` | реальный ящик, туда придут письма об истечении сертификата                                    |
-| `SITES_RULE`        | ``Host(`erp.ayntayba.com`)``                                                                  |
-| `SITE_NAME`         | `erp.ayntayba.com` — должно совпадать с доменом из `SITES_RULE`                               |
+| `CF_DNS_API_TOKEN`  | токен Cloudflare с правами Zone:DNS:Edit на зону — см. раздел «5. DNS»                        |
+| `BASE_DOMAIN`       | `habibi-erp.com`, без поддомена — из него строится имя wildcard-сертификата                   |
+| `SITES_RULE`        | ``HostRegexp(`^[a-z0-9-]+\.habibi-erp\.com$`)`` — правится только при смене домена            |
+| `SITE_NAME`         | `erp.habibi-erp.com` — полный домен, обязан попадать под `SITES_RULE`                          |
 | `DATA_ROOT`         | `/u01/frappe`, абсолютный путь                                                                |
 | `PLATFORM`          | `linux/arm64` на этом сервере, `linux/amd64` на x86                                           |
 | `GUNICORN_WORKERS`  | `(2 × vCPU) + 1`, каждый воркер ~400 МБ — сверить с `free -h`                                 |
@@ -102,10 +105,13 @@ overrides/compose.https.yaml
 overrides/compose.migrator.yaml
 habibi/overrides/compose.bindmounts.yaml
 habibi/overrides/compose.platform.yaml
+habibi/overrides/compose.wildcard-tls.yaml
 ```
 
 Порядок значим: `compose.platform.yaml` обязан идти **после**
-`compose.migrator.yaml`, иначе у `migrator` останется `linux/amd64`.
+`compose.migrator.yaml`, иначе у `migrator` останется `linux/amd64`;
+`compose.wildcard-tls.yaml` — **после** `compose.https.yaml`, иначе резолвер
+Let's Encrypt останется на http-01 и wildcard не выпустится.
 
 `FRAPPE_SITE_NAME_HEADER` оставляем пустым — тогда nginx резолвит сайт по
 заголовку `Host`, и имя сайта обязано совпадать с доменом.
@@ -166,18 +172,51 @@ habibi/build.sh
 пройдёт «успешно» со старым кодом. В `.env` тогда вариант Б: `CUSTOM_IMAGE=habibi`,
 `PULL_POLICY=never`.
 
-## 5. DNS
+## 5. DNS и wildcard-сертификат
 
-В Cloudflare: `A`-запись `erp` → IP сервера, **Proxy status = DNS only**
-(серое облако).
+Домен `habibi-erp.com` зарегистрирован в **Dynadot**, но зону обслуживает
+**Cloudflare**: NS-серверы переключены на него в Dynadot (My Domains → домен →
+Name Servers). Регистратор остаётся Dynadot, продление домена там же.
+
+Cloudflare здесь не ради CDN, а потому что wildcard-сертификат Let's Encrypt
+выдаёт **только по dns-01**, и Traefik должен уметь класть TXT-запись в зону
+через API. У Dynadot такого провайдера в lego нет — на нём wildcard недоступен
+в принципе.
+
+Записи в зоне:
+
+| Имя | Тип | Значение | Proxy |
+| --- | --- | --- | --- |
+| `@` | A | `216.198.79.1` | DNS only |
+| `www` | CNAME | `…vercel-dns-017.com` | DNS only |
+| `*` | A | IP сервера | DNS only |
+
+Апекс и `www` держат лендинг на Vercel и остаются нетронутыми: **wildcard не
+перебивает явные записи**, поэтому лендинг и ERP живут на одном домене. Все
+поддомены первого уровня уходят на сервер, и заводить DNS на каждого клиента
+не нужно — это единственная запись на всю мультитенантность.
 
 ```bash
-getent ahostsv4 erp.ayntayba.com   # должен вернуть IP сервера, не 104.*/172.67.*
+dig +short zzz-test.habibi-erp.com   # любое несуществующее имя -> IP сервера
 ```
 
-Оранжевое облако ломает выпуск сертификата: Let's Encrypt при http-01 стучится
-в Cloudflare, а не на сервер. Включить проксирование можно **после** выпуска,
-одновременно выставив SSL/TLS mode = **Full (strict)** — иначе редирект-петля.
+**Токен для dns-01.** Cloudflare → My Profile → API Tokens → Create Token →
+шаблон **Edit zone DNS**, в Zone Resources выбрать только `habibi-erp.com`.
+Полученную строку в `.env` как `CF_DNS_API_TOKEN`. Токен нужен Traefik только
+на выпуск и продление, то есть примерно раз в 60 дней.
+
+Проверка, что сертификат именно wildcard:
+
+```bash
+echo | openssl s_client -connect erp.habibi-erp.com:443 -servername erp.habibi-erp.com 2>/dev/null \
+  | openssl x509 -noout -subject -ext subjectAltName
+# subject=CN=*.habibi-erp.com
+```
+
+Серое облако (**DNS only**) обязательно на этапе настройки. С dns-01 оранжевое
+облако сертификату больше не мешает — в отличие от http-01 — но включать его
+можно только вместе с SSL/TLS mode = **Full (strict)**, иначе редирект-петля.
+Для записей Vercel проксирование не включать.
 
 ## 6. Firewall
 
@@ -216,7 +255,7 @@ docker compose ps
 ## 8. Создание сайта
 
 ```bash
-docker compose exec backend bench new-site erp.ayntayba.com \
+docker compose exec backend bench new-site erp.habibi-erp.com \
   --mariadb-user-host-login-scope='%' \
   --db-root-password "$(grep '^DB_PASSWORD=' .env | cut -d= -f2-)" \
   --admin-password '<сильный-пароль>' \
@@ -225,8 +264,8 @@ docker compose exec backend bench new-site erp.ayntayba.com \
   --install-app saas_bridge \
   --install-app habibi_telegram
 
-docker compose exec backend bench --site erp.ayntayba.com migrate
-docker compose exec backend bench --site erp.ayntayba.com enable-scheduler
+docker compose exec backend bench --site erp.habibi-erp.com migrate
+docker compose exec backend bench --site erp.habibi-erp.com enable-scheduler
 ```
 
 `--mariadb-user-host-login-scope='%'` обязателен. Без него пользователь БД
@@ -236,6 +275,61 @@ docker compose exec backend bench --site erp.ayntayba.com enable-scheduler
 
 `bench migrate` после создания сайта нужен: `install-app` не всегда синхронизирует
 DocType'ы свежепоставленного приложения, и таблицы появляются только на миграции.
+
+### Ещё один клиент
+
+Той же командой с другим именем — и всё:
+
+```bash
+docker compose exec backend bench new-site client1.habibi-erp.com \
+  --mariadb-user-host-login-scope='%' \
+  --db-root-password "$(grep '^DB_PASSWORD=' .env | cut -d= -f2-)" \
+  --admin-password '<сильный-пароль>' \
+  --install-app erpnext --install-app habibi_core
+
+docker compose exec backend bench --site client1.habibi-erp.com migrate
+```
+
+Ни DNS, ни `.env`, ни рестарт стека не трогаются: имя попадает под wildcard
+`*.habibi-erp.com` в DNS, под `SITES_RULE` в Traefik и под wildcard-сертификат,
+а nginx находит сайт по каталогу в `sites/`. Именно ради этого стоит
+`compose.wildcard-tls.yaml` — со штатным `Host(...)` каждый клиент требовал бы
+правки `.env` и пересоздания `frontend`.
+
+Ограничение одно: имя — **один** уровень из `[a-z0-9-]`. `a.b.habibi-erp.com`
+не заработает, сертификата на второй уровень нет.
+
+Свой домен клиента (`erp.clientcorp.com`) сюда не попадает — wildcard его не
+покрывает. Под такой случай понадобится отдельный роутер с http-01; проще
+всего через file provider Traefik, чтобы не перезапускать стек. Пока таких
+клиентов нет, это не сделано.
+
+### Переезд на другой домен
+
+Имя каталога в `sites/` обязано совпадать с доменом, поэтому переезд — это
+переименование каталога. Имя базы лежит в `site_config.json` и от каталога не
+зависит, так что данные остаются на месте:
+
+```bash
+cd ~/habibi_docker
+docker compose exec -T backend bench --site all backup    # до всего остального
+docker compose down
+
+sudo mv /u01/frappe/sites/erp.ayntayba.com /u01/frappe/sites/erp.habibi-erp.com
+sudo sed -i 's/erp\.ayntayba\.com/erp.habibi-erp.com/' /u01/frappe/sites/currentsite.txt
+
+nano .env        # SITE_NAME, BASE_DOMAIN, SITES_RULE, CF_DNS_API_TOKEN
+docker compose config >/dev/null && echo "config ok"
+docker compose up -d
+```
+
+Проверить `site_config.json` на ключ `host_name` — если он там есть, поправить
+тоже. Сертификат Traefik закажет заново сам, старый в `acme.json` просто
+перестанет использоваться; чистить том `cert-data` не нужно.
+
+Отдельно, вне стека: перерегистрировать вебхуки Telegram и WhatsApp на новый
+домен (см. раздел 9), проверить Website Settings и System Settings на
+захардкоженный старый URL и `redirect_uri` в интеграциях OAuth.
 
 ## 9. Телеграм-бот
 
@@ -250,15 +344,15 @@ DocType'ы свежепоставленного приложения, и таб�
 Из консоли то же самое:
 
 ```bash
-docker compose exec backend bench --site erp.ayntayba.com telegram list-bots
-docker compose exec backend bench --site erp.ayntayba.com telegram set-webhook <имя-бота>
-docker compose exec backend bench --site erp.ayntayba.com telegram webhook-info <имя-бота>
+docker compose exec backend bench --site erp.habibi-erp.com telegram list-bots
+docker compose exec backend bench --site erp.habibi-erp.com telegram set-webhook <имя-бота>
+docker compose exec backend bench --site erp.habibi-erp.com telegram webhook-info <имя-бота>
 ```
 
 Адрес вебхука собирается из имени сайта, отдельно домен нигде не настраивается:
 
 ```
-https://erp.ayntayba.com/api/method/habibi_telegram.api.webhook?bot=<имя-бота>
+https://erp.habibi-erp.com/api/method/habibi_telegram.api.webhook?bot=<имя-бота>
 ```
 
 Это работает потому, что имя сайта здесь и есть домен — `FRAPPE_SITE_NAME_HEADER`
@@ -272,16 +366,16 @@ https://erp.ayntayba.com/api/method/habibi_telegram.api.webhook?bot=<имя-бо
 ## 10. Проверка
 
 ```bash
-curl -sI https://erp.ayntayba.com/ | head -1              # HTTP/2 200
-curl -s https://erp.ayntayba.com/api/method/frappe.ping   # {"message":"pong"}
+curl -sI https://erp.habibi-erp.com/ | head -1              # HTTP/2 200
+curl -s https://erp.habibi-erp.com/api/method/frappe.ping   # {"message":"pong"}
 docker compose logs proxy | grep -i acme                  # выдача сертификата
-ls -la /u01/frappe/sites/erp.ayntayba.com/                # данные на диске
+ls -la /u01/frappe/sites/erp.habibi-erp.com/                # данные на диске
 ```
 
 Сертификат снаружи:
 
 ```bash
-openssl s_client -connect erp.ayntayba.com:443 -servername erp.ayntayba.com </dev/null 2>/dev/null \
+openssl s_client -connect erp.habibi-erp.com:443 -servername erp.habibi-erp.com </dev/null 2>/dev/null \
   | openssl x509 -noout -issuer -subject -dates
 ```
 
@@ -331,9 +425,9 @@ docker compose up -d
 
 ```bash
 docker compose run --rm --entrypoint bash backend -lc 'ls -1 apps'   # приложение в образе?
-docker compose exec backend bench --site erp.ayntayba.com install-app <приложение>
-docker compose exec backend bench --site erp.ayntayba.com migrate
-docker compose exec backend bench --site erp.ayntayba.com list-apps
+docker compose exec backend bench --site erp.habibi-erp.com install-app <приложение>
+docker compose exec backend bench --site erp.habibi-erp.com migrate
+docker compose exec backend bench --site erp.habibi-erp.com list-apps
 ```
 
 Порядок важен: `install-app` обязан выполняться уже в пересозданном `backend`.
@@ -343,7 +437,7 @@ docker compose exec backend bench --site erp.ayntayba.com list-apps
 ## Бэкапы
 
 `bench backup` кладёт дампы в `sites/<site>/private/backups`, то есть в
-`/u01/frappe/sites/erp.ayntayba.com/private/backups`.
+`/u01/frappe/sites/erp.habibi-erp.com/private/backups`.
 
 ```bash
 docker compose exec backend bench --site all backup             # только БД
