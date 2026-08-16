@@ -199,6 +199,6 @@ jobs:
 
             # Дать backend подняться и проверить, что сайт отвечает.
             sleep 20
-            code=$(curl -s -o /dev/null -w '%{http_code}' -m 20 https://erp.ayntayba.com/ || true)
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 20 https://erp.habibi-erp.com/ || true)
             echo "сайт после выката: HTTP $code"
             test "$code" = "200"
