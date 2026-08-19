@@ -42,8 +42,3 @@ updates:
       pre-commit-hooks:
         patterns:
           - "*"
-
-  - package-ecosystem: docker-compose
-    directory: /devcontainer-example
-    schedule:
-      interval: weekly
