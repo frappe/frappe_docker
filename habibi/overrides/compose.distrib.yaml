@@ -1,0 +1,42 @@
+# Статический сайт-дистрибьютор (distrib.habibi-erp.com) — не Frappe, без БД,
+# отдельный контейнер (nginx + собранный SPA), собирается и пушится в GHCR
+# репозиторием habibi-distributor.
+#
+# Зачем отдельный роутер, а не просто ещё один поддомен под wildcard.
+# SITES_RULE в compose.https.yaml — это HostRegexp, матчащий ЛЮБОЙ поддомен
+# первого уровня, включая distrib. Без явного приоритета Traefik сравнивает
+# роутеры по длине строки правила, а HostRegexp длиннее простого Host(...) —
+# запрос на distrib.habibi-erp.com ушёл бы во frontend-http, то есть в nginx
+# Frappe, где такого сайта нет. Приоритет ниже — не декоративный, без него
+# сайт не откроется.
+#
+# tls.domains не нужен: сертификат *.habibi-erp.com уже заказан роутером
+# frontend-http (compose.wildcard-tls.yaml), а Traefik подбирает сертификат
+# по SNI независимо от того, какой роутер его запросил.
+#
+# networks не задаём: у proxy и frontend в этом стеке нет явных networks —
+# оба сидят в дефолтной сети проекта, и Traefik находит их через
+# /var/run/docker.sock по лейблам. Новый сервис так же присоединится
+# автоматически.
+#
+# Подключать в COMPOSE_FILE после habibi/overrides/compose.wildcard-tls.yaml
+# (просто по порядку последних добавлений, порядок для этого файла
+# самостоятельного значения не имеет — он не трогает ни proxy, ни frontend).
+#
+# .env:
+#   DISTRIB_IMAGE=ghcr.io/dhi-partners/habibi-distributor   # опционально, это и есть default
+#   DISTRIB_TAG=v1.0.0                                       # обязательно, версионный тег из CI
+
+services:
+  distrib:
+    image: ${DISTRIB_IMAGE:-ghcr.io/dhi-partners/habibi-distributor}:${DISTRIB_TAG:?DISTRIB_TAG not set}
+    pull_policy: ${PULL_POLICY:-always}
+    restart: ${RESTART_POLICY:-unless-stopped}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.distrib-http.rule=Host(`distrib.${BASE_DOMAIN:?BASE_DOMAIN not set}`)
+      - traefik.http.routers.distrib-http.entrypoints=websecure
+      - traefik.http.routers.distrib-http.tls.certresolver=main-resolver
+      # См. заголовок файла: без этого HostRegexp у Frappe перехватит трафик.
+      - traefik.http.routers.distrib-http.priority=100
+      - traefik.http.services.distrib.loadbalancer.server.port=80
