@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "vitepress": "2.0.0-alpha.16",
+    "vitepress": "2.0.0-alpha.19",
     "vitepress-sidebar": "1.38.0"
   },
   "scripts": {
