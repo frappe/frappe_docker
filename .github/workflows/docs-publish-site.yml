@@ -3,6 +3,9 @@ name: Docs / Publish Site
 on:
   pull_request:
     branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/docs-publish-site.yml"
   merge_group:
   push:
     branches: [main]
@@ -24,7 +27,7 @@ concurrency:
 
 jobs:
   docs-build:
-    name: Docs / Build (Node ${{ matrix.node-version }})
+    name: Docs / Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -65,7 +68,7 @@ jobs:
           path: docs/.vitepress/dist
 
   deploy:
-    name: Deploy docs
+    name: Docs / Deploy
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     needs: docs-build
     runs-on: ubuntu-latest
