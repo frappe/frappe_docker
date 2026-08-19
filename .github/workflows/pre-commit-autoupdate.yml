@@ -31,3 +31,4 @@ jobs:
           body: Update pre-commit hooks
           labels: dependencies,development
           delete-branch: True
+          sign-commits: true
