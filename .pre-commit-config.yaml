@@ -29,7 +29,7 @@ repos:
       - id: prettier
         exclude: ^docs/pnpm-lock\.yaml$
         additional_dependencies:
-          - prettier@3.5.2
+          - prettier@3.9.6
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.3
