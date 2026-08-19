@@ -17,7 +17,7 @@ e.g. `port-site-1`, `port-site-2`, `port-site-3`.
 ```yaml
 # ... removed for brevity
 services:
-	# ... removed for brevity
+  # ... removed for brevity
   port-site-1:
     image: frappe/erpnext:v14.11.1
     deploy:
