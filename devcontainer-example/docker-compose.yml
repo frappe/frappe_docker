@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: docker.io/mariadb:11.8
+    image: docker.io/mariadb:12.2
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
