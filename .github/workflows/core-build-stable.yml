@@ -36,10 +36,6 @@ on:
       - .github/workflows/core-build-test-images.yml
       - .github/workflows/core-publish-images.yml
 
-  schedule:
-    # Every Monday at 03:17 UTC
-    - cron: "17 3 * * 1"
-
   # Triggered from frappe/frappe and frappe/erpnext on releases
   repository_dispatch:
 
@@ -55,12 +51,7 @@ jobs:
       node_version: "22"
 
   v15_publish:
-    if: >-
-      ${{
-        github.repository == 'frappe/frappe_docker' &&
-        github.event_name != 'pull_request' &&
-        github.event_name != 'schedule'
-      }}
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v15_test
     uses: ./.github/workflows/core-publish-images.yml
     with:
@@ -81,12 +72,7 @@ jobs:
       python_version: "3.14"
       node_version: "24"
   v16_publish:
-    if: >-
-      ${{
-        github.repository == 'frappe/frappe_docker' &&
-        github.event_name != 'pull_request' &&
-        github.event_name != 'schedule'
-      }}
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v16_test
     uses: ./.github/workflows/core-publish-images.yml
     with:
@@ -102,12 +88,7 @@ jobs:
   update_versions:
     name: Update example.env and pwd.yml
     runs-on: ubuntu-latest
-    if: >-
-      ${{
-        github.repository == 'frappe/frappe_docker' &&
-        github.event_name != 'pull_request' &&
-        github.event_name != 'schedule'
-      }}
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v16_publish
     permissions:
       contents: write
