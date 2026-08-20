@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.14.2
+ARG PYTHON_VERSION=3.14
 ARG DEBIAN_BASE=bookworm
 FROM python:${PYTHON_VERSION}-slim-${DEBIAN_BASE} AS base
 
@@ -6,9 +6,10 @@ ARG WKHTMLTOPDF_VERSION=0.12.6.1-3
 ARG WKHTMLTOPDF_DISTRO=bookworm
 ARG INSTALL_CHROMIUM=true
 
-ARG NODE_VERSION=24.13.0
+ARG NODE_VERSION=24
 ENV NVM_DIR=/home/frappe/.nvm
-ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
+ENV NVM_SYMLINK_CURRENT=true
+ENV PATH=${NVM_DIR}/current/bin/:${PATH}
 
 RUN useradd -ms /bin/bash frappe \
     && apt-get update \
@@ -40,13 +41,13 @@ RUN useradd -ms /bin/bash frappe \
     media-types \
     # NodeJS
     && mkdir -p ${NVM_DIR} \
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash \
     && . ${NVM_DIR}/nvm.sh \
     && nvm install ${NODE_VERSION} \
-    && nvm use v${NODE_VERSION} \
+    && nvm use ${NODE_VERSION} \
     && npm install -g yarn \
     && corepack enable pnpm \
-    && nvm alias default v${NODE_VERSION} \
+    && nvm alias default ${NODE_VERSION} \
     && rm -rf ${NVM_DIR}/.cache \
     && echo 'export NVM_DIR="/home/frappe/.nvm"' >>/home/frappe/.bashrc \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >>/home/frappe/.bashrc \

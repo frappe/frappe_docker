@@ -21,6 +21,7 @@ They decide when the core image pipeline runs.
 
 - resolves the image versions for the requested release line
 - builds the shared core images into a local registry
+- scans the locally built images with Trivy
 - runs the test suite against those images
 
 `core-publish-images.yml` is the reusable workflow that:
@@ -60,10 +61,11 @@ flowchart TD
         B[core-build-test-images.yml]
         C[Resolve versions]
         D[Build local test images]
-        E[Run pytest]
-        F[core-publish-images.yml]
-        G[Push Docker Hub: erpnext, base, build]
-        H[Push GHCR: base, build]
+        E[Scan images with Trivy]
+        F[Run pytest]
+        G[core-publish-images.yml]
+        H[Push Docker Hub: erpnext, base, build]
+        O[Push GHCR: base, build]
 
         A --> B
         B --> C
@@ -71,7 +73,8 @@ flowchart TD
         D --> E
         E --> F
         F --> G
-        F --> H
+        G --> H
+        G --> O
     end
 
     subgraph App["Downstream app flow"]
@@ -89,8 +92,8 @@ flowchart TD
         M --> N
     end
 
-    G --> J
     H --> J
+    O --> J
 ```
 
 More concretely:
@@ -99,6 +102,7 @@ More concretely:
 core-build-test-images.yml
   -> resolves frappe and erpnext tags
   -> builds images into a local CI registry
+  -> scans the locally built images with Trivy
   -> runs tests
 
 core-publish-images.yml

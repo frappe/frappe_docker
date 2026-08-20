@@ -9,4 +9,5 @@ jobs:
     permissions:
       contents: write
       packages: write
+      security-events: write
     secrets: inherit
