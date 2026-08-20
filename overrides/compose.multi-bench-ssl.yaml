@@ -4,8 +4,8 @@ services:
       # ${ROUTER}-http to use the middleware to redirect to https
       - traefik.http.routers.${ROUTER}-http.middlewares=https-redirect
       # ${ROUTER}-https the actual router using HTTPS
-      # Uses the environment variable SITES
-      - traefik.http.routers.${ROUTER}-https.rule=Host(${SITES?SITES not set})
+      # Uses the environment variable SITES_RULE
+      - traefik.http.routers.${ROUTER}-https.rule=${SITES_RULE?SITES_RULE not set}
       - traefik.http.routers.${ROUTER}-https.entrypoints=https
       - traefik.http.routers.${ROUTER}-https.tls=true
       # Use the service ${ROUTER} with the frontend

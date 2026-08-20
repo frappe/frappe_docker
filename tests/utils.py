@@ -4,6 +4,7 @@ import subprocess
 import sys
 import time
 from contextlib import suppress
+from http.client import HTTPResponse
 from typing import Callable, Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -59,6 +60,24 @@ class Compose:
 def check_url_content(
     url: str, callback: Callable[[str], Optional[str]], site_name: str
 ):
+    for _ in range(100):
+        try:
+            response = wait_for_url(url=url, site_name=site_name, attempts=1)
+        except RuntimeError:
+            pass
+        else:
+            text: str = response.read().decode()
+            ret = callback(text)
+            if ret:
+                print(ret)
+                return
+
+        time.sleep(0.1)
+
+    raise RuntimeError(f"Couldn't verify expected content from {url}")
+
+
+def wait_for_url(url: str, site_name: str, attempts: int = 100) -> HTTPResponse:
     request = Request(url, headers={"Host": site_name})
 
     # This is needed to check https override
@@ -66,23 +85,14 @@ def check_url_content(
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
 
-    for _ in range(100):
+    for _ in range(attempts):
         try:
-            response = urlopen(request, context=ctx)
-
+            return urlopen(request, context=ctx)
         except HTTPError as exc:
             if exc.code not in (404, 502):
                 raise
-
         except URLError:
             pass
-
-        else:
-            text: str = response.read().decode()
-            ret = callback(text)
-            if ret:
-                print(ret)
-                return
 
         time.sleep(0.1)
 

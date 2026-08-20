@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
@@ -8,18 +8,18 @@ repos:
       - id: end-of-file-fixer
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
 
   - repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 26.5.1
     hooks:
       - id: black
 
   - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
+    rev: 9.0.0b2
     hooks:
       - id: isort
 
@@ -27,13 +27,15 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
+        exclude: ^docs/pnpm-lock\.yaml$
         additional_dependencies:
-          - prettier@3.5.2
+          - prettier@3.9.6
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.3
     hooks:
       - id: codespell
+        exclude: ^docs/pnpm-lock\.yaml$
         args:
           - -L
           - "ro"
@@ -49,7 +51,7 @@ repos:
         types: [shell]
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
         args: [-x]

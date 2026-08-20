@@ -1,0 +1,51 @@
+name: Core / Build Develop
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  workflow_call:
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - images/production/**
+      - overrides/**
+      - tests/**
+      - compose.yaml
+      - docker-bake.hcl
+      - example.env
+      - .github/workflows/core-build-develop.yml
+      - .github/workflows/core-build-test-images.yml
+      - .github/workflows/core-publish-images.yml
+
+  schedule:
+    # Every day at 12:00 pm
+    - cron: 0 0 * * *
+
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: ./.github/workflows/core-build-test-images.yml
+    with:
+      repo: erpnext
+      version: develop
+      python_version: 3.14.2
+      node_version: 24.12.0
+
+  publish:
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    needs: test
+    uses: ./.github/workflows/core-publish-images.yml
+    with:
+      repo: erpnext
+      frappe_version: ${{ needs.test.outputs.frappe_version }}
+      erpnext_version: ${{ needs.test.outputs.erpnext_version }}
+      python_version: 3.14.2
+      node_version: 24.12.0
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

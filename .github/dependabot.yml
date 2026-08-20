@@ -3,24 +3,42 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+    groups:
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: docker
     directory: images/bench
     schedule:
-      interval: daily
-
-  - package-ecosystem: docker
-    directory: images/production
-    schedule:
-      interval: daily
-
-  - package-ecosystem: docker
-    directory: images/custom
-    schedule:
-      interval: daily
+      interval: weekly
 
   - package-ecosystem: pip
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /docs
+    schedule:
+      interval: weekly
+    groups:
+      docs-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      pre-commit-hooks:
+        patterns:
+          - "*"

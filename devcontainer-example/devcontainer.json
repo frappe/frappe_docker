@@ -1,6 +1,24 @@
 {
   "name": "Frappe Bench",
   "forwardPorts": [8000, 9000, 6787],
+  "portsAttributes": {
+    "8000-8099": {
+      "label": "Frappe web",
+      "protocol": "http",
+      "onAutoForward": "notify"
+    },
+    "9000-9099": {
+      "label": "Frappe realtime",
+      "onAutoForward": "silent"
+    },
+    "6787": {
+      "label": "Frappe asset watcher",
+      "onAutoForward": "silent"
+    }
+  },
+  "otherPortsAttributes": {
+    "onAutoForward": "ignore"
+  },
   "remoteUser": "frappe",
   "customizations": {
     "vscode": {
@@ -9,16 +27,40 @@
         "ms-vscode.live-server",
         "grapecity.gc-excelviewer",
         "mtxr.sqltools",
-        "visualstudioexptteam.vscodeintellicode"
+        "mtxr.sqltools-driver-mysql",
+        "vue.volar",
+        "esbenp.prettier-vscode",
+        "charliermarsh.ruff"
       ],
       "settings": {
+        "remote.autoForwardPorts": true,
+        "remote.autoForwardPortsSource": "process",
+        "remote.restoreForwardedPorts": true,
+        "remote.localPortHost": "localhost",
         "terminal.integrated.profiles.linux": {
           "frappe bash": {
             "path": "/bin/bash"
           }
         },
         "terminal.integrated.defaultProfile.linux": "frappe bash",
-        "debug.node.autoAttach": "disabled"
+        "debug.node.autoAttach": "disabled",
+        "sqltools.connections": [
+          {
+            "mysqlOptions": {
+              "authProtocol": "default",
+              "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "mariadb",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "MariaDB",
+            "username": "root",
+            "password": "123",
+            "database": "mysql"
+          }
+        ]
       }
     }
   },
@@ -26,6 +68,7 @@
   "service": "frappe",
   "workspaceFolder": "/workspace/development",
   "shutdownAction": "stopCompose",
+  "postCreateCommand": "uv tool install pre-commit",
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/frappe/.ssh,type=bind,consistency=cached"
   ]

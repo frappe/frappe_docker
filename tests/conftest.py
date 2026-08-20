@@ -26,11 +26,13 @@ def _add_version_var(name: str, env_path: Path):
 def _add_sites_var(env_path: Path):
     with open(env_path, "r+") as f:
         content = f.read()
-        content = re.sub(
-            rf"SITES=.*",
-            f"SITES=`tests.localhost`,`test-erpnext-site.localhost`,`test-pg-site.localhost`",
-            content,
+        sites = (
+            "tests.localhost",
+            "test-erpnext-site.localhost",
+            "test-pg-site.localhost",
         )
+        sites_rule = " || ".join(f"Host(`{site}`)" for site in sites)
+        content = re.sub(rf"SITES_RULE=.*", f"SITES_RULE={sites_rule}", content)
         f.seek(0)
         f.truncate()
         f.write(content)
@@ -151,6 +153,7 @@ def s3_service(python_path: str, compose: Compose):
     subprocess.check_call(cmd)
 
     compose("cp", "tests/_create_bucket.py", "backend:/tmp")
+    compose.exec("backend", "bench", "pip", "install", "boto3~=1.34.143")
     compose.exec(
         "-e",
         f"S3_ACCESS_KEY={access_key}",

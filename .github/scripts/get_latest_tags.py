@@ -9,7 +9,7 @@ import sys
 from typing import Literal
 
 Repo = Literal["frappe", "erpnext"]
-MajorVersion = Literal["12", "13", "14", "15", "develop"]
+MajorVersion = Literal["12", "13", "14", "15", "16", "develop"]
 
 
 def get_latest_tag(repo: Repo, version: MajorVersion) -> str:
@@ -49,6 +49,13 @@ def update_env(file_name: str, frappe_tag: str, erpnext_tag: str | None = None):
         f.write(text)
 
 
+def update_output(file_name: str, frappe_tag: str, erpnext_tag: str | None = None):
+    with open(file_name, "a", encoding="utf-8") as f:
+        f.write(f"frappe_version={frappe_tag}\n")
+        if erpnext_tag:
+            f.write(f"erpnext_version={erpnext_tag}\n")
+
+
 def _print_resp(frappe_tag: str, erpnext_tag: str | None = None):
     print(json.dumps({"frappe": frappe_tag, "erpnext": erpnext_tag}))
 
@@ -57,7 +64,7 @@ def main(_args: list[str]) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", choices=["frappe", "erpnext"], required=True)
     parser.add_argument(
-        "--version", choices=["12", "13", "14", "15", "develop"], required=True
+        "--version", choices=["12", "13", "14", "15", "16", "develop"], required=True
     )
     args = parser.parse_args(_args)
 
@@ -70,6 +77,9 @@ def main(_args: list[str]) -> int:
     file_name = os.getenv("GITHUB_ENV")
     if file_name:
         update_env(file_name, frappe_tag, erpnext_tag)
+    file_name = os.getenv("GITHUB_OUTPUT")
+    if file_name:
+        update_output(file_name, frappe_tag, erpnext_tag)
     _print_resp(frappe_tag, erpnext_tag)
     return 0
 
