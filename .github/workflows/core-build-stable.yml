@@ -47,7 +47,7 @@ jobs:
     with:
       repo: erpnext
       version: "15"
-      python_version: 3.11.15
+      python_version: "3.11"
       node_version: 22.23.2
 
   v15_publish:
@@ -58,7 +58,7 @@ jobs:
       repo: erpnext
       frappe_version: ${{ needs.v15_test.outputs.frappe_version }}
       erpnext_version: ${{ needs.v15_test.outputs.erpnext_version }}
-      python_version: 3.11.15
+      python_version: "3.11"
       node_version: 22.23.2
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
