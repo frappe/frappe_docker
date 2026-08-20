@@ -185,8 +185,10 @@ jobs:
 
             if [ "${{ github.ref_name }}" = "main" ]; then
               PROXY_OVERRIDE="-f overrides/compose.https.yaml"
+              DB_ROOT_PASSWORD="tiv0k@solution"
             else
               PROXY_OVERRIDE="-f overrides/compose.noproxy.yaml"
+              DB_ROOT_PASSWORD="123"
             fi
 
             COMPOSE="docker compose \
@@ -202,7 +204,7 @@ jobs:
             $COMPOSE up -d --remove-orphans
 
             echo "Waiting for MariaDB to be ready..."
-            until $COMPOSE exec -T db mariadb -uroot -p"${DB_ROOT_PASSWORD:-123}" -e "SELECT 1" > /dev/null 2>&1; do
+            until $COMPOSE exec -T db mariadb -uroot -p"${DB_ROOT_PASSWORD}" -e "SELECT 1" > /dev/null 2>&1; do
               echo "MariaDB not ready, retrying in 5s..."
               sleep 5
             done
@@ -213,7 +215,7 @@ jobs:
               DB_NAME=$($COMPOSE exec -T backend python3 -c "import json; c=json.load(open('$SITE_CONFIG')); print(c['db_name'])")
               DB_USER=$($COMPOSE exec -T backend python3 -c "import json; c=json.load(open('$SITE_CONFIG')); print(c.get('db_user', c['db_name']))")
               DB_PASS=$($COMPOSE exec -T backend python3 -c "import json; c=json.load(open('$SITE_CONFIG')); print(c['db_password'])")
-              $COMPOSE exec -T db mariadb -uroot -p"${DB_ROOT_PASSWORD:-123}" -e "
+              $COMPOSE exec -T db mariadb -uroot -p"${DB_ROOT_PASSWORD}" -e "
                 CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
                 ALTER USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
                 GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%';
