@@ -153,15 +153,60 @@ jobs:
           path: trivy-results/*.sarif
           retention-days: 30
 
-      - name: Upload Trivy results to code scanning
+      - name: Add Trivy results to pull request summary
+        if: ${{ always() && github.event_name == 'pull_request' && hashFiles('trivy-results/*.sarif') != '' }}
+        continue-on-error: true
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          maximum_results = 50
+          reports = sorted(Path("trivy-results").glob("*.sarif"))
+          summary_path = Path(os.environ["GITHUB_STEP_SUMMARY"])
+
+          with summary_path.open("a", encoding="utf-8") as summary:
+              summary.write("## Trivy image findings\n\n")
+              for report in reports:
+                  payload = json.loads(report.read_text(encoding="utf-8"))
+                  results = [
+                      result
+                      for run in payload.get("runs", [])
+                      for result in run.get("results", [])
+                  ]
+                  summary.write(f"### `{report.stem}`: {len(results)} finding(s)\n\n")
+                  if not results:
+                      summary.write("No fixed HIGH or CRITICAL vulnerabilities found.\n\n")
+                      continue
+
+                  for result in results[:maximum_results]:
+                      rule = str(result.get("ruleId", "unknown")).replace("`", "")
+                      level = str(result.get("level", "warning")).upper()
+                      message = " ".join(
+                          str(result.get("message", {}).get("text", "No details"))
+                          .replace("`", "")
+                          .split()
+                      )
+                      summary.write(f"- **{level}** `{rule}`: {message}\n")
+
+                  if len(results) > maximum_results:
+                      hidden = len(results) - maximum_results
+                      summary.write(
+                          f"\n{hidden} additional finding(s) are available in the "
+                          "Trivy SARIF artifact.\n"
+                      )
+                  summary.write("\n")
+          PY
+
+      - name: Upload Trivy results to code scanning on main
         if: >-
           ${{
             always() &&
-            hashFiles('trivy-results/*.sarif') != '' &&
-            (
-              github.event_name != 'pull_request' ||
-              github.event.pull_request.head.repo.full_name == github.repository
-            )
+            github.event_name == 'push' &&
+            github.ref == 'refs/heads/main' &&
+            hashFiles('trivy-results/*.sarif') != ''
           }}
         continue-on-error: true
         uses: github/codeql-action/upload-sarif@v4
