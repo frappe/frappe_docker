@@ -200,19 +200,21 @@ jobs:
                   summary.write("\n")
           PY
 
-      - name: Upload Trivy results to code scanning on main
+      - name: Upload v16 amd64 build results to code scanning on main
         if: >-
           ${{
             always() &&
+            inputs.version == '16' &&
+            matrix.arch == 'amd64' &&
             github.ref == 'refs/heads/main' &&
-            (github.event_name == 'push' || github.event_name == 'schedule') &&
-            hashFiles('trivy-results/*.sarif') != ''
+            github.event_name == 'push' &&
+            hashFiles('trivy-results/build.sarif') != ''
           }}
         continue-on-error: true
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: trivy-results
-          category: trivy-${{ inputs.version }}-${{ matrix.arch }}
+          sarif_file: trivy-results/build.sarif
+          category: trivy-v16-amd64-build
 
       - name: Setup Python
         uses: actions/setup-python@v7

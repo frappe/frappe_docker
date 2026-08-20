@@ -77,7 +77,9 @@ During the initial rollout, Trivy is report-only:
 - SARIF reports are retained as workflow artifacts for 30 days
 - pull requests show a capped findings list in the workflow summary and retain
   the complete SARIF reports as artifacts
-- results are uploaded to GitHub Code Scanning only on pushes to `main`
+- only the version 16 AMD64 `build` image report is uploaded to GitHub Code
+  Scanning, and only on pushes to `main`; complete reports for every image and
+  architecture remain available as workflow artifacts
 
 This provides visibility before deciding which vulnerability classes should
 become blocking.
