@@ -67,6 +67,24 @@ The full `frappe_docker` documentation is available in [`docs/`](docs/) and publ
 - **Development workflows:** [Development](docs/05-development/01-development.md)
 - **FAQ:** [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
 
+### Easy Docker
+
+`easy-docker` is the guided terminal workflow for creating and managing Frappe
+Docker stacks from one place. It helps with stack creation, app and branch
+selection, image builds, runtime actions, and supported site operations without
+requiring users to assemble the Compose and Bench commands manually.
+
+If you want a guided setup path, start with the
+[Easy Docker docs](docs/10-easy-docker/index.md).
+
+Run it from the repository root with:
+
+```bash
+bash easy-docker.sh
+```
+
+![Easy Docker main menu](docs/images/easy-docker/entry/main-menu.png)
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
