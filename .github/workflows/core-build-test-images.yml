@@ -204,8 +204,8 @@ jobs:
         if: >-
           ${{
             always() &&
-            github.event_name == 'push' &&
             github.ref == 'refs/heads/main' &&
+            (github.event_name == 'push' || github.event_name == 'schedule') &&
             hashFiles('trivy-results/*.sarif') != ''
           }}
         continue-on-error: true
