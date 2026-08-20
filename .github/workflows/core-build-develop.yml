@@ -3,6 +3,7 @@ name: Core / Build Develop
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 on:
   workflow_call:

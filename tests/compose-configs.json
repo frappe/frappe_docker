@@ -1,0 +1,142 @@
+{
+  "environment": {
+    "BASE_SITE": "site-one.localhost",
+    "BENCH_NETWORK": "bench-network",
+    "DB_PASSWORD_SECRETS_FILE": "./test-db-password.txt",
+    "EMAIL": "admin@example.com",
+    "HASHED_PASSWORD": "not-a-real-password-hash",
+    "ROUTER": "site-one",
+    "TRAEFIK_DOMAIN": "traefik.example.com"
+  },
+  "configurations": [
+    {
+      "name": "mariadb-no-proxy",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.noproxy.yaml"
+      ]
+    },
+    {
+      "name": "mariadb-secrets",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.mariadb-secrets.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.noproxy.yaml"
+      ]
+    },
+    {
+      "name": "postgres-no-proxy",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.postgres.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.noproxy.yaml"
+      ]
+    },
+    {
+      "name": "traefik-http",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.proxy.yaml"
+      ]
+    },
+    {
+      "name": "traefik-https",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.https.yaml"
+      ]
+    },
+    {
+      "name": "nginx-proxy-http",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.nginxproxy.yaml"
+      ]
+    },
+    {
+      "name": "nginx-proxy-https",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.nginxproxy.yaml",
+        "overrides/compose.nginxproxy-ssl.yaml"
+      ]
+    },
+    {
+      "name": "migrator",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.proxy.yaml",
+        "overrides/compose.migrator.yaml"
+      ]
+    },
+    {
+      "name": "backup-cron",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.proxy.yaml",
+        "overrides/compose.backup-cron.yaml"
+      ]
+    },
+    {
+      "name": "shared-mariadb",
+      "files": ["overrides/compose.mariadb-shared.yaml"]
+    },
+    {
+      "name": "standalone-traefik-http",
+      "files": ["overrides/compose.traefik.yaml"]
+    },
+    {
+      "name": "standalone-traefik-https",
+      "files": [
+        "overrides/compose.traefik.yaml",
+        "overrides/compose.traefik-ssl.yaml"
+      ]
+    },
+    {
+      "name": "multi-bench-http",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.multi-bench.yaml"
+      ]
+    },
+    {
+      "name": "multi-bench-https",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.multi-bench.yaml",
+        "overrides/compose.multi-bench-ssl.yaml"
+      ]
+    },
+    {
+      "name": "custom-domain-http",
+      "files": ["compose.yaml", "overrides/compose.custom-domain.yaml"]
+    },
+    {
+      "name": "custom-domain-https",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.custom-domain.yaml",
+        "overrides/compose.custom-domain-ssl.yaml"
+      ]
+    }
+  ]
+}
