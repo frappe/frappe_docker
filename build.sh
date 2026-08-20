@@ -1,0 +1,1 @@
+ sudo docker build  --no-cache  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe  --build-arg=FRAPPE_BRANCH=version-16  --secret=id=apps_json,src=apps.json   --tag micro365/micro365:erpnext-dev --platform=linux/amd64 --file=images/layered/Containerfile .
