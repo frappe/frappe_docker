@@ -23,7 +23,7 @@ on:
       - .github/workflows/core-publish-images.yml
 
   schedule:
-    # Every day at 12:00 pm
+    # Every day at 00:00 UTC
     - cron: 0 0 * * *
 
   workflow_dispatch:
@@ -34,8 +34,8 @@ jobs:
     with:
       repo: erpnext
       version: develop
-      python_version: 3.14.2
-      node_version: 24.12.0
+      python_version: "3.14"
+      node_version: "24"
 
   publish:
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
@@ -45,8 +45,8 @@ jobs:
       repo: erpnext
       frappe_version: ${{ needs.test.outputs.frappe_version }}
       erpnext_version: ${{ needs.test.outputs.erpnext_version }}
-      python_version: 3.14.2
-      node_version: 24.12.0
+      python_version: "3.14"
+      node_version: "24"
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
