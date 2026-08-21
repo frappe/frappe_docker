@@ -68,6 +68,14 @@ cleanly on v16, but four real defects surface at runtime — all patched in
 4. **None crash in `aggregate()`**: `tax += item.tax_amount` and
    `amount += item.amount` blow up when v16 leaves totals as `NULL` on
    tax-free items. Both now `or 0`.
+5. **Walk-in customers impossible from Check In**: v16 validates link fields
+   *before any document hook runs*, so a typed, not-yet-existing customer dies
+   with `LinkValidationError`. Patched by overriding the booking controller's
+   `insert()`/`save()` to auto-create the Customer (with the dialog's contact
+   number) first — type name + phone, Confirm, done.
+6. **Booking phone-sync wrote to the wrong record**: `on_update` set
+   `mobile_no` on a Customer keyed by the *booking's* ID — a silent no-op
+   forever. Now keys on the actual customer.
 
 Two **site settings** the app needs on v16 (applied by `deploy.sh` and by
 `seed()`):
