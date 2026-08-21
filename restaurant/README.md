@@ -13,14 +13,14 @@ burning down through BOM recipes.
 
 ```bash
 cp example.env .env                     # then set FRAPPE_SITE_NAME_HEADER etc.
-SITE=frontend ADMIN_PASSWORD=change-me SEED_DEMO=1 ./restaurant/deploy.sh
+SITE=pos.example.com ADMIN_PASSWORD=change-me SEED_DEMO=1 ./restaurant/deploy.sh
 ```
 
 `deploy.sh` is re-runnable; every step skips what already exists. Flags:
 
 | Env | Default | Meaning |
 |---|---|---|
-| `SITE` | `frontend` | site name (must match `FRAPPE_SITE_NAME_HEADER`) |
+| `SITE` | `frontend` | **name the site after its public domain** (e.g. `pos.example.com`) |
 | `ADMIN_PASSWORD` | `admin` | Administrator password for a new site |
 | `DB_ROOT_PASSWORD` | `123` | MariaDB root (frappe_docker compose default) |
 | `ERPNEXT_VERSION` | `v16.6.0` | erpnext tag baked into the image |
@@ -74,6 +74,10 @@ Two **site settings** the app needs on v16 (applied by `deploy.sh` and by
 
 - **POS Settings → invoice_type = "POS Invoice"** — v16 defaults to *Sales
   Invoice mode*, which hard-blocks the app's hardcoded POS Invoice billing.
+- **Site name must equal the public domain.** frappe_docker's nginx rewrites the
+  `Origin` header to the site name, and frappe's websocket auth requires
+  `Host == Origin` — a site named differently (e.g. `frontend` behind
+  `pos.example.com`) gets *Invalid origin* and a dead kitchen display.
 - **`host_name` site config** must be the public URL (deploy.sh sets it from
   `SITE_URL`) or socket.io rejects browsers with *Invalid origin* and realtime
   kitchen updates die.
@@ -130,5 +134,5 @@ against the float + takings, then a new Opening Entry next morning.
 
 ```bash
 # nightly at 23:30 — consume the day's ingredients
-30 23 * * * cd /path/to/frappe_docker && echo 'exec(open("apps/restaurant_management/restaurant_management/demo_seed.py").read(), globals()); backflush()' | docker compose exec -T backend bench --site frontend console
+30 23 * * * cd /path/to/frappe_docker && echo 'exec(open("apps/restaurant_management/restaurant_management/demo_seed.py").read(), globals()); backflush()' | docker compose exec -T backend bench --site pos.example.com console
 ```
