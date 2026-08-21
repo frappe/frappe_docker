@@ -289,6 +289,7 @@ def seed():
         op.submit()
 
     frappe.db.commit()
+    layout_floor()
     print("SEED OK — tables:", frappe.db.count("Restaurant Object", {"type": "Table"}),
           "| menu rows:", frappe.db.count("Restaurant Menu Item"),
           "| customers:", frappe.db.count("Customer"))
@@ -448,6 +449,33 @@ def seed_inventory():
             print("BOM skipped for", dish, "->", str(e)[:90])
     frappe.db.commit()
     print("SEED_INVENTORY OK — BOMs:", boms)
+
+
+def layout_floor():
+    """Arrange the floor: tables in a grid, Kitchen and Bar as side stations."""
+    frappe.set_user(USER)
+    tables = frappe.get_all("Restaurant Object", filters={"room": room(), "type": "Table"},
+                            order_by="creation", pluck="name")
+    colors = ["#1a4469", "#2e844e", "#97264f", "#505a62", "#1579d0", "#2d401d"]
+
+    def style(x, y, z, w, h):
+        return f'{{"x":"{x}","y":"{y}","z-index":"{z}","width":"{w}px","height":"{h}px"}}'
+
+    for i, t in enumerate(tables):
+        frappe.db.set_value("Restaurant Object", t, {
+            "data_style": style(60 + (i % 3) * 260, 90 + (i // 3) * 220, 60 + i, 200, 130),
+            "description": f"Table {i + 1}",
+            "shape": "Square",
+            "color": colors[i % len(colors)],
+        })
+    for pc in frappe.get_all("Restaurant Object", filters={"type": "Production Center"},
+                             fields=["name", "description"]):
+        frappe.db.set_value("Restaurant Object", pc.name, {
+            "data_style": style(880, 90 if pc.description == "Kitchen" else 320, 90, 280, 160),
+            "color": "#97264f" if pc.description == "Kitchen" else "#1a4469",
+        })
+    frappe.db.commit()
+    print("LAYOUT OK —", len(tables), "tables arranged")
 
 
 def backflush():
