@@ -264,6 +264,15 @@ def seed():
     for c in CUSTOMERS:
         _ensure_customer(c)
 
+    # Restaurant Booking/Table Order grant only the app's own roles — even a
+    # System Manager gets "Insufficient Permission" without these.
+    staff = frappe.get_all("Has Role", filters={"role": "System Manager", "parenttype": "User"},
+                           pluck="parent")
+    for u in set(staff) - {"Administrator", "Guest"}:
+        user = frappe.get_doc("User", u)
+        user.append_roles("Restaurant Manager", "Restaurant User")
+        user.save(ignore_permissions=True)
+
     prof_name = pos_profile()
     if not frappe.db.exists("Mode of Payment", "M-Pesa"):
         cash_acc = frappe.db.get_value(
@@ -463,7 +472,7 @@ def layout_floor():
 
     for i, t in enumerate(tables):
         frappe.db.set_value("Restaurant Object", t, {
-            "data_style": style(60 + (i % 3) * 260, 90 + (i // 3) * 220, 60 + i, 200, 130),
+            "data_style": style(340 + (i % 3) * 260, 90 + (i // 3) * 220, 60 + i, 200, 130),
             "description": f"Table {i + 1}",
             "shape": "Square",
             "color": colors[i % len(colors)],
@@ -471,7 +480,7 @@ def layout_floor():
     for pc in frappe.get_all("Restaurant Object", filters={"type": "Production Center"},
                              fields=["name", "description"]):
         frappe.db.set_value("Restaurant Object", pc.name, {
-            "data_style": style(880, 90 if pc.description == "Kitchen" else 320, 90, 280, 160),
+            "data_style": style(1160, 90 if pc.description == "Kitchen" else 320, 90, 280, 160),
             "color": "#97264f" if pc.description == "Kitchen" else "#1a4469",
         })
     frappe.db.commit()
