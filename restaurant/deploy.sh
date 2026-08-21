@@ -63,6 +63,7 @@ else
 fi
 
 log "site configuration the restaurant app needs on v16"
+[ -n "${SITE_URL:-}" ] && docker compose exec -T backend bench --site "$SITE" set-config host_name "$SITE_URL"
 docker compose exec -T backend bench --site "$SITE" enable-scheduler
 docker compose exec -T backend bench --site "$SITE" console <<'PY'
 frappe.db.set_value("POS Settings", None, "invoice_type", "POS Invoice")

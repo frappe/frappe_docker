@@ -61,7 +61,11 @@ cleanly on v16, but four real defects surface at runtime — all patched in
    → 500 on any taxed order.
 2. **Nonexistent column**: the same lookup selects `amount`; the field is
    `tax_amount`. Fixed in the query and the row that reads it.
-3. **None crash in `aggregate()`**: `tax += item.tax_amount` and
+3. **Global lost to v16 page-script scoping**: desk page scripts now run in a
+   closure, so the page's `var RM` never reaches `window` — every class file
+   (rooms, tables, kitchen) reads `RM` globally and the floor renders blank
+   with `RM is not defined`. Patched to `window.RM`.
+4. **None crash in `aggregate()`**: `tax += item.tax_amount` and
    `amount += item.amount` blow up when v16 leaves totals as `NULL` on
    tax-free items. Both now `or 0`.
 
@@ -70,6 +74,9 @@ Two **site settings** the app needs on v16 (applied by `deploy.sh` and by
 
 - **POS Settings → invoice_type = "POS Invoice"** — v16 defaults to *Sales
   Invoice mode*, which hard-blocks the app's hardcoded POS Invoice billing.
+- **`host_name` site config** must be the public URL (deploy.sh sets it from
+  `SITE_URL`) or socket.io rejects browsers with *Invalid origin* and realtime
+  kitchen updates die.
 - **UOM `Nos` → allow fractions** — wine by the glass consumes 0.2 bottle. For a
   long-lived production site, prefer a dedicated fractional UOM (e.g. `Bottle`)
   for by-the-glass items instead of loosening `Nos` globally.
