@@ -35,6 +35,28 @@ restaurant.example.com {
 }
 ```
 
+## Testing the one-click deploy locally
+
+Any machine with Docker can rehearse the full client deploy:
+
+```bash
+git clone git@github.com:moodykhalif23/frappe_docker.git && cd frappe_docker
+SITE=pos.localhost ADMIN_PASSWORD=admin SEED_DEMO=1 SIMULATE=1 ./restaurant/deploy.sh
+```
+
+Then open http://pos.localhost:8080 — `.localhost` names resolve to loopback,
+and because the site is *named* `pos.localhost`, Host == Origin and the
+websocket/kitchen realtime works locally too. First run builds the image
+(~15-30 min); later runs reuse it.
+
+Clean slate between tests:
+
+```bash
+docker compose down -v        # removes containers AND volumes (site data)
+```
+
+Keep the image (`custom-erpnext:*`) unless you're testing the build itself.
+
 ## Files added to this repo
 
 | File | Purpose |
