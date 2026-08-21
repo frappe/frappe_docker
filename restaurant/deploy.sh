@@ -24,6 +24,7 @@ IMAGE="custom-erpnext:${ERPNEXT_VERSION}"
 log() { echo "==> $*"; }
 
 [ -f .env ] || { cp example.env .env; echo "FRAPPE_SITE_NAME_HEADER=${SITE}" >> .env; }
+grep -q '^COMPOSE_FILE=' .env || echo 'COMPOSE_FILE=compose.yaml:overrides/compose.redis.yaml:overrides/compose.mariadb.yaml:overrides/compose.noproxy.yaml' >> .env
 sed -i "s/^FRAPPE_SITE_NAME_HEADER=.*/FRAPPE_SITE_NAME_HEADER=${SITE}/" .env
 grep -q "^FRAPPE_SITE_NAME_HEADER=" .env || echo "FRAPPE_SITE_NAME_HEADER=${SITE}" >> .env
 grep -q "^CUSTOM_IMAGE=" .env || cat >> .env <<EOF
