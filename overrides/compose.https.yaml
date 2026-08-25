@@ -14,9 +14,11 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
+      - --entrypoints.web.http.underscoreHeadersStrategy=delete
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.underscoreHeadersStrategy=delete
       - --certificatesResolvers.main-resolver.acme.httpChallenge=true
       - --certificatesResolvers.main-resolver.acme.httpChallenge.entrypoint=web
       - --certificatesResolvers.main-resolver.acme.email=${LETSENCRYPT_EMAIL:?No Let's Encrypt email set}

@@ -25,8 +25,10 @@ services:
       - --providers.docker.exposedbydefault=false
       # Create an entrypoint http listening on port 80
       - --entrypoints.http.address=:80
+      - --entrypoints.http.http.underscoreHeadersStrategy=delete
       # Create an entrypoint https listening on port 443
       - --entrypoints.https.address=:443
+      - --entrypoints.https.http.underscoreHeadersStrategy=delete
       # Create the certificate resolver le for Let's Encrypt, uses the environment variable EMAIL
       - --certificatesresolvers.le.acme.email=${EMAIL:?No EMAIL set}
       # Store the Let's Encrypt certificates in the mounted volume

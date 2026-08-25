@@ -26,6 +26,7 @@ services:
       - --providers.docker.exposedbydefault=false
       # Create an entrypoint http listening on port 80
       - --entrypoints.http.address=:80
+      - --entrypoints.http.http.underscoreHeadersStrategy=delete
       # Enable the access log, with HTTP requests
       - --accesslog
       # Enable the Traefik log, for configurations and errors
