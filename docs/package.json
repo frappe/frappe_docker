@@ -1,9 +1,9 @@
 {
   "devDependencies": {
-    "mermaid": "11.16.1",
+    "mermaid": "11.17.0",
     "vitepress": "2.0.0-alpha.19",
     "vitepress-mermaid-viewer": "0.5.0",
-    "vitepress-sidebar": "1.38.0"
+    "vitepress-sidebar": "1.39.0"
   },
   "scripts": {
     "docs:dev": "vitepress dev",

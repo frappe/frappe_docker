@@ -13,17 +13,17 @@ importers:
   .:
     devDependencies:
       mermaid:
-        specifier: 11.16.1
-        version: 11.16.1
+        specifier: 11.17.0
+        version: 11.17.0
       vitepress:
         specifier: 2.0.0-alpha.19
         version: 2.0.0-alpha.19(esbuild@0.27.7)(postcss@8.5.26)
       vitepress-mermaid-viewer:
         specifier: 0.5.0
-        version: 0.5.0(mermaid@11.16.1)(vitepress@2.0.0-alpha.19(esbuild@0.27.7)(postcss@8.5.26))(vue@3.5.41)
+        version: 0.5.0(mermaid@11.17.0)(vitepress@2.0.0-alpha.19(esbuild@0.27.7)(postcss@8.5.26))(vue@3.5.41)
       vitepress-sidebar:
-        specifier: 1.38.0
-        version: 1.38.0
+        specifier: 1.39.0
+        version: 1.39.0
 
 packages:
 
@@ -442,8 +442,8 @@ packages:
   '@types/d3-selection@3.0.11':
     resolution: {integrity: sha512-bhAXu23DJWsrI45xafYpkQ4NtcKMwWnAC/vKrd2l+nxMFuvOT3XMYTIj2opv8vq8AO5Yh7Qac/nSeP/3zjTK0w==}
 
-  '@types/d3-shape@3.1.8':
-    resolution: {integrity: sha512-lae0iWfcDeR7qt7rA88BNiqdvPS5pFVPpo5OfjElwNaT2yyekbM0C9vK+yqBqEmHr6lDkRnYNoTBYlAgJa7a4w==}
+  '@types/d3-shape@3.2.0':
+    resolution: {integrity: sha512-kVd74ta9eof3eJOvbNd1vGKS/XERRyQbT26Og63hIsvDO84cjD5gEOhsXf26w3FSoNlPVz84DOFcKv/oou+fMw==}
 
   '@types/d3-time-format@4.0.3':
     resolution: {integrity: sha512-5xg9rC+wWL8kdDj153qZcsJ0FWiFt0J5RB6LYUNZjwSnesfblqrI/bJ1wBdJ8OQfncgbJG5+2F+qfqnqyzYxyg==}
@@ -837,6 +837,9 @@ packages:
     resolution: {integrity: sha512-zCnTtlxNoAiDc3gqY2aYAWFx7XWWiasuF2K8Me5WbN8otHKTUKBwjPtNpRs/rbUZm7KxWAaNj7P1a/p52GbVug==}
     engines: {node: '>=0.10.0'}
 
+  fastdom@1.0.12:
+    resolution: {integrity: sha512-LB+xjSTEbjHE1cWsxu+tN2Xqr1kpi+V9aADI7sVM5ZMaXyYGPHULQMzpJMYqOTULK/73pUkWVzzObFRBkPr+hg==}
+
   fdir@6.5.0:
     resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
     engines: {node: '>=12.0.0'}
@@ -1011,8 +1014,8 @@ packages:
   mdast-util-to-hast@13.2.1:
     resolution: {integrity: sha512-cctsq2wp5vTsLIcaymblUriiTcZd0CwWtCbLvrOzYCDZoWyMNV8sZ7krj09FSnsiJi3WVsHLM4k6Dq/yaPyCXA==}
 
-  mermaid@11.16.1:
-    resolution: {integrity: sha512-TQsq6u22fAn3rek5VOubrhKPo1g5hwC3FXUN9hiyupTckcYiGuuKGkNQrKYwGJkXUxZdojwRG46gsSCFZMDp4g==}
+  mermaid@11.17.0:
+    resolution: {integrity: sha512-Jo9N377Wb4MSnHFPTbLi2SxFpsQl4eVHoxnW5U1Md9EazvgMp3s+4ohDxr81YNTgbn5Kj7HJ3yslrSJ52kwpbA==}
 
   micromark-util-character@2.1.1:
     resolution: {integrity: sha512-wv8tdUTJ3thSFFFJKtpYKOYiGP2+v96Hvk4Tu8KpCAsTMs6yi+nVmGh1syvSCsaxz45J6Jbw+9DD6g97+NV67Q==}
@@ -1132,6 +1135,9 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
+  strictdom@1.0.1:
+    resolution: {integrity: sha512-cEmp9QeXXRmjj/rVp9oyiqcvyocWab/HaoN4+bwFeZ7QzykJD6L3yD4v12K1x0tHpqRqVpJevN3gW7kyM39Bqg==}
+
   stringify-entities@4.0.4:
     resolution: {integrity: sha512-IwfBptatlO+QCJUo19AqvrPNqlVMpW9YEL2LIVY+Rpv2qsjCGxaDLNRgeGsQWJhfItebuJhsGSLjaBbNSQ+ieg==}
 
@@ -1236,8 +1242,8 @@ packages:
       vitepress: '>=1.0.0'
       vue: ^3.0.0
 
-  vitepress-sidebar@1.38.0:
-    resolution: {integrity: sha512-0TojAa2MOIBYRMrssLd1j0exJnUOgD9JWebnBrly7rrOcwt0S8HQo7MXylI0vauzG6N6gSFTNnq5ubChwQvXew==}
+  vitepress-sidebar@1.39.0:
+    resolution: {integrity: sha512-GgHYtvF0ctYODmHv1CpJOMCfvUOvq0RSG+ZfUwvykmBBFpM1sos1YMt6L292UuOGr9UhROspCv8YLNC4H0glZg==}
     engines: {node: '>=20.0.0'}
 
   vitepress@2.0.0-alpha.19:
@@ -1548,7 +1554,7 @@ snapshots:
 
   '@types/d3-selection@3.0.11': {}
 
-  '@types/d3-shape@3.1.8':
+  '@types/d3-shape@3.2.0':
     dependencies:
       '@types/d3-path': 3.1.1
 
@@ -1593,7 +1599,7 @@ snapshots:
       '@types/d3-scale': 4.0.9
       '@types/d3-scale-chromatic': 3.1.0
       '@types/d3-selection': 3.0.11
-      '@types/d3-shape': 3.1.8
+      '@types/d3-shape': 3.2.0
       '@types/d3-time': 3.0.4
       '@types/d3-time-format': 4.0.3
       '@types/d3-timer': 3.0.2
@@ -2005,6 +2011,10 @@ snapshots:
     dependencies:
       is-extendable: 0.1.1
 
+  fastdom@1.0.12:
+    dependencies:
+      strictdom: 1.0.1
+
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
@@ -2155,7 +2165,7 @@ snapshots:
       unist-util-visit: 5.1.0
       vfile: 6.0.3
 
-  mermaid@11.16.1:
+  mermaid@11.17.0:
     dependencies:
       '@braintree/sanitize-url': 7.1.2
       '@iconify/utils': 3.1.4
@@ -2171,6 +2181,7 @@ snapshots:
       dayjs: 1.11.23
       dompurify: 3.4.14
       es-toolkit: 1.51.0
+      fastdom: 1.0.12
       katex: 0.16.47
       khroma: 2.1.0
       marked: 16.4.2
@@ -2312,6 +2323,8 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
+  strictdom@1.0.1: {}
+
   stringify-entities@4.0.4:
     dependencies:
       character-entities-html4: 2.1.0
@@ -2380,13 +2393,13 @@ snapshots:
       esbuild: 0.27.7
       fsevents: 2.3.3
 
-  vitepress-mermaid-viewer@0.5.0(mermaid@11.16.1)(vitepress@2.0.0-alpha.19(esbuild@0.27.7)(postcss@8.5.26))(vue@3.5.41):
+  vitepress-mermaid-viewer@0.5.0(mermaid@11.17.0)(vitepress@2.0.0-alpha.19(esbuild@0.27.7)(postcss@8.5.26))(vue@3.5.41):
     dependencies:
-      mermaid: 11.16.1
+      mermaid: 11.17.0
       vitepress: 2.0.0-alpha.19(esbuild@0.27.7)(postcss@8.5.26)
       vue: 3.5.41
 
-  vitepress-sidebar@1.38.0:
+  vitepress-sidebar@1.39.0:
     dependencies:
       glob: 13.0.6
       gray-matter: 4.0.3
