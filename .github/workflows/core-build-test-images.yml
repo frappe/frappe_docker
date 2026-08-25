@@ -147,7 +147,7 @@ jobs:
       - name: Upload Trivy report artifact
         if: ${{ always() && hashFiles('trivy-results/*.sarif') != '' }}
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: trivy-${{ inputs.version }}-${{ matrix.arch }}
           path: trivy-results/*.sarif
