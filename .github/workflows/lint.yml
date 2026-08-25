@@ -18,7 +18,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.10.6"
+          python-version: "3.14"
 
       # For shfmt pre-commit hook
       - name: Setup Go

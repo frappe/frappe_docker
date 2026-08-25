@@ -55,3 +55,27 @@ repos:
     hooks:
       - id: shellcheck
         args: [-x]
+
+  - repo: local
+    hooks:
+      - id: hadolint
+        name: hadolint
+        description: Lint Dockerfiles and Containerfiles with Hadolint
+        language: docker_image
+        entry: ghcr.io/hadolint/hadolint:v2.15.1 hadolint
+        types: [dockerfile]
+
+      - id: validate-compose
+        name: validate compose configurations
+        description: Validate every supported Docker Compose override combination
+        language: system
+        entry: python .github/scripts/validate_compose.py
+        pass_filenames: false
+        files: >-
+          (?x)^(
+            compose\.yaml|
+            example\.env|
+            overrides/compose\..*\.yaml|
+            tests/compose-configs\.json|
+            \.github/scripts/validate_compose\.py
+          )$

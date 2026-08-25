@@ -17,6 +17,21 @@ updates:
     schedule:
       interval: weekly
 
+  - package-ecosystem: docker-compose
+    directory: /overrides
+    schedule:
+      interval: weekly
+    allow:
+      - dependency-name: nginxproxy/acme-companion
+      - dependency-name: nginxproxy/nginx-proxy
+      - dependency-name: traefik
+    groups:
+      proxy-images:
+        patterns:
+          - nginxproxy/acme-companion
+          - nginxproxy/nginx-proxy
+          - traefik
+
   - package-ecosystem: pip
     directory: /
     schedule:

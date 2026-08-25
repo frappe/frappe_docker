@@ -11,7 +11,7 @@ services:
       - ${HTTPS_PUBLISH_PORT:-443}:443
 
   acme-companion:
-    image: nginxproxy/acme-companion:latest
+    image: nginxproxy/acme-companion:2.8.2
     restart: unless-stopped
     environment:
       DEFAULT_EMAIL: ${LETSENCRYPT_EMAIL:?No LETSENCRYPT_EMAIL set}
