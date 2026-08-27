@@ -19,9 +19,17 @@ repos:
       - id: black
 
   - repo: https://github.com/pycqa/isort
-    rev: 9.0.0b1
+    rev: 9.0.0b5
     hooks:
       - id: isort
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        exclude: ^docs/pnpm-lock\.yaml$
+        additional_dependencies:
+          - prettier@3.9.6
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.3
@@ -47,3 +55,27 @@ repos:
     hooks:
       - id: shellcheck
         args: [-x]
+
+  - repo: local
+    hooks:
+      - id: hadolint
+        name: hadolint
+        description: Lint Dockerfiles and Containerfiles with Hadolint
+        language: docker_image
+        entry: ghcr.io/hadolint/hadolint:v2.15.1 hadolint
+        types: [dockerfile]
+
+      - id: validate-compose
+        name: validate compose configurations
+        description: Validate every supported Docker Compose override combination
+        language: system
+        entry: python .github/scripts/validate_compose.py
+        pass_filenames: false
+        files: >-
+          (?x)^(
+            compose\.yaml|
+            example\.env|
+            overrides/compose\..*\.yaml|
+            tests/compose-configs\.json|
+            \.github/scripts/validate_compose\.py
+          )$

@@ -1,6 +1,12 @@
 name: Docs / Publish Site
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/docs-publish-site.yml"
+  merge_group:
   push:
     branches: [main]
     paths:
@@ -10,19 +16,18 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 defaults:
   run:
     working-directory: ./docs
 
 concurrency:
-  group: pages
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  docs-build:
+    name: Docs / Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -57,10 +62,24 @@ jobs:
         run: pnpm docs:build
 
       - name: Upload artifact
+        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-pages-artifact@v5
         with:
           path: docs/.vitepress/dist
 
+  deploy:
+    name: Docs / Deploy
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    needs: docs-build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

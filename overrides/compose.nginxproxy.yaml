@@ -5,7 +5,7 @@ services:
       VIRTUAL_PORT: 8080
 
   nginx-proxy:
-    image: nginxproxy/nginx-proxy:alpine
+    image: nginxproxy/nginx-proxy:1.11.6-alpine
     restart: unless-stopped
     ports:
       - ${HTTP_PUBLISH_PORT:-80}:80

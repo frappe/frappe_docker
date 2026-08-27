@@ -1,0 +1,8 @@
+# Keep existing warnings visible without making all current pull requests fail.
+# Raise high-confidence container safety rules to errors so they remain blocking.
+failure-threshold: error
+override:
+  error:
+    - DL3002
+    - DL3006
+    - DL3007
