@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>CRM Shakedown Run</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img,svg,video{max-width:100%;height:auto;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+table{border-collapse:collapse}
+</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#EDEEEA; --surface:#F8F9F6; --sunken:#E3E5DF; --rule:#D0D4CB; --rule-soft:#DFE2DA;
+  --ink:#1B211E; --ink-2:#4C5651; --ink-3:#7C867F;
+  --brass:#8A6114; --brass-ink:#8A6114; --brass-soft:#EFE3C8; --brass-line:#DCCBA0;
+  --ok:#2C6E52; --ok-soft:#DCEBE2;
+  --bad:#A6362D; --bad-soft:#F3DEDB;
+  --warn:#8E5C0E; --warn-soft:#F2E6CC;
+  --shadow:0 1px 2px rgba(27,33,30,.06), 0 8px 24px -16px rgba(27,33,30,.28);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#121715; --surface:#1A211E; --sunken:#232C28; --rule:#2E3733; --rule-soft:#262E2A;
+    --ink:#E7EAE5; --ink-2:#A2ACA6; --ink-3:#6E7873;
+    --brass:#DCA646; --brass-ink:#E3B767; --brass-soft:#33280F; --brass-line:#4A3A17;
+    --ok:#5FC493; --ok-soft:#162C22;
+    --bad:#E8776B; --bad-soft:#331B18;
+    --warn:#D9A03F; --warn-soft:#2E2410;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121715; --surface:#1A211E; --sunken:#232C28; --rule:#2E3733; --rule-soft:#262E2A;
+  --ink:#E7EAE5; --ink-2:#A2ACA6; --ink-3:#6E7873;
+  --brass:#DCA646; --brass-ink:#E3B767; --brass-soft:#33280F; --brass-line:#4A3A17;
+  --ok:#5FC493; --ok-soft:#162C22;
+  --bad:#E8776B; --bad-soft:#331B18;
+  --warn:#D9A03F; --warn-soft:#2E2410;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.6; margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;font-weight:700;text-wrap:balance;margin:0;letter-spacing:-.005em}
+code,.mono,kbd{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:28px}
+@media (max-width:640px){ .wrap{padding-inline:16px} }
+
+/* ---------- header ---------- */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule);
+}
+.topbar-in{display:flex;align-items:center;gap:22px;padding:13px 0;flex-wrap:wrap}
+.brandmark{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brandmark .nm{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:19px;letter-spacing:-.01em}
+.brandmark .sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.meter{display:flex;align-items:center;gap:11px}
+.meter-track{width:150px;height:5px;border-radius:99px;background:var(--sunken);overflow:hidden}
+.meter-fill{height:100%;width:0%;background:var(--brass);border-radius:99px;transition:width .3s ease}
+.meter-num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
+.btn{
+  font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;
+  background:var(--surface);color:var(--ink-2);
+  border:1px solid var(--rule);border-radius:6px;padding:6px 12px;
+}
+.btn:hover{border-color:var(--ink-3);color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+/* ---------- masthead ---------- */
+.mast{padding:56px 0 40px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-ink);margin-bottom:16px}
+.mast h1{font-size:clamp(34px,5.4vw,50px);line-height:1.04;max-width:15ch}
+.mast .lede{margin-top:18px;max-width:62ch;font-size:16.5px;color:var(--ink-2)}
+.factbar{display:flex;flex-wrap:wrap;gap:0;margin-top:30px;border:1px solid var(--rule);border-radius:9px;overflow:hidden;background:var(--surface)}
+.fact{padding:12px 18px;border-right:1px solid var(--rule-soft);flex:1 1 auto;min-width:150px}
+.fact:last-child{border-right:0}
+.fact dt{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+.fact dd{margin:0;font-size:14px;font-weight:500;font-family:"IBM Plex Mono",monospace}
+
+/* ---------- scenario ---------- */
+.scenario{margin:36px 0 8px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:880px){ .scenario{grid-template-columns:1fr} }
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:22px 24px}
+.panel h3{font-size:15px;letter-spacing:.02em;margin-bottom:12px}
+.panel p{margin:0 0 11px;color:var(--ink-2);font-size:14.5px}
+.panel p:last-child{margin-bottom:0}
+.panel .who{color:var(--ink);font-weight:600}
+.howto li{margin-bottom:8px;color:var(--ink-2);font-size:14.5px}
+.howto{margin:0;padding-left:18px}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:200px 1fr;gap:56px;align-items:start;padding:44px 0 90px}
+@media (max-width:980px){ .shell{grid-template-columns:1fr;gap:0} .rail{display:none} }
+
+.rail{position:sticky;top:74px}
+.rail-h{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.rail a{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+  padding:9px 0;text-decoration:none;color:var(--ink-2);border-bottom:1px solid var(--rule-soft);
+  font-size:13.5px;
+}
+.rail a:hover{color:var(--ink)}
+.rail a:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:3px}
+.dot{width:8px;height:8px;border-radius:99px;border:1.5px solid var(--ink-3);flex:none}
+.rail a.done .dot{background:var(--ok);border-color:var(--ok)}
+.rail a.part .dot{background:linear-gradient(90deg,var(--brass) 50%,transparent 50%);border-color:var(--brass)}
+.rail .ct{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+/* ---------- stages ---------- */
+.stage{padding-top:14px;margin-bottom:52px;scroll-margin-top:80px}
+.stage-head{border-top:2px solid var(--ink);padding-top:14px;margin-bottom:26px}
+.stage-code{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--brass-ink);display:flex;gap:12px;align-items:center;margin-bottom:9px}
+.stage-code .rulefill{flex:1;height:1px;background:var(--rule)}
+.stage h2{font-size:27px;line-height:1.15}
+.stage .purpose{margin-top:9px;color:var(--ink-2);max-width:64ch;font-size:15px}
+
+/* ---------- steps ---------- */
+.step{
+  display:grid;grid-template-columns:34px 1fr;gap:16px;
+  background:var(--surface);border:1px solid var(--rule);border-radius:10px;
+  padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow);
+}
+.step.checked{background:var(--sunken);border-color:var(--rule-soft)}
+.step.checked .step-title{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--ink-3);text-decoration-thickness:1px}
+.marker{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:500;color:var(--ink-3);padding-top:3px;font-variant-numeric:tabular-nums}
+.step.checked .marker{color:var(--ok)}
+.step-title{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:17.5px;line-height:1.3;margin:0 0 2px;text-wrap:balance}
+.step-note{color:var(--ink-2);font-size:14.5px;margin:7px 0 0}
+.step-note code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft)}
+.step.checked .step-note code{background:var(--ground)}
+
+.badge{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;padding:2px 7px;border-radius:4px;vertical-align:middle;margin-left:9px;font-weight:500}
+.badge.admin{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn)}
+.badge.opt{background:var(--sunken);color:var(--ink-3);border:1px solid var(--rule)}
+
+.golink{
+  display:inline-flex;align-items:center;gap:7px;margin-top:11px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;
+  color:var(--brass-ink);text-decoration:none;
+  border:1px solid var(--brass-line);background:var(--brass-soft);
+  padding:4px 10px;border-radius:5px;
+}
+.golink:hover{border-color:var(--brass)}
+.golink:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.golink .arr{opacity:.6}
+
+.fields{margin-top:13px;border:1px solid var(--rule-soft);border-radius:7px;overflow:hidden}
+.frow{display:grid;grid-template-columns:minmax(130px,190px) 1fr;border-bottom:1px solid var(--rule-soft)}
+.frow:last-child{border-bottom:0}
+.frow>dt{padding:7px 12px;background:var(--sunken);font-size:12.5px;color:var(--ink-2);border-right:1px solid var(--rule-soft);display:flex;align-items:center}
+.step.checked .frow>dt{background:var(--ground)}
+.frow>dd{margin:0;padding:5px 8px;display:flex;align-items:center;min-width:0}
+.cp{
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink);
+  background:none;border:1px solid transparent;border-radius:4px;
+  padding:2px 6px;cursor:copy;text-align:left;font-weight:500;
+  max-width:100%;overflow-wrap:anywhere;
+}
+.cp:hover{border-color:var(--rule);background:var(--sunken)}
+.cp:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.cp.copied{color:var(--ok);border-color:var(--ok)}
+.fhint{font-size:12px;color:var(--ink-3);padding-left:6px;font-style:italic}
+@media (max-width:600px){ .frow{grid-template-columns:1fr} .frow>dt{border-right:0;border-bottom:1px solid var(--rule-soft)} }
+
+.expect{
+  margin-top:13px;display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;
+  border-left:2px solid var(--ok);background:var(--ok-soft);
+  padding:10px 13px;border-radius:0 6px 6px 0;
+}
+.step.checked .expect{border-left-color:var(--ok)}
+.expect input{margin:0;width:16px;height:16px;accent-color:var(--ok);cursor:pointer;flex:none;margin-top:2px}
+.expect input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.expect label{cursor:pointer;font-size:13.5px;color:var(--ink)}
+.expect .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ok);display:block;margin-bottom:2px;font-weight:600}
+
+.gotcha{
+  margin-top:12px;border-left:2px solid var(--brass);background:var(--brass-soft);
+  padding:10px 13px;border-radius:0 6px 6px 0;font-size:13.5px;color:var(--ink);
+}
+.gotcha .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--brass-ink);display:block;margin-bottom:3px;font-weight:600}
+
+/* ---------- perms table ---------- */
+.tablewrap{overflow-x:auto;margin-top:14px;border:1px solid var(--rule);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:440px}
+th,td{text-align:left;padding:8px 13px;border-bottom:1px solid var(--rule-soft)}
+th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);background:var(--sunken)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--ok);font-family:"IBM Plex Mono",monospace;font-weight:500}
+td.n{color:var(--bad);font-family:"IBM Plex Mono",monospace;font-weight:500}
+td .dt{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+
+footer{border-top:1px solid var(--rule);padding:26px 0 60px;color:var(--ink-3);font-size:13px}
+footer a{color:var(--brass-ink)}
+
+@media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+</style>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brandmark">
+      <span class="nm">CRM Shakedown Run</span>
+      <span class="sub">erp.habibi-erp.com</span>
+    </div>
+    <div class="meter">
+      <div class="meter-track"><div class="meter-fill" id="fill"></div></div>
+      <span class="meter-num" id="num">0 / 0</span>
+    </div>
+    <button class="btn" id="reset" type="button">Reset progress</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow">ERPNext · built-in CRM module · v15/v16</div>
+    <h1>Drive the whole pipeline once, on purpose.</h1>
+    <p class="lede">Ten stages that exercise every part of ERPNext's CRM module customers actually touch — campaign attribution, lead capture, qualification, account grouping, deal management, quoting, conversion, loss, and the reports that read it all back. One fictional Riyadh deal carries the whole run, so the data you leave behind tells a coherent story.</p>
+    <dl class="factbar">
+      <div class="fact"><dt>Company</dt><dd>Test (Demo)</dd></div>
+      <div class="fact"><dt>Currency</dt><dd>SAR</dd></div>
+      <div class="fact"><dt>Territory</dt><dd>Saudi Arabia</dd></div>
+      <div class="fact"><dt>Run as</dt><dd>Sales Manager</dd></div>
+      <div class="fact"><dt>Records created</dt><dd>~14</dd></div>
+    </dl>
+  </header>
+
+  <section class="scenario">
+    <div class="panel">
+      <h3>The scenario</h3>
+      <p><span class="who">Al-Noor Academy</span>, a private school group in Riyadh, is opening its third campus in January. You met two of their people at the Riyadh Education Expo in August.</p>
+      <p><span class="who">Fatima Al-Rashid</span> (Procurement Manager) wants branded welcome kits for the new campus — shirts and mugs for students, laptops for teaching staff. That deal you will win.</p>
+      <p><span class="who">Omar Haddad</span> (Facilities Lead) wants a bulk smartphone order for campus security. That deal you will lose, on budget — because a funnel with only wins proves nothing.</p>
+    </div>
+    <div class="panel">
+      <h3>How to run it</h3>
+      <ol class="howto">
+        <li>Open the ERP in a second window. Every step has a link that jumps straight to the right screen.</li>
+        <li>Work top to bottom. Stages depend on each other — statuses propagate <em>upward</em> through the chain, so skipping ahead breaks the later checks.</li>
+        <li>Field values are click-to-copy. Anything not listed, leave at its default.</li>
+        <li>Tick the green <strong>Expect</strong> box only when you have actually seen the stated result. That box is the test, not the action above it.</li>
+        <li>Progress saves in this browser. Stage 10 tells you how to clean up.</li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="shell">
+    <nav class="rail" aria-label="Stages">
+      <div class="rail-h">Stages</div>
+      <div id="rail"></div>
+    </nav>
+    <main id="main"></main>
+  </div>
+
+  <footer class="wrap" style="padding-inline:0">
+    <p><strong>One caveat worth knowing before you invest in this module.</strong> The CRM workspace carries a deprecation notice: ERPNext's built-in CRM is scheduled for removal in v17, with <a href="https://frappe.io/crm" target="_blank" rel="noopener">Frappe CRM</a> as the successor. Everything in this runbook is valid on v15/v16 and a migration app exists — but treat what you build on it as having a horizon.</p>
+  </footer>
+</div>
+
+<script>
+const STAGES = [
+{
+ code:"Stage 00", name:"Pre-flight", short:"Pre-flight",
+ title:"Know the ground before you move",
+ purpose:"Four minutes here saves an hour of confusion later. Two of these checks reveal limits in this specific login that change how later stages run.",
+ steps:[
+  {t:"Confirm which company you are working in",
+   link:{l:"/desk/crm", h:"https://erp.habibi-erp.com/desk/crm"},
+   note:"This site has two companies — <code>Test</code> and <code>Test (Demo)</code>. The system default is <code>Test (Demo)</code>, and the Sales Funnel page defaults to it too. Use it for the entire run; mixing companies silently splits your data across two funnels.",
+   ex:"Every document you create from here on shows Company = Test (Demo)."},
+
+  {t:"Read your permission ceiling",
+   note:"This login holds Sales Manager, Accounts Manager, Stock Manager and friends — but <em>not</em> System Manager. That is fine for the whole sales flow, and blocks four master-data doctypes outright. Steps that need Administrator are marked.",
+   table:[["Lead, Opportunity, Quotation, Customer, Prospect","Create","yes"],["Campaign, Opportunity Lost Reason","Create","yes"],["Contact, Address","Create","yes"],["UTM Campaign","Create","no"],["Sales Person","Create","no"],["Competitor","Create","no"],["Item Price","Even read","no"]],
+   ex:"You know which four steps below to skip or hand to an admin."},
+
+  {t:"Review CRM Settings and note four values",
+   link:{l:"/desk/crm-settings", h:"https://erp.habibi-erp.com/desk/crm-settings"},
+   note:"Do not change anything yet — just read. These four decide behaviour you will meet later.",
+   fields:[["Auto Creation of Contact","ON","creates a Contact behind every Lead"],["Allow Lead Duplication based on Emails","OFF","blocks a repeat email"],["Close Replied Opportunity After Days","15","auto-closes stale deals"],["Carry Forward Communication and Comments","OFF","comments will NOT follow the chain"]],
+   ex:"You can state what each of the four does without looking it up again."},
+
+  {t:"Verify the masters you will lean on exist",
+   note:"All of these ship with the setup wizard and are already present. Spot-check rather than open each one.",
+   fields:[["Territory","Saudi Arabia","a leaf — All Territories is a group, unusable"],["Customer Group","Commercial",""],["Sales Stage","8 records","Prospecting through Negotiation/Review"],["UTM Source","10 records","this is what the old “Lead Source” field became"],["Items","SKU001 … SKU011","T-shirt, Laptop, Coffee Mug and friends"]],
+   ex:"Territory list shows Saudi Arabia; Sales Stage list shows 8 rows."},
+
+  {t:"Create two Opportunity Lost Reasons — nothing ships with these",
+   link:{l:"/desk/opportunity-lost-reason", h:"https://erp.habibi-erp.com/desk/opportunity-lost-reason"},
+   note:"The table is empty on this site, and ERPNext refuses to mark anything Lost without a reason on file. Stage 08 dies here if you skip this. Create both rows now.",
+   fields:[["Record 1","Budget Constraints",""],["Record 2","Lost to Competitor",""]],
+   gotcha:"This is the single most common wall in a first CRM test run: you build a beautiful pipeline, try to close a deal as Lost, and hit a validation error with no obvious cause.",
+   ex:"The Opportunity Lost Reason list shows 2 records."}
+ ]
+},
+{
+ code:"Stage 01", name:"Attribution", short:"Attribution",
+ title:"Where the deal came from",
+ purpose:"Attribution is the input to two of the reports in Stage 09. Set it up before any lead exists, because you cannot retro-fit it cleanly.",
+ steps:[
+  {t:"Create the Campaign record",
+   link:{l:"/desk/campaign", h:"https://erp.habibi-erp.com/desk/campaign"},
+   note:"Campaign is the marketing container. Naming follows CRM Settings → Campaign Naming By, currently set to Campaign Name, so the record will be named after what you type.",
+   fields:[["Campaign Name","Riyadh Education Expo 2026",""],["Description","Booth C-14, three-day education trade show. Lead capture via badge scan.",""]],
+   ex:"Campaign saves and the document name reads Riyadh Education Expo 2026."},
+
+  {t:"Understand how attribution actually reaches the Lead",
+   note:"Old tutorials tell you to set a <code>Lead Source</code> and a <code>campaign_name</code> field. Both are gone. Modern ERPNext attributes through four UTM fields in the Analytics section near the bottom of the Lead: <code>Source</code> (→ UTM Source), <code>Medium</code>, <code>Campaign</code> (→ UTM Campaign), <code>Content</code>. This run will use <strong>Source = Exhibition</strong>, which already exists.",
+   ex:"You know to look in Analytics, not in a field called Lead Source."},
+
+  {t:"Create a matching UTM Campaign",
+   badge:"admin",
+   note:"So that <code>Campaign Efficiency</code> in Stage 09 can group by campaign, a UTM Campaign record named the same as the Campaign helps. This login cannot create one. Skip it — the run works without it, you simply lose one grouping dimension — or have an Administrator add it.",
+   ex:"Either a UTM Campaign named Riyadh Education Expo 2026 exists, or you have consciously skipped this."}
+ ]
+},
+{
+ code:"Stage 02", name:"Capture", short:"Capture",
+ title:"Two leads out of one expo",
+ purpose:"The Lead is one person, not a company. Two people from Al-Noor Academy means two Leads — Stage 04 is what joins them back together.",
+ steps:[
+  {t:"Create Lead 1 — Fatima Al-Rashid",
+   link:{l:"/desk/lead", h:"https://erp.habibi-erp.com/desk/lead"},
+   note:"Click <code>+ Add Lead</code>. Fill the Details tab, then scroll to Organization and Analytics. Only Status is truly mandatory, but a thin lead makes the Stage 09 reports empty.",
+   fields:[["Salutation","Ms",""],["First Name","Fatima",""],["Last Name","Al-Rashid",""],["Job Title","Procurement Manager",""],["Status","Lead","the default"],["Lead Type","Client",""],["Request Type","Product Enquiry",""],["Email","fatima.alrashid@alnoor-academy.example",""],["Mobile No","+966 55 214 8890",""],["Organization Name","Al-Noor Academy",""],["No of Employees","201-500",""],["Annual Revenue","18000000",""],["Industry","Education",""],["Market Segment","Upper Income",""],["Territory","Saudi Arabia",""],["City","Riyadh",""],["Country","Saudi Arabia",""],["Source  (Analytics)","Exhibition",""],["Medium  (Analytics)","Event",""]],
+   ex:"Lead saves with a name like CRM-LEAD-2026-000xx and Status shows Lead."},
+
+  {t:"Confirm the Contact that appeared without you asking",
+   link:{l:"/desk/contact", h:"https://erp.habibi-erp.com/desk/contact"},
+   note:"Auto Creation of Contact is ON, so saving that Lead silently created a Contact for Fatima and linked it. This is why bulk-importing test leads quietly doubles your Contact list.",
+   ex:"A Contact named Fatima Al-Rashid exists, and its Links table points back at your Lead."},
+
+  {t:"Prove the duplicate-email guard fires",
+   note:"Start a second Lead, put <em>the same</em> email address on it, and try to save. ERPNext should refuse. This is deliberate — it is also the thing that blocks people re-running a lead import twice.",
+   fields:[["First Name","Duplicate",""],["Email","fatima.alrashid@alnoor-academy.example","the same address as Lead 1"]],
+   gotcha:"If it saves instead of erroring, someone has ticked Allow Lead Duplication based on Emails in CRM Settings. Worth knowing either way.",
+   ex:"Save is rejected with a duplicate-email error. Discard this draft — do not keep it."},
+
+  {t:"Create Lead 2 — Omar Haddad",
+   link:{l:"/desk/lead", h:"https://erp.habibi-erp.com/desk/lead"},
+   note:"Same organisation, different person and different email. This one becomes the deal you lose.",
+   fields:[["Salutation","Mr",""],["First Name","Omar",""],["Last Name","Haddad",""],["Job Title","Facilities Lead",""],["Email","omar.haddad@alnoor-academy.example",""],["Mobile No","+966 50 771 3042",""],["Organization Name","Al-Noor Academy",""],["Territory","Saudi Arabia",""],["Industry","Education",""],["Source  (Analytics)","Exhibition",""]],
+   ex:"Two leads now exist, both with Organization Name = Al-Noor Academy."}
+ ]
+},
+{
+ code:"Stage 03", name:"Qualify", short:"Qualify",
+ title:"Work the lead, leave a trail",
+ purpose:"Qualification state and the activity trail are what the effort-based reports read. A lead with no interactions is invisible to half of Stage 09.",
+ steps:[
+  {t:"Move Lead 1 through its early statuses",
+   note:"Open Fatima's lead. Set Status to <code>Open</code>, save. Then set it to <code>Interested</code>, save again. You are simulating two touches — the reply and the positive signal.",
+   fields:[["Status → then →","Open  →  Interested",""]],
+   gotcha:"Do not try to set Status to Converted by hand. ERPNext recomputes Lead status from linked documents on every save and will overwrite you. Converted is earned in Stage 07, not typed.",
+   ex:"Status reads Interested and survives a page reload."},
+
+  {t:"Record the qualification decision",
+   note:"Scroll to the qualification fields. This is separate from Status — Status is where the lead sits in the pipeline, Qualification Status is whether you believe it is real.",
+   fields:[["Qualification Status","Qualified",""],["Qualified By","your own user",""],["Qualified on","today",""]],
+   ex:"Qualification Status shows Qualified."},
+
+  {t:"Leave a comment and assign the lead",
+   note:"Open the <strong>Comments</strong> area and add a note. Then use the sidebar <strong>Assign</strong> control to assign the lead to yourself — that creates a ToDo and is how work is distributed in ERPNext.",
+   fields:[["Comment","Met at booth C-14. Needs 200 welcome kits plus staff laptops for the January campus opening. Budget signed off in principle.",""],["Assign to","your own user",""]],
+   ex:"The comment appears in the timeline and your avatar shows under Assigned To in the sidebar."},
+
+  {t:"Add the organisation's address",
+   link:{l:"/desk/address", h:"https://erp.habibi-erp.com/desk/address"},
+   note:"Create it from the Lead's own sidebar (<code>+ Address</code>) rather than the Address list, so the link back to the Lead is made for you. Stage 07 carries this onto the Customer.",
+   fields:[["Address Title","Al-Noor Academy",""],["Address Type","Billing",""],["Address Line 1","King Abdullah Road, Al Muruj District",""],["City","Riyadh",""],["Country","Saudi Arabia",""],["Preferred Billing Address","ticked",""]],
+   ex:"The address shows in the Lead sidebar and its Links table references the Lead."},
+
+  {t:"Read the Connections tab",
+   note:"Open the <strong>Connections</strong> tab on the Lead. Right now it shows the Contact and Address. Come back here after Stage 05, 06 and 07 — it becomes the single clearest picture of everything the lead spawned.",
+   ex:"Connections lists at least one Contact and one Address."}
+ ]
+},
+{
+ code:"Stage 04", name:"Account", short:"Account",
+ title:"Group the people into an account",
+ purpose:"Prospect is the organisation-level record — the B2B account that owns several Leads and several Opportunities. It is optional in ERPNext, and it is exactly what a two-contact deal like this one needs.",
+ steps:[
+  {t:"Create the Prospect from Lead 1",
+   note:"On Fatima's lead, use <code>Create → Prospect</code>. It pre-fills from the lead. Company is the only mandatory field, and Company Name is the one you actually think of as the name — an easy pair to confuse.",
+   fields:[["Company Name","Al-Noor Academy",""],["Company","Test (Demo)","mandatory"],["Customer Group","Commercial",""],["Industry","Education",""],["Territory","Saudi Arabia",""],["No. of Employees","201-500",""],["Annual Revenue","18000000",""],["Prospect Owner","your own user",""]],
+   ex:"Prospect saves, and its Leads tab already contains Fatima."},
+
+  {t:"Attach Lead 2 to the same Prospect",
+   note:"Go to Omar's lead and use <code>Action → Add to Prospect</code>, then pick Al-Noor Academy. This is the join that turns two loose people into one account.",
+   ex:"The Prospect's Leads tab now lists both Fatima and Omar."},
+
+  {t:"Confirm what the Prospect inherited",
+   link:{l:"/desk/prospect", h:"https://erp.habibi-erp.com/desk/prospect"},
+   note:"Open the Prospect's <strong>Address &amp; Contact</strong> tab. Creating a Prospect from a Lead copies that lead's Contact and Address links across — you should not have to re-enter anything.",
+   ex:"The Riyadh address and Fatima's contact both appear on the Prospect."}
+ ]
+},
+{
+ code:"Stage 05", name:"Opportunity", short:"Opportunity",
+ title:"The deal you intend to win",
+ purpose:"The Opportunity is the forecastable unit — amount, stage, probability and close date. Everything in Sales Pipeline Analytics comes from these four fields.",
+ steps:[
+  {t:"Create the Opportunity from Lead 1",
+   note:"On Fatima's lead, <code>Create → Opportunity</code>. A dialog offers to create a contact and a prospect — both already exist, so it will simply link them.",
+   fields:[["Opportunity From","Lead","pre-filled"],["Party","Fatima's lead ID","pre-filled"],["Opportunity Type","Sales",""],["Company","Test (Demo)",""]],
+   ex:"Opportunity saves with a name like CRM-OPP-2026-000xx, Status = Open."},
+
+  {t:"Go back and watch the Lead status change itself",
+   note:"Reopen Fatima's lead. You left it on <code>Interested</code>. It now reads <code>Opportunity</code> — ERPNext rewrote it when the opportunity was created. This upward status propagation is the module's central mechanic and it will happen twice more.",
+   ex:"Lead 1 Status now reads Opportunity, and you did not type it."},
+
+  {t:"Set the deal economics",
+   note:"Back on the Opportunity. Probability defaults to 100% on every single opportunity ERPNext creates, which makes weighted-pipeline reporting meaningless until you set it honestly.",
+   fields:[["Sales Stage","Qualification",""],["Expected Closing Date","15-10-2026",""],["Probability (%)","40",""],["Opportunity Owner","your own user",""]],
+   ex:"Probability shows 40, not 100."},
+
+  {t:"Add the three line items",
+   note:"Open the <strong>Items</strong> tab and add three rows. Item Amount fills the Opportunity Amount for you. Rates may come in as zero on this login — type them, it does not matter here, it matters in Stage 06.",
+   fields:[["Row 1","SKU001  × 200","T-shirt"],["Row 2","SKU006  × 200","Coffee Mug"],["Row 3","SKU002  × 15","Laptop"]],
+   ex:"Three item rows saved, and the Items tab shows a non-zero total if you entered rates."},
+
+  {t:"Walk it up the stage ladder",
+   note:"Deals move. Change Sales Stage and Probability together, saving between each, so the stage-based reports have a history to show.",
+   fields:[["Step 1","Needs Analysis  —  55%",""],["Step 2","Proposal/Price Quote  —  75%",""]],
+   ex:"Sales Stage reads Proposal/Price Quote at 75%."}
+ ]
+},
+{
+ code:"Stage 06", name:"Quotation", short:"Quotation",
+ title:"Put a price on it",
+ purpose:"The Quotation is the first submittable document in the chain — the point where CRM hands over to Selling, and where the pricing stack has to actually exist.",
+ steps:[
+  {t:"Create the Quotation from the Opportunity",
+   note:"<code>Create → Quotation</code>. Items, party and currency carry over. Quotation To will read <code>Lead</code> — that is correct and legal; a quotation does not require a Customer.",
+   fields:[["Quotation To","Lead","carried over"],["Order Type","Sales",""],["Valid Till","30-09-2026",""],["Currency","SAR",""],["Price List","Standard Selling",""]],
+   ex:"Draft quotation opens with three item rows already populated."},
+
+  {t:"Enter the rates by hand",
+   note:"This login cannot read <code>Item Price</code> at all, so rates will not auto-populate from the price list. Type them into each row. This is a permissions limit on the login, not a broken price list.",
+   fields:[["SKU001 T-shirt","45","× 200 = 9,000"],["SKU006 Coffee Mug","28","× 200 = 5,600"],["SKU002 Laptop","3200","× 15 = 48,000"]],
+   gotcha:"If you see a “no price found” style message or silent zeros, this is why. An Administrator would see rates pull automatically.",
+   ex:"Grand Total reads 62,600 SAR."},
+
+  {t:"Save, then Submit",
+   note:"Submit is the state change that matters — a draft quotation propagates nothing. After submitting, the status moves from Draft to Open.",
+   ex:"Quotation status reads Open and the document is submitted (no longer editable)."},
+
+  {t:"Check what the submit did upstream",
+   note:"Open the Opportunity, then the Lead. Both should have moved without you touching them: the Opportunity to <code>Quotation</code>, and Lead 1 to <code>Quotation</code> as well.",
+   ex:"Opportunity Status = Quotation. Lead 1 Status = Quotation."}
+ ]
+},
+{
+ code:"Stage 07", name:"Convert", short:"Convert",
+ title:"Turn the account into a customer",
+ purpose:"Customer is where CRM ends and Selling begins. Creating it is also what finally flips the Lead to Converted — the loop closes itself.",
+ steps:[
+  {t:"Create the Customer",
+   note:"From Fatima's lead, <code>Create → Customer</code>. Because the lead carries an Organization Name, ERPNext sets Customer Type to <code>Company</code> and names the customer after the organisation, not the person.",
+   fields:[["Customer Name","Al-Noor Academy","from Organization Name"],["Customer Type","Company","auto-selected"],["Customer Group","Commercial",""],["Territory","Saudi Arabia",""]],
+   ex:"Customer saves as Al-Noor Academy with Customer Type = Company."},
+
+  {t:"Verify the contact and address came along",
+   note:"On the Customer, check <strong>Customer Primary Contact</strong> and <strong>Customer Primary Address</strong>. The lead's default contact and default address should have been mapped across automatically.",
+   ex:"Primary Contact = Fatima Al-Rashid; Primary Address = the Riyadh address."},
+
+  {t:"Watch the Lead reach Converted",
+   note:"Reopen Fatima's lead one last time. Status now reads <code>Converted</code>. This is the fourth automatic status change in the run — Interested → Opportunity → Quotation → Converted, none of them typed by you.",
+   ex:"Lead 1 Status = Converted."},
+
+  {t:"Read the whole chain from the Customer",
+   note:"On the Customer, open <strong>Connections</strong>. You should be able to trace back to Lead, Prospect, Opportunity and Quotation from one screen. This is the payoff for having done every step in order.",
+   ex:"Connections shows the Quotation, and the Lead / Prospect / Opportunity back-links are populated."}
+ ]
+},
+{
+ code:"Stage 08", name:"Loss", short:"Loss",
+ title:"Lose the other deal, properly",
+ purpose:"A pipeline where nothing is ever lost produces meaningless conversion reporting. This stage also proves the master data you created back in Stage 00 was necessary.",
+ steps:[
+  {t:"Create a second Opportunity from Lead 2",
+   note:"On Omar's lead, <code>Create → Opportunity</code>. A separate deal for the same account — this is precisely what Prospect exists to hold together.",
+   fields:[["Opportunity Type","Sales",""],["Sales Stage","Value Proposition",""],["Probability (%)","30",""],["Expected Closing Date","30-09-2026",""],["Item row","SKU004  × 40","Smartphone, campus security"]],
+   ex:"A second opportunity exists, linked to Omar."},
+
+  {t:"Mark it Lost with a reason",
+   note:"Set Status to <code>Lost</code>. A dialog demands a lost reason. Choose <code>Budget Constraints</code> and add detail. Without Stage 00's records this dialog has nothing to offer and the save fails.",
+   fields:[["Lost Reason","Budget Constraints",""],["Detailed Reason","Security hardware deferred to the FY27 capital budget. Revisit in Q2.",""]],
+   ex:"Opportunity Status = Lost, with the reason recorded on the document."},
+
+  {t:"Confirm the account survived the loss",
+   note:"Open the Prospect. It should still show two leads and two opportunities — one won path, one lost. The account is intact; only one deal died.",
+   ex:"Prospect shows 2 leads and 2 opportunities, one of them Lost."}
+ ]
+},
+{
+ code:"Stage 09", name:"Readback", short:"Readback",
+ title:"Make the reports tell you what you just did",
+ purpose:"This is the real test. If the data you entered was honest, every report below should recognise the Al-Noor story without you explaining it.",
+ steps:[
+  {t:"Lead Details",
+   link:{l:"query-report/Lead Details", h:"https://erp.habibi-erp.com/desk/query-report/Lead%20Details"},
+   note:"Set Company to <code>Test (Demo)</code> and widen the date range to cover today. Filters also include Status and Territory.",
+   ex:"Both Fatima and Omar appear, with their territory and contact details."},
+
+  {t:"Sales Pipeline Analytics",
+   link:{l:"query-report/Sales Pipeline Analytics", h:"https://erp.habibi-erp.com/desk/query-report/Sales%20Pipeline%20Analytics"},
+   note:"The most useful report in the module. Try it four ways: <code>Pipeline By</code> = Owner then Sales Stage, and <code>Based On</code> = Number then Amount. Amount is where your Stage 05 line items pay off.",
+   ex:"Your opportunity appears under the Proposal/Price Quote stage with its value."},
+
+  {t:"Opportunity Summary by Sales Stage",
+   link:{l:"query-report/Opportunity Summary by Sales Stage", h:"https://erp.habibi-erp.com/desk/query-report/Opportunity%20Summary%20by%20Sales%20Stage"},
+   note:"A stage-versus-owner matrix. This is the “where is the pipeline stuck” view.",
+   ex:"Two opportunities show, distributed across two different stages."},
+
+  {t:"Campaign Efficiency and Lead Owner Efficiency",
+   link:{l:"query-report/Campaign Efficiency", h:"https://erp.habibi-erp.com/desk/query-report/Campaign%20Efficiency"},
+   note:"Both count the funnel — leads, opportunities, quotations — grouped by source and by owner respectively. Campaign Efficiency is the one that pays back Stage 01.",
+   ex:"Exhibition-sourced leads are counted, and you appear as lead owner with a conversion count."},
+
+  {t:"Prospects Engaged But Not Converted",
+   link:{l:"query-report/Prospects Engaged But Not Converted", h:"https://erp.habibi-erp.com/desk/query-report/Prospects%20Engaged%20But%20Not%20Converted"},
+   note:"Leads with interactions that never became customers. Omar is the intended answer here — engaged, opportunity raised, deal lost, never converted.",
+   ex:"Omar appears; Fatima does not, because she converted."},
+
+  {t:"First Response Time for Opportunity",
+   link:{l:"query-report/First Response Time for Opportunity", h:"https://erp.habibi-erp.com/desk/query-report/First%20Response%20Time%20for%20Opportunity"},
+   badge:"opt",
+   note:"This reads the <code>First Response Time</code> field, which only populates when you send an actual outgoing email reply from the opportunity. If you never emailed, this will be legitimately empty — that is a correct result, not a failure.",
+   ex:"Report opens; empty is an acceptable outcome unless you sent a reply."},
+
+  {t:"Sales Funnel",
+   link:{l:"/desk/sales-funnel", h:"https://erp.habibi-erp.com/desk/sales-funnel"},
+   note:"Set Company to <code>Test (Demo)</code> and widen the dates — it defaults to a narrow recent window and will look empty otherwise. Then work the chart selector: Sales Funnel, Sales Pipeline, Opportunities by Source, by Campaign, by Medium.",
+   gotcha:"An empty funnel here is almost always the date range or the company filter, not missing data. Check both before concluding anything is broken.",
+   ex:"The funnel shows active leads and opportunities, and Opportunities by Source attributes them to Exhibition."},
+
+  {t:"The CRM dashboard itself",
+   link:{l:"/desk/crm", h:"https://erp.habibi-erp.com/desk/crm"},
+   note:"Back where you started. The three number cards — New Lead, New Opportunity, Won Opportunity, all last-30-days — should no longer read zero.",
+   ex:"New Lead and New Opportunity both show non-zero counts."}
+ ]
+},
+{
+ code:"Stage 10", name:"Teardown", short:"Teardown",
+ title:"Clean up, or decide not to",
+ purpose:"Some of what you created cannot be deleted by this login. Know which, so you do not leave half-removed records behind.",
+ steps:[
+  {t:"Decide first: keep it or clear it",
+   note:"This data is coherent and makes the reports demonstrable. Keeping it is a defensible choice — it gives you a working reference pipeline. Only proceed if you want the instance clean.",
+   ex:"You have made an explicit decision."},
+
+  {t:"Delete in dependency order",
+   note:"Downstream first, or the deletes refuse. Cancel the Quotation before deleting it.",
+   fields:[["1","Quotation","cancel, then delete"],["2","Both Opportunities",""],["3","Both Leads","deleting a Lead removes its auto-created Contact too"],["4","Prospect",""],["5","Campaign",""],["6","Opportunity Lost Reasons","or keep — they are genuinely useful"]],
+   ex:"Lead, Opportunity, Quotation, Prospect and Campaign lists are back to their previous contents."},
+
+  {t:"Accept what you cannot remove",
+   note:"This login has no delete permission on <code>Customer</code>, <code>Contact</code> or <code>Address</code>. Disable them instead — tick <strong>Disabled</strong> on the Customer, and on the Address. An Administrator can delete them outright.",
+   badge:"admin",
+   ex:"Al-Noor Academy is either deleted by an admin or marked Disabled."}
+ ]
+}
+];
+
+/* ---------------- render ---------------- */
+const KEY = "crm-shakedown-v1";
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { state = {}; }
+
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private mode */ } }
+
+const esc = s => String(s).replace(/&(?![a-z#]+;)/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+function stepId(si, ki){ return "s" + si + "-" + ki; }
+
+const main = document.getElementById("main");
+const rail = document.getElementById("rail");
+
+STAGES.forEach((stage, si) => {
+  const sec = document.createElement("section");
+  sec.className = "stage";
+  sec.id = "stage-" + si;
+
+  let html = '<div class="stage-head">'
+    + '<div class="stage-code"><span>' + esc(stage.code) + ' &middot; ' + esc(stage.name) + '</span><span class="rulefill"></span></div>'
+    + '<h2>' + esc(stage.title) + '</h2>'
+    + '<p class="purpose">' + esc(stage.purpose) + '</p>'
+    + '</div>';
+
+  stage.steps.forEach((st, ki) => {
+    const id = stepId(si, ki);
+    let badge = "";
+    if (st.badge === "admin") badge = '<span class="badge admin">needs admin</span>';
+    if (st.badge === "opt") badge = '<span class="badge opt">may be empty</span>';
+
+    let body = '<h3 class="step-title">' + esc(st.t) + badge + '</h3>';
+    if (st.note) body += '<p class="step-note">' + st.note + '</p>';
+    if (st.link) body += '<a class="golink" href="' + st.link.h + '" target="_blank" rel="noopener">' + esc(st.link.l) + ' <span class="arr">&#8599;</span></a>';
+
+    if (st.fields){
+      body += '<dl class="fields">';
+      st.fields.forEach(f => {
+        body += '<div class="frow"><dt>' + esc(f[0]) + '</dt><dd>'
+             + '<button class="cp" type="button" data-v="' + esc(f[1]) + '">' + esc(f[1]) + '</button>'
+             + (f[2] ? '<span class="fhint">' + esc(f[2]) + '</span>' : '')
+             + '</dd></div>';
+      });
+      body += '</dl>';
+    }
+
+    if (st.table){
+      body += '<div class="tablewrap"><table><thead><tr><th>Doctype</th><th>Action</th><th>Allowed</th></tr></thead><tbody>';
+      st.table.forEach(r => {
+        const ok = r[2] === "yes";
+        body += '<tr><td class="dt">' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td>'
+             + '<td class="' + (ok ? 'y' : 'n') + '">' + (ok ? 'yes' : 'no') + '</td></tr>';
+      });
+      body += '</tbody></table></div>';
+    }
+
+    if (st.gotcha){
+      body += '<div class="gotcha"><span class="lbl">Watch out</span>' + esc(st.gotcha) + '</div>';
+    }
+
+    body += '<div class="expect">'
+      + '<input type="checkbox" id="' + id + '"' + (state[id] ? " checked" : "") + '>'
+      + '<label for="' + id + '"><span class="lbl">Expect</span>' + esc(st.ex) + '</label>'
+      + '</div>';
+
+    html += '<article class="step' + (state[id] ? " checked" : "") + '" data-id="' + id + '">'
+          + '<div class="marker">' + (si < 10 ? "0" + si : si) + "." + (ki + 1) + '</div>'
+          + '<div>' + body + '</div></article>';
+  });
+
+  sec.innerHTML = html;
+  main.appendChild(sec);
+
+  const a = document.createElement("a");
+  a.href = "#stage-" + si;
+  a.dataset.stage = si;
+  a.innerHTML = '<span class="dot"></span><span>' + esc(stage.short) + '</span><span class="ct"></span>';
+  rail.appendChild(a);
+});
+
+const total = STAGES.reduce((n, s) => n + s.steps.length, 0);
+
+function refresh(){
+  let done = 0;
+  STAGES.forEach((stage, si) => {
+    let d = 0;
+    stage.steps.forEach((_, ki) => { if (state[stepId(si, ki)]) d++; });
+    done += d;
+    const a = rail.querySelector('a[data-stage="' + si + '"]');
+    if (a){
+      a.classList.toggle("done", d === stage.steps.length);
+      a.classList.toggle("part", d > 0 && d < stage.steps.length);
+      a.querySelector(".ct").textContent = d + "/" + stage.steps.length;
+    }
+  });
+  document.getElementById("fill").style.width = (total ? (done / total * 100) : 0) + "%";
+  document.getElementById("num").textContent = done + " / " + total;
+}
+
+main.addEventListener("change", e => {
+  const cb = e.target.closest('input[type="checkbox"]');
+  if (!cb) return;
+  state[cb.id] = cb.checked;
+  if (!cb.checked) delete state[cb.id];
+  cb.closest(".step").classList.toggle("checked", cb.checked);
+  save();
+  refresh();
+});
+
+main.addEventListener("click", e => {
+  const b = e.target.closest(".cp");
+  if (!b) return;
+  const v = b.dataset.v;
+  const mark = () => {
+    const prev = b.textContent;
+    b.classList.add("copied");
+    b.textContent = "copied";
+    setTimeout(() => { b.textContent = prev; b.classList.remove("copied"); }, 850);
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(v).then(mark, () => fallback(v, b, mark));
+    } else { fallback(v, b, mark); }
+  } catch (err) { fallback(v, b, mark); }
+});
+
+function fallback(v, b, mark){
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = v; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    mark();
+  } catch (e){
+    const r = document.createRange(); r.selectNodeContents(b);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state = {};
+  save();
+  main.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+  main.querySelectorAll(".step").forEach(s => s.classList.remove("checked"));
+  refresh();
+});
+
+refresh();
+</script>
+
+<button id="__theme" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">
+  <span id="__themeIcon">◑</span><span id="__themeTxt">Theme</span>
+</button>
+<style>
+#__theme{position:fixed;right:16px;bottom:16px;z-index:200;display:flex;align-items:center;gap:7px;
+  font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.06em;
+  background:var(--surface,#fff);color:var(--ink-2,#333);border:1px solid var(--rule,#ccc);
+  border-radius:99px;padding:8px 14px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.14)}
+#__theme:hover{border-color:var(--ink-3,#888);color:var(--ink,#000)}
+#__theme:focus-visible{outline:2px solid var(--brass,#8A6114);outline-offset:2px}
+#__themeIcon{font-size:14px;line-height:1}
+@media print{#__theme{display:none}}
+</style>
+<script>
+(function(){
+  var K="habibi-crm-doc-theme", root=document.documentElement;
+  var b=document.getElementById("__theme"), ic=document.getElementById("__themeIcon"), tx=document.getElementById("__themeTxt");
+  function sysDark(){ try{ return window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; } }
+  function paint(){
+    var t=root.getAttribute("data-theme");
+    if(!t){ ic.textContent="\u25d1"; tx.textContent="Auto"; }
+    else if(t==="dark"){ ic.textContent="\u25cf"; tx.textContent="Dark"; }
+    else { ic.textContent="\u25cb"; tx.textContent="Light"; }
+  }
+  try{ var saved=localStorage.getItem(K); if(saved==="dark"||saved==="light") root.setAttribute("data-theme",saved); }catch(e){}
+  paint();
+  b.addEventListener("click",function(){
+    var cur=root.getAttribute("data-theme");
+    var next = !cur ? (sysDark()?"light":"dark") : (cur==="dark" ? "light" : null);
+    if(next){ root.setAttribute("data-theme",next); } else { root.removeAttribute("data-theme"); }
+    try{ if(next) localStorage.setItem(K,next); else localStorage.removeItem(K); }catch(e){}
+    paint();
+  });
+})();
+</script>
+
+</body>
+</html>
