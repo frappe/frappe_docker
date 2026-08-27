@@ -123,9 +123,14 @@ jobs:
       # для отката (v1.0.0, v1.0.1), в отличие от 16-<hash>.
       - name: Release image tag
         id: reltag
+        env:
+          # Тег с реальными данными идёт через env, а не подставляется прямо
+          # в run: имя git-тега может содержать shell-метасимволы
+          # ($(), `, ; и т.п.) — так это просто значение переменной, не код.
+          REF_NAME: ${{ github.ref_name }}
         run: |
           if [ "${{ github.ref_type }}" = "tag" ]; then
-            echo "image_tag=${{ env.IMAGE }}:${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "image_tag=${{ env.IMAGE }}:${REF_NAME}" >> "$GITHUB_OUTPUT"
           else
             echo "image_tag=" >> "$GITHUB_OUTPUT"
           fi
@@ -156,12 +161,14 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Итоговые теги
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           echo "архитектура: linux/arm64"
           echo "${{ env.IMAGE }}:16"
           echo "${{ env.IMAGE }}:16-${{ steps.bust.outputs.value }}"
           if [ "${{ github.ref_type }}" = "tag" ]; then
-            echo "${{ env.IMAGE }}:${{ github.ref_name }}   <- релиз, поедет на прод"
+            echo "${{ env.IMAGE }}:${REF_NAME}   <- релиз, поедет на прод"
           fi
 
   # ВЫКАТ НА ПРОД. Только по git-тегу v* (пуш в main сюда не попадает).
@@ -174,10 +181,16 @@ jobs:
     steps:
       - name: Deploy on server
         uses: appleboy/ssh-action@v1
+        env:
+          REF_NAME: ${{ github.ref_name }}
         with:
           host: ${{ secrets.HABIBI_HOST }}
           username: ${{ secrets.HABIBI_USER }}
           key: ${{ secrets.HABIBI_SSH_KEY }}
+          # Имя тега идёт на сервер как env, а не подставляется в текст
+          # script: — иначе тег со спецсимволами ($(), `, ; ...) выполнится
+          # как код по SSH с правами деплоя.
+          envs: REF_NAME
           script: |
             set -e
             cd ~/habibi_docker
@@ -188,7 +201,7 @@ jobs:
 
             # Резервная копия .env и переключение на релизный тег.
             cp .env .env.bak-$(date +%Y%m%d-%H%M%S)
-            sed -i "s|^CUSTOM_TAG=.*|CUSTOM_TAG=${{ github.ref_name }}|" .env
+            sed -i "s|^CUSTOM_TAG=.*|CUSTOM_TAG=${REF_NAME}|" .env
             grep '^CUSTOM_TAG=' .env
 
             docker compose pull
