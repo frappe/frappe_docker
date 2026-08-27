@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Burger AI Intake Pack</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img,svg,video{max-width:100%;height:auto;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+table{border-collapse:collapse}
+:root{
+  --ground:#F2EEE8; --surface:#FBF8F4; --sunken:#E8E2D9; --rule:#D6CDC0; --rule-soft:#E3DCD2;
+  --ink:#221C16; --ink-2:#544A40; --ink-3:#867A6D;
+  --brass:#A8500F; --brass-ink:#A8500F; --brass-soft:#F6E3D2; --brass-line:#E4C6AB;
+  --ok:#2E6B4A; --ok-soft:#DDEBE2;
+  --bad:#A6362D; --bad-soft:#F5DED9;
+  --warn:#8E5C0E; --warn-soft:#F4E7CE;
+  --r-od:#A8500F;  --r-od-bg:#F6E3D2;
+  --r-kt:#9A2F2F;  --r-kt-bg:#F6DEDC;
+  --r-cr:#2A5E7A;  --r-cr-bg:#DCE9F0;
+  --r-an:#4F4A86;  --r-an-bg:#E3E1F2;
+  --r-sys:#6B4E75; --r-sys-bg:#EBE1EE;
+  --r-ai:#2E6B4A;  --r-ai-bg:#DDEBE2;
+  --shadow:0 1px 2px rgba(34,28,22,.06), 0 8px 24px -16px rgba(34,28,22,.3);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#17130F; --surface:#201A15; --sunken:#2A231C; --rule:#372E26; --rule-soft:#2C251E;
+    --ink:#EDE7DF; --ink-2:#AEA396; --ink-3:#7A6F63;
+    --brass:#E08A45; --brass-ink:#EC9C5C; --brass-soft:#3A2110; --brass-line:#523018;
+    --ok:#5FC493; --ok-soft:#152C21;
+    --bad:#E8776B; --bad-soft:#341B18;
+    --warn:#D9A03F; --warn-soft:#2F2410;
+    --r-od:#EC9C5C;  --r-od-bg:#3A2110;
+    --r-kt:#E8776B;  --r-kt-bg:#361C1A;
+    --r-cr:#7FB6D6;  --r-cr-bg:#152834;
+    --r-an:#A9A2E6;  --r-an-bg:#201E38;
+    --r-sys:#BFA0C9; --r-sys-bg:#291F2D;
+    --r-ai:#5FC493;  --r-ai-bg:#152C21;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#17130F; --surface:#201A15; --sunken:#2A231C; --rule:#372E26; --rule-soft:#2C251E;
+  --ink:#EDE7DF; --ink-2:#AEA396; --ink-3:#7A6F63;
+  --brass:#E08A45; --brass-ink:#EC9C5C; --brass-soft:#3A2110; --brass-line:#523018;
+  --ok:#5FC493; --ok-soft:#152C21;
+  --bad:#E8776B; --bad-soft:#341B18;
+  --warn:#D9A03F; --warn-soft:#2F2410;
+  --r-od:#EC9C5C;  --r-od-bg:#3A2110;
+  --r-kt:#E8776B;  --r-kt-bg:#361C1A;
+  --r-cr:#7FB6D6;  --r-cr-bg:#152834;
+  --r-an:#A9A2E6;  --r-an-bg:#201E38;
+  --r-sys:#BFA0C9; --r-sys-bg:#291F2D;
+  --r-ai:#5FC493;  --r-ai-bg:#152C21;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+body{background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;font-weight:700;text-wrap:balance;margin:0;letter-spacing:-.005em}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+a{color:var(--brass-ink)}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:28px}
+@media (max-width:640px){.wrap{padding-inline:16px}}
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--ground) 88%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+.topbar-in{display:flex;align-items:center;gap:20px;padding:13px 0;flex-wrap:wrap}
+.brandmark{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brandmark .nm{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:19px}
+.brandmark .sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.meter{display:flex;align-items:center;gap:11px}
+.meter-track{width:140px;height:5px;border-radius:99px;background:var(--sunken);overflow:hidden}
+.meter-fill{height:100%;width:0%;background:var(--brass);border-radius:99px;transition:width .3s ease}
+.meter-num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
+.btn{font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--ink-2);
+  border:1px solid var(--rule);border-radius:6px;padding:6px 12px}
+.btn:hover{border-color:var(--ink-3);color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.btn.on{background:var(--brass-soft);border-color:var(--brass-line);color:var(--brass-ink)}
+.mast{padding:54px 0 38px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-ink);margin-bottom:16px}
+.mast h1{font-size:clamp(34px,5.2vw,49px);line-height:1.05;max-width:18ch}
+.mast .lede{margin-top:18px;max-width:66ch;font-size:16.5px;color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  letter-spacing:.09em;text-transform:uppercase;font-weight:600;padding:2.5px 7px;border-radius:4px;white-space:nowrap;vertical-align:middle}
+.chip.od{background:var(--r-od-bg);color:var(--r-od);border:1px solid var(--r-od)}
+.chip.kt{background:var(--r-kt-bg);color:var(--r-kt);border:1px solid var(--r-kt)}
+.chip.cr{background:var(--r-cr-bg);color:var(--r-cr);border:1px solid var(--r-cr)}
+.chip.an{background:var(--r-an-bg);color:var(--r-an);border:1px solid var(--r-an)}
+.chip.sys{background:var(--r-sys-bg);color:var(--r-sys);border:1px solid var(--r-sys)}
+.chip.ai{background:var(--r-ai-bg);color:var(--r-ai);border:1px solid var(--r-ai)}
+.chip.any{background:var(--sunken);color:var(--ink-3);border:1px solid var(--rule)}
+.cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin:34px 0 6px}
+.role{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 17px;border-top:3px solid var(--rule)}
+.role.od{border-top-color:var(--r-od)} .role.kt{border-top-color:var(--r-kt)}
+.role.cr{border-top-color:var(--r-cr)} .role.an{border-top-color:var(--r-an)}
+.role.sys{border-top-color:var(--r-sys)} .role.ai{border-top-color:var(--r-ai)}
+.role h4{font-size:15.5px;margin:9px 0 3px}
+.role .erp{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);margin-bottom:9px}
+.role p{margin:0;font-size:13.5px;color:var(--ink-2)}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:22px 24px;margin-top:26px}
+.panel h3{font-size:16px;margin-bottom:12px}
+.panel p{margin:0 0 11px;color:var(--ink-2);font-size:14.5px}
+.panel p:last-child{margin-bottom:0}
+.panel ol,.panel ul{margin:0;padding-left:19px;color:var(--ink-2);font-size:14.5px}
+.panel li{margin-bottom:7px}
+.panel code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:880px){.modes{grid-template-columns:1fr}}
+.shell{display:grid;grid-template-columns:206px 1fr;gap:54px;align-items:start;padding:42px 0 90px}
+@media (max-width:1000px){.shell{grid-template-columns:1fr;gap:0}.rail{display:none}}
+.rail{position:sticky;top:74px}
+.rail-h{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-bottom:11px;border-bottom:1px solid var(--rule)}
+.rail a{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;padding:8px 0;
+  text-decoration:none;color:var(--ink-2);border-bottom:1px solid var(--rule-soft);font-size:13px}
+.rail a:hover{color:var(--ink)}
+.rail a:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:3px}
+.dot{width:7px;height:7px;border-radius:99px;border:1.5px solid var(--ink-3);flex:none}
+.rail a.done .dot{background:var(--ok);border-color:var(--ok)}
+.rail a.part .dot{background:var(--brass);border-color:var(--brass);opacity:.55}
+.rail .ct{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.part{padding-top:12px;margin-bottom:50px;scroll-margin-top:80px}
+.part-head{border-top:2px solid var(--ink);padding-top:13px;margin-bottom:24px}
+.part-code{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--brass-ink);display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.part-code .rulefill{flex:1;height:1px;background:var(--rule);min-width:20px}
+.part h2{font-size:26px;line-height:1.15}
+.part .purpose{margin-top:8px;color:var(--ink-2);max-width:68ch;font-size:15px}
+.part .purpose code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.proc{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:17px 19px;margin-bottom:12px;box-shadow:var(--shadow)}
+.proc.checked{background:var(--sunken);border-color:var(--rule-soft)}
+.proc-top{display:flex;align-items:flex-start;gap:11px;flex-wrap:wrap}
+.proc-n{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);padding-top:4px;font-variant-numeric:tabular-nums;flex:none}
+.proc.checked .proc-n{color:var(--ok)}
+.proc-t{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:17.5px;line-height:1.3;margin:0;flex:1 1 240px;text-wrap:balance}
+.proc.checked .proc-t{color:var(--ink-3);text-decoration:line-through;text-decoration-thickness:1px}
+.proc-body{padding-left:29px}
+@media (max-width:600px){.proc-body{padding-left:0}}
+.path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:11px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;
+  background:var(--sunken);border:1px solid var(--rule-soft);border-radius:6px;padding:7px 11px}
+.proc.checked .path{background:var(--ground)}
+.path .seg{color:var(--ink)}
+.path .sep{color:var(--ink-3)}
+.path .lead{color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em;font-size:9.5px;margin-right:3px}
+.do{margin:12px 0 0;padding-left:19px;font-size:14.5px;color:var(--ink-2)}
+.do li{margin-bottom:6px}
+.do code,.step-note code,.gotcha code,.blocked code,.res-note code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.proc.checked .do code{background:var(--ground)}
+.fields{margin-top:12px;border:1px solid var(--rule-soft);border-radius:7px;overflow:hidden}
+.frow{display:grid;grid-template-columns:minmax(125px,195px) 1fr;border-bottom:1px solid var(--rule-soft)}
+.frow:last-child{border-bottom:0}
+.frow>dt{padding:6px 12px;background:var(--sunken);font-size:12.5px;color:var(--ink-2);border-right:1px solid var(--rule-soft);display:flex;align-items:center}
+.proc.checked .frow>dt{background:var(--ground)}
+.frow>dd{margin:0;padding:4px 8px;display:flex;align-items:center;flex-wrap:wrap;min-width:0}
+.cp{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink);background:none;border:1px solid transparent;
+  border-radius:4px;padding:2px 6px;cursor:copy;text-align:left;font-weight:500;max-width:100%;overflow-wrap:anywhere}
+.cp:hover{border-color:var(--rule);background:var(--sunken)}
+.cp:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.cp.copied{color:var(--ok);border-color:var(--ok)}
+.fhint{font-size:12px;color:var(--ink-3);padding-left:6px;font-style:italic}
+@media (max-width:600px){.frow{grid-template-columns:1fr}.frow>dt{border-right:0;border-bottom:1px solid var(--rule-soft)}}
+.blocked{margin-top:11px;border-left:2px solid var(--bad);background:var(--bad-soft);padding:9px 13px;border-radius:0 6px 6px 0;font-size:13.5px}
+.blocked .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--bad);display:block;margin-bottom:2px;font-weight:600}
+.gotcha{margin-top:11px;border-left:2px solid var(--brass);background:var(--brass-soft);padding:9px 13px;border-radius:0 6px 6px 0;font-size:13.5px}
+.gotcha .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--brass-ink);display:block;margin-bottom:2px;font-weight:600}
+.result{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;
+  border-left:2px solid var(--ok);background:var(--ok-soft);padding:9px 13px;border-radius:0 6px 6px 0}
+.result input{margin:0;width:16px;height:16px;accent-color:var(--ok);cursor:pointer;flex:none;margin-top:2px}
+.result input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.result label{cursor:pointer;font-size:13.5px;color:var(--ink)}
+.result .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ok);display:block;margin-bottom:2px;font-weight:600}
+.tablewrap{overflow-x:auto;margin-top:16px;border:1px solid var(--rule);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:620px;background:var(--surface)}
+th,td{text-align:left;padding:7px 12px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);background:var(--sunken);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.dt{font-family:"IBM Plex Mono",monospace;font-size:12.5px;white-space:nowrap}
+td.p{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.06em}
+.hi{color:var(--bad);font-weight:600}
+.good{color:var(--ok);font-weight:600}
+/* code blocks */
+.codewrap{margin-top:14px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--surface)}
+.codehead{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--sunken);border-bottom:1px solid var(--rule-soft)}
+.codehead .ttl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);margin-right:auto}
+.codehead .cpb{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule);border-radius:5px;padding:3px 9px;color:var(--ink-2);cursor:copy}
+.codehead .cpb:hover{border-color:var(--ink-3);color:var(--ink)}
+.codehead .cpb.copied{color:var(--ok);border-color:var(--ok)}
+pre{margin:0;padding:13px 14px;overflow-x:auto;font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font-size:12.5px;line-height:1.62;color:var(--ink);tab-size:2}
+pre .k{color:var(--brass-ink)}
+pre .s{color:var(--ok)}
+pre .c{color:var(--ink-3);font-style:italic}
+pre .n{color:var(--r-cr)}
+/* chat transcript */
+.chat{margin-top:14px;border:1px solid var(--rule);border-radius:10px;background:var(--sunken);padding:14px;display:flex;flex-direction:column;gap:8px}
+.bub{max-width:78%;padding:8px 12px;border-radius:12px;font-size:13.5px;line-height:1.5;white-space:pre-wrap}
+.bub.them{align-self:flex-start;background:var(--surface);border:1px solid var(--rule-soft);border-bottom-left-radius:3px}
+.bub.us{align-self:flex-end;background:var(--ok-soft);border:1px solid var(--ok);border-bottom-right-radius:3px}
+.bub .who{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+/* flow diagram */
+.flow{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.fstep{flex:1 1 130px;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;position:relative}
+.fstep .st{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:4px}
+.fstep .nm{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:14.5px;line-height:1.2}
+.fstep .by{font-size:11.5px;color:var(--ink-2);margin-top:4px}
+.fstep.od{border-left:3px solid var(--r-od)} .fstep.kt{border-left:3px solid var(--r-kt)}
+.fstep.cr{border-left:3px solid var(--r-cr)} .fstep.ai{border-left:3px solid var(--r-ai)}
+footer{border-top:1px solid var(--rule);padding:26px 0 60px;color:var(--ink-3);font-size:13px}
+footer code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brandmark"><span class="nm">AI Intake Pack</span><span class="sub">erp.habibi-erp.com</span></div>
+    
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow">Habibi Burger &middot; AI WhatsApp module &middot; input contract</div>
+    <h1>What the agent hands over, in the two forms a burger shop needs.</h1>
+    <p class="lede">Assume the WhatsApp AI module exists. This is its output contract against <code>erp.habibi-erp.com</code>: one worked order expressed twice &mdash; as a card a person keys in by hand, and as a REST call that needs no person at all. Every payload here was run against the live instance; the totals quoted are the totals it returned. The human side of the same order is the <a href="burger-role-playbook.html">Role Playbook</a>.</p>
+  </header>
+
+  <div class="panel">
+    <h3>Two outputs, one order, two stages of the rollout</h3>
+    <div class="modes" style="margin-top:14px">
+      <div>
+        <p><strong>Output A &mdash; the order card.</strong> Plain text, laid out in the order the ERPNext form asks for it. Stage 1: the agent drafts, a human keys it in. Also the permanent fallback for when the API is unreachable, and the version to show the client, because it needs no explanation.</p>
+      </div>
+      <div>
+        <p><strong>Output B &mdash; the REST payload.</strong> The same order as one POST. Stage 2: nobody types anything. The order appears in <code>New</code> on the kitchen board within a second of the customer saying yes.</p>
+      </div>
+    </div>
+    <p style="margin-top:14px">Both describe the same order, <code>SAL-ORD-2026-00007</code>, which exists on the instance and has already been through the full pipeline to Delivered and invoiced.</p>
+  </div>
+
+  <div class="shell">
+    <nav class="rail" aria-label="Sections"><div class="rail-h">Sections</div><a href="#s1"><span class="dot" style="border-style:dotted"></span><span>Boundary</span><span class="ct"></span></a><a href="#s2"><span class="dot" style="border-style:dotted"></span><span>Conversation</span><span class="ct"></span></a><a href="#s3"><span class="dot" style="border-style:dotted"></span><span>Order card</span><span class="ct"></span></a><a href="#s4"><span class="dot" style="border-style:dotted"></span><span>Payload</span><span class="ct"></span></a><a href="#s5"><span class="dot" style="border-style:dotted"></span><span>Reads</span><span class="ct"></span></a><a href="#s6"><span class="dot" style="border-style:dotted"></span><span>Moves</span><span class="ct"></span></a><a href="#s7"><span class="dot" style="border-style:dotted"></span><span>Escalation</span><span class="ct"></span></a><a href="#s8"><span class="dot" style="border-style:dotted"></span><span>Outbound</span><span class="ct"></span></a><a href="#s9"><span class="dot" style="border-style:dotted"></span><span>Guardrails</span><span class="ct"></span></a><a href="#s10"><span class="dot" style="border-style:dotted"></span><span>Failures</span><span class="ct"></span></a><a href="#s11"><span class="dot" style="border-style:dotted"></span><span>Fields</span><span class="ct"></span></a></nav>
+    <main><section class="part" id="s1"><div class="part-head"><div class="part-code"><span>Section 1 &middot; Boundary</span><span class="rulefill"></span></div><h2>Where the agent stops and ERPNext starts</h2><p class="purpose">The AI module is <strong>middleware</strong> &mdash; a separate service holding the webhook, the session state and the model. It is not code inside ERPNext. Everything it does to the ERP it does over the REST API as an ordinary authenticated user. That boundary is what lets you swap the model, or turn the agent off entirely, without touching the ERP.</p></div>
+ <div class="panel" style="margin-top:18px"><h3>What the middleware owns</h3>
+ <ol><li>Receive the WhatsApp webhook</li>
+ <li>Identify the customer by phone &mdash; find or create</li>
+ <li>Hold the conversation state across turns</li>
+ <li>Log every message as a <code>WhatsApp Message</code> linked to the customer</li>
+ <li>Create and advance the Sales Order over REST</li>
+ <li>Send the outbound template on each status change</li>
+ <li>Escalate into a human&rsquo;s queue when the guardrails say so</li></ol></div>
+ <div class="panel"><h3>What ERPNext owns</h3>
+ <p>The menu and its prices. The customer master. The order and its state machine. The money. Every rule that must not be negotiable &mdash; because a rule enforced in the middleware is a rule an LLM can be talked out of, and a rule enforced in the workflow is not.</p>
+ <p style="margin-top:11px">The middleware authenticates as its own ERPNext user holding <code>Burger Order Desk</code> and <code>Sales User</code>. Generate an API key and secret on that user; never ship the Administrator&rsquo;s.</p></div>
+ </section><section class="part" id="s2"><div class="part-head"><div class="part-code"><span>Section 2 &middot; Conversation</span><span class="rulefill"></span></div><h2>What the customer actually said</h2><p class="purpose">The worked example that every payload below refers to. One order, from &ldquo;do you deliver&rdquo; to a paid, confirmed ticket &mdash; it exists on the instance as <code>SAL-ORD-2026-00007</code>.</p></div><div class="chat"><div class="bub them"><span class="who">Customer &middot; +7 701 555 01 01</span>Hi! Do you deliver to Dostyk 132?</div><div class="bub us"><span class="who">Habibi agent</span>Hello! Yes, Dostyk 132 is in our Center zone — delivery is ₸800 and takes about 25 minutes. What can I get you?</div><div class="bub them"><span class="who">Customer</span>One signature burger, fries and a lemonade</div><div class="bub us"><span class="who">Habibi agent</span>Great choice. That&#x27;s:
+• Habibi Signature Burger — ₸3,890
+• French Fries — ₸990
+• Homemade Lemonade 0.4 L — ₸990
+• Delivery (Center) — ₸800
+
+Total ₸6,670, VAT included. Delivery to Dostyk Ave 132, apt 45. Shall I confirm?</div><div class="bub them"><span class="who">Customer</span>Yes please. No onions, and can you add napkins</div><div class="bub us"><span class="who">Habibi agent</span>Noted — no onions, extra napkins. What time would you like it?</div><div class="bub them"><span class="who">Customer</span>7:30 pm</div><div class="bub us"><span class="who">Habibi agent</span>Confirmed for 19:30. Your order is ₸6,670. I&#x27;ll send the payment link now — we start cooking as soon as it clears.</div></div></section><section class="part" id="s3"><div class="part-head"><div class="part-code"><span>Section 3 &middot; Order card</span><span class="rulefill"></span></div><h2>Output A &mdash; ready to key in by hand</h2><p class="purpose">The agent&rsquo;s first output: a card a human can read and type straight into the Sales Order form, field for field, in the order the form presents them. This is what Stage&nbsp;1 looks like &mdash; the agent drafts, a person keys it. It is also the fallback whenever the API is down, and the format to put in front of the client at the workshop, because it needs no technical explanation at all.</p></div><div class="codewrap"><div class="codehead"><span class="ttl">order card &mdash; plain text</span><button class="cpb" type="button">copy</button></div><pre>ORDER CARD  —  ready to key into ERPNext
+==========================================
+Company            Habibi Burger
+Customer           Aigerim Bekova            (matched on +77015550101)
+Date               2026-08-26
+Delivery Date      2026-08-26
+Price List         Habibi Menu
+Currency           KZT
+Tax Template       KZ VAT 12% (price incl.) - HB
+
+-- Order Tracking section --------------------------------
+Order Status       New                       (leave as-is; the desk confirms)
+Order Source       WhatsApp
+Created by AI      yes
+Fulfilment         Delivery
+Delivery Zone      Center
+Requested Time     2026-08-26 19:30:00
+WhatsApp Number    +77015550101
+Courier            (blank — assigned at dispatch)
+Kitchen Notes      No onions. Extra napkins.
+
+-- Items -------------------------------------------------
+  QTY  ITEM CODE      ITEM                        RATE
+   1   BRG-HABIBI     Habibi Signature Burger    3,890
+   1   SID-FRIES      French Fries                 990
+   1   DRK-LEMONADE   Homemade Lemonade 0.4 L      990
+   1   SRV-DELIVERY   Delivery Charge              800   &lt;- zone fee, set explicitly
+
+-- Totals (VAT is inside the price) ----------------------
+Net                5,955.36
+VAT 12%              714.64
+Grand Total        6,670.00</pre></div><div class="gotcha"><span class="lbl">Watch out</span>The delivery charge is a normal item line, not a shipping rule. The rate comes from the zone and the agent must set it explicitly &mdash; Center &#8376;800, North and South &#8376;1,200, Suburbs &#8376;1,900. Whether to keep it as a line, move to a Shipping Rule, or make it free above a threshold is still an open decision for the workshop; every zone already carries a <code>free_above</code> value if you want it.</div></section><section class="part" id="s4"><div class="part-head"><div class="part-code"><span>Section 4 &middot; Payload</span><span class="rulefill"></span></div><h2>Output B &mdash; ready to POST</h2><p class="purpose">The same order as one API call. Verified against this instance: this exact body produces net &#8376;5,955.36, VAT &#8376;714.64, grand total &#8376;6,670.00 and lands as a draft in <code>New</code>.</p></div><div class="codewrap"><div class="codehead"><span class="ttl">POST body</span><button class="cpb" type="button">copy</button></div><pre>POST https://erp.habibi-erp.com/api/resource/Sales%20Order
+Authorization: token &lt;api_key&gt;:&lt;api_secret&gt;
+Content-Type: application/json
+
+{
+  &quot;company&quot;: &quot;Habibi Burger&quot;,
+  &quot;customer&quot;: &quot;Aigerim Bekova&quot;,
+  &quot;transaction_date&quot;: &quot;2026-08-26&quot;,
+  &quot;delivery_date&quot;: &quot;2026-08-26&quot;,
+  &quot;currency&quot;: &quot;KZT&quot;,
+  &quot;selling_price_list&quot;: &quot;Habibi Menu&quot;,
+  &quot;order_type&quot;: &quot;Sales&quot;,
+
+  &quot;taxes_and_charges&quot;: &quot;KZ VAT 12% (price incl.) - HB&quot;,
+  &quot;taxes&quot;: [
+    {
+      &quot;charge_type&quot;: &quot;On Net Total&quot;,
+      &quot;account_head&quot;: &quot;VAT 12% - HB&quot;,
+      &quot;description&quot;: &quot;VAT 12%&quot;,
+      &quot;rate&quot;: 12,
+      &quot;included_in_print_rate&quot;: 1,
+      &quot;cost_center&quot;: &quot;Main - HB&quot;
+    }
+  ],
+
+  &quot;custom_order_source&quot;: &quot;WhatsApp&quot;,
+  &quot;custom_agent_handled&quot;: 1,
+  &quot;custom_fulfilment_type&quot;: &quot;Delivery&quot;,
+  &quot;custom_delivery_zone&quot;: &quot;Center&quot;,
+  &quot;custom_requested_time&quot;: &quot;2026-08-26 19:30:00&quot;,
+  &quot;custom_whatsapp_number&quot;: &quot;+77015550101&quot;,
+  &quot;custom_kitchen_notes&quot;: &quot;No onions. Extra napkins.&quot;,
+
+  &quot;items&quot;: [
+    { &quot;item_code&quot;: &quot;BRG-HABIBI&quot;,   &quot;qty&quot;: 1, &quot;delivery_date&quot;: &quot;2026-08-26&quot; },
+    { &quot;item_code&quot;: &quot;SID-FRIES&quot;,    &quot;qty&quot;: 1, &quot;delivery_date&quot;: &quot;2026-08-26&quot; },
+    { &quot;item_code&quot;: &quot;DRK-LEMONADE&quot;, &quot;qty&quot;: 1, &quot;delivery_date&quot;: &quot;2026-08-26&quot; },
+    { &quot;item_code&quot;: &quot;SRV-DELIVERY&quot;, &quot;qty&quot;: 1, &quot;delivery_date&quot;: &quot;2026-08-26&quot;, &quot;rate&quot;: 800 }
+  ]
+}</pre></div><div class="codewrap"><div class="codehead"><span class="ttl">as curl</span><button class="cpb" type="button">copy</button></div><pre>curl -X POST &quot;https://erp.habibi-erp.com/api/resource/Sales%20Order&quot; \
+  -H &quot;Authorization: token $HABIBI_KEY:$HABIBI_SECRET&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  --data @order.json</pre></div><div class="codewrap"><div class="codehead"><span class="ttl">response</span><button class="cpb" type="button">copy</button></div><pre>HTTP/1.1 200 OK
+
+{
+  &quot;data&quot;: {
+    &quot;name&quot;: &quot;SAL-ORD-2026-00007&quot;,
+    &quot;docstatus&quot;: 0,
+    &quot;custom_order_status&quot;: &quot;New&quot;,
+    &quot;customer&quot;: &quot;Aigerim Bekova&quot;,
+    &quot;currency&quot;: &quot;KZT&quot;,
+    &quot;net_total&quot;: 5955.36,
+    &quot;total_taxes_and_charges&quot;: 714.64,
+    &quot;grand_total&quot;: 6670.0,
+    &quot;rounded_total&quot;: 6670.0,
+    &quot;advance_paid&quot;: 0.0
+  }
+}</pre></div><div class="gotcha"><span class="lbl">Watch out</span>The <code>taxes</code> array is not optional. In the browser, picking a tax template fires client-side script that expands it into rows; over REST nothing expands it. Send <code>taxes_and_charges</code> alone and you get a syntactically valid order with zero VAT and a wrong total &mdash; which nobody notices until the books are closed.</div></section><section class="part" id="s5"><div class="part-head"><div class="part-code"><span>Section 5 &middot; Reads</span><span class="rulefill"></span></div><h2>The calls the agent makes before it writes</h2><p class="purpose">Customer resolution and menu reads. These are the guardrails made concrete: the agent cannot quote a price it did not read, and cannot create a duplicate customer if it looks first.</p></div><div class="codewrap"><div class="codehead"><span class="ttl">customer lookup</span><button class="cpb" type="button">copy</button></div><pre># 1. Find the customer by WhatsApp number (E.164, exact match)
+GET /api/resource/Customer
+    ?filters=[[&quot;mobile_no&quot;,&quot;=&quot;,&quot;+77015550101&quot;]]
+    &amp;fields=[&quot;name&quot;,&quot;customer_name&quot;,&quot;default_price_list&quot;]
+
+# empty data[] means a first-time guest -&gt; create all three records below</pre></div><div class="codewrap"><div class="codehead"><span class="ttl">first-time guest</span><button class="cpb" type="button">copy</button></div><pre># 2a. New guest: the Customer
+POST /api/resource/Customer
+{
+  &quot;customer_name&quot;: &quot;Aigerim Bekova&quot;,
+  &quot;customer_type&quot;: &quot;Individual&quot;,
+  &quot;customer_group&quot;: &quot;Burger Guests&quot;,
+  &quot;territory&quot;: &quot;Almaty&quot;,
+  &quot;default_price_list&quot;: &quot;Habibi Menu&quot;,
+  &quot;default_currency&quot;: &quot;KZT&quot;,
+  &quot;mobile_no&quot;: &quot;+77015550101&quot;
+}
+
+# 2b. the Contact, linked back
+POST /api/resource/Contact
+{
+  &quot;first_name&quot;: &quot;Aigerim&quot;,
+  &quot;last_name&quot;: &quot;Bekova&quot;,
+  &quot;mobile_no&quot;: &quot;+77015550101&quot;,
+  &quot;phone_nos&quot;: [{ &quot;phone&quot;: &quot;+77015550101&quot;, &quot;is_primary_mobile_no&quot;: 1 }],
+  &quot;links&quot;: [{ &quot;link_doctype&quot;: &quot;Customer&quot;, &quot;link_name&quot;: &quot;Aigerim Bekova&quot; }]
+}
+
+# 2c. the Address (one customer may have several — home and work is normal)
+POST /api/resource/Address
+{
+  &quot;address_title&quot;: &quot;Aigerim Bekova&quot;,
+  &quot;address_type&quot;: &quot;Billing&quot;,
+  &quot;address_line1&quot;: &quot;Dostyk Ave 132, apt 45&quot;,
+  &quot;city&quot;: &quot;Almaty&quot;,
+  &quot;country&quot;: &quot;Kazakhstan&quot;,
+  &quot;phone&quot;: &quot;+77015550101&quot;,
+  &quot;is_primary_address&quot;: 1,
+  &quot;is_shipping_address&quot;: 1,
+  &quot;links&quot;: [{ &quot;link_doctype&quot;: &quot;Customer&quot;, &quot;link_name&quot;: &quot;Aigerim Bekova&quot; }]
+}</pre></div><div class="codewrap"><div class="codehead"><span class="ttl">menu and zones</span><button class="cpb" type="button">copy</button></div><pre># 3. The menu. Read it, never remember it.
+GET /api/resource/Item%20Price
+    ?filters=[[&quot;price_list&quot;,&quot;=&quot;,&quot;Habibi Menu&quot;],[&quot;selling&quot;,&quot;=&quot;,1]]
+    &amp;fields=[&quot;item_code&quot;,&quot;price_list_rate&quot;,&quot;currency&quot;]
+    &amp;limit_page_length=0
+
+# item names and groups, if the agent needs to describe the menu
+GET /api/resource/Item
+    ?filters=[[&quot;item_group&quot;,&quot;in&quot;,[&quot;Burgers&quot;,&quot;Sides&quot;,&quot;Drinks&quot;,&quot;Combos&quot;]]]
+    &amp;fields=[&quot;item_code&quot;,&quot;item_name&quot;,&quot;item_group&quot;,&quot;description&quot;]
+    &amp;limit_page_length=0
+
+# delivery zones and their fees
+GET /api/resource/Delivery%20Zone
+    ?filters=[[&quot;is_active&quot;,&quot;=&quot;,1]]
+    &amp;fields=[&quot;name&quot;,&quot;delivery_fee&quot;,&quot;free_above&quot;,&quot;eta_minutes&quot;]</pre></div></section><section class="part" id="s6"><div class="part-head"><div class="part-code"><span>Section 6 &middot; Moves</span><span class="rulefill"></span></div><h2>Advancing the order</h2><p class="purpose">Once the order exists, every further change of state goes through the workflow. The middleware does not write <code>custom_order_status</code> as a free field &mdash; it asks for a transition and lets the server decide.</p></div><div class="codewrap"><div class="codehead"><span class="ttl">workflow transitions</span><button class="cpb" type="button">copy</button></div><pre># 4. Move an order along. This is the ONLY correct way — it runs the
+#    workflow: role check, condition check, and the docstatus change.
+POST /api/method/frappe.model.workflow.apply_workflow
+{
+  &quot;doc&quot;:    { ... the full Sales Order document, as fetched ... },
+  &quot;action&quot;: &quot;Confirm&quot;
+}
+
+# Fetch it first:
+GET /api/resource/Sales%20Order/SAL-ORD-2026-00007
+
+# Post-submit moves can also be done as a plain field write — this is
+# exactly what the Kanban board does, and the workflow still validates it:
+POST /api/method/frappe.client.set_value
+{
+  &quot;doctype&quot;:   &quot;Sales Order&quot;,
+  &quot;name&quot;:      &quot;SAL-ORD-2026-00007&quot;,
+  &quot;fieldname&quot;: &quot;custom_order_status&quot;,
+  &quot;value&quot;:     &quot;Ready&quot;
+}
+# -&gt; 417 WorkflowPermissionError if that move is not legal for this user.
+#    Do NOT use set_value for New -&gt; Confirmed: that transition also has to
+#    submit the document, and set_value cannot. Use apply_workflow.</pre></div><div class="gotcha"><span class="lbl">Watch out</span><code>Confirmed &rarr; In Kitchen</code> carries the condition <code>advance_paid &gt;= grand_total</code>. Until a Payment Entry is recorded the action does not exist &mdash; the API returns <em>Not a valid Workflow Action</em>. The agent should treat that as the expected answer for an unpaid order, not as a failure to retry.</div></section><section class="part" id="s7"><div class="part-head"><div class="part-code"><span>Section 7 &middot; Escalation</span><span class="rulefill"></span></div><h2>Handing it back to a human</h2><p class="purpose">The escalation path has to land somewhere a person will actually look. Assignment plus a comment does that: the order appears in the desk&rsquo;s notifications, and the reason survives on the document.</p></div><div class="codewrap"><div class="codehead"><span class="ttl">escalate</span><button class="cpb" type="button">copy</button></div><pre># 5. Hand off to a human. Two failed clarifications, any complaint,
+#    any refund, any order over the value cap.
+POST /api/method/frappe.desk.form.assign_to.add
+{
+  &quot;doctype&quot;:     &quot;Sales Order&quot;,
+  &quot;name&quot;:        &quot;SAL-ORD-2026-00007&quot;,
+  &quot;assign_to&quot;:   [&quot;desk@habibi-burger.example&quot;],
+  &quot;description&quot;: &quot;Customer disputes the delivery fee. Asked twice, not resolved.&quot;,
+  &quot;priority&quot;:    &quot;High&quot;
+}
+
+# If there is no order yet, assign the Customer instead.
+# Always also leave the reason as a comment so it survives reassignment:
+POST /api/method/frappe.desk.form.utils.add_comment
+{
+  &quot;reference_doctype&quot;: &quot;Sales Order&quot;,
+  &quot;reference_name&quot;:    &quot;SAL-ORD-2026-00007&quot;,
+  &quot;content&quot;:           &quot;AI agent escalated: fee dispute, 2 failed clarifications.&quot;,
+  &quot;comment_email&quot;:     &quot;agent@habibi-burger.example&quot;,
+  &quot;comment_by&quot;:        &quot;Habibi WhatsApp agent&quot;
+}</pre></div></section><section class="part" id="s8"><div class="part-head"><div class="part-code"><span>Section 8 &middot; Outbound</span><span class="rulefill"></span></div><h2>Status changes going back to the customer</h2><p class="purpose">Built on the <code>habibi_whatsapp</code> app already installed on this instance: a <strong>WhatsApp Notification</strong> per transition, each pointing at an approved Meta template, triggered on <em>After Save (Submitted Document)</em> with a condition on the new status.</p></div><div class="tablewrap"><table><thead><tr><th>When status becomes</th><th>Template</th><th>Message</th></tr></thead><tbody><tr><td class="dt">Confirmed</td><td class="p"><code>habibi_order_confirmed</code></td><td>&ldquo;Thanks {{1}}! Order {{2}} is confirmed. Total {{3}}. We&rsquo;ll message you when it leaves the kitchen.&rdquo; Sent with the payment link.</td></tr><tr><td class="dt">In Kitchen</td><td class="p"><code>habibi_order_cooking</code></td><td>&ldquo;Payment received. Your order {{1}} is being prepared now.&rdquo;</td></tr><tr><td class="dt">Out for Delivery</td><td class="p"><code>habibi_order_on_way</code></td><td>&ldquo;Order {{1}} is on its way with {{2}}. About {{3}} minutes.&rdquo;</td></tr><tr><td class="dt">Delivered</td><td class="p"><code>habibi_order_delivered</code></td><td>&ldquo;Delivered. Enjoy! Reply here any time to order again.&rdquo;</td></tr><tr><td class="dt">Cancelled</td><td class="p"><code>habibi_order_cancelled</code></td><td>&ldquo;Order {{1}} has been cancelled. If you paid, a refund is on its way.&rdquo;</td></tr></tbody></table></div><div class="blocked"><span class="lbl">Not yet buildable</span>These records cannot be created until a <strong>WhatsApp Account</strong> is configured with Meta credentials &mdash; the app pushes each template to Meta for approval on save. There is no account on this instance today, and the guard that should report that fails with a raw <code>NameError: name 'throw' is not defined</code> instead of a readable message. Worth fixing in <code>habibi_whatsapp</code> before the client ever sees it. Meta Business Verification has a long lead time and has not been started &mdash; begin it now; nothing else here depends on it.</div></section><section class="part" id="s9"><div class="part-head"><div class="part-code"><span>Section 9 &middot; Guardrails</span><span class="rulefill"></span></div><h2>The rules, as the middleware must implement them</h2><p class="purpose">From the scope document, restated as things a developer can test. The ones that can live in ERPNext already do &mdash; the rest are the middleware&rsquo;s responsibility.</p></div><div class="tablewrap"><table><thead><tr><th>Rule</th><th>How it is enforced</th></tr></thead><tbody><tr><td class="dt" style="white-space:normal"><strong>Never invent an item or a price</strong></td><td>Every line must resolve to an <code>item_code</code> from the <code>Habibi Menu</code> price list. If it is not on that list, the agent says so and offers the nearest real thing.</td></tr><tr><td class="dt" style="white-space:normal"><strong>Always read back before writing</strong></td><td>The full order, the total and the address, then an explicit yes. The read-back is what makes a wrong order the customer&rsquo;s correction rather than the kitchen&rsquo;s waste.</td></tr><tr><td class="dt" style="white-space:normal"><strong>Two strikes, then a human</strong></td><td>After two failed clarification attempts on the same slot, escalate. Do not loop.</td></tr><tr><td class="dt" style="white-space:normal"><strong>Complaints and refunds are never the agent&rsquo;s</strong></td><td>Route immediately, without attempting resolution.</td></tr><tr><td class="dt" style="white-space:normal"><strong>Cap the order value</strong></td><td>Above an agreed ceiling, a human confirms before the order is written. The cap is still to be set &mdash; open question for the workshop.</td></tr><tr><td class="dt" style="white-space:normal"><strong>Never go silent</strong></td><td>If ERPNext or the model is unreachable, say a human will reply. Silence is the one failure the customer always notices.</td></tr></tbody></table></div></section><section class="part" id="s10"><div class="part-head"><div class="part-code"><span>Section 10 &middot; Failures</span><span class="rulefill"></span></div><h2>What the API says when it says no</h2><p class="purpose">Every one of these is a real response from this build. The agent needs a branch for each; a generic retry loop will make three of them worse.</p></div><div class="tablewrap"><table><thead><tr><th>Response</th><th>What it means and what to do</th></tr></thead><tbody><tr><td class="dt" style="white-space:normal"><code>417</code> &middot; <em>Not a valid Workflow Action</em></td><td>The move is blocked by a condition &mdash; almost always the payment gate on Confirmed &rarr; In Kitchen. Not an error: it is the rule working. Do not retry; tell the customer the order starts once payment clears.</td></tr><tr><td class="dt" style="white-space:normal"><code>417</code> &middot; <em>Workflow State transition not allowed</em></td><td>The move is illegal from the current state, or the user lacks the role. Re-read the order&rsquo;s current status before deciding what to do &mdash; a human may have moved it under you.</td></tr><tr><td class="dt" style="white-space:normal"><code>409</code> &middot; <em>Document has been modified</em></td><td>Someone edited the order between your fetch and your write. Re-fetch and re-apply. Never blind-retry the stale document.</td></tr><tr><td class="dt" style="white-space:normal"><code>403</code></td><td>API key lacks the role. Check the middleware user has <code>Burger Order Desk</code> plus <code>Sales User</code>.</td></tr><tr><td class="dt" style="white-space:normal">VAT comes back as <code>0</code></td><td>You sent <code>taxes_and_charges</code> without the <code>taxes</code> rows. The template does not expand server-side over REST. Post the rows explicitly &mdash; this is the single most common integration mistake on this build.</td></tr><tr><td class="dt" style="white-space:normal">ERPNext unreachable</td><td>Do not go silent. Reply to the customer that a human will follow up, queue the order locally, and raise an alert. This is a non-negotiable guardrail from the scope document.</td></tr></tbody></table></div></section><section class="part" id="s11"><div class="part-head"><div class="part-code"><span>Appendix &middot; Fields</span><span class="rulefill"></span></div><h2>Custom field reference</h2><p class="purpose">Every field the agent may write on a Sales Order, with its exact name and accepted values. Standard ERPNext fields are unchanged and documented upstream.</p></div><div class="tablewrap"><table><thead><tr><th>Fieldname</th><th>Type</th><th>Values</th><th>Agent should set</th><th>After submit</th></tr></thead><tbody><tr><td class="dt">custom_order_status</td><td class="p">Select</td><td class="p" style="white-space:normal">New / Confirmed / In Kitchen / Ready / Out for Delivery / Delivered / Cancelled</td><td>Leave <code>New</code>. Only the workflow moves it.</td><td class="p">allow on submit</td></tr><tr><td class="dt">custom_order_source</td><td class="p">Select</td><td class="p" style="white-space:normal">WhatsApp / Phone / Web / Manual</td><td><code>WhatsApp</code> for agent orders.</td><td class="p">&mdash;</td></tr><tr><td class="dt">custom_agent_handled</td><td class="p">Check</td><td class="p" style="white-space:normal">0 / 1</td><td><code>1</code> when the agent wrote it. This is what makes agent quality measurable.</td><td class="p">read-only in UI</td></tr><tr><td class="dt">custom_fulfilment_type</td><td class="p">Select</td><td class="p" style="white-space:normal">Delivery / Pickup</td><td>Drives which dispatch action appears.</td><td class="p">&mdash;</td></tr><tr><td class="dt">custom_delivery_zone</td><td class="p">Link &rarr; Delivery Zone</td><td class="p" style="white-space:normal">Center / North / South / Suburbs</td><td>Delivery only. Determines the fee.</td><td class="p">&mdash;</td></tr><tr><td class="dt">custom_requested_time</td><td class="p">Datetime</td><td class="p" style="white-space:normal"><code>YYYY-MM-DD HH:mm:ss</code></td><td>When the customer wants it, not when it was ordered.</td><td class="p">allow on submit</td></tr><tr><td class="dt">custom_whatsapp_number</td><td class="p">Data</td><td class="p" style="white-space:normal">E.164, e.g. <code>+77015550101</code></td><td>The channel identifier. Must match the Customer.</td><td class="p">&mdash;</td></tr><tr><td class="dt">custom_courier</td><td class="p">Link &rarr; Employee</td><td class="p" style="white-space:normal">HR-EMP-…</td><td>Leave blank. Set by the desk at dispatch.</td><td class="p">allow on submit</td></tr><tr><td class="dt">custom_kitchen_notes</td><td class="p">Small Text</td><td class="p" style="white-space:normal">free text</td><td>Allergies, &ldquo;no onions&rdquo;, gate codes, cutlery.</td><td class="p">allow on submit</td></tr></tbody></table></div></section></main>
+  </div>
+</div>
+
+<footer class="wrap"><p>Verified against Frappe v16.31 / ERPNext v16.32 on <code>erp.habibi-erp.com</code>, company <strong>Habibi Burger</strong>, price list <strong>Habibi Menu</strong>, KZT, VAT 12% included in price. Authenticate as a dedicated middleware user &mdash; never the Administrator. API key and secret are generated on the User form under <em>API Access</em>.</p></footer>
+<script>
+function __mark(b, word){ var prev=b.textContent; b.classList.add("copied"); b.textContent=word||"copied";
+  setTimeout(function(){ b.textContent=prev; b.classList.remove("copied"); },850); }
+function __fallback(v,b,cb){
+  try{ var ta=document.createElement("textarea"); ta.value=v; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); cb();
+  }catch(e){ var r=document.createRange(); r.selectNodeContents(b); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+}
+function __copy(v,b,word){
+  var cb=function(){ __mark(b,word); };
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(cb,function(){__fallback(v,b,cb);}); }
+    else __fallback(v,b,cb);
+  }catch(err){ __fallback(v,b,cb); }
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest(".cp"); if(b){ __copy(b.dataset.v,b); return; }
+  var c=e.target.closest(".cpb");
+  if(c){ var pre=c.closest(".codewrap").querySelector("pre"); __copy(pre.innerText,c,"copied!"); }
+});
+</script>
+
+<button id="__theme" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">
+  <span id="__themeIcon">&#9681;</span><span id="__themeTxt">Theme</span>
+</button>
+<style>
+#__theme{position:fixed;right:16px;bottom:16px;z-index:200;display:flex;align-items:center;gap:7px;
+  font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.06em;
+  background:var(--surface,#fff);color:var(--ink-2,#333);border:1px solid var(--rule,#ccc);
+  border-radius:99px;padding:8px 14px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.14)}
+#__theme:hover{border-color:var(--ink-3,#888);color:var(--ink,#000)}
+#__theme:focus-visible{outline:2px solid var(--brass,#A8500F);outline-offset:2px}
+#__themeIcon{font-size:14px;line-height:1}
+@media print{#__theme{display:none}}
+</style>
+<script>
+(function(){
+  var K="habibi-burger-doc-theme", root=document.documentElement;
+  var b=document.getElementById("__theme"), ic=document.getElementById("__themeIcon"), tx=document.getElementById("__themeTxt");
+  function sysDark(){ try{ return window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; } }
+  function paint(){
+    var t=root.getAttribute("data-theme");
+    if(!t){ ic.textContent="◑"; tx.textContent="Auto"; }
+    else if(t==="dark"){ ic.textContent="●"; tx.textContent="Dark"; }
+    else { ic.textContent="○"; tx.textContent="Light"; }
+  }
+  try{ var saved=localStorage.getItem(K); if(saved==="dark"||saved==="light") root.setAttribute("data-theme",saved); }catch(e){}
+  paint();
+  b.addEventListener("click",function(){
+    var cur=root.getAttribute("data-theme");
+    var next = !cur ? (sysDark()?"light":"dark") : (cur==="dark" ? "light" : null);
+    if(next){ root.setAttribute("data-theme",next); } else { root.removeAttribute("data-theme"); }
+    try{ if(next) localStorage.setItem(K,next); else localStorage.removeItem(K); }catch(e){}
+    paint();
+  });
+})();
+</script>
+
+</body>
+</html>

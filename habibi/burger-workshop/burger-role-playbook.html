@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Burger Role Playbook</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img,svg,video{max-width:100%;height:auto;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+table{border-collapse:collapse}
+:root{
+  --ground:#F2EEE8; --surface:#FBF8F4; --sunken:#E8E2D9; --rule:#D6CDC0; --rule-soft:#E3DCD2;
+  --ink:#221C16; --ink-2:#544A40; --ink-3:#867A6D;
+  --brass:#A8500F; --brass-ink:#A8500F; --brass-soft:#F6E3D2; --brass-line:#E4C6AB;
+  --ok:#2E6B4A; --ok-soft:#DDEBE2;
+  --bad:#A6362D; --bad-soft:#F5DED9;
+  --warn:#8E5C0E; --warn-soft:#F4E7CE;
+  --r-od:#A8500F;  --r-od-bg:#F6E3D2;
+  --r-kt:#9A2F2F;  --r-kt-bg:#F6DEDC;
+  --r-cr:#2A5E7A;  --r-cr-bg:#DCE9F0;
+  --r-an:#4F4A86;  --r-an-bg:#E3E1F2;
+  --r-sys:#6B4E75; --r-sys-bg:#EBE1EE;
+  --r-ai:#2E6B4A;  --r-ai-bg:#DDEBE2;
+  --shadow:0 1px 2px rgba(34,28,22,.06), 0 8px 24px -16px rgba(34,28,22,.3);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#17130F; --surface:#201A15; --sunken:#2A231C; --rule:#372E26; --rule-soft:#2C251E;
+    --ink:#EDE7DF; --ink-2:#AEA396; --ink-3:#7A6F63;
+    --brass:#E08A45; --brass-ink:#EC9C5C; --brass-soft:#3A2110; --brass-line:#523018;
+    --ok:#5FC493; --ok-soft:#152C21;
+    --bad:#E8776B; --bad-soft:#341B18;
+    --warn:#D9A03F; --warn-soft:#2F2410;
+    --r-od:#EC9C5C;  --r-od-bg:#3A2110;
+    --r-kt:#E8776B;  --r-kt-bg:#361C1A;
+    --r-cr:#7FB6D6;  --r-cr-bg:#152834;
+    --r-an:#A9A2E6;  --r-an-bg:#201E38;
+    --r-sys:#BFA0C9; --r-sys-bg:#291F2D;
+    --r-ai:#5FC493;  --r-ai-bg:#152C21;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#17130F; --surface:#201A15; --sunken:#2A231C; --rule:#372E26; --rule-soft:#2C251E;
+  --ink:#EDE7DF; --ink-2:#AEA396; --ink-3:#7A6F63;
+  --brass:#E08A45; --brass-ink:#EC9C5C; --brass-soft:#3A2110; --brass-line:#523018;
+  --ok:#5FC493; --ok-soft:#152C21;
+  --bad:#E8776B; --bad-soft:#341B18;
+  --warn:#D9A03F; --warn-soft:#2F2410;
+  --r-od:#EC9C5C;  --r-od-bg:#3A2110;
+  --r-kt:#E8776B;  --r-kt-bg:#361C1A;
+  --r-cr:#7FB6D6;  --r-cr-bg:#152834;
+  --r-an:#A9A2E6;  --r-an-bg:#201E38;
+  --r-sys:#BFA0C9; --r-sys-bg:#291F2D;
+  --r-ai:#5FC493;  --r-ai-bg:#152C21;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+body{background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;font-weight:700;text-wrap:balance;margin:0;letter-spacing:-.005em}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+a{color:var(--brass-ink)}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:28px}
+@media (max-width:640px){.wrap{padding-inline:16px}}
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--ground) 88%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+.topbar-in{display:flex;align-items:center;gap:20px;padding:13px 0;flex-wrap:wrap}
+.brandmark{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brandmark .nm{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:19px}
+.brandmark .sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.meter{display:flex;align-items:center;gap:11px}
+.meter-track{width:140px;height:5px;border-radius:99px;background:var(--sunken);overflow:hidden}
+.meter-fill{height:100%;width:0%;background:var(--brass);border-radius:99px;transition:width .3s ease}
+.meter-num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
+.btn{font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--ink-2);
+  border:1px solid var(--rule);border-radius:6px;padding:6px 12px}
+.btn:hover{border-color:var(--ink-3);color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.btn.on{background:var(--brass-soft);border-color:var(--brass-line);color:var(--brass-ink)}
+.mast{padding:54px 0 38px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-ink);margin-bottom:16px}
+.mast h1{font-size:clamp(34px,5.2vw,49px);line-height:1.05;max-width:18ch}
+.mast .lede{margin-top:18px;max-width:66ch;font-size:16.5px;color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  letter-spacing:.09em;text-transform:uppercase;font-weight:600;padding:2.5px 7px;border-radius:4px;white-space:nowrap;vertical-align:middle}
+.chip.od{background:var(--r-od-bg);color:var(--r-od);border:1px solid var(--r-od)}
+.chip.kt{background:var(--r-kt-bg);color:var(--r-kt);border:1px solid var(--r-kt)}
+.chip.cr{background:var(--r-cr-bg);color:var(--r-cr);border:1px solid var(--r-cr)}
+.chip.an{background:var(--r-an-bg);color:var(--r-an);border:1px solid var(--r-an)}
+.chip.sys{background:var(--r-sys-bg);color:var(--r-sys);border:1px solid var(--r-sys)}
+.chip.ai{background:var(--r-ai-bg);color:var(--r-ai);border:1px solid var(--r-ai)}
+.chip.any{background:var(--sunken);color:var(--ink-3);border:1px solid var(--rule)}
+.cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin:34px 0 6px}
+.role{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 17px;border-top:3px solid var(--rule)}
+.role.od{border-top-color:var(--r-od)} .role.kt{border-top-color:var(--r-kt)}
+.role.cr{border-top-color:var(--r-cr)} .role.an{border-top-color:var(--r-an)}
+.role.sys{border-top-color:var(--r-sys)} .role.ai{border-top-color:var(--r-ai)}
+.role h4{font-size:15.5px;margin:9px 0 3px}
+.role .erp{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);margin-bottom:9px}
+.role p{margin:0;font-size:13.5px;color:var(--ink-2)}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:22px 24px;margin-top:26px}
+.panel h3{font-size:16px;margin-bottom:12px}
+.panel p{margin:0 0 11px;color:var(--ink-2);font-size:14.5px}
+.panel p:last-child{margin-bottom:0}
+.panel ol,.panel ul{margin:0;padding-left:19px;color:var(--ink-2);font-size:14.5px}
+.panel li{margin-bottom:7px}
+.panel code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:880px){.modes{grid-template-columns:1fr}}
+.shell{display:grid;grid-template-columns:206px 1fr;gap:54px;align-items:start;padding:42px 0 90px}
+@media (max-width:1000px){.shell{grid-template-columns:1fr;gap:0}.rail{display:none}}
+.rail{position:sticky;top:74px}
+.rail-h{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-bottom:11px;border-bottom:1px solid var(--rule)}
+.rail a{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;padding:8px 0;
+  text-decoration:none;color:var(--ink-2);border-bottom:1px solid var(--rule-soft);font-size:13px}
+.rail a:hover{color:var(--ink)}
+.rail a:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:3px}
+.dot{width:7px;height:7px;border-radius:99px;border:1.5px solid var(--ink-3);flex:none}
+.rail a.done .dot{background:var(--ok);border-color:var(--ok)}
+.rail a.part .dot{background:var(--brass);border-color:var(--brass);opacity:.55}
+.rail .ct{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.part{padding-top:12px;margin-bottom:50px;scroll-margin-top:80px}
+.part-head{border-top:2px solid var(--ink);padding-top:13px;margin-bottom:24px}
+.part-code{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--brass-ink);display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.part-code .rulefill{flex:1;height:1px;background:var(--rule);min-width:20px}
+.part h2{font-size:26px;line-height:1.15}
+.part .purpose{margin-top:8px;color:var(--ink-2);max-width:68ch;font-size:15px}
+.part .purpose code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.proc{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:17px 19px;margin-bottom:12px;box-shadow:var(--shadow)}
+.proc.checked{background:var(--sunken);border-color:var(--rule-soft)}
+.proc-top{display:flex;align-items:flex-start;gap:11px;flex-wrap:wrap}
+.proc-n{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);padding-top:4px;font-variant-numeric:tabular-nums;flex:none}
+.proc.checked .proc-n{color:var(--ok)}
+.proc-t{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:17.5px;line-height:1.3;margin:0;flex:1 1 240px;text-wrap:balance}
+.proc.checked .proc-t{color:var(--ink-3);text-decoration:line-through;text-decoration-thickness:1px}
+.proc-body{padding-left:29px}
+@media (max-width:600px){.proc-body{padding-left:0}}
+.path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:11px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;
+  background:var(--sunken);border:1px solid var(--rule-soft);border-radius:6px;padding:7px 11px}
+.proc.checked .path{background:var(--ground)}
+.path .seg{color:var(--ink)}
+.path .sep{color:var(--ink-3)}
+.path .lead{color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em;font-size:9.5px;margin-right:3px}
+.do{margin:12px 0 0;padding-left:19px;font-size:14.5px;color:var(--ink-2)}
+.do li{margin-bottom:6px}
+.do code,.step-note code,.gotcha code,.blocked code,.res-note code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.proc.checked .do code{background:var(--ground)}
+.fields{margin-top:12px;border:1px solid var(--rule-soft);border-radius:7px;overflow:hidden}
+.frow{display:grid;grid-template-columns:minmax(125px,195px) 1fr;border-bottom:1px solid var(--rule-soft)}
+.frow:last-child{border-bottom:0}
+.frow>dt{padding:6px 12px;background:var(--sunken);font-size:12.5px;color:var(--ink-2);border-right:1px solid var(--rule-soft);display:flex;align-items:center}
+.proc.checked .frow>dt{background:var(--ground)}
+.frow>dd{margin:0;padding:4px 8px;display:flex;align-items:center;flex-wrap:wrap;min-width:0}
+.cp{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink);background:none;border:1px solid transparent;
+  border-radius:4px;padding:2px 6px;cursor:copy;text-align:left;font-weight:500;max-width:100%;overflow-wrap:anywhere}
+.cp:hover{border-color:var(--rule);background:var(--sunken)}
+.cp:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.cp.copied{color:var(--ok);border-color:var(--ok)}
+.fhint{font-size:12px;color:var(--ink-3);padding-left:6px;font-style:italic}
+@media (max-width:600px){.frow{grid-template-columns:1fr}.frow>dt{border-right:0;border-bottom:1px solid var(--rule-soft)}}
+.blocked{margin-top:11px;border-left:2px solid var(--bad);background:var(--bad-soft);padding:9px 13px;border-radius:0 6px 6px 0;font-size:13.5px}
+.blocked .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--bad);display:block;margin-bottom:2px;font-weight:600}
+.gotcha{margin-top:11px;border-left:2px solid var(--brass);background:var(--brass-soft);padding:9px 13px;border-radius:0 6px 6px 0;font-size:13.5px}
+.gotcha .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--brass-ink);display:block;margin-bottom:2px;font-weight:600}
+.result{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;
+  border-left:2px solid var(--ok);background:var(--ok-soft);padding:9px 13px;border-radius:0 6px 6px 0}
+.result input{margin:0;width:16px;height:16px;accent-color:var(--ok);cursor:pointer;flex:none;margin-top:2px}
+.result input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.result label{cursor:pointer;font-size:13.5px;color:var(--ink)}
+.result .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ok);display:block;margin-bottom:2px;font-weight:600}
+.tablewrap{overflow-x:auto;margin-top:16px;border:1px solid var(--rule);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:620px;background:var(--surface)}
+th,td{text-align:left;padding:7px 12px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);background:var(--sunken);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.dt{font-family:"IBM Plex Mono",monospace;font-size:12.5px;white-space:nowrap}
+td.p{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.06em}
+.hi{color:var(--bad);font-weight:600}
+.good{color:var(--ok);font-weight:600}
+/* code blocks */
+.codewrap{margin-top:14px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--surface)}
+.codehead{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--sunken);border-bottom:1px solid var(--rule-soft)}
+.codehead .ttl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);margin-right:auto}
+.codehead .cpb{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule);border-radius:5px;padding:3px 9px;color:var(--ink-2);cursor:copy}
+.codehead .cpb:hover{border-color:var(--ink-3);color:var(--ink)}
+.codehead .cpb.copied{color:var(--ok);border-color:var(--ok)}
+pre{margin:0;padding:13px 14px;overflow-x:auto;font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font-size:12.5px;line-height:1.62;color:var(--ink);tab-size:2}
+pre .k{color:var(--brass-ink)}
+pre .s{color:var(--ok)}
+pre .c{color:var(--ink-3);font-style:italic}
+pre .n{color:var(--r-cr)}
+/* chat transcript */
+.chat{margin-top:14px;border:1px solid var(--rule);border-radius:10px;background:var(--sunken);padding:14px;display:flex;flex-direction:column;gap:8px}
+.bub{max-width:78%;padding:8px 12px;border-radius:12px;font-size:13.5px;line-height:1.5;white-space:pre-wrap}
+.bub.them{align-self:flex-start;background:var(--surface);border:1px solid var(--rule-soft);border-bottom-left-radius:3px}
+.bub.us{align-self:flex-end;background:var(--ok-soft);border:1px solid var(--ok);border-bottom-right-radius:3px}
+.bub .who{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+/* flow diagram */
+.flow{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.fstep{flex:1 1 130px;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;position:relative}
+.fstep .st{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:4px}
+.fstep .nm{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:14.5px;line-height:1.2}
+.fstep .by{font-size:11.5px;color:var(--ink-2);margin-top:4px}
+.fstep.od{border-left:3px solid var(--r-od)} .fstep.kt{border-left:3px solid var(--r-kt)}
+.fstep.cr{border-left:3px solid var(--r-cr)} .fstep.ai{border-left:3px solid var(--r-ai)}
+footer{border-top:1px solid var(--rule);padding:26px 0 60px;color:var(--ink-3);font-size:13px}
+footer code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brandmark"><span class="nm">Burger Role Playbook</span><span class="sub">erp.habibi-erp.com</span></div>
+    <button class="btn" id="soloBtn" type="button">Solo mode</button>
+    <div class="meter"><div class="meter-track"><div class="meter-fill" id="fill"></div></div><span class="meter-num" id="num">0 / 0</span></div>
+    <button class="btn" id="reset" type="button">Reset</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow">Habibi Burger &middot; PoC walkthrough &middot; three seats</div>
+    <h1>One burger, three pairs of hands, every click written down.</h1>
+    <p class="lede">A WhatsApp order becomes a Sales Order, passes a payment gate, crosses a kitchen board, rides out with a courier and lands in the books &mdash; on the real instance, with the real buttons. Everything below was built and run on <code>erp.habibi-erp.com</code> before it was written down. The AI agent&rsquo;s side of the contract lives in the <a href="burger-ai-intake-pack.html">AI Intake Pack</a>; the sign-off sheet is the <a href="burger-shakedown-run.html">Shakedown Run</a>.</p>
+  </header>
+
+  <section class="cast">
+    <div class="role ai"><span class="chip ai">AI</span><h4>WhatsApp agent</h4><div class="erp">middleware, not a user</div>
+      <p>Talks to the customer, prices from ERPNext, writes the draft order over REST. Hands off to a human on any complaint.</p></div>
+    <div class="role od"><span class="chip od">OD</span><h4>Order desk</h4><div class="erp">Burger Order Desk</div>
+      <p>Sales staff, escalation manager and analyst in one seat. Confirms orders, takes money, dispatches, invoices, reads the numbers.</p></div>
+    <div class="role kt"><span class="chip kt">KT</span><h4>Kitchen</h4><div class="erp">Burger Kitchen</div>
+      <p>One shared tablet by the pass. Sees the board, cooks, drags to Ready. Cannot raise, price or cancel anything.</p></div>
+    <div class="role cr"><span class="chip cr">CR</span><h4>Courier</h4><div class="erp">Burger Courier</div>
+      <p>Sees its own runs, prints the note, marks delivered. One transition, and that is the whole seat.</p></div>
+  </section>
+
+  <div class="panel">
+    <h3>The three things this build proves</h3>
+    <ul>
+      <li><strong>The kitchen board is native.</strong> No fork, no custom app, no restaurant module. A Kanban view over Sales Order grouped by one custom Select field. Drag-and-drop works on submitted documents because the field is marked allow-on-submit.</li>
+      <li><strong>Dragging a card is not a way around the rules.</strong> Frappe&rsquo;s Kanban writes the field directly &mdash; but the save still runs workflow validation. An illegal drag is refused by the server with <em>Workflow State transition not allowed</em>. Role gates and payment gates hold on the board exactly as they hold on the form.</li>
+      <li><strong>&ldquo;No cooking before payment&rdquo; is enforced, not requested.</strong> The Confirmed &rarr; In Kitchen transition carries the condition <code>advance_paid &gt;= grand_total</code>. Until the money is recorded the action does not exist in any menu.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h3>The pipeline end to end</h3>
+    <div class="flow"><div class="fstep ai"><span class="st">01</span><span class="nm">Customer writes</span><div class="by">AI agent takes the order on WhatsApp</div></div><div class="fstep ai"><span class="st">02</span><span class="nm">Sales Order created</span><div class="by">REST API, status New, draft</div></div><div class="fstep od"><span class="st">03</span><span class="nm">Confirm</span><div class="by">order desk submits it</div></div><div class="fstep od"><span class="st">04</span><span class="nm">Payment recorded</span><div class="by">prepaid &mdash; the gate</div></div><div class="fstep kt"><span class="st">05</span><span class="nm">In Kitchen &rarr; Ready</span><div class="by">kitchen tablet, drag</div></div><div class="fstep od"><span class="st">06</span><span class="nm">Dispatch</span><div class="by">courier assigned</div></div><div class="fstep cr"><span class="st">07</span><span class="nm">Delivered</span><div class="by">courier closes it</div></div><div class="fstep od"><span class="st">08</span><span class="nm">Invoice &amp; close</span><div class="by">advance allocated, VAT booked</div></div></div>
+    <p style="margin-top:16px">ERPNext&rsquo;s own <code>status</code> field is delivery- and billing-driven and will never reflect kitchen reality. We run our own <code>Order Status</code> alongside it. That is normal and expected &mdash; do not try to make the native field do this job.</p>
+  </div>
+
+  <div class="panel modes" style="background:none;border:0;padding:0">
+    <div class="panel" style="margin-top:0">
+      <h3>Mode A &mdash; Solo</h3>
+      <p>Run the whole thing as Administrator. Every action works because Administrator holds every role. Fast, and fine for a first pass &mdash; but it proves nothing about the hand-offs, and the hand-offs are the point.</p>
+      <p><strong>Press &ldquo;Solo mode&rdquo;</strong> to grey out the steps that only exist to demonstrate a limit.</p>
+    </div>
+    <div class="panel" style="margin-top:0">
+      <h3>Mode B &mdash; Three seats</h3>
+      <p>Part 0 creates three users with narrow role sets. Then hand the parts around: one person on the tablet, one on a phone as the courier, one at the desk. Forty minutes, and the client sees their own business run.</p>
+      <p>This is the mode to demo in Session 4. The refusals land better than the successes.</p>
+    </div>
+  </div>
+
+  <div class="shell">
+    <nav class="rail" aria-label="Parts"><div class="rail-h">Parts</div><div id="rail"></div></nav>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+const P = [{"code": "Part 0", "name": "Cast", "roles": ["sys"], "title": "Set up the three seats", "purpose": "Administrator only, once. The roles and permissions already exist on the instance &mdash; what is missing is the <em>users</em> wearing them. Skip this entirely if you are running the demo solo as Administrator.", "procs": [{"n": "0.1", "role": ["sys"], "t": "Check the three custom roles exist", "path": ["Search &#8984;K", "type: Role", "Role list", "filter: name like Burger"], "do": ["You should find exactly three: <code>Burger Order Desk</code>, <code>Burger Kitchen</code>, <code>Burger Courier</code>.", "These are <strong>workflow-transition roles</strong>. They decide who may move an order from one status to the next. Ordinary doctype access still comes from the standard ERPNext roles."], "res": "Three Burger roles are present and have Desk Access ticked."}, {"n": "0.2", "role": ["sys"], "t": "Create one user per seat", "path": ["Search &#8984;K", "type: User", "+ Add User", "fill dialog", "Save"], "do": ["Three users is the minimum that makes the demo honest. One user with every role proves nothing about the hand-offs.", "Use addresses you control, or <code>@example.com</code> if nobody needs to actually log in."], "fields": [["Order desk", "desk@habibi-burger.example", "Sales staff + escalation + analyst &mdash; one seat, three hats"], ["Kitchen tablet", "kitchen@habibi-burger.example", "One shared login on the tablet by the pass"], ["Courier", "courier@habibi-burger.example", "Or one per courier if you want per-person filtering"]], "gotcha": "Do not give the kitchen or courier user <code>Sales User</code>. That role can create and submit Sales Orders, which defeats the whole point of the gates you are about to build.", "res": "Three enabled users exist."}, {"n": "0.3", "role": ["sys"], "t": "Assign the role sets exactly", "path": ["User form", "Roles &amp; Permissions tab", "Roles table", "tick", "Save"], "do": ["Give each seat only what its column says. The limits are the demo.", "The order desk needs <code>Accounts User</code> because it records the Payment Entry and raises the Sales Invoice."], "fields": [["Order desk", "Burger Order Desk + Sales User + Sales Manager + Accounts User", ""], ["Kitchen", "Burger Kitchen", "nothing else"], ["Courier", "Burger Courier", "nothing else"]], "res": "Each user shows only its intended roles."}, {"n": "0.4", "role": ["sys"], "t": "Point every seat at the right company", "path": ["Search &#8984;K", "type: User Permission", "+ New", "User: the seat", "Allow: Company", "For Value: Habibi Burger", "tick Is Default", "Save"], "do": ["This instance carries three companies &mdash; <code>Test</code>, <code>Test (Demo)</code> and <code>Habibi Burger</code>. Without a default the order desk will create burger orders against the wrong one and the dashboards will read as empty.", "There is no plain <code>Company</code> field under a Settings/Defaults section on the User form itself &mdash; the default is set through a <code>User Permission</code> record with <strong>Is Default</strong> ticked. That pre-fills the value on new documents without restricting the user to it; leave &ldquo;Apply to all Documents&rdquo; off unless you actually want to lock the seat out of the other two companies.", "Alternatively set it once globally under Global Defaults if the instance is going to be burger-only."], "gotcha": "The Kitchen Board is filtered to <code>company = Habibi Burger</code>. An order raised against Test (Demo) silently never appears on the kitchen tablet. This is the single most likely cause of a &ldquo;the kitchen never got it&rdquo; report.", "res": "A new Sales Order opens with Habibi Burger already filled in."}]}, {"code": "Part 1", "name": "Intake", "roles": ["ai", "od"], "title": "The order arrives from WhatsApp", "purpose": "The AI agent holds the conversation and writes the Sales Order through the REST API. Nobody types it. The order desk&rsquo;s job here is to <em>read</em>, not to re-key &mdash; and to catch the one order in twenty the agent got wrong. Full payload contract is in the <a href=\"burger-ai-intake-pack.html\">AI Intake Pack</a>.", "procs": [{"n": "1.1", "role": ["ai"], "t": "The agent resolves the customer by phone", "do": ["The WhatsApp number is the join key. The agent looks the customer up by E.164 number before anything else &mdash; <code>GET /api/resource/Customer?filters=[[\"mobile_no\",\"=\",\"+77015550101\"]]</code>.", "No match means a first-time guest: the agent creates Customer + Contact + Address, then continues.", "One phone, one customer. Never two."], "gotcha": "Numbers stored as <code>87015550101</code> or <code>+7 701 555 01 01</code> will not match and you will grow duplicate customers quietly. Normalise to E.164 at import time, not at query time.", "res": "The agent has a Customer name to put on the order, or has just created one."}, {"n": "1.2", "role": ["ai"], "t": "The agent prices from ERPNext, never from memory", "do": ["Menu and prices come from the <code>Habibi Menu</code> price list &mdash; <code>GET /api/resource/Item Price?filters=[[\"price_list\",\"=\",\"Habibi Menu\"]]</code>.", "This is a hard guardrail: the model is not allowed to invent an item or quote a price. If an item is not on that list, it does not exist."], "res": "Every line the agent proposes maps to a real item code."}, {"n": "1.3", "role": ["ai"], "t": "The agent posts the Sales Order", "path": ["POST /api/resource/Sales Order", "Authorization: token key:secret"], "do": ["The order lands as <strong>draft</strong>, <code>Order Status = New</code>, <code>Created by AI Agent</code> ticked. It is visible but it is not yet a commitment.", "The agent has already read the order back to the customer on WhatsApp and got an explicit yes before this call."], "gotcha": "The VAT template does <strong>not</strong> auto-expand over the REST API the way it does in the browser. Sending <code>taxes_and_charges</code> alone gives you a zero-VAT order. The <code>taxes</code> rows must be posted explicitly &mdash; the Intake Pack has the exact block.", "res": "A draft Sales Order exists with the right items, the right total and VAT of 12% included in the price."}, {"n": "1.4", "role": ["od"], "t": "Read the new order on the board", "path": ["Sales Order", "Kanban View", "Select Kanban", "Kitchen Board", "New column"], "do": ["Everything sitting in <strong>New</strong> is waiting on a human. The card shows order id, requested time, delivery or pickup, zone, quantity and kitchen notes without opening anything.", "Open the order and check three things only: the items match what the customer asked for, the address is deliverable, and the requested time is achievable."], "fields": [["Board URL", "/desk/sales-order/view/kanban/Kitchen Board", "bookmark this"]], "res": "You can see today&rsquo;s new orders and open one."}, {"n": "1.5", "role": ["od"], "t": "Fix what the agent got wrong &mdash; while it is still a draft", "path": ["Sales Order form", "edit fields", "Save"], "do": ["A draft is fully editable. Change quantities, swap an item, correct the zone, edit the kitchen notes.", "This is the last cheap moment. After the order is confirmed it is submitted, and only a handful of fields stay editable."], "gotcha": "If the delivery zone changes, the <code>Delivery Charge</code> line does not follow it. Zone fees are Center &#8376;800, North and South &#8376;1,200, Suburbs &#8376;1,900 &mdash; fix the rate on the line by hand.", "res": "The draft matches what the customer actually wants."}]}, {"code": "Part 2", "name": "Money", "roles": ["od"], "title": "Confirm the order and take the money", "purpose": "The business rule the client asked for: <strong>nothing is cooked before it is paid</strong>. That is not a policy written on a wall here &mdash; it is a workflow condition the server enforces. Payment is prepaid and recorded by hand; no gateway is in PoC scope.", "procs": [{"n": "2.1", "role": ["od"], "t": "Confirm the order", "path": ["Sales Order form", "Actions", "Confirm"], "do": ["This submits the document. The order number becomes real, the totals freeze, and the card moves to the <strong>Confirmed</strong> column.", "The customer gets the &ldquo;order confirmed&rdquo; WhatsApp message and the payment link at this moment."], "gotcha": "Workflow transitions live under <strong>Actions&nbsp;&#8964;</strong>, not under the <strong>Status&nbsp;&#8964;</strong> button next to it. <code>Status</code> is ERPNext&rsquo;s own Hold / Close and has nothing to do with the kitchen. Staff will click the wrong one on day one.", "res": "Order Status is Confirmed and the document is submitted."}, {"n": "2.2", "role": ["od"], "t": "Watch the kitchen refuse an unpaid order", "path": ["Sales Order form", "Actions"], "do": ["Open the Actions menu on a confirmed but unpaid order. <strong>Send to Kitchen is not there.</strong> Only Cancel Order is.", "Try it on <code>SAL-ORD-2026-00010</code> &mdash; Ruslan&rsquo;s &#8376;10,550 order, confirmed and deliberately left unpaid."], "blocked": "The transition carries the condition <code>doc.advance_paid &gt;= doc.grand_total</code>. Until the money is recorded there is no legal move to In Kitchen, from the form or from the board. A user cannot talk their way past it.", "res": "You have seen the gate hold an unpaid order out of the kitchen."}, {"n": "2.3", "role": ["od"], "t": "Record the payment", "path": ["Sales Order form", "Create", "Payment Entry", "fill", "Submit"], "do": ["The customer pays by Kaspi Pay or card before delivery. When the transfer lands, record it against the order.", "ERPNext pre-fills the amount and the party. You set the method and the reference so the money can be reconciled later."], "fields": [["Mode of Payment", "Kaspi Pay", "or Card Online"], ["Paid To", "Cash - HB", ""], ["Reference No", "the Kaspi transaction id", "this is what you match on at month end"]], "gotcha": "This is an <em>advance</em> against the Sales Order &mdash; there is no invoice yet. That is deliberate: the invoice is raised after delivery, and the advance is allocated to it automatically in Part 6.", "res": "Submitting the Payment Entry pushes Advance Paid up to the grand total."}, {"n": "2.4", "role": ["od"], "t": "Send it to the kitchen", "path": ["Sales Order form", "Actions", "Send to Kitchen"], "do": ["The action has appeared now that the money is in. Click it.", "The card jumps to the <strong>In Kitchen</strong> column and the kitchen tablet picks it up on its next refresh &mdash; nobody phones through to the pass."], "res": "Order Status is In Kitchen and the card is on the kitchen board."}]}, {"code": "Part 3", "name": "Kitchen", "roles": ["kt"], "title": "The pass: one board, two columns that matter", "purpose": "This is the answer to &ldquo;can ERPNext do a kitchen kanban&rdquo;. It can, natively, with no code &mdash; a Kanban view over the Sales Order grouped by our custom <code>Order Status</code> field. Dragging a card is a real workflow transition, validated on the server.", "procs": [{"n": "3.1", "role": ["kt"], "t": "Put the board on the tablet", "path": ["Sales Order", "Kanban View", "Select Kanban", "Kitchen Board"], "do": ["Open it once, then bookmark <code>/desk/sales-order/view/kanban/Kitchen Board</code> and leave it fullscreen on the tablet by the pass.", "It is filtered to <code>company = Habibi Burger</code> and <code>date = today</code>, so it never fills up with history."], "fields": [["Direct URL", "https://erp.habibi-erp.com/desk/sales-order/view/kanban/Kitchen Board", ""]], "res": "Six live columns: New, Confirmed, In Kitchen, Ready, Out for Delivery, Delivered."}, {"n": "3.2", "role": ["kt"], "t": "Read a ticket without opening it", "do": ["Each card carries order id, requested time, delivery or pickup, zone, total quantity and the kitchen notes. That is enough to start cooking.", "The allergy note is on the face of the card &mdash; look at Madina Yerlanova&rsquo;s: <em>Allergy: sesame. No sesame bun.</em>"], "gotcha": "Cards show the <strong>customer name</strong> as their title, because that is the Sales Order title field. In a busy kitchen the order id underneath is the thing to call out, not the name.", "res": "You can work a ticket off the card alone."}, {"n": "3.3", "role": ["kt"], "t": "Print the kitchen ticket if you work on paper", "path": ["Sales Order form", "printer icon (right panel)", "Habibi Kitchen Ticket"], "do": ["Sized for 80&nbsp;mm thermal paper. Big quantities, big item names, modifiers underneath, the notes in a heavy box at the bottom.", "<strong>No prices anywhere</strong> &mdash; deliberate. The kitchen does not need them and they slow the read. The delivery charge line is filtered out for the same reason."], "fields": [["Direct print URL", "/printview?doctype=Sales Order&name=SAL-ORD-2026-00015&format=Habibi Kitchen Ticket&no_letterhead=1", ""]], "res": "A ticket that a cook can read from a metre away."}, {"n": "3.4", "role": ["kt"], "t": "Drag the card to Ready when the food is up", "path": ["Kitchen Board", "drag card", "In Kitchen &rarr; Ready"], "do": ["Drag it. That is the whole interaction &mdash; no form, no save button.", "The drag writes the field, and the workflow validates the write on the server before it commits."], "gotcha": "Dragging is not a shortcut around the rules. Drag a New card straight onto Ready and the server refuses it: <em>Workflow State transition not allowed from New to Ready</em>. The card snaps back. Verified on this instance.", "res": "The card sits in Ready and the order desk can see it needs a courier."}, {"n": "3.5", "role": ["kt"], "t": "Find out what the kitchen seat cannot do", "do": ["Log in as the kitchen user and try to drag a card from Ready to Out for Delivery. It fails.", "That transition is reserved to <code>Burger Order Desk</code> &mdash; dispatch is a decision about couriers, not about food."], "blocked": "Kitchen holds read and write on Sales Order but no create, no submit, no cancel. It cannot raise an order, cannot change a price, cannot cancel. On a submitted document, write only reaches the handful of fields marked allow-on-submit &mdash; status, courier, requested time, kitchen notes.", "res": "You have seen the kitchen seat stop at the edge of its job."}]}, {"code": "Part 4", "name": "Dispatch", "roles": ["od"], "title": "Hand the bag to a courier", "purpose": "The order desk doubles as dispatcher. Two decisions: who takes it, and does it even need a courier.", "procs": [{"n": "4.1", "role": ["od"], "t": "Work the Ready queue", "path": ["Sales Order", "Saved Filters", "Dispatch &mdash; Ready to go"], "do": ["A saved list filter, already on the instance, showing everything in <code>Ready</code> for Habibi Burger.", "Work it oldest-requested-time first, not oldest-created."], "res": "A short list of bags waiting on the pass."}, {"n": "4.2", "role": ["od"], "t": "Assign the courier", "path": ["Sales Order form", "Courier field", "pick employee", "Save"], "do": ["Couriers are Employee records: Aidos Nurlanov, Marat Sadykov, Dana Serikova.", "The field is editable after submit, so you can reassign mid-flight when someone&rsquo;s bike dies."], "gotcha": "Assigning is manual on purpose &mdash; the client dispatches by hand today, and automating it before the humans trust the board would be building on sand. Auto-assign by zone is a phase-2 conversation.", "res": "The Courier field holds a name."}, {"n": "4.3", "role": ["od"], "t": "Dispatch it", "path": ["Sales Order form", "Actions", "Dispatch"], "do": ["Status moves to <strong>Out for Delivery</strong> and the customer gets the &ldquo;on its way&rdquo; message."], "blocked": "Dispatch is conditional on <code>custom_fulfilment_type == \"Delivery\" and custom_courier</code>. Forget the courier and the action is simply not in the menu &mdash; you cannot dispatch an order into nobody&rsquo;s hands.", "res": "Order Status is Out for Delivery with a named courier on it."}, {"n": "4.4", "role": ["od"], "t": "Close out a pickup order instead", "path": ["Sales Order form", "Actions", "Handed to Customer"], "do": ["Pickup orders never touch a courier. When the guest collects at the counter, this action takes the order straight from Ready to Delivered.", "Try it on Zhanna Omarova&rsquo;s order &mdash; it is the only pickup on the board."], "gotcha": "The two actions are mutually exclusive by condition, so a pickup order never shows Dispatch and a delivery order never shows Handed to Customer. Staff see one correct button, not a choice they can get wrong.", "res": "A pickup order reaches Delivered without a courier ever being involved."}]}, {"code": "Part 5", "name": "Courier", "roles": ["cr"], "title": "On the road", "purpose": "The narrowest seat in the system. A courier can see the orders assigned out for delivery, print or read the note, and say &ldquo;delivered&rdquo;. Nothing else.", "procs": [{"n": "5.1", "role": ["cr"], "t": "Find your runs", "path": ["Sales Order", "Saved Filters", "Courier &mdash; Out for Delivery"], "do": ["Add <code>Courier = your name</code> to the filter to see only your own runs, then save it as a personal filter.", "On a phone the list view is the usable one; the Kanban board is built for a tablet."], "res": "A list of the bags you are carrying."}, {"n": "5.2", "role": ["cr"], "t": "Take the delivery note", "path": ["Sales Order form", "printer icon", "Habibi Courier Delivery Note"], "do": ["Customer name, phone in large type, full address in a box, the line items, the total &mdash; and the payment banner.", "Print it, or just read it off the phone. The client&rsquo;s answer to the workshop question was &ldquo;text with all descriptions and an address link&rdquo;, and that is what this is."], "fields": [["Direct print URL", "/printview?doctype=Sales Order&name=SAL-ORD-2026-00014&format=Habibi Courier Delivery Note&no_letterhead=1", ""]], "gotcha": "The payment banner is the whole reason this document exists. Prepaid orders print <strong>PAID IN FULL &mdash; collect nothing</strong>. Anything short prints <strong>COLLECT ON DELIVERY</strong> with the exact figure. A courier who collects cash twice, or forgets to collect once, costs more than the software.", "res": "A note you could hand to a courier who has never used the system."}, {"n": "5.3", "role": ["cr"], "t": "Close the delivery", "path": ["Sales Order form", "Actions", "Mark Delivered"], "do": ["One action, the only one the courier has. Status goes to <strong>Delivered</strong> and the customer gets the closing message.", "This is also the timestamp your delivery-time reporting is built on, so it matters that couriers press it at the door and not back at the shop."], "blocked": "Courier holds read and write on Sales Order, read on Customer and Item, and nothing else. No create, no submit, no cancel, no export. The only transition granted to <code>Burger Courier</code> is Out for Delivery &rarr; Delivered.", "res": "Order Status is Delivered."}]}, {"code": "Part 6", "name": "Books", "roles": ["od"], "title": "Invoice and close the books", "purpose": "The money was taken in Part 2 as an advance. This is where it becomes revenue, VAT gets recognised, and the customer&rsquo;s balance goes flat.", "procs": [{"n": "6.1", "role": ["od"], "t": "Raise the Sales Invoice from the order", "path": ["Sales Order form", "Create", "Sales Invoice", "Submit"], "do": ["Always from the order, never from a blank invoice. Selling Settings on this instance is set to <code>Is Sales Order required to create Sales Invoice = Yes</code> precisely so nothing can bypass the pipeline.", "Tick <strong>Allocate Advances Automatically</strong> before submitting and the Part 2 payment attaches itself."], "res": "The invoice submits with Outstanding Amount &#8376;0 and status Paid."}, {"n": "6.2", "role": ["od"], "t": "Check the VAT split", "path": ["Sales Invoice form", "Totals section"], "do": ["Menu prices are VAT-inclusive, which is what a customer expects to see on a menu. The tax row is marked <em>Is this Tax included in Basic Rate</em>.", "So Aigerim&rsquo;s &#8376;6,670 order is &#8376;5,955.36 net plus &#8376;714.64 VAT &mdash; the customer is never shown a number that grows at checkout."], "gotcha": "Kazakhstan VAT is set at 12% on this build. No ZATCA e-invoicing is configured and none is needed &mdash; the client is outside KSA.", "res": "Net, VAT and grand total agree with the menu price the customer was quoted."}, {"n": "6.3", "role": ["od"], "t": "Understand what a cancellation costs you", "path": ["Sales Order form", "Actions", "Cancel Order"], "do": ["Cancelling a paid order cascades: the linked Payment Entry is cancelled with it and the ledger reverses. <code>SAL-ORD-2026-00011</code> on this instance is a real example, cancelled with its &#8376;9,580 payment.", "Neither document can then be deleted &mdash; the ledger entries hold them. They stay as cancelled records, which is correct accounting."], "gotcha": "Cancelling reverses the <em>books</em>. It does not refund the customer &mdash; that is a separate transfer someone has to actually make. Decide who owns that step before go-live, not after the first angry message.", "res": "You know what a cancellation leaves behind."}]}, {"code": "Part 7", "name": "Escalation", "roles": ["od"], "title": "When the agent hands it back", "purpose": "The escalation manager is the same person as the order desk in a business this size, but it is a different job. The guardrails say the agent hands off after two failed clarifications, and always on a complaint or a refund. This is what receiving that hand-off looks like.", "procs": [{"n": "7.1", "role": ["od"], "t": "Pick up an assigned conversation", "path": ["Notification bell", "assigned to me"], "do": ["The middleware escalates by assigning the Sales Order (or the Customer, if there is no order yet) to the escalation user and writing the reason in the assignment description.", "API shape: <code>POST /api/method/frappe.desk.form.assign_to.add</code> with the doctype, the name, the assignee and a description. Full call in the Intake Pack."], "res": "An escalation lands in a human&rsquo;s queue rather than in silence."}, {"n": "7.2", "role": ["od"], "t": "Read the conversation before replying", "path": ["Sales Order form", "Comments / Activity"], "do": ["Every inbound and outbound WhatsApp message is logged as a <code>WhatsApp Message</code> record linked to the customer, so the human sees exactly what the agent said before they type.", "Never reply without reading. The most common escalation is the agent being almost right, and a human contradicting it makes things worse."], "res": "You can reconstruct the conversation from ERPNext alone."}, {"n": "7.3", "role": ["od"], "t": "Handle the three cases that actually happen", "do": ["<strong>Wrong items on a draft</strong> &mdash; edit the draft and confirm. No drama, this is Part 1.5.", "<strong>Wrong items already in the kitchen</strong> &mdash; call the pass, then edit kitchen notes (editable after submit) and message the customer. If the money changes, cancel and re-raise.", "<strong>Complaint or refund</strong> &mdash; never automated, never the agent&rsquo;s. Cancel if appropriate, then make the refund transfer by hand and record it."], "gotcha": "An order that is already In Kitchen cannot have its lines changed &mdash; it is submitted. Cancel and re-raise is the only honest route, and it costs you the order number. Tell staff this before they discover it mid-service.", "res": "You have a decision rule for each of the three, agreed with the client."}, {"n": "7.4", "role": ["od"], "t": "Decide what happens outside opening hours", "do": ["Open question 6 from the scope document, still unanswered. Messages arriving at 03:00 need an answer that is not silence.", "Options: the agent replies with hours and offers to place a pre-order for opening; or it takes the order with a requested time inside hours. Pick one at the workshop."], "gotcha": "&ldquo;If ERPNext or the model is unreachable, tell the customer a human will reply, never go silent&rdquo; is a non-negotiable guardrail from the scope. It needs a fallback message written and approved as a template.", "res": "An agreed out-of-hours behaviour, written down."}]}, {"code": "Part 8", "name": "Analysis", "roles": ["an"], "title": "Reading the numbers", "purpose": "The analyst hat, worn by the same order-desk seat. The owner&rsquo;s question is always one of four: how many, how much, what sold, and are they coming back.", "procs": [{"n": "8.1", "role": ["an"], "t": "Open the operations dashboard", "path": ["Dashboard", "Habibi Burger Ops"], "do": ["Five number cards across the top &mdash; orders today, revenue today, delivered today, open orders in the pipeline, average order value this month.", "Seven charts under them: orders per day, revenue per day, status distribution, top selling items, delivery vs pickup, revenue by zone, orders by source."], "fields": [["Direct URL", "https://erp.habibi-erp.com/desk/dashboard-view/Habibi Burger Ops", ""]], "gotcha": "The number cards render amounts with the <em>system default</em> currency symbol, which is still SAR on this instance, while the figures themselves are KZT. Cosmetic, but it will be the first thing the client points at. Fix by switching the site default currency, or accept it for the demo.", "res": "A single screen that answers &ldquo;how did today go&rdquo;."}, {"n": "8.2", "role": ["an"], "t": "Check the operational split, not just the money", "do": ["<strong>Order Status Distribution</strong> is the live one &mdash; a pile-up in In Kitchen at 20:00 is a staffing problem you can see before the complaints arrive.", "<strong>Delivery vs Pickup</strong> and <strong>Revenue by Zone</strong> are the ones that decide whether the delivery fee model is right. Suburbs at &#8376;1,900 either carries itself or it does not."], "res": "You can name the busiest zone and the busiest hour."}, {"n": "8.3", "role": ["an"], "t": "Run the standard selling reports", "path": ["Reports", "Sales Order Analysis"], "do": ["ERPNext ships the reports the client needs for this phase &mdash; Sales Order Analysis, Sales Order Trends, Item-wise Sales History, Customer Acquisition and Loyalty.", "Filter every one of them to <code>Company = Habibi Burger</code> or you will be reading demo data from Test (Demo)."], "gotcha": "Repeat rate is the number the client actually cares about and no shipped report gives it directly. It needs a small Query Report over Sales Order grouped by customer &mdash; scope it at the workshop, it is an hour of work.", "res": "Numbers you can put in front of the owner."}, {"n": "8.4", "role": ["an"], "t": "Sanity-check against the board before believing anything", "do": ["Count the cards on the Kitchen Board and compare to <em>Open Orders in Kitchen</em>. If they disagree, someone raised an order against the wrong company &mdash; see 0.4.", "This is the cheapest data-quality check in the system and it takes five seconds."], "res": "Board and dashboard agree."}]}];
+const MATRIX = [["Sales Order", "rwc + submit / cancel", "rw", "rw", "full"], ["Sales Invoice", "rwc + submit", "&mdash;", "&mdash;", "full"], ["Payment Entry", "rwc + submit", "&mdash;", "&mdash;", "full"], ["Customer", "rwc", "&mdash;", "r only", "full"], ["Item", "r", "r", "r", "full"], ["Delivery Zone", "rwc", "&mdash;", "r only", "full"], ["Employee", "r", "&mdash;", "&mdash;", "full"], ["Kitchen Board (Kanban)", "view + drag", "view + drag", "view + drag", "full"], ["Dashboards / reports", "yes", "&mdash;", "&mdash;", "full"], ["Export to file", "yes", "no", "no", "yes"]];
+const TRANSITIONS = [["New", "Confirm", "Confirmed", "Burger Order Desk", "&mdash; (submits the document)"], ["Confirmed", "Send to Kitchen", "In Kitchen", "Burger Order Desk", "<code>advance_paid &gt;= grand_total</code>"], ["In Kitchen", "Mark Ready", "Ready", "Burger Kitchen", "&mdash;"], ["Ready", "Dispatch", "Out for Delivery", "Burger Order Desk", "Delivery <em>and</em> a courier is set"], ["Ready", "Handed to Customer", "Delivered", "Burger Order Desk", "fulfilment is Pickup"], ["Out for Delivery", "Mark Delivered", "Delivered", "Burger Courier", "&mdash;"], ["Confirmed / In Kitchen / Ready / Out for Delivery", "Cancel Order", "Cancelled", "Burger Order Desk", "&mdash; (cancels linked payments)"]];
+const ROLE_NAME = {"od": "Burger Order Desk", "kt": "Burger Kitchen", "cr": "Burger Courier", "an": "Analyst hat (order desk seat)", "sys": "System Manager", "ai": "AI agent / middleware", "any": "Any role"};
+const YOU_HAVE = ["od","kt","cr","sys","ai","any"];
+const KEY="habibi-burger-playbook-v1";
+let state={}, solo=false;
+try{ const raw=JSON.parse(localStorage.getItem(KEY)||"{}"); state=raw.s||{}; solo=!!raw.solo; }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({s:state, solo:solo})); }catch(e){} }
+const esc=s=>String(s).replace(/&(?![a-z#]+;)/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const pid=(pi,ci)=>"p"+pi+"-"+ci;
+const main=document.getElementById("main"), rail=document.getElementById("rail");
+function chips(roles){ return roles.map(r=>'<span class="chip '+r+'" title="'+esc(ROLE_NAME[r])+'">'+(r==="any"?"any":r)+'</span>').join(" "); }
+const SOLO_SKIP = {"2.2":1,"3.5":1,"5.3":1,"0.2":1,"0.3":1};
+P.forEach((part,pi)=>{
+  const sec=document.createElement("section");
+  sec.className="part"; sec.id="part-"+pi;
+  let html='<div class="part-head"><div class="part-code"><span>'+esc(part.code)+' &middot; '+esc(part.name)+'</span>'
+    + chips(part.roles) + '<span class="rulefill"></span></div>'
+    + '<h2>'+esc(part.title)+'</h2><p class="purpose">'+part.purpose+'</p></div>';
+  part.procs.forEach((pc,ci)=>{
+    const id=pid(pi,ci);
+    let b='';
+    if(pc.path){
+      b+='<div class="path"><span class="lead">path</span>';
+      pc.path.forEach((s,i)=>{ if(i) b+='<span class="sep">&rsaquo;</span>'; b+='<span class="seg">'+s+'</span>'; });
+      b+='</div>';
+    }
+    if(pc.do){ b+='<ol class="do">'+pc.do.map(d=>'<li>'+d+'</li>').join("")+'</ol>'; }
+    if(pc.fields){
+      b+='<dl class="fields">';
+      pc.fields.forEach(f=>{ b+='<div class="frow"><dt>'+esc(f[0])+'</dt><dd><button class="cp" type="button" data-v="'+esc(f[1])+'">'+esc(f[1])+'</button>'+(f[2]?'<span class="fhint">'+esc(f[2])+'</span>':'')+'</dd></div>'; });
+      b+='</dl>';
+    }
+    if(pc.blocked){ b+='<div class="blocked"><span class="lbl">Role gate</span>'+pc.blocked+'</div>'; }
+    if(pc.gotcha){ b+='<div class="gotcha"><span class="lbl">Watch out</span>'+pc.gotcha+'</div>'; }
+    b+='<div class="result"><input type="checkbox" id="'+id+'"'+(state[id]?" checked":"")+'>'
+      +'<label for="'+id+'"><span class="lbl">Result</span>'+pc.res+'</label></div>';
+    const dim = solo && SOLO_SKIP[pc.n];
+    html+='<article class="proc'+(state[id]?" checked":"")+'" data-id="'+id+'" data-n="'+esc(pc.n)+'"'+(dim?' style="opacity:.42"':'')+'>'
+      +'<div class="proc-top"><span class="proc-n">'+esc(pc.n)+'</span>'
+      +'<h3 class="proc-t">'+esc(pc.t)+'</h3>'+chips(pc.role)+'</div>'
+      +'<div class="proc-body">'+b+'</div></article>';
+  });
+  sec.innerHTML=html;
+  main.appendChild(sec);
+  const a=document.createElement("a");
+  a.href="#part-"+pi; a.dataset.part=pi;
+  a.innerHTML='<span class="dot"></span><span>'+esc(part.name)+'</span><span class="ct"></span>';
+  rail.appendChild(a);
+});
+/* appendix: state machine */
+const ap1=document.createElement("section");
+ap1.className="part"; ap1.id="part-states";
+let sh='<div class="part-head"><div class="part-code"><span>Appendix A &middot; State machine</span><span class="rulefill"></span></div>'
+ +'<h2>Every legal move, and who may make it</h2><p class="purpose">Read from the <code>Habibi Burger Order</code> workflow on this instance. Anything not in this table is impossible &mdash; on the form, on the board and over the API alike.</p></div>'
+ +'<div class="tablewrap"><table><thead><tr><th>From</th><th>Action</th><th>To</th><th>Allowed role</th><th>Condition</th></tr></thead><tbody>';
+TRANSITIONS.forEach(r=>{ sh+='<tr><td class="dt">'+r[0]+'</td><td class="dt"><strong>'+r[1]+'</strong></td><td class="dt">'+r[2]+'</td><td class="p">'+r[3]+'</td><td>'+r[4]+'</td></tr>'; });
+sh+='</tbody></table></div>';
+ap1.innerHTML=sh; main.appendChild(ap1);
+const a1=document.createElement("a"); a1.href="#part-states"; a1.innerHTML='<span class="dot" style="border-style:dotted"></span><span>States</span><span class="ct"></span>'; rail.appendChild(a1);
+/* appendix: matrix */
+const ap2=document.createElement("section");
+ap2.className="part"; ap2.id="part-matrix";
+let mh='<div class="part-head"><div class="part-code"><span>Appendix B &middot; Matrix</span><span class="rulefill"></span></div>'
+ +'<h2>Who can touch what</h2><p class="purpose">Read from the permission rules on this instance. <code>r</code> read, <code>w</code> write, <code>c</code> create. On a submitted document, write reaches only the allow-on-submit fields: order status, courier, requested time and kitchen notes.</p></div>'
+ +'<div class="tablewrap"><table><thead><tr><th>Doctype / surface</th><th>Order desk</th><th>Kitchen</th><th>Courier</th><th>Administrator</th></tr></thead><tbody>';
+MATRIX.forEach(r=>{
+  mh+='<tr><td class="dt">'+r[0]+'</td>';
+  for(let i=1;i<5;i++){ const v=r[i]; mh+='<td class="p'+(v==="&mdash;"?" hi":"")+'">'+v+'</td>'; }
+  mh+='</tr>';
+});
+mh+='</tbody></table></div>';
+ap2.innerHTML=mh; main.appendChild(ap2);
+const a2=document.createElement("a"); a2.href="#part-matrix"; a2.innerHTML='<span class="dot" style="border-style:dotted"></span><span>Matrix</span><span class="ct"></span>'; rail.appendChild(a2);
+
+const total=P.reduce((n,p)=>n+p.procs.length,0);
+function refresh(){
+  let done=0;
+  P.forEach((part,pi)=>{
+    let d=0; part.procs.forEach((_,ci)=>{ if(state[pid(pi,ci)]) d++; });
+    done+=d;
+    const a=rail.querySelector('a[data-part="'+pi+'"]');
+    if(a){ a.classList.toggle("done", d===part.procs.length); a.classList.toggle("part", d>0&&d<part.procs.length);
+      a.querySelector(".ct").textContent=d+"/"+part.procs.length; }
+  });
+  document.getElementById("fill").style.width=(total?done/total*100:0)+"%";
+  document.getElementById("num").textContent=done+" / "+total;
+  const sb=document.getElementById("soloBtn");
+  sb.classList.toggle("on",solo);
+  sb.textContent = solo ? "Solo mode: on" : "Solo mode";
+}
+main.addEventListener("change",e=>{
+  const cb=e.target.closest('input[type="checkbox"]'); if(!cb) return;
+  state[cb.id]=cb.checked; if(!cb.checked) delete state[cb.id];
+  cb.closest(".proc").classList.toggle("checked",cb.checked);
+  save(); refresh();
+});
+document.getElementById("soloBtn").addEventListener("click",()=>{
+  solo=!solo; save();
+  main.querySelectorAll(".proc").forEach(el=>{ el.style.opacity = (solo && SOLO_SKIP[el.dataset.n]) ? ".42" : ""; });
+  refresh();
+});
+document.getElementById("reset").addEventListener("click",()=>{
+  state={}; save();
+  main.querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
+  main.querySelectorAll(".proc").forEach(s=>s.classList.remove("checked"));
+  refresh();
+});
+refresh();
+</script>
+
+<footer class="wrap"><p>Written against Frappe v16.31 / ERPNext v16.32 on <code>erp.habibi-erp.com</code>, company <strong>Habibi Burger</strong>, currency KZT, VAT 12% included in menu prices. Field labels and button names are verbatim from this instance. Workflow transitions live under <strong>Actions&nbsp;&#8964;</strong>; the neighbouring <strong>Status&nbsp;&#8964;</strong> button is ERPNext&rsquo;s Hold / Close and is unrelated.</p></footer>
+<script>
+function __mark(b, word){ var prev=b.textContent; b.classList.add("copied"); b.textContent=word||"copied";
+  setTimeout(function(){ b.textContent=prev; b.classList.remove("copied"); },850); }
+function __fallback(v,b,cb){
+  try{ var ta=document.createElement("textarea"); ta.value=v; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); cb();
+  }catch(e){ var r=document.createRange(); r.selectNodeContents(b); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+}
+function __copy(v,b,word){
+  var cb=function(){ __mark(b,word); };
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(cb,function(){__fallback(v,b,cb);}); }
+    else __fallback(v,b,cb);
+  }catch(err){ __fallback(v,b,cb); }
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest(".cp"); if(b){ __copy(b.dataset.v,b); return; }
+  var c=e.target.closest(".cpb");
+  if(c){ var pre=c.closest(".codewrap").querySelector("pre"); __copy(pre.innerText,c,"copied!"); }
+});
+</script>
+
+<button id="__theme" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">
+  <span id="__themeIcon">&#9681;</span><span id="__themeTxt">Theme</span>
+</button>
+<style>
+#__theme{position:fixed;right:16px;bottom:16px;z-index:200;display:flex;align-items:center;gap:7px;
+  font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.06em;
+  background:var(--surface,#fff);color:var(--ink-2,#333);border:1px solid var(--rule,#ccc);
+  border-radius:99px;padding:8px 14px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.14)}
+#__theme:hover{border-color:var(--ink-3,#888);color:var(--ink,#000)}
+#__theme:focus-visible{outline:2px solid var(--brass,#A8500F);outline-offset:2px}
+#__themeIcon{font-size:14px;line-height:1}
+@media print{#__theme{display:none}}
+</style>
+<script>
+(function(){
+  var K="habibi-burger-doc-theme", root=document.documentElement;
+  var b=document.getElementById("__theme"), ic=document.getElementById("__themeIcon"), tx=document.getElementById("__themeTxt");
+  function sysDark(){ try{ return window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; } }
+  function paint(){
+    var t=root.getAttribute("data-theme");
+    if(!t){ ic.textContent="◑"; tx.textContent="Auto"; }
+    else if(t==="dark"){ ic.textContent="●"; tx.textContent="Dark"; }
+    else { ic.textContent="○"; tx.textContent="Light"; }
+  }
+  try{ var saved=localStorage.getItem(K); if(saved==="dark"||saved==="light") root.setAttribute("data-theme",saved); }catch(e){}
+  paint();
+  b.addEventListener("click",function(){
+    var cur=root.getAttribute("data-theme");
+    var next = !cur ? (sysDark()?"light":"dark") : (cur==="dark" ? "light" : null);
+    if(next){ root.setAttribute("data-theme",next); } else { root.removeAttribute("data-theme"); }
+    try{ if(next) localStorage.setItem(K,next); else localStorage.removeItem(K); }catch(e){}
+    paint();
+  });
+})();
+</script>
+
+</body>
+</html>

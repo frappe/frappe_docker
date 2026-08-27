@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Burger Shakedown Run</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img,svg,video{max-width:100%;height:auto;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+table{border-collapse:collapse}
+:root{
+  --ground:#F2EEE8; --surface:#FBF8F4; --sunken:#E8E2D9; --rule:#D6CDC0; --rule-soft:#E3DCD2;
+  --ink:#221C16; --ink-2:#544A40; --ink-3:#867A6D;
+  --brass:#A8500F; --brass-ink:#A8500F; --brass-soft:#F6E3D2; --brass-line:#E4C6AB;
+  --ok:#2E6B4A; --ok-soft:#DDEBE2;
+  --bad:#A6362D; --bad-soft:#F5DED9;
+  --warn:#8E5C0E; --warn-soft:#F4E7CE;
+  --r-od:#A8500F;  --r-od-bg:#F6E3D2;
+  --r-kt:#9A2F2F;  --r-kt-bg:#F6DEDC;
+  --r-cr:#2A5E7A;  --r-cr-bg:#DCE9F0;
+  --r-an:#4F4A86;  --r-an-bg:#E3E1F2;
+  --r-sys:#6B4E75; --r-sys-bg:#EBE1EE;
+  --r-ai:#2E6B4A;  --r-ai-bg:#DDEBE2;
+  --shadow:0 1px 2px rgba(34,28,22,.06), 0 8px 24px -16px rgba(34,28,22,.3);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#17130F; --surface:#201A15; --sunken:#2A231C; --rule:#372E26; --rule-soft:#2C251E;
+    --ink:#EDE7DF; --ink-2:#AEA396; --ink-3:#7A6F63;
+    --brass:#E08A45; --brass-ink:#EC9C5C; --brass-soft:#3A2110; --brass-line:#523018;
+    --ok:#5FC493; --ok-soft:#152C21;
+    --bad:#E8776B; --bad-soft:#341B18;
+    --warn:#D9A03F; --warn-soft:#2F2410;
+    --r-od:#EC9C5C;  --r-od-bg:#3A2110;
+    --r-kt:#E8776B;  --r-kt-bg:#361C1A;
+    --r-cr:#7FB6D6;  --r-cr-bg:#152834;
+    --r-an:#A9A2E6;  --r-an-bg:#201E38;
+    --r-sys:#BFA0C9; --r-sys-bg:#291F2D;
+    --r-ai:#5FC493;  --r-ai-bg:#152C21;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#17130F; --surface:#201A15; --sunken:#2A231C; --rule:#372E26; --rule-soft:#2C251E;
+  --ink:#EDE7DF; --ink-2:#AEA396; --ink-3:#7A6F63;
+  --brass:#E08A45; --brass-ink:#EC9C5C; --brass-soft:#3A2110; --brass-line:#523018;
+  --ok:#5FC493; --ok-soft:#152C21;
+  --bad:#E8776B; --bad-soft:#341B18;
+  --warn:#D9A03F; --warn-soft:#2F2410;
+  --r-od:#EC9C5C;  --r-od-bg:#3A2110;
+  --r-kt:#E8776B;  --r-kt-bg:#361C1A;
+  --r-cr:#7FB6D6;  --r-cr-bg:#152834;
+  --r-an:#A9A2E6;  --r-an-bg:#201E38;
+  --r-sys:#BFA0C9; --r-sys-bg:#291F2D;
+  --r-ai:#5FC493;  --r-ai-bg:#152C21;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+body{background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;font-weight:700;text-wrap:balance;margin:0;letter-spacing:-.005em}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+a{color:var(--brass-ink)}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:28px}
+@media (max-width:640px){.wrap{padding-inline:16px}}
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--ground) 88%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+.topbar-in{display:flex;align-items:center;gap:20px;padding:13px 0;flex-wrap:wrap}
+.brandmark{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brandmark .nm{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:19px}
+.brandmark .sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.meter{display:flex;align-items:center;gap:11px}
+.meter-track{width:140px;height:5px;border-radius:99px;background:var(--sunken);overflow:hidden}
+.meter-fill{height:100%;width:0%;background:var(--brass);border-radius:99px;transition:width .3s ease}
+.meter-num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
+.btn{font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--ink-2);
+  border:1px solid var(--rule);border-radius:6px;padding:6px 12px}
+.btn:hover{border-color:var(--ink-3);color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.btn.on{background:var(--brass-soft);border-color:var(--brass-line);color:var(--brass-ink)}
+.mast{padding:54px 0 38px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-ink);margin-bottom:16px}
+.mast h1{font-size:clamp(34px,5.2vw,49px);line-height:1.05;max-width:18ch}
+.mast .lede{margin-top:18px;max-width:66ch;font-size:16.5px;color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  letter-spacing:.09em;text-transform:uppercase;font-weight:600;padding:2.5px 7px;border-radius:4px;white-space:nowrap;vertical-align:middle}
+.chip.od{background:var(--r-od-bg);color:var(--r-od);border:1px solid var(--r-od)}
+.chip.kt{background:var(--r-kt-bg);color:var(--r-kt);border:1px solid var(--r-kt)}
+.chip.cr{background:var(--r-cr-bg);color:var(--r-cr);border:1px solid var(--r-cr)}
+.chip.an{background:var(--r-an-bg);color:var(--r-an);border:1px solid var(--r-an)}
+.chip.sys{background:var(--r-sys-bg);color:var(--r-sys);border:1px solid var(--r-sys)}
+.chip.ai{background:var(--r-ai-bg);color:var(--r-ai);border:1px solid var(--r-ai)}
+.chip.any{background:var(--sunken);color:var(--ink-3);border:1px solid var(--rule)}
+.cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin:34px 0 6px}
+.role{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 17px;border-top:3px solid var(--rule)}
+.role.od{border-top-color:var(--r-od)} .role.kt{border-top-color:var(--r-kt)}
+.role.cr{border-top-color:var(--r-cr)} .role.an{border-top-color:var(--r-an)}
+.role.sys{border-top-color:var(--r-sys)} .role.ai{border-top-color:var(--r-ai)}
+.role h4{font-size:15.5px;margin:9px 0 3px}
+.role .erp{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);margin-bottom:9px}
+.role p{margin:0;font-size:13.5px;color:var(--ink-2)}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:22px 24px;margin-top:26px}
+.panel h3{font-size:16px;margin-bottom:12px}
+.panel p{margin:0 0 11px;color:var(--ink-2);font-size:14.5px}
+.panel p:last-child{margin-bottom:0}
+.panel ol,.panel ul{margin:0;padding-left:19px;color:var(--ink-2);font-size:14.5px}
+.panel li{margin-bottom:7px}
+.panel code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:880px){.modes{grid-template-columns:1fr}}
+.shell{display:grid;grid-template-columns:206px 1fr;gap:54px;align-items:start;padding:42px 0 90px}
+@media (max-width:1000px){.shell{grid-template-columns:1fr;gap:0}.rail{display:none}}
+.rail{position:sticky;top:74px}
+.rail-h{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-bottom:11px;border-bottom:1px solid var(--rule)}
+.rail a{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;padding:8px 0;
+  text-decoration:none;color:var(--ink-2);border-bottom:1px solid var(--rule-soft);font-size:13px}
+.rail a:hover{color:var(--ink)}
+.rail a:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:3px}
+.dot{width:7px;height:7px;border-radius:99px;border:1.5px solid var(--ink-3);flex:none}
+.rail a.done .dot{background:var(--ok);border-color:var(--ok)}
+.rail a.part .dot{background:var(--brass);border-color:var(--brass);opacity:.55}
+.rail .ct{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.part{padding-top:12px;margin-bottom:50px;scroll-margin-top:80px}
+.part-head{border-top:2px solid var(--ink);padding-top:13px;margin-bottom:24px}
+.part-code{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--brass-ink);display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.part-code .rulefill{flex:1;height:1px;background:var(--rule);min-width:20px}
+.part h2{font-size:26px;line-height:1.15}
+.part .purpose{margin-top:8px;color:var(--ink-2);max-width:68ch;font-size:15px}
+.part .purpose code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.proc{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:17px 19px;margin-bottom:12px;box-shadow:var(--shadow)}
+.proc.checked{background:var(--sunken);border-color:var(--rule-soft)}
+.proc-top{display:flex;align-items:flex-start;gap:11px;flex-wrap:wrap}
+.proc-n{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);padding-top:4px;font-variant-numeric:tabular-nums;flex:none}
+.proc.checked .proc-n{color:var(--ok)}
+.proc-t{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:17.5px;line-height:1.3;margin:0;flex:1 1 240px;text-wrap:balance}
+.proc.checked .proc-t{color:var(--ink-3);text-decoration:line-through;text-decoration-thickness:1px}
+.proc-body{padding-left:29px}
+@media (max-width:600px){.proc-body{padding-left:0}}
+.path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:11px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;
+  background:var(--sunken);border:1px solid var(--rule-soft);border-radius:6px;padding:7px 11px}
+.proc.checked .path{background:var(--ground)}
+.path .seg{color:var(--ink)}
+.path .sep{color:var(--ink-3)}
+.path .lead{color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em;font-size:9.5px;margin-right:3px}
+.do{margin:12px 0 0;padding-left:19px;font-size:14.5px;color:var(--ink-2)}
+.do li{margin-bottom:6px}
+.do code,.step-note code,.gotcha code,.blocked code,.res-note code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12.5px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+.proc.checked .do code{background:var(--ground)}
+.fields{margin-top:12px;border:1px solid var(--rule-soft);border-radius:7px;overflow:hidden}
+.frow{display:grid;grid-template-columns:minmax(125px,195px) 1fr;border-bottom:1px solid var(--rule-soft)}
+.frow:last-child{border-bottom:0}
+.frow>dt{padding:6px 12px;background:var(--sunken);font-size:12.5px;color:var(--ink-2);border-right:1px solid var(--rule-soft);display:flex;align-items:center}
+.proc.checked .frow>dt{background:var(--ground)}
+.frow>dd{margin:0;padding:4px 8px;display:flex;align-items:center;flex-wrap:wrap;min-width:0}
+.cp{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink);background:none;border:1px solid transparent;
+  border-radius:4px;padding:2px 6px;cursor:copy;text-align:left;font-weight:500;max-width:100%;overflow-wrap:anywhere}
+.cp:hover{border-color:var(--rule);background:var(--sunken)}
+.cp:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.cp.copied{color:var(--ok);border-color:var(--ok)}
+.fhint{font-size:12px;color:var(--ink-3);padding-left:6px;font-style:italic}
+@media (max-width:600px){.frow{grid-template-columns:1fr}.frow>dt{border-right:0;border-bottom:1px solid var(--rule-soft)}}
+.blocked{margin-top:11px;border-left:2px solid var(--bad);background:var(--bad-soft);padding:9px 13px;border-radius:0 6px 6px 0;font-size:13.5px}
+.blocked .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--bad);display:block;margin-bottom:2px;font-weight:600}
+.gotcha{margin-top:11px;border-left:2px solid var(--brass);background:var(--brass-soft);padding:9px 13px;border-radius:0 6px 6px 0;font-size:13.5px}
+.gotcha .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--brass-ink);display:block;margin-bottom:2px;font-weight:600}
+.result{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;
+  border-left:2px solid var(--ok);background:var(--ok-soft);padding:9px 13px;border-radius:0 6px 6px 0}
+.result input{margin:0;width:16px;height:16px;accent-color:var(--ok);cursor:pointer;flex:none;margin-top:2px}
+.result input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.result label{cursor:pointer;font-size:13.5px;color:var(--ink)}
+.result .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ok);display:block;margin-bottom:2px;font-weight:600}
+.tablewrap{overflow-x:auto;margin-top:16px;border:1px solid var(--rule);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:620px;background:var(--surface)}
+th,td{text-align:left;padding:7px 12px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);background:var(--sunken);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.dt{font-family:"IBM Plex Mono",monospace;font-size:12.5px;white-space:nowrap}
+td.p{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.06em}
+.hi{color:var(--bad);font-weight:600}
+.good{color:var(--ok);font-weight:600}
+/* code blocks */
+.codewrap{margin-top:14px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--surface)}
+.codehead{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--sunken);border-bottom:1px solid var(--rule-soft)}
+.codehead .ttl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);margin-right:auto}
+.codehead .cpb{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule);border-radius:5px;padding:3px 9px;color:var(--ink-2);cursor:copy}
+.codehead .cpb:hover{border-color:var(--ink-3);color:var(--ink)}
+.codehead .cpb.copied{color:var(--ok);border-color:var(--ok)}
+pre{margin:0;padding:13px 14px;overflow-x:auto;font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font-size:12.5px;line-height:1.62;color:var(--ink);tab-size:2}
+pre .k{color:var(--brass-ink)}
+pre .s{color:var(--ok)}
+pre .c{color:var(--ink-3);font-style:italic}
+pre .n{color:var(--r-cr)}
+/* chat transcript */
+.chat{margin-top:14px;border:1px solid var(--rule);border-radius:10px;background:var(--sunken);padding:14px;display:flex;flex-direction:column;gap:8px}
+.bub{max-width:78%;padding:8px 12px;border-radius:12px;font-size:13.5px;line-height:1.5;white-space:pre-wrap}
+.bub.them{align-self:flex-start;background:var(--surface);border:1px solid var(--rule-soft);border-bottom-left-radius:3px}
+.bub.us{align-self:flex-end;background:var(--ok-soft);border:1px solid var(--ok);border-bottom-right-radius:3px}
+.bub .who{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+/* flow diagram */
+.flow{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.fstep{flex:1 1 130px;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;position:relative}
+.fstep .st{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:4px}
+.fstep .nm{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:14.5px;line-height:1.2}
+.fstep .by{font-size:11.5px;color:var(--ink-2);margin-top:4px}
+.fstep.od{border-left:3px solid var(--r-od)} .fstep.kt{border-left:3px solid var(--r-kt)}
+.fstep.cr{border-left:3px solid var(--r-cr)} .fstep.ai{border-left:3px solid var(--r-ai)}
+footer{border-top:1px solid var(--rule);padding:26px 0 60px;color:var(--ink-3);font-size:13px}
+footer code{background:var(--sunken);padding:1px 5px;border-radius:4px;font-size:12px;border:1px solid var(--rule-soft);font-family:"IBM Plex Mono",monospace}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brandmark"><span class="nm">Burger Shakedown Run</span><span class="sub">erp.habibi-erp.com</span></div>
+    <div class="meter"><div class="meter-track"><div class="meter-fill" id="fill"></div></div><span class="meter-num" id="num">0 / 0</span></div>
+    <button class="btn" id="reset" type="button">Reset</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow">Habibi Burger &middot; PoC acceptance &middot; sign-off sheet</div>
+    <h1>Does it actually work? Tick your way to an answer.</h1>
+    <p class="lede">Eleven stages against the PoC success criteria from the scope document. Stages 1&ndash;10 pass on the instance today &mdash; every one was run before it was written down. Stage 11 is the honest list of what is not done and why. Work it with the <a href="burger-role-playbook.html">Role Playbook</a> open beside you; the API side is in the <a href="burger-ai-intake-pack.html">AI Intake Pack</a>.</p>
+  </header>
+
+  <div class="panel">
+    <h3>How to run this</h3>
+    <ul>
+      <li><strong>Three people, not one.</strong> Stage 10 is meaningless as Administrator, and Stage 10 is where the design is actually proven.</li>
+      <li><strong>Ticks are stored in this browser only.</strong> Nothing is written back to ERPNext. Reset clears them.</li>
+      <li><strong>Two markers matter.</strong> <span class="chip" style="background:var(--bad-soft);color:var(--bad);border-color:var(--bad)">blocked</span> means it cannot be done yet and why. <span class="chip" style="background:var(--brass-soft);color:var(--brass-ink);border-color:var(--brass-line)">decide</span> means it is waiting on the client, not on us.</li>
+    </ul>
+  </div>
+
+  <div class="shell">
+    <nav class="rail" aria-label="Stages"><div class="rail-h">Stages</div><div id="rail"></div></nav>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+const ST = [{"code": "Stage 1", "name": "Foundation", "title": "The company is real and the menu is priced", "purpose": "Nothing downstream is meaningful if the money is in the wrong currency or the menu does not match the board on the wall.", "checks": [{"t": "Company <code>Habibi Burger</code> exists, KZT, Kazakhstan", "how": "Search &#8984;K &rsaquo; Company &rsaquo; Habibi Burger", "exp": "Abbreviation HB, default currency KZT."}, {"t": "17 menu items exist and none of them touch stock", "how": "Items &amp; Pricing &rsaquo; Item &rsaquo; filter Item Group in Burgers/Sides/Drinks/Combos/Service", "exp": "Every one has <em>Maintain Stock</em> unticked. No warehouse, no stock ledger, no reorder level."}, {"t": "Prices come from the <code>Habibi Menu</code> price list in KZT", "how": "Items &amp; Pricing &rsaquo; Item Price &rsaquo; filter Price List = Habibi Menu", "exp": "17 rows. Standard Selling is SAR and is not used by this company."}, {"t": "VAT is 12% and lives inside the menu price", "how": "Open the tax template <code>KZ VAT 12% (price incl.) - HB</code>", "exp": "One row, On Net Total, 12%, <em>Is this Tax included in Basic Rate</em> ticked."}, {"t": "A &#8376;6,670 order splits to &#8376;5,955.36 + &#8376;714.64", "how": "Open SAL-ORD-2026-00007", "exp": "The customer is never quoted a number that grows at checkout."}, {"t": "Four delivery zones with fees", "how": "Search &#8984;K &rsaquo; Delivery Zone", "exp": "Center 800, North 1,200, South 1,200, Suburbs 1,900 &mdash; each with an ETA and a free-above value."}]}, {"code": "Stage 2", "name": "Customers", "title": "The customer base is clean enough to join on", "purpose": "The phone number is the join key between WhatsApp and ERPNext. If it is not exact, nothing else works. Six demo customers stand in for the ~1,000 to be imported.", "checks": [{"t": "Six demo customers exist with E.164 numbers", "how": "Selling &rsaquo; Customer &rsaquo; filter Customer Group = Burger Guests", "exp": "All numbers in the form <code>+7701555xxxx</code>. No spaces, no dashes, no leading 8."}, {"t": "Each has a Contact and an Address linked", "how": "Open any customer &rsaquo; Connections", "exp": "Three linked doctypes per guest: Customer, Contact, Address."}, {"t": "A lookup by phone returns exactly one customer", "how": "<code>GET /api/resource/Customer?filters=[[\"mobile_no\",\"=\",\"+77015550101\"]]</code>", "exp": "One row. Two rows means a duplicate got in and the agent will pick the wrong one."}, {"t": "The real import has been profiled before loading", "how": "Client file &rsaquo; check phone formats, duplicates, missing names, address quality", "exp": "Load 20 records first, verify, then the rest. Never load 1,000 blind.", "state": "open"}, {"t": "Consent status defaulted to <em>not opted in</em>", "how": "Agree the default with the client", "exp": "Marketing without opt-in risks the WhatsApp number being banned &mdash; which takes order intake down with it.", "state": "open"}]}, {"code": "Stage 3", "name": "Manual intake", "title": "A human can raise an order start to finish", "purpose": "Stage 1 of the rollout. Prove the backbone works with people before putting an agent on top of it.", "checks": [{"t": "A new Sales Order defaults to Habibi Burger and Habibi Menu", "how": "Sales Order &rsaquo; + Add Sales Order", "exp": "Picking a Burger Guest pulls the price list automatically."}, {"t": "The Order Tracking section shows all nine custom fields", "how": "Scroll the Details tab", "exp": "Order Status, Source, Created by AI, Fulfilment, Zone, Requested Time, WhatsApp Number, Courier, Kitchen Notes."}, {"t": "Order Status is read-only on the form", "how": "Try to type in it", "exp": "It cannot be typed. Only the workflow moves it &mdash; that is deliberate."}, {"t": "A delivery order gets a Delivery Charge line at the zone rate", "how": "Add SRV-DELIVERY and set the rate", "exp": "The fee does not follow a zone change automatically. Known limitation."}]}, {"code": "Stage 4", "name": "Agent intake", "title": "An order arrives from the API without anyone typing", "purpose": "Stage 2 of the rollout. The payload in the <a href=\"burger-ai-intake-pack.html\">AI Intake Pack</a>, posted for real.", "checks": [{"t": "POSTing the sample payload creates a draft in <code>New</code>", "how": "Post the body from Intake Pack section 4", "exp": "HTTP 200, <code>docstatus: 0</code>, <code>custom_order_status: \"New\"</code>."}, {"t": "The returned totals match the menu exactly", "how": "Read the response", "exp": "net 5955.36, tax 714.64, grand 6670.0."}, {"t": "<code>Created by AI Agent</code> is ticked on the order", "how": "Open the created order", "exp": "This is what makes agent quality measurable later."}, {"t": "Omitting the <code>taxes</code> rows produces a zero-VAT order", "how": "Post the same body without the taxes array", "exp": "Grand total 6,670 with 0 VAT. Confirms the trap is real &mdash; then delete the test order."}, {"t": "The order appears on the kitchen board within seconds", "how": "Refresh the Kitchen Board", "exp": "A new card in the New column, no human involved."}]}, {"code": "Stage 5", "name": "The gate", "title": "Nothing is cooked before it is paid", "purpose": "The client&rsquo;s rule, enforced by the server rather than by training. This is the single most important check on the sheet.", "checks": [{"t": "Confirm submits the order and freezes the totals", "how": "Actions &rsaquo; Confirm", "exp": "docstatus 1, status Confirmed."}, {"t": "<code>Send to Kitchen</code> is absent while the order is unpaid", "how": "Open Actions on SAL-ORD-2026-00010", "exp": "Only Cancel Order is offered. The action does not exist, so it cannot be clicked by mistake."}, {"t": "The API refuses the same move", "how": "<code>apply_workflow</code> with action <code>Send to Kitchen</code>", "exp": "<em>Not a valid Workflow Action</em>. The gate is not a UI trick."}, {"t": "Recording the payment opens the gate", "how": "Create &rsaquo; Payment Entry &rsaquo; Kaspi Pay &rsaquo; Submit", "exp": "Advance Paid reaches the grand total; Send to Kitchen appears."}, {"t": "Dragging an unpaid card to In Kitchen also fails", "how": "Kitchen Board &rsaquo; drag SAL-ORD-2026-00010", "exp": "The card snaps back. The board obeys the same rule as the form."}]}, {"code": "Stage 6", "name": "Kitchen", "title": "The kitchen sees orders without being told", "purpose": "A PoC success criterion, word for word. This is also the answer to whether ERPNext can do a kitchen kanban natively &mdash; it can.", "checks": [{"t": "The Kitchen Board opens with six live columns", "how": "<code>/desk/sales-order/view/kanban/Kitchen Board</code>", "exp": "New, Confirmed, In Kitchen, Ready, Out for Delivery, Delivered. Cancelled is archived out of the way."}, {"t": "It shows only today, only Habibi Burger", "how": "Check the filter chip", "exp": "Two filters. Other companies&rsquo; orders never appear."}, {"t": "Cards carry enough to cook from", "how": "Read a card without opening it", "exp": "Order id, requested time, fulfilment, zone, quantity, kitchen notes."}, {"t": "Dragging In Kitchen &rarr; Ready persists", "how": "Drag a card, then refresh", "exp": "The move survives the refresh &mdash; it is a real write, not an optimistic UI."}, {"t": "An illegal drag is refused by the server", "how": "Drag a New card onto Ready", "exp": "<em>Workflow State transition not allowed from New to Ready.</em>"}, {"t": "The kitchen ticket prints with no prices", "how": "Print format <code>Habibi Kitchen Ticket</code>", "exp": "Quantities, items, modifiers, notes in a box. No money, no delivery line."}]}, {"code": "Stage 7", "name": "Dispatch", "title": "A courier leaves with the right paper", "purpose": "The second PoC criterion: the courier gets a note with the address and the payment method.", "checks": [{"t": "The Ready queue is one saved filter away", "how": "Sales Order &rsaquo; Saved Filters &rsaquo; Dispatch &mdash; Ready to go", "exp": "Only orders waiting on the pass."}, {"t": "Dispatch is impossible without a courier", "how": "Actions on a Ready order with no courier set", "exp": "Dispatch is not offered."}, {"t": "Pickup orders never see Dispatch", "how": "Open Zhanna Omarova&rsquo;s pickup order at Ready", "exp": "<em>Handed to Customer</em> instead. Staff see one correct button, not a choice."}, {"t": "The delivery note shows the payment state in large type", "how": "Print format <code>Habibi Courier Delivery Note</code>", "exp": "<strong>PAID IN FULL &mdash; collect nothing</strong>, or <strong>COLLECT ON DELIVERY</strong> with the exact figure."}, {"t": "The note carries name, phone and full address", "how": "Read the printed note", "exp": "Everything a courier needs without opening ERPNext again."}]}, {"code": "Stage 8", "name": "Books", "title": "The money lands where the accountant expects", "purpose": "Delivery closes the operational job; the invoice closes the financial one.", "checks": [{"t": "The courier can mark delivered and nothing else", "how": "Actions as the courier seat", "exp": "One action. No cancel, no edit of lines."}, {"t": "A Sales Invoice can only be made from a Sales Order", "how": "Selling Settings", "exp": "<code>Is Sales Order required to create Sales Invoice = Yes</code>. Nothing bypasses the pipeline."}, {"t": "The advance allocates automatically", "how": "Create &rsaquo; Sales Invoice &rsaquo; tick Allocate Advances Automatically &rsaquo; Submit", "exp": "Outstanding &#8376;0, status Paid, the Part-2 payment attached."}, {"t": "No Delivery Note doctype is involved anywhere", "how": "Check the order&rsquo;s Connections", "exp": "Stock module stays out. The courier&rsquo;s &ldquo;delivery note&rdquo; is a print format, not a stock document."}, {"t": "Cancelling a paid order reverses its payment too", "how": "Look at SAL-ORD-2026-00011", "exp": "Order and Payment Entry both docstatus 2, ledger reversed, neither deletable. A refund is still a separate human act."}]}, {"code": "Stage 9", "name": "Numbers", "title": "The owner can read today off one screen", "purpose": "The last PoC criterion. Five cards and seven charts, all filtered to this company.", "checks": [{"t": "The dashboard opens and populates", "how": "<code>/desk/dashboard-view/Habibi Burger Ops</code>", "exp": "Orders today, revenue today, delivered today, open in kitchen, average order value."}, {"t": "Revenue today matches the sum of submitted orders", "how": "Compare the card to the Sales Order list total", "exp": "They agree. If not, orders were raised against the wrong company."}, {"t": "Order Status Distribution reflects the board", "how": "Count cards on the Kitchen Board", "exp": "Same numbers. The cheapest data-quality check in the system."}, {"t": "Top Selling Items shows burger items only", "how": "Read the chart", "exp": "Filtered to the four menu groups, so demo data from other companies stays out."}, {"t": "Currency symbols read KZT, not SAR", "how": "Look at the number cards", "exp": "They currently render with the site default symbol. Cosmetic, but the client will point at it.", "state": "open"}, {"t": "Repeat rate is available", "how": "&mdash;", "exp": "No shipped report gives it directly. Needs a small Query Report over Sales Order grouped by customer. Roughly an hour.", "state": "blocked"}]}, {"code": "Stage 10", "name": "Refusals", "title": "The seats stop where they should", "purpose": "Run this as three people, not one. The refusals are what prove the design &mdash; a demo where everything works proves only that you logged in as Administrator.", "checks": [{"t": "Kitchen cannot create a Sales Order", "how": "Log in as the kitchen user", "exp": "No + Add button. No create permission."}, {"t": "Kitchen cannot move Ready &rarr; Out for Delivery", "how": "Try the drag", "exp": "Refused. Dispatch belongs to the order desk."}, {"t": "Courier cannot see other couriers&rsquo; runs", "how": "Add Courier = self to the saved filter", "exp": "A short personal list."}, {"t": "Courier cannot edit item lines on a submitted order", "how": "Try", "exp": "Write on a submitted document reaches only allow-on-submit fields: status, courier, requested time, kitchen notes."}, {"t": "Neither kitchen nor courier can export", "how": "Look for the export option", "exp": "Absent. Customer data does not walk out on a tablet."}]}, {"code": "Stage 11", "name": "Not yet", "title": "What is honestly not done", "purpose": "Everything below is either blocked on something outside the ERP or is an open decision. Nothing here blocks the PoC demo &mdash; but pretending it is finished would be the fastest way to lose the client&rsquo;s trust in week three.", "checks": [{"t": "Outbound WhatsApp status messages", "how": "&mdash;", "exp": "Needs a WhatsApp Account with Meta credentials. Templates push to Meta on save, so none can be created yet. Meta Business Verification not started &mdash; long lead time, begin now.", "state": "blocked"}, {"t": "Inbound webhook and live agent", "how": "&mdash;", "exp": "The middleware service is not built. Every payload in the Intake Pack has been verified by hand against the live API.", "state": "blocked"}, {"t": "The ~1,000 customer import", "how": "&mdash;", "exp": "Waiting on the client file. Six demo guests stand in.", "state": "blocked"}, {"t": "Delivery fee model", "how": "&mdash;", "exp": "Built as an item line with a per-zone rate. Flat vs by-zone vs free-above-threshold is still the client&rsquo;s call &mdash; every zone already carries a free-above value if wanted.", "state": "open"}, {"t": "Order value cap for agent orders", "how": "&mdash;", "exp": "The guardrail exists in the scope; the number does not. Set it at the workshop.", "state": "open"}, {"t": "Out-of-hours behaviour", "how": "&mdash;", "exp": "Open question 6, still unanswered. Messages at 03:00 need an answer that is not silence.", "state": "open"}, {"t": "Refund process ownership", "how": "&mdash;", "exp": "Cancelling reverses the books but moves no money. Someone has to own the transfer.", "state": "open"}, {"t": "Site timezone is Asia/Riyadh", "how": "System Settings", "exp": "Requested times display in Riyadh time on a Kazakhstan business. Site-wide setting shared with the other demo companies &mdash; change it deliberately.", "state": "open"}, {"t": "Campaigns and repeat-sales", "how": "&mdash;", "exp": "Phase 4. Custom doctypes per scope section 6, not built and not required for PoC success.", "state": "blocked"}]}];
+const KEY="habibi-burger-shakedown-v1";
+let state={};
+try{ state=JSON.parse(localStorage.getItem(KEY)||"{}"); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+const esc=s=>String(s).replace(/&(?![a-z#]+;)/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const cid=(si,ci)=>"s"+si+"-"+ci;
+const main=document.getElementById("main"), rail=document.getElementById("rail");
+ST.forEach((st,si)=>{
+  const sec=document.createElement("section");
+  sec.className="part"; sec.id="stage-"+si;
+  let h='<div class="part-head"><div class="part-code"><span>'+esc(st.code)+' &middot; '+esc(st.name)+'</span><span class="rulefill"></span></div>'
+   +'<h2>'+esc(st.title)+'</h2><p class="purpose">'+st.purpose+'</p></div>';
+  st.checks.forEach((c,ci)=>{
+    const id=cid(si,ci);
+    let tag='';
+    if(c.state==="blocked") tag='<span class="chip" style="background:var(--bad-soft);color:var(--bad);border-color:var(--bad)">blocked</span>';
+    else if(c.state==="open") tag='<span class="chip" style="background:var(--brass-soft);color:var(--brass-ink);border-color:var(--brass-line)">decide</span>';
+    let b='';
+    if(c.how && c.how!=="&mdash;"){ b+='<div class="path"><span class="lead">check</span><span class="seg">'+c.how+'</span></div>'; }
+    b+='<div class="result"><input type="checkbox" id="'+id+'"'+(state[id]?" checked":"")+'>'
+      +'<label for="'+id+'"><span class="lbl">Expected</span>'+c.exp+'</label></div>';
+    h+='<article class="proc'+(state[id]?" checked":"")+'" data-id="'+id+'">'
+      +'<div class="proc-top"><span class="proc-n">'+(ci+1)+'</span>'
+      +'<h3 class="proc-t">'+c.t+'</h3>'+tag+'</div>'
+      +'<div class="proc-body">'+b+'</div></article>';
+  });
+  sec.innerHTML=h; main.appendChild(sec);
+  const a=document.createElement("a");
+  a.href="#stage-"+si; a.dataset.stage=si;
+  a.innerHTML='<span class="dot"></span><span>'+esc(st.name)+'</span><span class="ct"></span>';
+  rail.appendChild(a);
+});
+const total=ST.reduce((n,s)=>n+s.checks.length,0);
+function refresh(){
+  let done=0;
+  ST.forEach((st,si)=>{
+    let d=0; st.checks.forEach((_,ci)=>{ if(state[cid(si,ci)]) d++; });
+    done+=d;
+    const a=rail.querySelector('a[data-stage="'+si+'"]');
+    if(a){ a.classList.toggle("done", d===st.checks.length); a.classList.toggle("part", d>0&&d<st.checks.length);
+      a.querySelector(".ct").textContent=d+"/"+st.checks.length; }
+  });
+  document.getElementById("fill").style.width=(total?done/total*100:0)+"%";
+  document.getElementById("num").textContent=done+" / "+total;
+}
+main.addEventListener("change",e=>{
+  const cb=e.target.closest('input[type="checkbox"]'); if(!cb) return;
+  state[cb.id]=cb.checked; if(!cb.checked) delete state[cb.id];
+  cb.closest(".proc").classList.toggle("checked",cb.checked);
+  save(); refresh();
+});
+document.getElementById("reset").addEventListener("click",()=>{
+  state={}; save();
+  main.querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
+  main.querySelectorAll(".proc").forEach(s=>s.classList.remove("checked"));
+  refresh();
+});
+refresh();
+</script>
+
+<footer class="wrap"><p>Run against Frappe v16.31 / ERPNext v16.32 on <code>erp.habibi-erp.com</code>, company <strong>Habibi Burger</strong>. Stages 1&ndash;10 were executed on the live instance during the build. Stage 11 is deliberately not tickable as &ldquo;done&rdquo; &mdash; it is the agenda for the next conversation.</p></footer>
+<script>
+function __mark(b, word){ var prev=b.textContent; b.classList.add("copied"); b.textContent=word||"copied";
+  setTimeout(function(){ b.textContent=prev; b.classList.remove("copied"); },850); }
+function __fallback(v,b,cb){
+  try{ var ta=document.createElement("textarea"); ta.value=v; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); cb();
+  }catch(e){ var r=document.createRange(); r.selectNodeContents(b); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+}
+function __copy(v,b,word){
+  var cb=function(){ __mark(b,word); };
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(cb,function(){__fallback(v,b,cb);}); }
+    else __fallback(v,b,cb);
+  }catch(err){ __fallback(v,b,cb); }
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest(".cp"); if(b){ __copy(b.dataset.v,b); return; }
+  var c=e.target.closest(".cpb");
+  if(c){ var pre=c.closest(".codewrap").querySelector("pre"); __copy(pre.innerText,c,"copied!"); }
+});
+</script>
+
+<button id="__theme" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">
+  <span id="__themeIcon">&#9681;</span><span id="__themeTxt">Theme</span>
+</button>
+<style>
+#__theme{position:fixed;right:16px;bottom:16px;z-index:200;display:flex;align-items:center;gap:7px;
+  font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.06em;
+  background:var(--surface,#fff);color:var(--ink-2,#333);border:1px solid var(--rule,#ccc);
+  border-radius:99px;padding:8px 14px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.14)}
+#__theme:hover{border-color:var(--ink-3,#888);color:var(--ink,#000)}
+#__theme:focus-visible{outline:2px solid var(--brass,#A8500F);outline-offset:2px}
+#__themeIcon{font-size:14px;line-height:1}
+@media print{#__theme{display:none}}
+</style>
+<script>
+(function(){
+  var K="habibi-burger-doc-theme", root=document.documentElement;
+  var b=document.getElementById("__theme"), ic=document.getElementById("__themeIcon"), tx=document.getElementById("__themeTxt");
+  function sysDark(){ try{ return window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; } }
+  function paint(){
+    var t=root.getAttribute("data-theme");
+    if(!t){ ic.textContent="◑"; tx.textContent="Auto"; }
+    else if(t==="dark"){ ic.textContent="●"; tx.textContent="Dark"; }
+    else { ic.textContent="○"; tx.textContent="Light"; }
+  }
+  try{ var saved=localStorage.getItem(K); if(saved==="dark"||saved==="light") root.setAttribute("data-theme",saved); }catch(e){}
+  paint();
+  b.addEventListener("click",function(){
+    var cur=root.getAttribute("data-theme");
+    var next = !cur ? (sysDark()?"light":"dark") : (cur==="dark" ? "light" : null);
+    if(next){ root.setAttribute("data-theme",next); } else { root.removeAttribute("data-theme"); }
+    try{ if(next) localStorage.setItem(K,next); else localStorage.removeItem(K); }catch(e){}
+    paint();
+  });
+})();
+</script>
+
+</body>
+</html>
