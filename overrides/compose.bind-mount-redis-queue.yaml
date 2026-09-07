@@ -1,0 +1,14 @@
+# Bind mount the `redis-queue-data` volume to a host directory instead of letting Docker manage it.
+# Use together with overrides/compose.redis.yaml.
+#
+# NOTE:
+# - `REDIS_QUEUE_DATA_LOCATION` (required): absolute path to the host directory to bind mount.
+# - The directory must exist before running `docker compose up -d`, otherwise Docker fails
+#   when populating the volume.
+volumes:
+  redis-queue-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${REDIS_QUEUE_DATA_LOCATION}
