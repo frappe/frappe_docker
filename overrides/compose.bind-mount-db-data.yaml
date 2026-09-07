@@ -1,14 +1,17 @@
 # Bind mount the `db-data` volume to a host directory instead of letting Docker manage it.
-# Use together with overrides/compose.mariadb.yaml or overrides/compose.postgres.yaml.
+# Use together with overrides/compose.mariadb.yaml, overrides/compose.mariadb-shared.yaml or
+# overrides/compose.postgres.yaml.
 #
 # NOTE:
 # - `DB_DATA_LOCATION` (required): absolute path to the host directory to bind mount.
 # - The directory must exist before running `docker compose up -d`, otherwise Docker fails
 #   when populating the volume.
+# - The directory must be writable by the database user of the image: uid/gid 999 for both
+#   the `mariadb` and the `postgres` images, for example `chown -R 999:999 <path>`.
 volumes:
   db-data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${DB_DATA_LOCATION}
+      device: ${DB_DATA_LOCATION:?DB_DATA_LOCATION must be set to an existing absolute host path}
