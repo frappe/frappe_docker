@@ -47,6 +47,26 @@ Then edit `.env` and set variables according to your needs.
 
 ---
 
+## Volume Bind Mounts
+
+| Variable                    | Purpose                                                                                      | Default | When to Set                                        |
+| --------------------------- | -------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------- |
+| `SITES_DATA_LOCATION`       | Host directory for the `sites` volume; must be an absolute path and already exist            | -       | Required for `compose.bind-mount-sites.yaml`       |
+| `DB_DATA_LOCATION`          | Host directory for the `db-data` volume; must be an absolute path and already exist          | -       | Required for `compose.bind-mount-db-data.yaml`     |
+| `REDIS_QUEUE_DATA_LOCATION` | Host directory for the `redis-queue-data` volume; must be an absolute path and already exist | -       | Required for `compose.bind-mount-redis-queue.yaml` |
+
+> Warning: with a bind mount, the data lives on the host, not inside the Docker volume. Removing the volume (for example with `docker compose down -v`) will **not** delete the data. To actually erase the data, delete the host directory manually with `rm -r <data path>`.
+
+**Example:**
+
+```bash
+SITES_DATA_LOCATION=/srv/frappe/sites
+DB_DATA_LOCATION=/srv/frappe/db-data
+REDIS_QUEUE_DATA_LOCATION=/srv/frappe/redis-queue-data
+```
+
+---
+
 ## Reverse Proxy and SSL (HTTPS) Configuration
 
 ### Traefik (compose.proxy.yaml / compose.https.yaml)
