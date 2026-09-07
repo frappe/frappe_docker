@@ -2,10 +2,13 @@
   "environment": {
     "BASE_SITE": "site-one.localhost",
     "BENCH_NETWORK": "bench-network",
+    "DB_DATA_LOCATION": "/srv/frappe-bind-mounts/db-data",
     "DB_PASSWORD_SECRETS_FILE": "./test-db-password.txt",
     "EMAIL": "admin@example.com",
     "HASHED_PASSWORD": "not-a-real-password-hash",
+    "REDIS_QUEUE_DATA_LOCATION": "/srv/frappe-bind-mounts/redis-queue-data",
     "ROUTER": "site-one",
+    "SITES_DATA_LOCATION": "/srv/frappe-bind-mounts/sites",
     "TRAEFIK_DOMAIN": "traefik.example.com"
   },
   "configurations": [
@@ -35,6 +38,28 @@
         "overrides/compose.postgres.yaml",
         "overrides/compose.redis.yaml",
         "overrides/compose.noproxy.yaml"
+      ]
+    },
+    {
+      "name": "mariadb-bind-mounts",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.mariadb.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.noproxy.yaml",
+        "overrides/compose.bind-mount-sites.yaml",
+        "overrides/compose.bind-mount-db-data.yaml",
+        "overrides/compose.bind-mount-redis-queue.yaml"
+      ]
+    },
+    {
+      "name": "postgres-bind-mount-db-data",
+      "files": [
+        "compose.yaml",
+        "overrides/compose.postgres.yaml",
+        "overrides/compose.redis.yaml",
+        "overrides/compose.noproxy.yaml",
+        "overrides/compose.bind-mount-db-data.yaml"
       ]
     },
     {
