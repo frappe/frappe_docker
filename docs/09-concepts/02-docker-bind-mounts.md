@@ -17,6 +17,9 @@ Bind mounts create a direct connection between a directory on your host machine 
 | **Named Bind-Mounted Volume** | `volume_name:/container/path` + `driver_opts` on the volume | Production data that requires specific host filesystem functionality, e.g. NFS/SAN/ZFS | On host filesystem, survives `docker compose down -v` |
 | **Anonymous Volume**          | `/container/path`                                           | Temporary/cache data                                                                   | Docker-managed, auto-deleted                          |
 
+**NOTE**: This repository ships Docker Compose override files that configure named bind-mounted volumes for production data.
+See [overrides.md](../02-setup/05-overrides.md) for the full list and usage.
+
 ## Bind Mount Examples
 
 ```yaml
@@ -54,7 +57,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /data/db # absolute host path, must already exist
+      device: /data/db # must be the absolute host path and already exist
 ```
 
 ## Performance Optimization (macOS/Windows)
