@@ -8,13 +8,17 @@ title: Docker Bind Mounts
 
 Bind mounts create a direct connection between a directory on your host machine and a directory inside a container. Changes in either location are immediately reflected in the other - perfect for development where you want to edit code on your host and see changes in the container.
 
-## Bind Mount vs Named Volume vs Anonymous Volume
+## Bind Mount vs Named Volume vs Named Bind-Mounted Volume vs Anonymous Volume
 
-| Type                 | Syntax                         | Use Case                   | Persistence                  |
-| -------------------- | ------------------------------ | -------------------------- | ---------------------------- |
-| **Bind Mount**       | `./local/path:/container/path` | Development, config files  | On host filesystem           |
-| **Named Volume**     | `volume_name:/container/path`  | Production data, databases | Docker-managed               |
-| **Anonymous Volume** | `/container/path`              | Temporary/cache data       | Docker-managed, auto-deleted |
+| Type                          | Syntax                                                      | Use Case                                                                               | Persistence                                           |
+| ----------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Bind Mount**                | `./local/path:/container/path`                              | Development, config files                                                              | On host filesystem                                    |
+| **Named Volume**              | `volume_name:/container/path`                               | Production data, databases                                                             | Docker-managed, removed by `docker compose down -v`   |
+| **Named Bind-Mounted Volume** | `volume_name:/container/path` + `driver_opts` on the volume | Production data that requires specific host filesystem functionality, e.g. NFS/SAN/ZFS | On host filesystem, survives `docker compose down -v` |
+| **Anonymous Volume**          | `/container/path`                                           | Temporary/cache data                                                                   | Docker-managed, auto-deleted                          |
+
+**NOTE**: This repository ships Docker Compose override files that configure named bind-mounted volumes for production data.
+See [overrides.md](../02-setup/05-overrides.md) for the full list and usage.
 
 ## Bind Mount Examples
 
@@ -39,8 +43,21 @@ services:
     volumes:
       - db_data:/var/lib/mysql # Managed by Docker, survives container deletion
 
+  # Named bind-mounted volume for production database that requires specific filesystem functionality
+  # on the host machine
+  db_bind_mounted:
+    volumes:
+      - db_data_bind_mounted:/var/lib/mysql
+
 volumes:
   db_data: # Define named volume
+
+  db_data_bind_mounted: # Define named bind-mounted volume
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/db # must be the absolute host path and already exist
 ```
 
 ## Performance Optimization (macOS/Windows)
