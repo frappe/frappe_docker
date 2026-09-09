@@ -15,7 +15,7 @@ RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=1
   if [ -f /opt/frappe/apps.json ] && [ -s /opt/frappe/apps.json ]; then \
     export APP_INSTALL_ARGS="--apps_path=/opt/frappe/apps.json"; \
   fi && \
-  bench init ${APP_INSTALL_ARGS}\
+  bench init ${APP_INSTALL_ARGS} \
     --frappe-branch=${FRAPPE_BRANCH} \
     --frappe-path=${FRAPPE_PATH} \
     --no-procfile \
@@ -29,6 +29,16 @@ RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=1
 
 FROM ${FRAPPE_IMAGE_PREFIX}/base:${FRAPPE_BRANCH} AS backend
 
+USER root
+
+# Install Ansible required by Suite Cloud
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ansible \
+        sshpass && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 USER frappe
 
 COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
@@ -37,7 +47,7 @@ WORKDIR /home/frappe/frappe-bench
 
 # Move assets to image-layer storage
 RUN cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
-  rm -rf /home/frappe/frappe-bench/sites/assets
+    rm -rf /home/frappe/frappe-bench/sites/assets
 
 VOLUME [ \
   "/home/frappe/frappe-bench/sites", \
@@ -45,7 +55,9 @@ VOLUME [ \
 ]
 
 USER root
-# This entrypoint script link build assets of the image to the mounted sites volume at container initialization
+
+# This entrypoint script links build assets of the image
+# to the mounted sites volume at container initialization
 COPY resources/core/main-entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod 755 /usr/local/bin/entrypoint.sh
 
@@ -53,6 +65,7 @@ COPY resources/core/start.sh /usr/local/bin/start.sh
 RUN chmod 755 /usr/local/bin/start.sh
 
 USER frappe
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 CMD ["start.sh"]
