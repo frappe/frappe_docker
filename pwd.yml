@@ -1,6 +1,7 @@
 services:
   backend:
     image: frappe/erpnext:v16.34.2
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
@@ -20,6 +21,7 @@ services:
 
   configurator:
     image: frappe/erpnext:v16.34.2
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
@@ -49,6 +51,7 @@ services:
 
   create-site:
     image: frappe/erpnext:v16.34.2
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
@@ -86,6 +89,7 @@ services:
 
   db:
     image: mariadb:11.8
+    platform: linux/arm64
     networks:
       - frappe_network
     healthcheck:
@@ -109,6 +113,7 @@ services:
 
   frontend:
     image: frappe/erpnext:v16.34.2
+    platform: linux/arm64
     networks:
       - frappe_network
     depends_on:
@@ -136,6 +141,7 @@ services:
 
   queue-long:
     image: frappe/erpnext:v16.34.2
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
@@ -158,6 +164,7 @@ services:
 
   queue-short:
     image: frappe/erpnext:v16.34.2
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
@@ -180,6 +187,7 @@ services:
 
   redis-queue:
     image: redis:6.2-alpine
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
@@ -190,6 +198,7 @@ services:
 
   redis-cache:
     image: redis:6.2-alpine
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
@@ -198,6 +207,7 @@ services:
 
   scheduler:
     image: frappe/erpnext:v16.34.2
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
@@ -215,6 +225,7 @@ services:
 
   websocket:
     image: frappe/erpnext:v16.34.2
+    platform: linux/arm64
     networks:
       - frappe_network
     deploy:
