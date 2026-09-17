@@ -1,0 +1,5 @@
+services:
+  s3:
+    image: chrislusf/seaweedfs:latest
+    profiles: [backup]
+    command: [mini, -dir=/data]
