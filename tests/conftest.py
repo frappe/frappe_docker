@@ -140,20 +140,28 @@ def s3_service(python_path: str, compose: Compose):
     secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
     container_name = f"{compose.project_name}-s3"
     try:
-        compose(
-            "run",
-            "--detach",
-            "--no-deps",
-            "--use-aliases",
-            "--name",
-            container_name,
-            "-e",
-            f"AWS_ACCESS_KEY_ID={access_key}",
-            "-e",
-            f"AWS_SECRET_ACCESS_KEY={secret_key}",
-            "-e",
-            f"S3_BUCKET={bucket}",
-            "s3",
+        subprocess.check_call(
+            (
+                "docker",
+                "run",
+                "--detach",
+                "--pull=always",
+                "--name",
+                container_name,
+                "--network",
+                f"{compose.project_name}_default",
+                "--network-alias",
+                "s3",
+                "-e",
+                f"AWS_ACCESS_KEY_ID={access_key}",
+                "-e",
+                f"AWS_SECRET_ACCESS_KEY={secret_key}",
+                "-e",
+                f"S3_BUCKET={bucket}",
+                "chrislusf/seaweedfs:latest",
+                "mini",
+                "-dir=/data",
+            )
         )
         compose("cp", "tests/_wait_for_s3.py", "backend:/tmp")
         compose.exec("backend", "bench", "pip", "install", "boto3~=1.34.143")

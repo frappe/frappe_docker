@@ -34,8 +34,6 @@ class Compose:
             "overrides/compose.mariadb.yaml",
             "-f",
             "overrides/compose.redis.yaml",
-            "-f",
-            "tests/compose.s3.yaml",
         ]
         if CI:
             file_args += ("-f", "tests/compose.ci.yaml")
