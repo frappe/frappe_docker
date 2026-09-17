@@ -126,43 +126,65 @@ def python_path():
 
 @dataclass
 class S3ServiceResult:
+    endpoint_url: str
+    bucket: str
     access_key: str
     secret_key: str
 
 
 @pytest.fixture
 def s3_service(python_path: str, compose: Compose):
+    endpoint_url = "http://s3:8333"
+    bucket = "frappe"
     access_key = "AKIAIOSFODNN7EXAMPLE"
     secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-    cmd = (
-        "docker",
-        "run",
-        "--name",
-        "minio",
-        "-d",
-        "-e",
-        f"MINIO_ACCESS_KEY={access_key}",
-        "-e",
-        f"MINIO_SECRET_KEY={secret_key}",
-        "--network",
-        f"{compose.project_name}_default",
-        "minio/minio",
-        "server",
-        "/data",
-    )
-    subprocess.check_call(cmd)
+    container_name = f"{compose.project_name}-s3"
+    try:
+        subprocess.check_call(
+            (
+                "docker",
+                "run",
+                "--detach",
+                "--pull=always",
+                "--name",
+                container_name,
+                "--network",
+                f"{compose.project_name}_default",
+                "--network-alias",
+                "s3",
+                "-e",
+                f"AWS_ACCESS_KEY_ID={access_key}",
+                "-e",
+                f"AWS_SECRET_ACCESS_KEY={secret_key}",
+                "-e",
+                f"S3_BUCKET={bucket}",
+                "chrislusf/seaweedfs:latest",
+                "mini",
+                "-dir=/data",
+            )
+        )
+        compose("cp", "tests/_wait_for_s3.py", "backend:/tmp")
+        compose.exec("backend", "bench", "pip", "install", "boto3~=1.34.143")
+        compose.exec(
+            "-e",
+            f"S3_ENDPOINT_URL={endpoint_url}",
+            "-e",
+            f"S3_BUCKET={bucket}",
+            "-e",
+            f"AWS_ACCESS_KEY_ID={access_key}",
+            "-e",
+            f"AWS_SECRET_ACCESS_KEY={secret_key}",
+            "backend",
+            python_path,
+            "/tmp/_wait_for_s3.py",
+        )
 
-    compose("cp", "tests/_create_bucket.py", "backend:/tmp")
-    compose.exec("backend", "bench", "pip", "install", "boto3~=1.34.143")
-    compose.exec(
-        "-e",
-        f"S3_ACCESS_KEY={access_key}",
-        "-e",
-        f"S3_SECRET_KEY={secret_key}",
-        "backend",
-        python_path,
-        "/tmp/_create_bucket.py",
-    )
-
-    yield S3ServiceResult(access_key=access_key, secret_key=secret_key)
-    subprocess.call(("docker", "rm", "minio", "-f"))
+        yield S3ServiceResult(
+            endpoint_url=endpoint_url,
+            bucket=bucket,
+            access_key=access_key,
+            secret_key=secret_key,
+        )
+    finally:
+        subprocess.call(("docker", "logs", "--tail", "100", container_name))
+        subprocess.call(("docker", "rm", "-fv", container_name))

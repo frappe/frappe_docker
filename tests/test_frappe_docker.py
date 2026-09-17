@@ -129,7 +129,7 @@ def test_push_backup(
     restic_password = "secret"
     compose.bench("--site", frappe_site, "backup", "--with-files")
     restic_args = [
-        "--env=RESTIC_REPOSITORY=s3:http://minio:9000/frappe",
+        f"--env=RESTIC_REPOSITORY=s3:{s3_service.endpoint_url}/{s3_service.bucket}",
         f"--env=AWS_ACCESS_KEY_ID={s3_service.access_key}",
         f"--env=AWS_SECRET_ACCESS_KEY={s3_service.secret_key}",
         f"--env=RESTIC_PASSWORD={restic_password}",
@@ -137,6 +137,7 @@ def test_push_backup(
     compose.exec(*restic_args, "backend", "restic", "init")
     compose.exec(*restic_args, "backend", "restic", "backup", "sites")
     compose.exec(*restic_args, "backend", "restic", "snapshots")
+    compose.exec(*restic_args, "backend", "restic", "check", "--read-data")
 
 
 def test_https(frappe_site: str, compose: Compose):
