@@ -2,7 +2,7 @@ services:
   frontend:
     environment:
       VIRTUAL_HOST: ${NGINX_PROXY_HOSTS:?No NGINX_PROXY_HOSTS set}
-      VIRTUAL_PORT: 8080
+      VIRTUAL_PORT: ${NGINX_LISTEN_PORT:-8080}
 
   nginx-proxy:
     image: nginxproxy/nginx-proxy:1.11.6-alpine

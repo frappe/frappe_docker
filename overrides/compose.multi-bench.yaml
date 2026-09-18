@@ -6,7 +6,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public
-      - traefik.http.services.${ROUTER?ROUTER not set}.loadbalancer.server.port=8080
+      - traefik.http.services.${ROUTER?ROUTER not set}.loadbalancer.server.port=${NGINX_LISTEN_PORT:-8080}
       - traefik.http.routers.${ROUTER}-http.service=${ROUTER}
       - traefik.http.routers.${ROUTER}-http.entrypoints=http
       - traefik.http.routers.${ROUTER}-http.rule=${SITES_RULE?SITES_RULE not set}
