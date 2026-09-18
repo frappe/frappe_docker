@@ -170,6 +170,7 @@ If your site is named `example.com` and you access it via that domain, no need t
 
 | Variable               | Purpose                            | Default        | Allowed Values                               |
 | ---------------------- | ---------------------------------- | -------------- | -------------------------------------------- |
+| `NGINX_LISTEN_PORT`    | Sets the `listen` directive        | `8080`         | `{port}`                                     |
 | `BACKEND`              | Backend service address and port   | `0.0.0.0:8000` | `{host}:{port}`                              |
 | `SOCKETIO`             | Socket.IO service address and port | `0.0.0.0:9000` | `{host}:{port}`                              |
 | `PROXY_READ_TIMEOUT`   | Upstream request timeout           | `120s`         | Any nginx timeout value (e.g., `300s`, `5m`) |
