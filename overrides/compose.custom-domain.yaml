@@ -5,7 +5,7 @@ services:
       - caddy
       - reverse-proxy
       - --to
-      - frontend:8080
+      - frontend:${NGINX_LISTEN_PORT:-8080}
       - --from
       - :2016
     labels:
