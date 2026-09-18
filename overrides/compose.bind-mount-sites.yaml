@@ -1,0 +1,15 @@
+# Bind mount the `sites` volume to a host directory instead of letting Docker manage it.
+#
+# NOTE:
+# - `SITES_DATA_LOCATION` (required): absolute path to the host directory to bind mount.
+# - The directory must exist before running `docker compose up -d`, otherwise Docker fails
+#   when populating the volume.
+# - The directory must be writable by the `frappe` user of the image (uid/gid 1000):
+#   `chown -R 1000:1000 <path>`.
+volumes:
+  sites:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SITES_DATA_LOCATION:?SITES_DATA_LOCATION must be set to an existing absolute host path}
