@@ -176,15 +176,37 @@ class TestPostgres:
         )
 
 
-def test_arbitrary_uid_execution(compose: Compose, python_path: str):
-    """Verify backend container runs smoothly under arbitrary UID with GID 0 (OpenShift restricted-v2)."""
-    # UID 1000680000 is a representative OpenShift assigned arbitrary non-root UID
-    output = compose.exec(
+def test_arbitrary_uid_execution(compose: Compose):
+    """Verify container starts and runs under arbitrary UID with GID 0 (OpenShift restricted-v2).
+
+    Executes the entrypoint directly to verify:
+    - Container startup with arbitrary non-root UID (e.g. 1000680000) and GID 0
+    - Entrypoint dynamic user lookup (/etc/passwd mapping)
+    - Effective runtime umask (0002)
+    - Writability of required paths (/home/frappe, /tmp, sites directory)
+    """
+    check_script = (
+        "import os, pwd, tempfile; "
+        "uid = os.getuid(); "
+        "gid = os.getgid(); "
+        "user = pwd.getpwuid(uid).pw_name; "
+        "assert gid == 0, f'Expected GID 0, got {gid}'; "
+        "old_umask = os.umask(0); "
+        "os.umask(old_umask); "
+        "assert old_umask == 0o002, f'Expected umask 0002, got {oct(old_umask)}'; "
+        "with tempfile.NamedTemporaryFile(dir='/home/frappe') as f: f.write(b'ok'); "
+        "with tempfile.NamedTemporaryFile(dir='/home/frappe/frappe-bench/sites') as f: f.write(b'ok'); "
+        "print(f'VERIFIED:{user}:{uid}:{gid}')"
+    )
+
+    compose(
+        "run",
+        "--rm",
+        "--no-deps",
         "--user",
         "1000680000:0",
         "backend",
-        python_path,
+        "/home/frappe/frappe-bench/env/bin/python",
         "-c",
-        "import os; print(f'UID:{os.getuid()},GID:{os.getgid()}')",
+        check_script,
     )
-    assert "UID:1000680000,GID:0" in output

@@ -11,6 +11,9 @@ variable PYTHON_VERSION {
 variable NODE_VERSION {
     default = "24"
 }
+variable DEBIAN_BASE {
+    default = "trixie"
+}
 
 variable "FRAPPE_VERSION" {
     default = "develop"
@@ -42,10 +45,6 @@ target "bench" {
     args = {
         GIT_REPO = "${BENCH_REPO}"
     }
-    attest = [
-        "type=sbom",
-        "type=provenance,mode=max"
-    ]
     labels = {
         "org.opencontainers.image.source" = "https://github.com/frappe/frappe_docker"
         "org.opencontainers.image.url" = "https://github.com/frappe/frappe_docker"
@@ -97,11 +96,8 @@ target "default-args" {
         ERPNEXT_BRANCH = "${ERPNEXT_VERSION}"
         PYTHON_VERSION = "${PYTHON_VERSION}"
         NODE_VERSION = "${NODE_VERSION}"
+        DEBIAN_BASE = "${DEBIAN_BASE}"
     }
-    attest = [
-        "type=sbom",
-        "type=provenance,mode=max"
-    ]
     labels = {
         "org.opencontainers.image.source" = "https://github.com/frappe/frappe_docker"
         "org.opencontainers.image.url" = "https://github.com/frappe/frappe_docker"

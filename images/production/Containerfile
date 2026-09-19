@@ -57,7 +57,7 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
     && downloaded_file=wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_DISTRO}_${ARCH}.deb \
     && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
-    && apt-get install -y ./$downloaded_file \
+    && apt-get install --no-install-recommends -y ./$downloaded_file \
     && rm $downloaded_file \
     # Chromium \
     && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
