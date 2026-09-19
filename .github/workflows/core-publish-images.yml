@@ -23,6 +23,11 @@ on:
         required: true
         type: string
         description: NodeJS Version
+      debian_base:
+        required: false
+        type: string
+        default: trixie
+        description: Debian Base Distribution
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -62,6 +67,7 @@ jobs:
         run: |
           echo "PYTHON_VERSION=${{ inputs.python_version }}" >> "$GITHUB_ENV"
           echo "NODE_VERSION=${{ inputs.node_version }}" >> "$GITHUB_ENV"
+          echo "DEBIAN_BASE=${{ inputs.debian_base }}" >> "$GITHUB_ENV"
 
       - name: Login to Docker Hub
         uses: docker/login-action@v4.6.0
@@ -73,7 +79,10 @@ jobs:
         uses: docker/bake-action@v7.3.0
         with:
           push: true
-          set: "*.platform=linux/amd64,linux/arm64"
+          set: |
+            *.platform=linux/amd64,linux/arm64
+            *.attest=type=sbom
+            *.attest=type=provenance,mode=max
 
       - name: Login to GHCR
         uses: docker/login-action@v4.6.0
@@ -87,6 +96,9 @@ jobs:
         with:
           targets: base-images
           push: true
-          set: "*.platform=linux/amd64,linux/arm64"
+          set: |
+            *.platform=linux/amd64,linux/arm64
+            *.attest=type=sbom
+            *.attest=type=provenance,mode=max
         env:
           REGISTRY_USER: ghcr.io/${{ github.repository_owner }}

@@ -4,8 +4,8 @@
 # - `SITES_DATA_LOCATION` (required): absolute path to the host directory to bind mount.
 # - The directory must exist before running `docker compose up -d`, otherwise Docker fails
 #   when populating the volume.
-# - The directory must be writable by the `frappe` user of the image (uid/gid 1000):
-#   `chown -R 1000:1000 <path>`.
+# - The directory must be writable by the `frappe` user of the image (uid 1000, gid 0):
+#   `chown -R 1000:0 <path> && chmod -R 775 <path>`.
 volumes:
   sites:
     driver: local
