@@ -186,17 +186,21 @@ def test_arbitrary_uid_execution(compose: Compose):
     - Writability of required paths (/home/frappe, /tmp, sites directory)
     """
     check_script = (
-        "import os, pwd, tempfile; "
-        "uid = os.getuid(); "
-        "gid = os.getgid(); "
-        "user = pwd.getpwuid(uid).pw_name; "
-        "assert gid == 0, f'Expected GID 0, got {gid}'; "
-        "old_umask = os.umask(0); "
-        "os.umask(old_umask); "
-        "assert old_umask == 0o002, f'Expected umask 0002, got {oct(old_umask)}'; "
-        "with tempfile.NamedTemporaryFile(dir='/home/frappe') as f: f.write(b'ok'); "
-        "with tempfile.NamedTemporaryFile(dir='/home/frappe/frappe-bench/sites') as f: f.write(b'ok'); "
-        "print(f'VERIFIED:{user}:{uid}:{gid}')"
+        "import os\n"
+        "import pwd\n"
+        "import tempfile\n"
+        "uid = os.getuid()\n"
+        "gid = os.getgid()\n"
+        "user = pwd.getpwuid(uid).pw_name\n"
+        "assert gid == 0, f'Expected GID 0, got {gid}'\n"
+        "old_umask = os.umask(0)\n"
+        "os.umask(old_umask)\n"
+        "assert old_umask == 0o002, f'Expected umask 0002, got {oct(old_umask)}'\n"
+        "with tempfile.NamedTemporaryFile(dir='/home/frappe') as f:\n"
+        "    f.write(b'ok')\n"
+        "with tempfile.NamedTemporaryFile(dir='/home/frappe/frappe-bench/sites') as f:\n"
+        "    f.write(b'ok')\n"
+        "print(f'VERIFIED:{user}:{uid}:{gid}')\n"
     )
 
     compose(

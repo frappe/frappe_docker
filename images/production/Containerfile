@@ -14,6 +14,7 @@ ENV PATH=${NVM_DIR}/current/bin/:${PATH}
 RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
+    ca-certificates \
     curl \
     git \
     vim \
