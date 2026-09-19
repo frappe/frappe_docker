@@ -174,3 +174,17 @@ class TestPostgres:
             "--admin-password",
             "admin",
         )
+
+
+def test_arbitrary_uid_execution(compose: Compose, python_path: str):
+    """Verify backend container runs smoothly under arbitrary UID with GID 0 (OpenShift restricted-v2)."""
+    # UID 1000680000 is a representative OpenShift assigned arbitrary non-root UID
+    output = compose.exec(
+        "--user",
+        "1000680000:0",
+        "backend",
+        python_path,
+        "-c",
+        "import os; print(f'UID:{os.getuid()},GID:{os.getgid()}')",
+    )
+    assert "UID:1000680000,GID:0" in output

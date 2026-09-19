@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+umask 0002
+
+if ! whoami &>/dev/null; then
+  if [ -w /etc/passwd ]; then
+    echo "frappe:x:$(id -u):0:frappe user:${HOME:-/home/frappe}:/bin/bash" >>/etc/passwd
+  fi
+fi
+
 ASSETS_PATH="/home/frappe/frappe-bench/sites/assets"
 BAKED_PATH="/home/frappe/frappe-bench/assets"
 

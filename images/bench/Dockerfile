@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS bench
+FROM debian:trixie-slim AS bench
 
 LABEL author=frappé
 
@@ -46,7 +46,7 @@ RUN apt-get update \
     libldap2-dev \
     libmariadb-dev \
     libsasl2-dev \
-    libtiff5-dev \
+    libtiff-dev \
     libwebp-dev \
     pkg-config \
     redis-tools \

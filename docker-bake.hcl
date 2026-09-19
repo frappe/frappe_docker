@@ -42,6 +42,14 @@ target "bench" {
     args = {
         GIT_REPO = "${BENCH_REPO}"
     }
+    attest = [
+        "type=sbom",
+        "type=provenance,mode=max"
+    ]
+    labels = {
+        "org.opencontainers.image.source" = "https://github.com/frappe/frappe_docker"
+        "org.opencontainers.image.url" = "https://github.com/frappe/frappe_docker"
+    }
     context = "images/bench"
     target = "bench"
     tags = [
@@ -89,6 +97,14 @@ target "default-args" {
         ERPNEXT_BRANCH = "${ERPNEXT_VERSION}"
         PYTHON_VERSION = "${PYTHON_VERSION}"
         NODE_VERSION = "${NODE_VERSION}"
+    }
+    attest = [
+        "type=sbom",
+        "type=provenance,mode=max"
+    ]
+    labels = {
+        "org.opencontainers.image.source" = "https://github.com/frappe/frappe_docker"
+        "org.opencontainers.image.url" = "https://github.com/frappe/frappe_docker"
     }
 }
 
