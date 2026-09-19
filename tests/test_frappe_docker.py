@@ -177,13 +177,14 @@ class TestPostgres:
 
 
 def test_arbitrary_uid_execution(compose: Compose):
-    """Verify container starts and runs under arbitrary UID with GID 0 (OpenShift restricted-v2).
+    """Verify backend and frontend containers start and run under arbitrary UID with GID 0 (OpenShift restricted-v2).
 
-    Executes the entrypoint directly to verify:
-    - Container startup with arbitrary non-root UID (e.g. 1000680000) and GID 0
+    Executes the entrypoints directly to verify:
+    - Container startup with arbitrary non-root UID (1000680000) and GID 0
     - Entrypoint dynamic user lookup (/etc/passwd mapping)
     - Effective runtime umask (0002)
     - Writability of required paths (/home/frappe, /tmp, sites directory)
+    - Frontend nginx configuration test and startup under arbitrary UID
     """
     check_script = (
         "import os\n"
@@ -191,11 +192,18 @@ def test_arbitrary_uid_execution(compose: Compose):
         "import tempfile\n"
         "uid = os.getuid()\n"
         "gid = os.getgid()\n"
-        "user = pwd.getpwuid(uid).pw_name\n"
+        "assert uid == 1000680000, f'Expected UID 1000680000, got {uid}'\n"
         "assert gid == 0, f'Expected GID 0, got {gid}'\n"
+        "user = pwd.getpwuid(uid).pw_name\n"
+        "assert user == 'default', f'Expected username default, got {user}'\n"
+        "with open('/etc/passwd') as f:\n"
+        "    frappe_lines = [line for line in f if line.startswith('frappe:')]\n"
+        "assert len(frappe_lines) == 1, f'Expected exactly 1 frappe user, found {len(frappe_lines)}'\n"
         "old_umask = os.umask(0)\n"
         "os.umask(old_umask)\n"
         "assert old_umask == 0o002, f'Expected umask 0002, got {oct(old_umask)}'\n"
+        "with tempfile.NamedTemporaryFile(dir='/tmp') as f:\n"
+        "    f.write(b'ok')\n"
         "with tempfile.NamedTemporaryFile(dir='/home/frappe') as f:\n"
         "    f.write(b'ok')\n"
         "with tempfile.NamedTemporaryFile(dir='/home/frappe/frappe-bench/sites') as f:\n"
@@ -213,4 +221,15 @@ def test_arbitrary_uid_execution(compose: Compose):
         "/home/frappe/frappe-bench/env/bin/python",
         "-c",
         check_script,
+    )
+
+    compose(
+        "run",
+        "--rm",
+        "--no-deps",
+        "--user",
+        "1000680000:0",
+        "frontend",
+        "nginx",
+        "-t",
     )

@@ -5,7 +5,11 @@ umask 0002
 
 if ! whoami &>/dev/null; then
   if [ -w /etc/passwd ]; then
-    echo "frappe:x:$(id -u):0:frappe user:${HOME:-/home/frappe}:/bin/bash" >>/etc/passwd
+    user_name="default"
+    if grep -q "^${user_name}:" /etc/passwd; then
+      user_name="default_$(id -u)"
+    fi
+    echo "${user_name}:x:$(id -u):0:${user_name} user:${HOME:-/home/frappe}:/bin/bash" >>/etc/passwd
   fi
 fi
 

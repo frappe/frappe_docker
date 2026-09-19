@@ -25,26 +25,26 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     nginx \
     gettext-base \
     file \
-    # weasyprint dependencies \
+    # weasyprint dependencies
     libpango-1.0-0 \
     libharfbuzz0b \
     libpangoft2-1.0-0 \
     libpangocairo-1.0-0 \
-    # For backups \
+    # For backups
     restic \
     gpg \
-    # MariaDB \
+    # MariaDB
     mariadb-client \
     less \
-    # Postgres \
+    # Postgres
     libpq-dev \
     postgresql-client \
-    # For healthcheck \
+    # For healthcheck
     wait-for-it \
     jq \
-    # For MIME type detection \
+    # For MIME type detection
     media-types \
-    # NodeJS \
+    # NodeJS
     && mkdir -p ${NVM_DIR} \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash \
     && . ${NVM_DIR}/nvm.sh \
@@ -57,28 +57,28 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     && echo 'export NVM_DIR="/home/frappe/.nvm"' >>/home/frappe/.bashrc \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >>/home/frappe/.bashrc \
     && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >>/home/frappe/.bashrc \
-    # Install wkhtmltopdf with patched qt \
+    # Install wkhtmltopdf with patched qt
     && if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
     && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
     && downloaded_file=wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_DISTRO}_${ARCH}.deb \
     && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
     && apt-get install -y ./$downloaded_file \
     && rm $downloaded_file \
-    # Chromium \
+    # Chromium
     && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         chromium-headless-shell; \
     fi \
-    # Clean up \
+    # Clean up
     && rm -rf /var/lib/apt/lists/* \
     && rm -fr /etc/nginx/sites-enabled/default \
     && mkdir -p /etc/nginx/snippets \
     && pip3 install frappe-bench \
-    # Fixes for non-root nginx and logs to stdout \
+    # Fixes for non-root nginx and logs to stdout
     && sed -i '/user www-data/d' /etc/nginx/nginx.conf \
     && ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log \
     && touch /run/nginx.pid \
-    # OpenShift and arbitrary UID compatibility (GID 0 & group writable) \
+    # OpenShift and arbitrary UID compatibility (GID 0 & group writable)
     && chgrp -R 0 /home/frappe /etc/nginx /var/log/nginx /var/lib/nginx /run \
     && chmod -R g=u /home/frappe /etc/nginx /var/log/nginx /var/lib/nginx /run \
     && chmod g+w /etc/passwd \
