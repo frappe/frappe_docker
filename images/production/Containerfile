@@ -76,8 +76,7 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     && touch /run/nginx.pid \
     # OpenShift and arbitrary UID compatibility (GID 0 & group writable)
     && chgrp -R 0 /home/frappe /etc/nginx /var/log/nginx /var/lib/nginx /run \
-    && chmod -R g=u /home/frappe /etc/nginx /var/log/nginx /var/lib/nginx /run \
-    && chmod g+w /etc/passwd
+    && chmod -R g=u /home/frappe /etc/nginx /var/log/nginx /var/lib/nginx /run
 
 COPY resources/core/nginx/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/core/nginx/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh

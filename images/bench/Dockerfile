@@ -1,4 +1,5 @@
-FROM debian:trixie-slim AS bench
+ARG DEBIAN_BASE=trixie
+FROM debian:${DEBIAN_BASE}-slim AS bench
 
 LABEL author=frappé
 
@@ -76,14 +77,14 @@ RUN apt-get update \
     file \
     # For MIME type detection
     media-types \
-    # Install wkhtmltopdf with patched qt \
+    # Install wkhtmltopdf with patched qt
     && if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
     && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
     && downloaded_file=wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_DISTRO}_${ARCH}.deb \
     && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
     && apt-get install --no-install-recommends -y ./$downloaded_file \
     && rm $downloaded_file \
-    # Chromium \
+    # Chromium
     && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         chromium-headless-shell; \

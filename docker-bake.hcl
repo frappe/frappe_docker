@@ -44,6 +44,7 @@ variable "LATEST_BENCH_RELEASE" {
 target "bench" {
     args = {
         GIT_REPO = "${BENCH_REPO}"
+        DEBIAN_BASE = "${DEBIAN_BASE}"
     }
     labels = {
         "org.opencontainers.image.source" = "https://github.com/frappe/frappe_docker"
