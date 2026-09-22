@@ -18,7 +18,7 @@ services:
       # Enable HTTP Basic auth, using the middleware created above
       - traefik.http.routers.traefik-public-http.middlewares=admin-auth
       # Define the port inside of the Docker service to use
-      - traefik.http.services.traefik-public.loadbalancer.server.port=8080
+      - traefik.http.services.traefik-public.loadbalancer.server.port=${NGINX_LISTEN_PORT:-8080}
     command:
       # Enable Docker in Traefik, so that it reads labels from Docker services
       - --providers.docker=true

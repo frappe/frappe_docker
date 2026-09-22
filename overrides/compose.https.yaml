@@ -2,7 +2,7 @@ services:
   frontend:
     labels:
       - traefik.enable=true
-      - traefik.http.services.frontend.loadbalancer.server.port=8080
+      - traefik.http.services.frontend.loadbalancer.server.port=${NGINX_LISTEN_PORT:-8080}
       - traefik.http.routers.frontend-http.entrypoints=websecure
       - traefik.http.routers.frontend-http.tls.certresolver=main-resolver
       - traefik.http.routers.frontend-http.rule=${SITES_RULE:?SITES_RULE not set}
