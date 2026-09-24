@@ -19,6 +19,11 @@ on:
         required: true
         type: string
         description: NodeJS Version
+      debian_base:
+        required: false
+        type: string
+        default: trixie
+        description: Debian Base Distribution
     outputs:
       frappe_version:
         description: "Resolved frappe image tag"
@@ -86,6 +91,7 @@ jobs:
         run: |
           echo "PYTHON_VERSION=${{ inputs.python_version }}" >> "$GITHUB_ENV"
           echo "NODE_VERSION=${{ inputs.node_version }}" >> "$GITHUB_ENV"
+          echo "DEBIAN_BASE=${{ inputs.debian_base }}" >> "$GITHUB_ENV"
 
       - name: Build
         uses: docker/bake-action@v7.4.0

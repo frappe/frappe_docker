@@ -174,3 +174,59 @@ class TestPostgres:
             "--admin-password",
             "admin",
         )
+
+
+def test_arbitrary_uid_execution(compose: Compose):
+    """Verify backend and frontend containers start and run under arbitrary UID with GID 0 (OpenShift restricted-v2).
+
+    Executes the entrypoints directly to verify:
+    - Container startup with arbitrary non-root UID (1000680000) and GID 0
+    - Effective runtime umask (0002)
+    - Writability of required paths (/home/frappe, /tmp, sites directory)
+    - Frontend nginx configuration test under arbitrary UID
+    """
+    check_script = (
+        "import os\n"
+        "import tempfile\n"
+        "uid = os.getuid()\n"
+        "gid = os.getgid()\n"
+        "assert uid == 1000680000, f'Expected UID 1000680000, got {uid}'\n"
+        "assert gid == 0, f'Expected GID 0, got {gid}'\n"
+        "with open('/etc/passwd') as f:\n"
+        "    frappe_lines = [line for line in f if line.startswith('frappe:')]\n"
+        "assert len(frappe_lines) == 1, f'Expected exactly 1 frappe user, found {len(frappe_lines)}'\n"
+        "assert not os.access('/etc/passwd', os.W_OK), '/etc/passwd must not be writable'\n"
+        "old_umask = os.umask(0)\n"
+        "os.umask(old_umask)\n"
+        "assert old_umask == 0o002, f'Expected umask 0002, got {oct(old_umask)}'\n"
+        "with tempfile.NamedTemporaryFile(dir='/tmp') as f:\n"
+        "    f.write(b'ok')\n"
+        "with tempfile.NamedTemporaryFile(dir='/home/frappe') as f:\n"
+        "    f.write(b'ok')\n"
+        "with tempfile.NamedTemporaryFile(dir='/home/frappe/frappe-bench/sites') as f:\n"
+        "    f.write(b'ok')\n"
+        "print(f'VERIFIED:{uid}:{gid}')\n"
+    )
+
+    compose(
+        "run",
+        "--rm",
+        "--no-deps",
+        "--user",
+        "1000680000:0",
+        "backend",
+        "/home/frappe/frappe-bench/env/bin/python",
+        "-c",
+        check_script,
+    )
+
+    compose(
+        "run",
+        "--rm",
+        "--no-deps",
+        "--user",
+        "1000680000:0",
+        "frontend",
+        "nginx",
+        "-t",
+    )
