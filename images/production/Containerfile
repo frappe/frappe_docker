@@ -15,6 +15,7 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
     ca-certificates \
+    tzdata-legacy \
     curl \
     git \
     vim \
