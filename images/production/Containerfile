@@ -15,7 +15,6 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
     ca-certificates \
-    tzdata-legacy \
     curl \
     git \
     vim \
@@ -41,6 +40,10 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     jq \
     # For MIME type detection
     media-types \
+    && . /etc/os-release \
+    && if [ "$VERSION_CODENAME" = "trixie" ]; then \
+        apt-get install --no-install-recommends -y tzdata-legacy; \
+    fi \
     # NodeJS
     && mkdir -p ${NVM_DIR} \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash \

@@ -13,7 +13,6 @@ RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     # For frappe framework
     ca-certificates \
-    tzdata-legacy \
     git \
     mariadb-client \
     postgresql-client \
@@ -78,6 +77,10 @@ RUN apt-get update \
     file \
     # For MIME type detection
     media-types \
+    && . /etc/os-release \
+    && if [ "$VERSION_CODENAME" = "trixie" ]; then \
+        apt-get install --no-install-recommends -y tzdata-legacy; \
+    fi \
     # Install wkhtmltopdf with patched qt
     && if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
     && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
