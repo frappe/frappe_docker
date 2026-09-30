@@ -4,7 +4,9 @@ title: Contribute to the Documentation
 
 # Contribute to the documentation
 
-Edit the Markdown files in `docs/` to update the documentation. Include documentation changes in feature and fix PRs when they affect how people use the project; documentation-only improvements are also welcome. You can use a text editor or GitHub's file editor. You do not need JavaScript knowledge or a local VitePress, Node.js, or pnpm installation to edit Markdown. CI builds the documentation for PRs that change `docs/`.
+The documentation lives in Markdown files in `docs/`. The same files are also published as a website using VitePress. To update the documentation, edit the Markdown files; you do not need JavaScript or VitePress knowledge or a local website setup. CI builds the website from PRs that change `docs/` to check that the documentation builds correctly.
+
+Include documentation changes in feature and fix PRs when they affect how people use the project; documentation-only improvements are also welcome.
 
 ## Choose the right page
 
@@ -35,10 +37,10 @@ Keep the page focused on that purpose and link to related material instead of re
 
 ## Check the documentation
 
-Review the Markdown preview in your editor or on GitHub. Check heading levels, code fences, tables, links, and images. Verify affected commands where practical and explain any validation limits in the PR.
+Review the Markdown preview in your editor or on GitHub. Check heading levels, code fences, tables, links, and images.
 
 Follow the repository's existing [pre-commit requirements](https://github.com/frappe/frappe_docker/blob/main/CONTRIBUTING.md#lint) and [commit conventions](https://github.com/frappe/frappe_docker/blob/main/CONTRIBUTING.md#commit-message-convention). Documentation changes accompanying a feature or fix belong with that change; they do not require a separate documentation branch or PR.
 
-The PR must pass the lint and documentation build checks. CI builds the site and reports errors such as broken page links or invalid Markdown syntax. If a check fails, read its log, correct the affected source, and push the fix. CI does not verify the accuracy of commands or every heading fragment, so review those yourself.
+The PR must pass the lint and documentation build checks. CI builds the site and reports errors such as broken page links or invalid Markdown syntax. If a check fails, read its log, correct the affected source, and push the fix. CI does not verify every heading fragment, so check those yourself.
 
 Maintainers working on site configuration can use the specialist [Configuring VitePress](../08-reference/02-configuring-vitepress.md) guide.
