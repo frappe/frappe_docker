@@ -15,6 +15,15 @@ ENV NVM_DIR=/home/frappe/.nvm
 ENV NVM_SYMLINK_CURRENT=true
 ENV PATH=${NVM_DIR}/current/bin/:${PATH}
 
+# pnpm is provided through Corepack. Left unpinned, Corepack resolves the
+# newest pnpm (12.x at the time of writing), whose build-script policy breaks
+# `pnpm install` in Frappe apps that expect pnpm 10 (e.g. frappe/drive).
+# Pin the major those apps target and share the Corepack cache with the
+# frappe user so the pin applies in every stage.
+ARG PNPM_VERSION=10.34.5
+ENV COREPACK_HOME=/usr/local/share/corepack
+ENV COREPACK_DEFAULT_TO_LATEST=0
+
 RUN useradd -ms /bin/bash frappe \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -51,6 +60,7 @@ RUN useradd -ms /bin/bash frappe \
     && nvm use ${NODE_VERSION} \
     && npm install -g yarn \
     && corepack enable pnpm \
+    && corepack install -g pnpm@${PNPM_VERSION} \
     && nvm alias default ${NODE_VERSION} \
     && rm -rf ${NVM_DIR}/.cache \
     && echo 'export NVM_DIR="/home/frappe/.nvm"' >>/home/frappe/.bashrc \
