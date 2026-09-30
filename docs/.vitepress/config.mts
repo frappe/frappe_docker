@@ -26,6 +26,14 @@ const vitePressSidebarOptions = {
   documentRootPath: ".",
   useTitleFromFrontmatter: true,
   useFolderTitleFromIndexFile: true,
+  useFolderLinkFromIndexFile: true,
+  // Keep the new categories first while existing topic folders are migrated.
+  manualSortFileNameByPriority: [
+    "tutorials",
+    "how-to",
+    "reference",
+    "explanation",
+  ],
 };
 
 export default withMermaid(
