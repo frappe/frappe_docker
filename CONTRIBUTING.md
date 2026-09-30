@@ -1,6 +1,6 @@
 # Contribution Guidelines
 
-Before publishing a PR, run the checks relevant to your change. Test Docker builds locally when changing images or container behavior; for documentation changes, follow the [documentation validation steps](docs/how-to/contribute-documentation.md#validate-the-change).
+Before publishing a PR, run the checks relevant to your change. Test Docker builds locally when changing images or container behavior; for documentation changes, follow the [documentation contribution guide](docs/11-how-to/01-contribute-documentation.md#check-the-documentation).
 
 On each PR that contains changes relevant to Docker builds, images are being built and tested in our CI (GitHub Actions).
 
@@ -106,33 +106,22 @@ A detailed form management guidelines are available in the [Fork Management](./d
 
 ## Documentation
 
-Documentation lives in `docs/` and is published with VitePress from the same Markdown files. Follow [Diataxis](https://diataxis.fr/start-here/) to choose a page's purpose. The repository uses these four categories, in this order, following the discussion in [issue #1843](https://github.com/frappe/frappe_docker/issues/1843):
+Documentation lives in `docs/` and is published with VitePress from the same Markdown files. Follow [Diataxis](https://diataxis.fr/start-here/) to choose a page's purpose. The repository uses these four categories, in this order:
 
-| Category      | Reader need                                                | Location for new or migrated pages |
-| ------------- | ---------------------------------------------------------- | ---------------------------------- |
-| Tutorials     | Learn by completing a guided exercise with a clear outcome | `docs/tutorials/`                  |
-| How-to Guides | Accomplish a specific task using existing knowledge        | `docs/how-to/`                     |
-| Reference     | Look up precise facts, settings, interfaces, or defaults   | `docs/reference/`                  |
-| Explanation   | Understand concepts, relationships, and design choices     | `docs/explanation/`                |
+| Category      | Reader need                                                | Location               |
+| ------------- | ---------------------------------------------------------- | ---------------------- |
+| Tutorials     | Learn by completing a guided exercise with a clear outcome | `docs/10-tutorials/`   |
+| How-to Guides | Accomplish a specific task using existing knowledge        | `docs/11-how-to/`      |
+| Reference     | Look up precise facts, settings, interfaces, or defaults   | `docs/12-reference/`   |
+| Explanation   | Understand concepts, relationships, and design choices     | `docs/13-explanation/` |
 
 ### Placement rules
 
 - Choose the category by the reader's purpose, not just the topic or audience. Debugger setup and documentation contribution procedures are how-to guides; option tables are reference; architecture and tradeoffs are explanation.
 - Keep one primary purpose per page. When a page mixes substantial instructions, reference tables, and background, split it into focused pages and link between them. A setup example is only a tutorial if it is designed as a guided learning exercise.
-- Use descriptive, unnumbered kebab-case filenames for new and migrated pages. Keep the four-category order in navigation configuration rather than filename prefixes.
-- Keep `README.md` as repository orientation and `CONTRIBUTING.md` as the contribution entry point and policy. Category indexes provide navigation; `docs/images/`, `docs/public/`, and `docs/.vitepress/` support the documentation rather than forming additional content categories.
+- Use descriptive kebab-case names with numeric prefixes, following the existing folders and files. The sidebar uses these prefixes to order pages and categories.
 
-### Incremental migration
-
-Apply these rules to new pages. Existing numbered topic folders and mixed pages remain usable during migration; a focused correction does not require relocating the whole page.
-
-Migrate one coherent topic at a time. Check its content against the current repository, preserve useful information, and consolidate duplicates into a canonical page with links from related pages. Do not treat age alone as evidence that a page is obsolete. Discuss uncertain removals with maintainers before deleting material.
-
-When moving or splitting a page, update its incoming links, heading fragments, category indexes, and any affected navigation in the same change. Old URLs do not need compatibility stubs or redirects. Keep current internal links valid and list the source and destination pages in the PR.
-
-Publish links only to available content. Do not add empty guide placeholders or present unmigrated pages as completed rewrites. Broad content fixes, further relocations, and curated reader journeys can follow in separate contributions. See Diataxis guidance on [working incrementally](https://diataxis.fr/how-to-use-diataxis/).
-
-For Markdown, frontmatter, images, preview, and validation steps, follow [Contribute to the documentation](docs/how-to/contribute-documentation.md). For site configuration, see [Configuring VitePress](docs/08-reference/02-configuring-vitepress.md).
+For Markdown, frontmatter, links, images, and CI requirements, follow [Contribute to the documentation](docs/11-how-to/01-contribute-documentation.md). Update documentation alongside feature and fix PRs whenever behavior changes.
 
 # Frappe and ERPNext updates
 

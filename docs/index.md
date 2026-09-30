@@ -27,13 +27,11 @@ features:
 
 ## Browse the documentation
 
-The documentation is being organized into four categories:
+Browse by the kind of help you need:
 
-- [Tutorials](tutorials/index.md): learn through guided exercises.
-- [How-to Guides](how-to/index.md): complete a specific task.
-- [Reference](reference/index.md): look up technical facts.
-- [Explanation](explanation/index.md): understand concepts and decisions.
+- [Tutorials](10-tutorials/index.md): learn through guided exercises.
+- [How-to Guides](11-how-to/index.md): complete a specific task.
+- [Reference](12-reference/index.md): look up technical facts.
+- [Explanation](13-explanation/index.md): understand concepts and decisions.
 
-The category indexes link to available material. Existing pages remain accessible in the existing topic sections of the sidebar while they are reviewed and migrated incrementally.
-
-See [Contribute to the documentation](how-to/contribute-documentation.md) to help with this work.
+See [Contribute to the documentation](11-how-to/01-contribute-documentation.md) to help with this work.
