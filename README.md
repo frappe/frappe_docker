@@ -56,14 +56,13 @@ frappe_docker/
 
 The full `frappe_docker` documentation is available in [`docs/`](docs/) and published at [frappe.github.io/frappe_docker](https://frappe.github.io/frappe_docker/).
 
-Documentation is organized by purpose: [Tutorials](docs/10-tutorials/index.md), [How-to Guides](docs/11-how-to/index.md), [Reference](docs/12-reference/index.md), and [Explanation](docs/13-explanation/index.md). To help, see the [documentation contribution guide](docs/11-how-to/01-contribute-documentation.md).
+Documentation is gradually being organized into [Tutorials](docs/10-tutorials/index.md), [How-to Guides](docs/11-how-to/index.md), [Reference](docs/12-reference/index.md), and [Explanation](docs/13-explanation/index.md). These indexes link to available material while existing pages remain at their current paths. To help, see the [documentation contribution guide](docs/11-how-to/01-contribute-documentation.md).
 
 ### Recommended entry points:
 
 - **New here:** [Getting Started Guide](docs/getting-started.md)
 - **Choosing a setup:** [Deployment methods](docs/01-getting-started/01-choosing-a-deployment-method.md)
 - **ARM64 notes:** [ARM64](docs/01-getting-started/03-arm64.md)
-- **Container concepts:** [Immutability and persistence](docs/13-explanation/01-container-immutability.md), [bind mounts and volumes](docs/13-explanation/02-bind-mounts-and-volumes.md), and [asset handling](docs/13-explanation/03-asset-handling.md)
 - **Container setup overview:** [Container Setup Overview](docs/02-setup/01-overview.md)
 - **Running in production:** [Production docs](docs/03-production/)
 - **Operating a deployment:** [Operations docs](docs/04-operations/)
