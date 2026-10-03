@@ -49,6 +49,7 @@ jobs:
       version: "15"
       python_version: "3.11"
       node_version: "22"
+      debian_base: "bookworm"
 
   v15_publish:
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
@@ -60,6 +61,7 @@ jobs:
       erpnext_version: ${{ needs.v15_test.outputs.erpnext_version }}
       python_version: "3.11"
       node_version: "22"
+      debian_base: "bookworm"
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

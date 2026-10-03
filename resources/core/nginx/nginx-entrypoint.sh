@@ -1,4 +1,7 @@
 #!/bin/bash
+set -e
+
+umask 0002
 
 # Set variables that do not exist
 if [[ -z "$BACKEND" ]]; then

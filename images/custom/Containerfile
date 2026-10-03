@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION=3.14
-ARG DEBIAN_BASE=bookworm
+ARG DEBIAN_BASE=trixie
 FROM python:${PYTHON_VERSION}-slim-${DEBIAN_BASE} AS base
 
 COPY resources/core/nginx/nginx-template.conf /templates/nginx/frappe.conf.template
@@ -15,9 +15,10 @@ ENV NVM_DIR=/home/frappe/.nvm
 ENV NVM_SYMLINK_CURRENT=true
 ENV PATH=${NVM_DIR}/current/bin/:${PATH}
 
-RUN useradd -ms /bin/bash frappe \
+RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
+    ca-certificates \
     curl \
     git \
     vim \
@@ -43,6 +44,10 @@ RUN useradd -ms /bin/bash frappe \
     jq \
     # For MIME type detection
     media-types \
+    && . /etc/os-release \
+    && if [ "$VERSION_CODENAME" = "trixie" ]; then \
+        apt-get install --no-install-recommends -y tzdata-legacy; \
+    fi \
     # NodeJS
     && mkdir -p ${NVM_DIR} \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash \
@@ -77,12 +82,9 @@ RUN useradd -ms /bin/bash frappe \
     && sed -i '/user www-data/d' /etc/nginx/nginx.conf \
     && ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log \
     && touch /run/nginx.pid \
-    && chown -R frappe:frappe /etc/nginx/conf.d \
-    && chown -R frappe:frappe /etc/nginx/nginx.conf \
-    && chown -R frappe:frappe /etc/nginx/snippets \
-    && chown -R frappe:frappe /var/log/nginx \
-    && chown -R frappe:frappe /var/lib/nginx \
-    && chown -R frappe:frappe /run/nginx.pid \
+    # OpenShift and arbitrary UID compatibility (GID 0 & group writable)
+    && chgrp -R 0 /home/frappe /etc/nginx /var/log/nginx /var/lib/nginx /run \
+    && chmod -R g=u /home/frappe /etc/nginx /var/log/nginx /var/lib/nginx /run \
     && chmod 755 /usr/local/bin/nginx-entrypoint.sh \
     && chmod 644 /templates/nginx/frappe.conf.template
 
@@ -107,7 +109,7 @@ RUN apt-get update \
     libldap2-dev \
     libmariadb-dev \
     libsasl2-dev \
-    libtiff5-dev \
+    libtiff-dev \
     libwebp-dev \
     pkg-config \
     redis-tools \
@@ -126,7 +128,7 @@ ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 ARG CACHE_BUST=""
 
-RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=1000 \
+RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=0 \
   : "${CACHE_BUST}" && \
   export APP_INSTALL_ARGS="" && \
   if [ -f /opt/frappe/apps.json ] && [ -s /opt/frappe/apps.json ]; then \
@@ -148,7 +150,8 @@ FROM base AS backend
 
 USER frappe
 
-COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
+COPY --from=builder --chown=frappe:0 /home/frappe/frappe-bench /home/frappe/frappe-bench
+RUN chmod -R g=u /home/frappe/frappe-bench
 
 WORKDIR /home/frappe/frappe-bench
 

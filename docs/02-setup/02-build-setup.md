@@ -95,11 +95,10 @@ See [Automated Builds and Deployment](../03-production/06-automated-builds-and-d
 | **Dependencies**     |                                                                                                                                   |
 | PYTHON_VERSION       | Python version for the base image                                                                                                 |
 | NODE_VERSION         | Node.js version                                                                                                                   |
+| DEBIAN_BASE          | Debian base version for base, custom, and bench images, defaults to `trixie` (`bookworm` for v15)                                 |
 | WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                                                               |
-| INSTALL_CHROMIUM     | Configure chromium installation, defaults to `true` - needed for Frappe Workbench version >15                                     |
-| **bench only**       |                                                                                                                                   |
-| DEBIAN_BASE          | Debian base version for the bench image, defaults to `bookworm`                                                                   |
 | WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                                                                |
+| INSTALL_CHROMIUM     | Configure chromium installation, defaults to `true` - needed for Frappe Workbench version >15                                     |
 
 # Deploy the stack
 
