@@ -22,12 +22,14 @@ Keep the page focused on that purpose and link to related material instead of re
 ## Write Markdown that works on GitHub and the site
 
 1. Follow the directory's numbered kebab-case naming convention, for example `01-contribute-documentation.md`. The sidebar orders folders and files by name.
-2. Add one main `#` heading and a short sidebar title in YAML [frontmatter](https://vitepress.dev/guide/frontmatter) at the start of the file:
+2. Start the file with YAML [frontmatter](https://vitepress.dev/guide/frontmatter) containing a short sidebar title. After the frontmatter, add one main `#` heading:
 
-   ```yaml
+   ```markdown
    ---
    title: Short Sidebar Title
    ---
+
+   # Main Page Heading
    ```
 
 3. Use `##` and `###` headings to organize sections, backticks for inline code, and fenced code blocks with a language such as `sh` for commands. Keep Markdown compatible with GitHub; use [VitePress Markdown extensions](https://vitepress.dev/guide/markdown) only when they preserve that compatibility.
