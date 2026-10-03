@@ -123,4 +123,4 @@ Detailed instructions are available in [`/docs/02-setup`](../02-setup/01-overvie
 - Each setup serves a **distinct purpose**
 - Development, testing, and production are **separate workflows**
 - Do not expect to evolve a disposable setup into production
-- Apps must be included **at build time**, not installed later ([Docker immutability](02-docker-immutability.md))
+- In production, app code must be included **at build time**; apps already in the image can then be installed onto a site ([Container immutability and persistence](../13-explanation/01-container-immutability.md)).
