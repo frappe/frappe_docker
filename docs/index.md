@@ -24,3 +24,14 @@ features:
   - title: Production Ready
     details: Deploy production applications with ease
 ---
+
+## Browse the documentation
+
+Browse by the kind of help you need:
+
+- [Tutorials](10-tutorials/index.md): learn through guided exercises.
+- [How-to Guides](11-how-to/index.md): complete a specific task.
+- [Reference](12-reference/index.md): look up technical facts.
+- [Explanation](13-explanation/index.md): understand concepts and decisions.
+
+See [Contribute to the documentation](11-how-to/01-contribute-documentation.md) to help with this work.

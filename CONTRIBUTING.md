@@ -1,6 +1,6 @@
 # Contribution Guidelines
 
-Before publishing a PR, please test builds locally.
+Before publishing a PR, run the checks relevant to your change. Test Docker builds locally when changing images or container behavior; for documentation changes, follow the [documentation contribution guide](docs/11-how-to/01-contribute-documentation.md#check-the-documentation).
 
 On each PR that contains changes relevant to Docker builds, images are being built and tested in our CI (GitHub Actions).
 
@@ -8,7 +8,7 @@ On each PR that contains changes relevant to Docker builds, images are being bui
 
 ## Pull Request Process
 
-1. Test builds locally before submitting
+1. Run the relevant local checks before submitting
 2. Follow conventional commit format
 3. Update documentation if needed
 4. Ensure all pre-commit checks pass
@@ -104,31 +104,24 @@ pytest
 
 A detailed form management guidelines are available in the [Fork Management](./docs/08-reference/03-fork-management.md)
 
-# Documentation
+## Documentation
 
-Documentation is written as markdown files, and placed inside the `docs/` directory. There are multiple sub directories under `docs/`, and be sure to place the `.md` file in the relevant sub directory if you are adding a new page.
+Documentation lives in `docs/` and is published with VitePress from the same Markdown files. Follow [Diataxis](https://diataxis.fr/start-here/) to choose a page's purpose. The repository uses these four categories, in this order:
 
-If you want to include any image in the markdown file, place them in the `docs/images/` folder, and add a relative link in the `.md` file. For example if there is a `diagram.png` in the `docs/images/` directory, which has to be shown in a markdown file called `docs/01-getting-started/01-choosing-a-deployment-method.md` the image has to be referenced as,
+| Category      | Reader need                                                | Location               |
+| ------------- | ---------------------------------------------------------- | ---------------------- |
+| Tutorials     | Learn by completing a guided exercise with a clear outcome | `docs/10-tutorials/`   |
+| How-to Guides | Accomplish a specific task using existing knowledge        | `docs/11-how-to/`      |
+| Reference     | Look up precise facts, settings, interfaces, or defaults   | `docs/12-reference/`   |
+| Explanation   | Understand concepts, relationships, and design choices     | `docs/13-explanation/` |
 
-```
-![A diagram](../images/diagram.png)
-```
+### Placement rules
 
-Frappe Docker also have a static site version of the documentation, which is made using the same `.md` files in the `docs/` directory. Build pipeline uses [VitePress](https://vitepress.dev/) as the Static Site builder, which is a JavaScript (TypeScript) static site builder. Note that to contribute to the documentation JavaScript or VitePress knowledge is not needed. Updating the `.md` file is enough.
+- Choose the category by the reader's purpose, not just the topic or audience. Debugger setup and documentation contribution procedures are how-to guides; option tables are reference; architecture and tradeoffs are explanation.
+- Keep one primary purpose per page. When a page mixes substantial instructions, reference tables, and background, split it into focused pages and link between them. A setup example is only a tutorial if it is designed as a guided learning exercise.
+- Use descriptive kebab-case names with numeric prefixes, following the existing folders and files. The sidebar uses these prefixes to order pages and categories.
 
-The only additional content needed that is specific to VitePress, is a ['frontmatter'](https://vitepress.dev/guide/frontmatter#frontmatter). Frontmatter is like the `metadata` or `config` of that specific `.md` file, added at the beginning of the file and enclosed in `---`. For example, the frontmatter can include a friendly title, author, date of publishing, etc. A more detailed overview on what is frontmatter can be found in this [blog](https://www.seancdavis.com/posts/wtf-is-frontmatter/).
-
-In this project only one field is used in the frontmatter. The `title` field. This is used to specify the title of the page shown in the sidebar, which is either same or a simpler and smaller version of the first heading `#` of the page. To add the required frontmatter just add a block at the beginning of the `.md` file as shown below
-
-```yaml
----
-title: <short-title-for-sidebar>
----
-```
-
-In case of any doubt, just refer to any of the existing `.md` file. Also checkout the Markdown section in the VitePress documentation to see some additional features supported by VitePress: [Markdown Extensions](https://vitepress.dev/guide/markdown). Be careful not to break compatibility with what is supported by GitHub markdown. It is recommended to keep the documentation simple.
-
-If you want details on how to configure or update VitePress specific settings and and functionalities, refer this page: [Configuring VitePress](https://github.com/frappe/frappe_docker/blob/main/docs/08-reference/02-configuring-vitepress.md)
+For Markdown, frontmatter, links, images, and CI requirements, follow [Contribute to the documentation](docs/11-how-to/01-contribute-documentation.md). Update documentation alongside feature and fix PRs whenever behavior changes.
 
 # Frappe and ERPNext updates
 

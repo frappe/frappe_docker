@@ -56,6 +56,8 @@ frappe_docker/
 
 The full `frappe_docker` documentation is available in [`docs/`](docs/) and published at [frappe.github.io/frappe_docker](https://frappe.github.io/frappe_docker/).
 
+Documentation is gradually being organized into [Tutorials](docs/10-tutorials/index.md), [How-to Guides](docs/11-how-to/index.md), [Reference](docs/12-reference/index.md), and [Explanation](docs/13-explanation/index.md). These indexes link to available material while existing pages remain at their current paths. To help, see the [documentation contribution guide](docs/11-how-to/01-contribute-documentation.md).
+
 ### Recommended entry points:
 
 - **New here:** [Getting Started Guide](docs/getting-started.md)

@@ -26,6 +26,7 @@ const vitePressSidebarOptions = {
   documentRootPath: ".",
   useTitleFromFrontmatter: true,
   useFolderTitleFromIndexFile: true,
+  useFolderLinkFromIndexFile: true,
 };
 
 export default withMermaid(
