@@ -37,7 +37,7 @@ This is especially relevant because `apps.json` is provided as a secret. Secret 
 
 As a result, Docker may reuse an older cached layer even when the custom app definition has changed.
 
-Changing `FRAPPE_BRANCH` or using an updated base image can also invalidate this layer. Updates to an upstream branch alone do not invalidate a cached `RUN` instruction.
+Changing `FRAPPE_BRANCH` or using an updated builder image can also invalidate this layer. Updates to an upstream branch alone do not invalidate a cached `RUN` instruction.
 
 ### Possible techniques for cache invalidation using `CACHE_BUST`:
 
