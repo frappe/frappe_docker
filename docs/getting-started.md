@@ -336,7 +336,7 @@ docker compose -f pwd.yml exec backend bench --site mysite.com backup --with-fil
 
 ## Docker Concepts: Bind Mounts
 
-See [Bind mounts and volumes](13-explanation/02-bind-mounts-and-volumes.md) for storage choices, Compose examples, persistence, and platform considerations. [Container immutability and persistence](13-explanation/01-container-immutability.md) explains the production boundary between image contents and site data, including [asset handling](13-explanation/03-asset-handling.md).
+See [Bind mounts and volumes](13-explanation/02-bind-mounts-and-volumes.md) for the repository's production storage and development source mounts. [Container immutability and persistence](13-explanation/01-container-immutability.md) explains the production boundary between image contents and site data, including [asset handling](13-explanation/03-asset-handling.md).
 
 ## Fork Management Best Practices
 

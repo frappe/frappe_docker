@@ -48,10 +48,10 @@ At runtime, the layout is:
 | `assets/` symlink target | Supplied by the image                                                                       | Matches the deployed image on container recreation          |
 | `logs/`                  | A named volume when explicitly mounted, otherwise an anonymous volume declared by the image | Depends on the deployment's volume management               |
 
-The symlink is inside persistent storage, but its target is outside that storage. Recreating containers from an updated image changes the assets they serve without replacing site data. See [Bind mounts and volumes](02-bind-mounts-and-volumes.md) for the differences between named and anonymous volumes.
+The symlink is inside persistent storage, but its target is outside that storage. Recreating containers from an updated image changes the assets they serve without replacing site data. See [Bind mounts and volumes](02-bind-mounts-and-volumes.md) for the repository's storage choices.
 
 ## Why runtime asset builds cause problems
 
-Running `bench build` inside a production container changes its local writable layer. Asset files and manifests can become inconsistent, and other services still use their own copies of the image's assets, potentially breaking the UI.
+Built assets are part of the immutable production application layer and must not be rebuilt at runtime. Running `bench build` inside a production container changes its local writable layer. Asset files and manifests can become inconsistent, and other services still use their own copies of the image's assets, potentially breaking the UI.
 
 Recreating the affected containers from the intended image discards those local changes and restores the image's built assets. Restarting a container retains its writable layer and is insufficient. For intentional app changes, [build and deploy a new image](../02-setup/02-build-setup.md) so all application services use matching code and assets. Asset builds remain part of the normal [development workflow](../05-development/01-development.md).

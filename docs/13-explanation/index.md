@@ -4,11 +4,10 @@ title: Explanation
 
 # Explanation
 
-Explanation helps you understand concepts, design choices, and tradeoffs.
+Explanations help you understand why Frappe Docker is designed the way it is and how its parts relate. Use them when you need to reason about a deployment decision or understand behavior that a setup command alone does not explain.
 
-- [Container immutability and persistence](01-container-immutability.md)
-- [Bind mounts and volumes](02-bind-mounts-and-volumes.md)
-- [How assets are handled](03-asset-handling.md)
-- [Choosing a deployment method](../01-getting-started/01-choosing-a-deployment-method.md)
+For example, explanations help answer why production code belongs in an image, which state survives container replacement, and why built assets follow the application version rather than the lifetime of a site's data. They establish the boundaries you need to understand before changing a deployment.
 
-When writing explanation, focus on why things work as they do and how concepts relate. Link to practical instructions where useful. See [Contribute to the documentation](../11-how-to/01-contribute-documentation.md) for writing guidance.
+Browse the articles in this directory on GitHub or in the website sidebar. You can read an explanation independently when its topic is relevant; this category is not a sequence of setup steps.
+
+For a guided learning exercise, use [Tutorials](../10-tutorials/index.md). For steps to complete a specific task, use [How-to Guides](../11-how-to/index.md). For exact settings, options, and defaults, use [Reference](../12-reference/index.md).
