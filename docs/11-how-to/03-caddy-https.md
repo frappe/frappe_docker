@@ -11,6 +11,7 @@ This guide shows how to use Caddy as an external reverse proxy in front of the f
 - Cloned `frappe_docker` repository, with commands run from its root
 - An `.env` file copied from `example.env` (`cp example.env .env`), with `ERPNEXT_VERSION` and `DB_PASSWORD` set for your deployment
 - A directory for the generated Compose file (`mkdir -p ~/gitops`)
+- A Frappe site matching the configured hostname; [create the site](../04-operations/01-site-operations.md#setup-new-site) after the stack starts if it does not exist yet
 - Expose the frontend container on a host port (default 8080)
 - Add a local domain to your hosts file (or use internal DNS)
 - Install Caddy
@@ -44,8 +45,16 @@ erp.localdev.net {
 
 Replace `8080` with your published frontend port if you changed it.
 
+Start Caddy using your installation's service manager. On Linux with the official `caddy` systemd service:
+
+```sh
+sudo systemctl start caddy
+```
+
+If Caddy is already running, apply the Caddyfile changes with `sudo systemctl reload caddy`. For other installations, see [Keep Caddy Running](https://caddyserver.com/docs/running).
+
 ## Step 3: Trust the Caddy root certificate
 
 When using `tls internal`, Caddy issues certificates from its internal CA. Import and trust the Caddy root certificate on any client that needs to access the site.
 
-See also: [TLS/SSL Setup Overview](../03-production/01-tls-ssl-setup.md).
+See also: [TLS/SSL Setup Overview](../13-explanation/04-tls-ssl-approaches.md).

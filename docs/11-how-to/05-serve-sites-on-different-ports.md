@@ -1,14 +1,18 @@
 ---
-title: Multi Tenancy
+title: Serve Sites on Different Ports
 ---
+
+# Serve sites on different ports
 
 WARNING: Do not use this in production if the site is going to be served over plain http.
 
-### Step 1
+Use an existing Compose setup with `backend`, `websocket`, and the `sites` volume. [Create each Frappe site](../04-operations/01-site-operations.md#setup-new-site) before serving it. Use the same environment file as the bench so that the additional frontend services use the same image and tag.
 
-Remove the traefik service from docker-compose.yml
+## Step 1
 
-### Step 2
+Omit the Traefik proxy/HTTPS overrides when generating your Compose file, or remove their `proxy` service from the generated file. Do not include `compose.noproxy.yaml`, which already publishes port `8080`.
+
+## Step 2
 
 Add service for each port that needs to be exposed.
 
@@ -19,7 +23,7 @@ e.g. `port-site-1`, `port-site-2`, `port-site-3`.
 services:
   # ... removed for brevity
   port-site-1:
-    image: frappe/erpnext:v14.11.1
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
     deploy:
       restart_policy:
         condition: on-failure
@@ -34,7 +38,7 @@ services:
     ports:
       - "8080:8080"
   port-site-2:
-    image: frappe/erpnext:v14.11.1
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
     deploy:
       restart_policy:
         condition: on-failure
@@ -49,7 +53,7 @@ services:
     ports:
       - "8081:8080"
   port-site-3:
-    image: frappe/erpnext:v14.11.1
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
     deploy:
       restart_policy:
         condition: on-failure

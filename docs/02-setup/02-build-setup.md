@@ -80,25 +80,25 @@ podman build \
 
 This repository is fully suited for automated builds, i.e. using CI/CD pipelines.
 
-See [Automated Builds and Deployment](../03-production/06-automated-builds-and-deployment.md) for more information.
+See [Automated Builds and Deployment](../11-how-to/06-automated-builds-and-deployment.md) for more information.
 
 ## Build args, secrets and flags
 
-| Variable             | Purpose                                                                                                                           |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| **Frappe Framework** |                                                                                                                                   |
-| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe>                                   |
-| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-16                                                                        |
-| **Custom Apps**      |                                                                                                                                   |
-| CACHE_BUST           | Can be used to invalidate the cached layer. See [Build Cache](../03-production/06-automated-builds-and-deployment.md#build-cache) |
-| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.                                          |
-| **Dependencies**     |                                                                                                                                   |
-| PYTHON_VERSION       | Python version for the base image                                                                                                 |
-| NODE_VERSION         | Node.js version                                                                                                                   |
-| DEBIAN_BASE          | Debian base version for base, custom, and bench images, defaults to `trixie` (`bookworm` for v15)                                 |
-| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                                                               |
-| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                                                                |
-| INSTALL_CHROMIUM     | Configure chromium installation, defaults to `true` - needed for Frappe Workbench version >15                                     |
+| Variable             | Purpose                                                                                                                       |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Frappe Framework** |                                                                                                                               |
+| FRAPPE_PATH          | Repository URL for Frappe framework source code. Defaults to <https://github.com/frappe/frappe>                               |
+| FRAPPE_BRANCH        | Branch to use for Frappe framework. Defaults to version-16                                                                    |
+| **Custom Apps**      |                                                                                                                               |
+| CACHE_BUST           | Can be used to invalidate the cached layer. See [Build Cache](../11-how-to/06-automated-builds-and-deployment.md#build-cache) |
+| (secret) apps_json   | Passed via `--secret=id=apps_json,src=apps.json`. Never use `--build-arg` for this file.                                      |
+| **Dependencies**     |                                                                                                                               |
+| PYTHON_VERSION       | Python version for the base image                                                                                             |
+| NODE_VERSION         | Node.js version                                                                                                               |
+| DEBIAN_BASE          | Debian base version for base, custom, and bench images, defaults to `trixie` (`bookworm` for v15)                             |
+| WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                                                           |
+| WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                                                            |
+| INSTALL_CHROMIUM     | Configure chromium installation, defaults to `true` - needed for Frappe Workbench version >15                                 |
 
 # Deploy the stack
 

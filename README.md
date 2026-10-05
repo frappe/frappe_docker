@@ -64,7 +64,7 @@ Documentation is gradually being organized into [Tutorials](docs/10-tutorials/in
 - **Choosing a setup:** [Deployment methods](docs/01-getting-started/01-choosing-a-deployment-method.md)
 - **ARM64 notes:** [ARM64](docs/01-getting-started/03-arm64.md)
 - **Container setup overview:** [Container Setup Overview](docs/02-setup/01-overview.md)
-- **Running in production:** [Production docs](docs/03-production/)
+- **Running in production:** [Deployment how-to guides](docs/11-how-to/)
 - **Operating a deployment:** [Operations docs](docs/04-operations/)
 - **Development workflows:** [Development](docs/05-development/01-development.md)
 - **FAQ:** [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
