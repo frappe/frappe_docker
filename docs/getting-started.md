@@ -672,7 +672,7 @@ docker compose \
 **Goal:** Host multiple Frappe sites on one server
 
 ```bash
-# See: docs/11-how-to/05-serve-sites-on-different-ports.md
+# See: docs/11-how-to/05-publish-multiple-sites-on-different-ports.md
 
 # Quick example:
 # 1. Create multiple sites in development

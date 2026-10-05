@@ -51,7 +51,7 @@ Changing `FRAPPE_BRANCH` or using an updated base image can also invalidate this
 
 #### 1. No override - not recommended
 
-This will reuse a previously built layer and won't check for app or Frappe branch updates while the build inputs and base image remain unchanged.
+Docker can reuse the cached `bench init` layer while its inputs and builder image remain unchanged. Updates to an upstream app or Frappe branch alone do not force a rebuild. Frappe is fetched again when this layer is rebuilt, for example after changing `FRAPPE_BRANCH` or the builder image.
 
 ```yaml
 - name: Build Docker image

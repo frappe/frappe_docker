@@ -1,8 +1,10 @@
 ---
-title: Serve Sites on Different Ports
+title: Publish Multiple Sites on Different Ports
 ---
 
-# Serve sites on different ports
+# Publish multiple sites on different ports
+
+Publish multiple Frappe sites (tenants) from the same bench on separate host ports, using one frontend service for each site.
 
 WARNING: Do not use this in production if the site is going to be served over plain http.
 

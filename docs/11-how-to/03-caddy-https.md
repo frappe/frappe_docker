@@ -4,14 +4,12 @@ title: Caddy with HTTPS
 
 # Caddy reverse proxy (local HTTPS)
 
-This guide shows how to use Caddy as an external reverse proxy in front of the frontend container. It is most useful for local HTTPS or internal networks.
+This guide shows how to use Caddy running on the host as an external reverse proxy in front of the frontend container. It is most useful for local HTTPS or internal networks.
+
+The usual Frappe Docker setup is assumed. [Create the Frappe sites](../04-operations/01-site-operations.md#setup-new-site) for your hostnames if they do not exist yet.
 
 ## Prerequisites
 
-- Cloned `frappe_docker` repository, with commands run from its root
-- An `.env` file copied from `example.env` (`cp example.env .env`), with `ERPNEXT_VERSION` and `DB_PASSWORD` set for your deployment
-- A directory for the generated Compose file (`mkdir -p ~/gitops`)
-- A Frappe site matching the configured hostname; [create the site](../04-operations/01-site-operations.md#setup-new-site) after the stack starts if it does not exist yet
 - Expose the frontend container on a host port (default 8080)
 - Add a local domain to your hosts file (or use internal DNS)
 - Install Caddy
@@ -45,13 +43,9 @@ erp.localdev.net {
 
 Replace `8080` with your published frontend port if you changed it.
 
-Start Caddy using your installation's service manager. On Linux with the official `caddy` systemd service:
+Apply the Caddyfile changes using the start or reload method for your Caddy installation. See [Keep Caddy Running](https://caddyserver.com/docs/running).
 
-```sh
-sudo systemctl start caddy
-```
-
-If Caddy is already running, apply the Caddyfile changes with `sudo systemctl reload caddy`. For other installations, see [Keep Caddy Running](https://caddyserver.com/docs/running).
+The `custom-domain` service in `compose.custom-domain.yaml` is a different setup: it runs Caddy in a container behind Traefik, forwarding to `frontend` on its internal listen port (8080 by default). That container starts Caddy automatically; it does not use `systemctl`. See [Create custom domain to existing site](../02-setup/07-single-server-example.md#create-custom-domain-to-existing-site).
 
 ## Step 3: Trust the Caddy root certificate
 
