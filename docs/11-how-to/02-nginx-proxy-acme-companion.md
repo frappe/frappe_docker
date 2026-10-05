@@ -16,6 +16,9 @@ If you need advanced routing or complex multi-site setups, **Traefik** is usuall
 
 ## Prerequisites
 
+- Cloned `frappe_docker` repository, with commands run from its root
+- An `.env` file copied from `example.env` (`cp example.env .env`), with `ERPNEXT_VERSION` and `DB_PASSWORD` set for your deployment
+- A directory for the generated Compose file (`mkdir -p ~/gitops`)
 - Public DNS points your domain(s) to the server
 - Ports 80 and 443 are reachable (HTTP-01 challenge)
 - Docker and Docker Compose v2 installed
@@ -83,4 +86,4 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml logs
 
 > Depending on the registrar, the assignment may take some time, whereby it must also be ensured that A and AAAA records are correctly directed to the server for the issuance of the certificate, if necessary.
 
-See also: [Environment Variables](../02-setup/04-env-variables.md) and [TLS/SSL Setup Overview](01-tls-ssl-setup.md).
+See also: [Environment Variables](../02-setup/04-env-variables.md) and [TLS/SSL Setup Overview](../03-production/01-tls-ssl-setup.md).

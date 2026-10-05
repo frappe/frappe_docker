@@ -30,7 +30,7 @@ Frappe Docker supports multiple TLS/SSL approaches. Choose the one that matches 
 - Use `overrides/compose.nginxproxy.yaml` plus `overrides/compose.nginxproxy-ssl.yaml`
 - Simple host-based routing for single-bench or small setups
 - Requires `NGINX_PROXY_HOSTS` and `LETSENCRYPT_EMAIL`
-- See [nginx-proxy + acme-companion](04-nginx-proxy-acme-companion.md)
+- See [nginx-proxy + acme-companion](../11-how-to/02-nginx-proxy-acme-companion.md)
 
 ## Traefik vs nginx-proxy + acme-companion
 
@@ -48,7 +48,7 @@ Frappe Docker supports multiple TLS/SSL approaches. Choose the one that matches 
 
 - Run Caddy on the host and proxy to the frontend container
 - Useful for local HTTPS or when you already use Caddy
-- See [Caddy reverse proxy](05-caddy-https.md)
+- See [Caddy reverse proxy](../11-how-to/03-caddy-https.md)
 
 ## Common requirements
 
