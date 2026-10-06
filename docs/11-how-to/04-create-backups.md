@@ -10,7 +10,6 @@ Use the same image and tag as your running bench, including any custom apps. Set
 
 ```yaml
 # backup-job.yml
-version: "3.7"
 services:
   backup:
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
@@ -32,10 +31,10 @@ services:
     volumes:
       - "sites:/home/frappe/frappe-bench/sites"
     networks:
-      - erpnext-network
+      - frappe-network
 
 networks:
-  erpnext-network:
+  frappe-network:
     external: true
     name: ${PROJECT_NAME:-erpnext}_default
 
@@ -53,7 +52,7 @@ In case of single docker host setup, add crontab entry for backup every 6 hours.
 0 */6 * * * docker compose --env-file /path/to/bench.env -f /path/to/backup-job.yml run --rm -T backup > /dev/null
 ```
 
-Or
+Alternatively, run backups in the existing `backend` container instead of using a separate backup service. The command below includes uploaded files with `--with-files`. It does not run the optional restic commands above.
 
 ```
 0 */6 * * * docker compose -p erpnext -f /path/to/compose.yml exec -T backend bench --site all backup --with-files > /dev/null

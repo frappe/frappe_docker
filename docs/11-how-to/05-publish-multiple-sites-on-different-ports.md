@@ -12,7 +12,9 @@ Use an existing Compose setup with `backend`, `websocket`, and the `sites` volum
 
 ## Step 1
 
-Omit the Traefik proxy/HTTPS overrides when generating your Compose file, or remove their `proxy` service from the generated file. Do not include `compose.noproxy.yaml`, which already publishes port `8080`.
+The additional frontend services below publish each site's port directly on the host, so this setup does not require a reverse proxy. When generating a Compose file for this example, omit reverse-proxy overrides such as `compose.proxy.yaml`, `compose.https.yaml`, `compose.nginxproxy.yaml`, and `compose.nginxproxy-ssl.yaml`.
+
+An existing reverse proxy can remain for other routes if its published ports do not overlap with those below. Do not include `compose.noproxy.yaml` with its default settings: it already publishes port `8080`, which conflicts with `port-site-1`.
 
 ## Step 2
 
