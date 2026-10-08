@@ -1,8 +1,8 @@
 ---
-title: Advanced Setups
+title: Unix Socket Proxying
 ---
 
-# Introduction
+# Unix socket proxying
 
 This document describes some advanced setups that may add additional features, performance improvements, or security
 properties that are not present in the default setup. It is beyond the scope of this project to provide support for any

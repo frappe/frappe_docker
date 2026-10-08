@@ -617,7 +617,7 @@ docker compose \
 **Goal:** Host multiple Frappe sites on one server
 
 ```bash
-# See: docs/port-based-multi-tenancy.md
+# See: docs/11-how-to/05-publish-multiple-sites-on-different-ports.md
 
 # Quick example:
 # 1. Create multiple sites in development
@@ -809,8 +809,8 @@ Many teams use both: Frappe for back-office/admin tools, Django for customer-fac
 - [`docs/02-setup/07-single-server-example.md`](02-setup/07-single-server-example.md) - Production deployment guide
 - [`docs/04-operations/01-site-operations.md`](04-operations/01-site-operations.md) - Common site management tasks
 - `development/installer.py` - Automated setup script
-- [`pwd.yml`](../pwd.yml) - Quick test configuration
-- [`compose.yaml`](../compose.yaml) - Base Docker Compose configuration
+- [`pwd.yml`](https://github.com/frappe/frappe_docker/blob/main/pwd.yml) - Quick test configuration
+- [`compose.yaml`](https://github.com/frappe/frappe_docker/blob/main/compose.yaml) - Base Docker Compose configuration
 
 ### Community Resources
 

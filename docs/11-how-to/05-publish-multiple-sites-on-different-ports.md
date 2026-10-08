@@ -1,14 +1,22 @@
 ---
-title: Multi Tenancy
+title: Publish Multiple Sites on Different Ports
 ---
+
+# Publish multiple sites on different ports
+
+Publish multiple Frappe sites (tenants) from the same bench on separate host ports, using one frontend service for each site.
 
 WARNING: Do not use this in production if the site is going to be served over plain http.
 
-### Step 1
+Use an existing Compose setup with `backend`, `websocket`, and the `sites` volume. [Create each Frappe site](../04-operations/01-site-operations.md#setup-new-site) before serving it. Use the same environment file as the bench so that the additional frontend services use the same image and tag.
 
-Remove the traefik service from docker-compose.yml
+## Step 1
 
-### Step 2
+The additional frontend services below publish each site's port directly on the host, so this setup does not require a reverse proxy. When generating a Compose file for this example, omit reverse-proxy overrides such as `compose.proxy.yaml`, `compose.https.yaml`, `compose.nginxproxy.yaml`, and `compose.nginxproxy-ssl.yaml`.
+
+An existing reverse proxy can remain for other routes if its published ports do not overlap with those below. Do not include `compose.noproxy.yaml` with its default settings: it already publishes port `8080`, which conflicts with `port-site-1`.
+
+## Step 2
 
 Add service for each port that needs to be exposed.
 
@@ -19,7 +27,7 @@ e.g. `port-site-1`, `port-site-2`, `port-site-3`.
 services:
   # ... removed for brevity
   port-site-1:
-    image: frappe/erpnext:v14.11.1
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
     deploy:
       restart_policy:
         condition: on-failure
@@ -34,7 +42,7 @@ services:
     ports:
       - "8080:8080"
   port-site-2:
-    image: frappe/erpnext:v14.11.1
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
     deploy:
       restart_policy:
         condition: on-failure
@@ -49,7 +57,7 @@ services:
     ports:
       - "8081:8080"
   port-site-3:
-    image: frappe/erpnext:v14.11.1
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
     deploy:
       restart_policy:
         condition: on-failure

@@ -19,6 +19,8 @@ Update existing coverage where appropriate. For a new page, choose a directory b
 
 Keep the page focused on that purpose and link to related material instead of repeating it. See the [documentation contribution guidelines](https://github.com/frappe/frappe_docker/blob/main/CONTRIBUTING.md#documentation) for the placement policy.
 
+Category indexes should briefly explain their purpose rather than list every document.
+
 ## Write Markdown that works on GitHub and the site
 
 1. Follow the directory's numbered kebab-case naming convention, for example `01-contribute-documentation.md`. The sidebar orders folders and files by name.
@@ -33,7 +35,7 @@ Keep the page focused on that purpose and link to related material instead of re
    ```
 
 3. Use `##` and `###` headings to organize sections, backticks for inline code, and fenced code blocks with a language such as `sh` for commands. Keep Markdown compatible with GitHub; use [VitePress Markdown extensions](https://vitepress.dev/guide/markdown) only when they preserve that compatibility.
-4. Link to documentation using relative `.md` paths, for example `[Environment variables](../02-setup/04-env-variables.md)`. A `#heading-fragment` can link to a specific section. Check that the target file and heading exist, and add new pages to the relevant category index.
+4. Link to documentation using relative `.md` paths, for example `[Environment variables](../02-setup/04-env-variables.md)`. A `#heading-fragment` can link to a specific section. Check that the target file and heading exist.
 5. Put article images in `docs/images/` and use relative paths with descriptive alternative text, for example `![Service diagram](../images/service-diagram.png)`. Reserve `docs/public/` for site assets.
 6. State prerequisites and expected results for instructions. Clearly identify destructive operations. Keep commands, configuration names, and examples consistent with the repository's behavior.
 
