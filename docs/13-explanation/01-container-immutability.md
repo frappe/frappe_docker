@@ -15,7 +15,7 @@ You should only change:
 - Mounted volumes
 - The Docker image itself (via rebuild)
 
-### What Is Persistent
+### What persists
 
 Typically, only these paths are persisted:
 
