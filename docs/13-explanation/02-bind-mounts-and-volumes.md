@@ -16,7 +16,7 @@ Choose those overrides when you need to manage data at a particular host locatio
 
 The production images also declare a volume for `/home/frappe/frappe-bench/logs`. Without an explicit mount, Docker creates an anonymous volume for it. The base Compose file does not configure shared named log storage; `pwd.yml`, the disposable demo, explicitly mounts a named `logs` volume.
 
-Retaining the same mounts preserves their contents when containers are replaced. **`docker compose down -v` removes project-managed named volumes and anonymous volumes attached to the containers, and can delete their data.** With the bind-backed overrides, removing the Docker volume leaves the underlying host directory's files. See Docker's [Compose removal behavior](https://docs.docker.com/reference/cli/docker/compose/down/) and the [backup guide](../03-production/02-backup-strategy.md).
+Retaining the same mounts preserves their contents when containers are replaced. **`docker compose down -v` removes project-managed named volumes and anonymous volumes attached to the containers, and can delete their data.** With the bind-backed overrides, removing the Docker volume leaves the underlying host directory's files. See Docker's [Compose removal behavior](https://docs.docker.com/reference/cli/docker/compose/down/) and the [backup guide](../11-how-to/04-create-backups.md).
 
 ## Development source
 
