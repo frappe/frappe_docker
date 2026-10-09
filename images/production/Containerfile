@@ -67,7 +67,9 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     # Chromium
     && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-        chromium-headless-shell; \
+        chromium-headless-shell \
+        libatk-bridge2.0-0 \
+        libcups2; \
     fi \
     # Clean up
     && rm -rf /var/lib/apt/lists/* \
