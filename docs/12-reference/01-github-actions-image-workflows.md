@@ -2,9 +2,13 @@
 title: GitHub Actions Image Workflows
 ---
 
+# GitHub Actions image workflows
+
 This document describes the current workflow setup for shared core images and reusable downstream app images.
 
-# Workflow roles
+For caller examples, see [Build app images with GitHub Actions](../11-how-to/09-build-app-images-with-github-actions.md).
+
+## Workflow roles
 
 The current workflow layout is:
 
@@ -37,7 +41,7 @@ They decide when the core image pipeline runs.
 - install the requested app into the final image
 - optionally push the final app image to the caller's registry
 
-# Current flow
+## Current flow
 
 The current structure is:
 
@@ -117,7 +121,7 @@ app-build-image.yml
   -> pushes final image_name:image_tag
 ```
 
-# Naming convention
+## Naming convention
 
 GitHub Actions requires workflow files to stay directly inside `.github/workflows`.
 Subdirectories are not supported for workflow files, so structure should come from file names and `name:` values.
@@ -148,7 +152,7 @@ Recommended visible workflow names:
 - `App / Build Image`
 - `Docs / Publish Site`
 
-# Style rules
+## Style rules
 
 To keep workflows predictable, use one convention per category instead of mixing styles.
 
@@ -192,7 +196,7 @@ The recommended rule set is:
 
 This means `-` is preferred for file names, while `_` remains appropriate for YAML keys, inputs, and environment variables.
 
-# Important inputs in `app-build-image.yml`
+## Important inputs in `app-build-image.yml`
 
 The reusable app workflow is controlled mainly by these inputs:
 
@@ -219,98 +223,3 @@ The key distinction is:
 frappe_image_prefix = source of shared base/build images
 image_name          = destination of the final app image
 ```
-
-# Example: caller repository publishes to GHCR
-
-This example assumes:
-
-- shared base images exist in `ghcr.io/frappe/base` and `ghcr.io/frappe/build`
-- the caller repository wants to publish its own app image to `ghcr.io/acme/crm`
-
-```yaml
-name: App / Build CRM Image
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - develop
-
-permissions:
-  contents: read
-  packages: write
-
-jobs:
-  build-image:
-    uses: frappe/frappe_docker/.github/workflows/app-build-image.yml@main
-    with:
-      app_name: crm
-      app_repo: acme/crm
-      app_ref: develop
-      frappe_ref: version-16
-      frappe_image_prefix: ghcr.io/frappe
-      image_name: ghcr.io/acme/crm
-      image_tag: develop
-      registry: ghcr.io
-      push: true
-      platforms: linux/amd64
-```
-
-What happens:
-
-```text
-1. app-build-image.yml is called
-2. apps.json is generated from acme/crm + develop
-3. the workflow builds images/layered/Containerfile
-4. layered uses:
-   - ghcr.io/frappe/build:version-16
-   - ghcr.io/frappe/base:version-16
-5. CRM is installed
-6. the final image is pushed to ghcr.io/acme/crm:develop
-```
-
-For GHCR, the caller workflow should grant:
-
-- `permissions: packages: write`
-
-The reusable workflow then logs in with the workflow token.
-
-# Example: caller repository publishes to Docker Hub
-
-This example assumes:
-
-- shared base images come from Docker Hub under `frappe`
-- the caller repository wants to publish its app image to Docker Hub as `acme/crm`
-
-```yaml
-name: App / Build CRM Image
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - develop
-
-jobs:
-  build-image:
-    uses: frappe/frappe_docker/.github/workflows/app-build-image.yml@main
-    with:
-      app_name: crm
-      app_repo: acme/crm
-      app_ref: develop
-      frappe_ref: version-16
-      frappe_image_prefix: frappe
-      image_name: acme/crm
-      image_tag: develop
-      registry: docker.io
-      push: true
-      platforms: linux/amd64
-    secrets:
-      REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
-```
-
-In this case:
-
-- shared images are pulled from `frappe/base:version-16` and `frappe/build:version-16`
-- the final image is pushed to Docker Hub as `acme/crm:develop`

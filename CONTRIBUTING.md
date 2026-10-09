@@ -102,7 +102,7 @@ pytest
 
 ## Detailed Guidelines
 
-A detailed form management guidelines are available in the [Fork Management](./docs/08-reference/03-fork-management.md)
+A detailed form management guidelines are available in the [Fork Management](./docs/11-how-to/08-fork-management.md)
 
 ## Documentation
 

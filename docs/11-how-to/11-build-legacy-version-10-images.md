@@ -1,6 +1,10 @@
 ---
-title: Build Version 10
+title: Build Legacy Version 10 Images
 ---
+
+# Build legacy version-10 images
+
+This page records the historical version-10 image builds. The `version-10` ref required below is no longer available upstream. The commands are retained for historical context. For current images, see [Build setup](../02-setup/02-build-setup.md).
 
 Clone the version-10 branch of this repo
 

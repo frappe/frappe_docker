@@ -47,4 +47,4 @@ Follow the repository's existing [pre-commit requirements](https://github.com/fr
 
 The PR must pass the lint and documentation build checks. CI builds the site and reports errors such as broken page links or invalid Markdown syntax. If a check fails, read its log, correct the affected source, and push the fix. CI does not verify every heading fragment, so check those yourself.
 
-Maintainers working on site configuration can use the specialist [Configuring VitePress](../08-reference/02-configuring-vitepress.md) guide.
+Maintainers working on site configuration can use the specialist [Configuring VitePress](07-configuring-vitepress.md) guide.
