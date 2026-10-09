@@ -26,6 +26,9 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     libharfbuzz0b \
     libpangoft2-1.0-0 \
     libpangocairo-1.0-0 \
+    # headless Chromium for Print Format PDFs
+    libatk-bridge2.0-0 \
+    libcups2 \
     # For backups
     restic \
     gpg \
