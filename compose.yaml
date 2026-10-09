@@ -33,7 +33,7 @@ services:
         bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
         bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
-        bench set-config -g chromium_path /usr/bin/chromium-headless-shell;
+        bench set-config -g chromium_path /usr/lib/chromium/chromium-headless-shell;
     environment:
       DB_HOST: ${DB_HOST:-}
       DB_PORT: ${DB_PORT:-}
