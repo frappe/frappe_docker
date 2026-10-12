@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_IMAGE_PREFIX=frappe
 
@@ -31,13 +33,13 @@ FROM ${FRAPPE_IMAGE_PREFIX}/base:${FRAPPE_BRANCH} AS backend
 
 USER frappe
 
-COPY --from=builder --chown=frappe:0 /home/frappe/frappe-bench /home/frappe/frappe-bench
-RUN chmod -R g=u /home/frappe/frappe-bench
+COPY --from=builder --chown=frappe:0 --chmod=g=u /home/frappe/frappe-bench /home/frappe/frappe-bench
 
 WORKDIR /home/frappe/frappe-bench
 
-# Move assets to image-layer storage
-RUN cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
+# Keep the COPY destination group-writable and move assets to image-layer storage
+RUN chmod g=u /home/frappe/frappe-bench && \
+  cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
   rm -rf /home/frappe/frappe-bench/sites/assets
 
 VOLUME [ \
