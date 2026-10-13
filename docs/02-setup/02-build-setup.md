@@ -7,12 +7,19 @@ This guide walks you through building Frappe images from the repository resource
 # Prerequisites
 
 - git
-- docker (Engine **v23.0+** with buildx) or podman
+- Docker with Buildx and **BuildKit v0.17+** (Docker Engine **v27.4+** for the default builder), or Podman with **Buildah v1.45+**
 - docker compose v2 or podman compose
 
 > Install containerization software according to the official maintainer documentation. Avoid package managers when not recommended, as they frequently cause compatibility issues.
 
-> **Why Docker Engine v23+?** The build uses [BuildKit secrets](https://docs.docker.com/build/building/secrets/) (`--secret`) to keep `apps.json` tokens out of image layers. BuildKit is the default builder starting with Docker Engine 23.0 — older releases will fail or silently fall back to the legacy builder, which does not support secret mounts.
+## Builder compatibility
+
+The `layered`, `custom`, and `production` images use `COPY --chmod=g=u` to apply group permissions while copying the bench, avoiding a second layer containing the same files.
+
+- **Docker:** [BuildKit v0.17+](https://github.com/moby/buildkit/releases/tag/v0.17.0) applies symbolic file permissions. The [Dockerfile frontend must be v1.14+](https://docs.docker.com/reference/dockerfile/#copy---chmod); the Containerfiles select the latest stable frontend with `# syntax=docker/dockerfile:1`. Keep that directive, and use v1.14+ if overriding `BUILDKIT_SYNTAX`. The frontend directive does not upgrade the BuildKit backend. Docker Engine v27.4+ includes a suitable backend for the default `docker` builder; remote and `docker-container` builders need their own suitable BuildKit version. Check the selected builder with `docker buildx inspect --bootstrap`.
+- **Podman:** its Buildah backend must be **v1.45+**, which [added symbolic chmod support](https://github.com/podman-container-tools/buildah/releases/tag/v1.45.0). Older backends only accept octal permissions. Docker's syntax directive does not update Podman's backend.
+
+BuildKit must remain enabled for Docker builds: the legacy builder does not support the secret mounts used for `apps.json`. These requirements apply to building images; running published images does not require Buildx or a Dockerfile frontend.
 
 # Clone this repo
 
@@ -50,7 +57,7 @@ To include custom apps in your image, create an `apps.json` file in the reposito
 
 Choose the appropriate build command based on your container runtime and desired image type. This example builds the `layered` image with the custom `apps.json` you created.
 
-> **Security note:** The `apps.json` file is passed as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repository tokens are **never** stored in image layer metadata. Do not use `--build-arg` for `apps.json` — build arguments are permanently visible via `docker image history`. This requires **Docker Engine v23.0+** (where BuildKit is the default builder).
+> **Security note:** The `apps.json` file is passed as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repository tokens are **never** stored in image layer metadata. Do not use `--build-arg` for `apps.json` — build arguments are permanently visible via `docker image history`. Use a builder that meets the [compatibility requirements](#builder-compatibility) above.
 
 `Docker`:
 
