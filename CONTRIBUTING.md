@@ -104,6 +104,10 @@ pytest
 
 A detailed form management guidelines are available in the [Fork Management](./docs/11-how-to/08-fork-management.md)
 
+## Container Changes
+
+New Compose overrides must be included in the validation registry at `tests/compose-configs.json`. Follow [Validate container changes](docs/11-how-to/10-validate-container-changes.md) for local checks and the steps to register an override.
+
 ## Documentation
 
 Documentation lives in `docs/` and is published with VitePress from the same Markdown files. Follow [Diataxis](https://diataxis.fr/start-here/) to choose a page's purpose. The repository uses these four categories, in this order:

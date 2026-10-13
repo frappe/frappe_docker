@@ -31,6 +31,6 @@ configuration and does not start containers.
 1. Add `overrides/compose.<name>.yaml`.
 2. Add the override to at least one realistic entry in
    `tests/compose-configs.json`.
-3. Add harmless placeholder values to the entry's `environment` object if the
+3. Add harmless placeholder values to the registry's top-level `environment` object if the
    override introduces required variables that are not in `example.env`.
 4. Run `python .github/scripts/validate_compose.py`.
