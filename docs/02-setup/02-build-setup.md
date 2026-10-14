@@ -7,12 +7,21 @@ This guide walks you through building Frappe images from the repository resource
 # Prerequisites
 
 - git
-- docker (Engine **v23.0+** with buildx) or podman
+- Docker with Buildx, or Podman (see [builder compatibility](#builder-compatibility))
 - docker compose v2 or podman compose
 
 > Install containerization software according to the official maintainer documentation. Avoid package managers when not recommended, as they frequently cause compatibility issues.
 
-> **Why Docker Engine v23+?** The build uses [BuildKit secrets](https://docs.docker.com/build/building/secrets/) (`--secret`) to keep `apps.json` tokens out of image layers. BuildKit is the default builder starting with Docker Engine 23.0 — older releases will fail or silently fall back to the legacy builder, which does not support secret mounts.
+## Builder compatibility
+
+Building the `layered`, `custom`, and `production` images requires:
+
+- **Docker:** Engine **v27.4+** with Buildx, or a separate Buildx builder using [BuildKit **v0.17+**](https://github.com/moby/buildkit/releases/tag/v0.17.0).
+- **Podman:** its Buildah backend must be [**v1.45+**](https://github.com/podman-container-tools/buildah/releases/tag/v1.45.0).
+
+The Containerfiles select the Dockerfile frontend automatically with `# syntax=docker/dockerfile:1`. If you override it, use [frontend **v1.14+**](https://docs.docker.com/reference/dockerfile/#copy---chmod).
+
+These versions support `COPY --chmod=g=u` and are required only for building images.
 
 # Clone this repo
 
@@ -50,7 +59,7 @@ To include custom apps in your image, create an `apps.json` file in the reposito
 
 Choose the appropriate build command based on your container runtime and desired image type. This example builds the `layered` image with the custom `apps.json` you created.
 
-> **Security note:** The `apps.json` file is passed as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repository tokens are **never** stored in image layer metadata. Do not use `--build-arg` for `apps.json` — build arguments are permanently visible via `docker image history`. This requires **Docker Engine v23.0+** (where BuildKit is the default builder).
+> **Security note:** The `apps.json` file is passed as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repository tokens are **never** stored in image layer metadata. Do not use `--build-arg` for `apps.json` — build arguments are permanently visible via `docker image history`.
 
 `Docker`:
 

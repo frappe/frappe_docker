@@ -15,7 +15,7 @@ We will setup the following:
 
 ## Requirements
 
-- A server that can run Docker Engine **v23.0+** (recommended: 2 vCPU, 4 GB RAM, 50 GB SSD). The custom-image build below uses [BuildKit secrets](https://docs.docker.com/build/building/secrets/), which require BuildKit as the default builder (Docker Engine 23.0+).
+- A server that can run Docker Engine **v23.0+** (recommended: 2 vCPU, 4 GB RAM, 50 GB SSD).
 - A public domain with DNS control.
 - Two subdomains pointing to your server IP (A/AAAA records):
   - `erp.your-domain.com`
@@ -84,7 +84,7 @@ cat > ~/gitops/apps.json <<'EOF'
 EOF
 ```
 
-Build the image, passing `apps.json` as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) so that private repo tokens are never stored in image layers. This requires **Docker Engine v23.0+**, where BuildKit is the default builder:
+Use a [compatible builder](02-build-setup.md#builder-compatibility) and pass `apps.json` as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) to keep private repository tokens out of image metadata:
 
 ```shell
 docker build \
