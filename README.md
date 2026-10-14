@@ -106,6 +106,8 @@ Wait for a couple of minutes for ERPNext site to be created or check `create-sit
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+See the [repository versioning policy](CONTRIBUTING.md#repository-versioning-policy) for release classification, compatibility boundaries, and build-tool minimum changes.
+
 This repository is only for container related stuff. You also might want to contribute to:
 
 ## Resources
