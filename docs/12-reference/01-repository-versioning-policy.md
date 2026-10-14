@@ -4,27 +4,31 @@ title: Repository Versioning
 
 # Repository versioning policy
 
-Repository releases version the deployment recipes in this repository: Compose configurations, Dockerfiles/Containerfiles, and supporting scripts and documentation. Maintainers decide repository release versions. Use `MAJOR.MINOR.PATCH` according to the effect on supported deployments:
+Repository release versions help users understand the impact of changes to this repository's deployment recipes, build definitions, and supporting workflows.
 
-| Release | Changes                                                                                                                                                                                                                                                        |
-| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Major   | Incompatible deployment-facing changes that require adjustments to supported Compose configurations, persistent data or volumes, runtime permissions, or upgrade procedures. Runtime minimum increases that invalidate supported deployments also belong here. |
-| Minor   | Backward-compatible capabilities, and increases to build-tool minimum requirements that are prominently announced as described below.                                                                                                                          |
-| Patch   | Compatible fixes and routine dependency updates that preserve the deployment interface and minimum requirements.                                                                                                                                               |
+## Compatibility scope
 
-Choose the highest-impact category among the changes in a release. An upstream dependency's major version does not automatically require a repository major release; assess its actual deployment impact, including configuration, data migration, permissions, and runtime requirements.
+Compatibility is assessed against documented supported configurations and interfaces, runtime and persistent-data requirements, and build and deployment workflows, including platform support. This is a project-specific use of `MAJOR.MINOR.PATCH`; it does not promise strict SemVer compatibility across every previously usable toolchain or environment.
 
-This is a project-specific compatibility boundary focused on supported deployments. Build-tool minimum increases are an explicit minor-release exception: the policy does not promise strict SemVer compatibility with every previously supported build environment. Do not classify a runtime minimum increase as a builder-only change.
+## Release classification
 
-## Build-tool minimum changes
+Maintainers decide release versions using the highest-impact category among all changes in a release.
 
-When raising builder requirements, prominently announce the change in release notes and update the [build prerequisites](../02-setup/02-build-setup.md):
+| Release | Effect                                                                                                                                                                  |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Major   | Incompatible changes to supported configurations or interfaces, runtime or persistent-data requirements, deployment or build workflows, or platform/capability support. |
+| Minor   | Compatible features and support additions; routine build-tool prerequisite updates that preserve supported capabilities and workflows.                                  |
+| Patch   | Compatible fixes and dependency maintenance that preserve supported interfaces, requirements, and workflows.                                                            |
 
-- State precise minimum versions or required features for the relevant builders (Docker Engine/Desktop, Buildx, BuildKit, or Podman/Buildah) and Dockerfile syntax frontend, including any requirement to fetch that frontend. Provide setup and verification steps.
-- Explain who is affected, such as users building custom images locally or in CI, and how to update their builders.
-- State whether the runtime interface and runtime prerequisites remain unchanged. Pulling and running prebuilt images alone does not require newer build tooling; any changed runtime requirements must be documented and assessed separately.
+Routine build-tool minimum increases can be minor when updating the stated prerequisites lets users continue the supported workflow. Losing a supported build capability or platform, or introducing a substantive workflow incompatibility, requires a major release.
 
-For example, a permissions-layer size optimization requiring newer BuildKit or Dockerfile syntax is a minor change when the deployment interface, volume ownership, and runtime requirements remain unchanged. A change requiring operators to adjust runtime permissions or migrate volumes is a major change.
+Classify dependency updates by their effect on supported users and workflows. An upstream dependency's major version does not automatically require a repository major release.
+
+A deprecation can be announced in a minor release while existing supported use remains available. Removing that supported use requires a major release.
+
+## Release communication
+
+Release notes for impactful changes must explain affected users, compatibility implications, and required upgrade or migration steps. State changed prerequisites precisely and update the relevant setup, build, or migration documentation, including the [build prerequisites](../02-setup/02-build-setup.md) when applicable. Announce deprecations and clearly identify removals.
 
 ## Independent version streams
 
