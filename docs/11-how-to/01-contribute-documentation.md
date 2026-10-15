@@ -19,7 +19,25 @@ Update existing coverage where appropriate. For a new page, choose a directory b
 
 Keep the page focused on that purpose and link to related material instead of repeating it. See the [documentation contribution guidelines](https://github.com/frappe/frappe_docker/blob/main/CONTRIBUTING.md#documentation) for the placement policy.
 
-Category indexes should briefly explain their purpose rather than list every document.
+### Apply the categories to a reader's need
+
+Before placing a page, identify what someone comes to it for. These examples apply to documentation for both users and contributors:
+
+| Reader need                                                        | Category     |
+| ------------------------------------------------------------------ | ------------ |
+| Learn to run a disposable demo through a guided exercise           | Tutorial     |
+| Publish an app image or register a Compose override                | How-to Guide |
+| Check a workflow input's meaning, type, or default                 | Reference    |
+| Understand how core and downstream image builds fit together       | Explanation  |
+| Understand the coverage and design choices of container validation | Explanation  |
+
+Reference serves a concrete lookup while someone applies existing knowledge. Explanation develops their understanding of a subject. How often someone needs the information, their role, and the presence of tables or code do not decide the category. See [Reference and explanation](https://diataxis.fr/reference-explanation/) for the distinction.
+
+When splitting a mixed page, classify each resulting page again. Moving the commands into a how-to does not make the remaining overview Reference. Keep reusable workflow inputs in Reference, caller instructions in How-to, and the pipeline overview in Explanation.
+
+Split substantial sections that serve different needs. Short prerequisites, expected results, or facts that support the page's main purpose can stay with it. If the purpose is unclear, describe the intended reader need in the PR so reviewers can agree on placement.
+
+Category indexes should briefly explain their purpose rather than list every document. The Reference index also collects external documentation and community resources; these are navigation links rather than a map of the category's articles.
 
 ## Write Markdown that works on GitHub and the site
 

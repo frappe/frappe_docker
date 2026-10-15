@@ -4,7 +4,7 @@ title: Build App Images with GitHub Actions
 
 # Build app images with GitHub Actions
 
-Use the reusable `app-build-image.yml` workflow from a downstream repository to build and publish an app image. See [GitHub Actions image workflows](../12-reference/01-github-actions-image-workflows.md) for workflow roles, naming conventions, and inputs.
+Use the reusable `app-build-image.yml` workflow from a downstream repository to build and publish an app image. See the [app build workflow reference](../12-reference/02-app-build-workflow.md) for inputs, secrets, and permissions, or [Image build and release pipeline](../13-explanation/07-github-actions-image-workflows.md) for how the workflows fit together.
 
 ## Example: caller repository publishes to GHCR
 

@@ -1,13 +1,15 @@
 ---
-title: Container Validation
+title: Container Validation Approach
 ---
 
-# Container validation
+# Container validation approach
 
 This repository validates its Dockerfiles, supported Compose configurations, and
 built container images at different stages of development.
 
-For local checks and adding a Compose override to the registry, see [Validate container changes](../11-how-to/10-validate-container-changes.md).
+Linting checks image definitions, Compose validation checks supported configuration combinations, and image scanning reports known vulnerabilities. Each covers a different part of the container setup; they do not provide the same guarantees.
+
+For local checks, blocking lint rules, and adding a Compose override to the registry, see [Validate container changes](../11-how-to/10-validate-container-changes.md).
 
 ## Dockerfile linting
 
@@ -15,11 +17,8 @@ Hadolint checks every Dockerfile and Containerfile through pre-commit and the
 existing lint workflow. The policy is defined in `.hadolint.yaml`.
 
 The initial policy keeps existing warnings visible while only errors fail the
-check. It also promotes these high-confidence rules to errors:
-
-- `DL3002`: the final container user must not be root
-- `DL3006`: base images must have an explicit tag
-- `DL3007`: base images must not use the `latest` tag
+check. It also promotes selected container safety rules to errors. The [local
+checks](../11-how-to/10-validate-container-changes.md#local-checks) list these blocking rules.
 
 This allows warnings to be fixed incrementally without making unrelated pull
 requests fail immediately. The failure threshold can be tightened after the
@@ -57,7 +56,8 @@ During the initial rollout, Trivy is report-only:
   architecture remain available as workflow artifacts
 
 This provides visibility before deciding which vulnerability classes should
-become blocking.
+become blocking. A successful CI result therefore does not mean the scanned
+images have no known vulnerabilities.
 
 ## Proxy image updates
 

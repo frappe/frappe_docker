@@ -487,7 +487,7 @@ See [Framework comparisons](13-explanation/06-framework-comparisons.md) for Frap
 
 ### Official Documentation
 
-See [Official documentation](12-reference/03-external-links.md#official-documentation) for Frappe, ERPNext, and Docker documentation.
+See [Official documentation](12-reference/index.md#official-documentation) for Frappe, ERPNext, and Docker documentation.
 
 ### Key Files in This Repository
 
@@ -501,7 +501,7 @@ See [Official documentation](12-reference/03-external-links.md#official-document
 
 ### Community Resources
 
-See [Community resources](12-reference/03-external-links.md#community-resources) for the Frappe forum, school, and framework source.
+See [Community resources](12-reference/index.md#community-resources) for the Frappe forum, school, and framework source.
 
 ### Essential Docker Commands Reference
 

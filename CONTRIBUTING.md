@@ -108,6 +108,15 @@ A detailed form management guidelines are available in the [Fork Management](./d
 
 New Compose overrides must be included in the validation registry at `tests/compose-configs.json`. Follow [Validate container changes](docs/11-how-to/10-validate-container-changes.md) for local checks and the steps to register an override.
 
+## GitHub Actions conventions
+
+Workflow files must live directly in `.github/workflows`. Use these conventions when adding or editing workflows:
+
+- File names: kebab-case, following `<area>-<action>-<subject>.yml`, for example `core-build-test-images.yml` or `app-build-image.yml`.
+- Workflow `name` values: a short area and title, for example `Core / Build and Test Images`, `App / Build Image`, or `Docs / Publish Site`.
+- Custom input names, job IDs, and step IDs: snake_case where practical, for example `app_name` and `frappe_ref`.
+- Environment variables: UPPER_SNAKE_CASE, for example `FRAPPE_IMAGE_PREFIX` and `PYTHON_VERSION`.
+
 ## Documentation
 
 Documentation lives in `docs/` and is published with VitePress from the same Markdown files. Follow [Diataxis](https://diataxis.fr/start-here/) to choose a page's purpose. The repository uses these four categories, in this order:
@@ -121,11 +130,12 @@ Documentation lives in `docs/` and is published with VitePress from the same Mar
 
 ### Placement rules
 
-- Choose the category by the reader's purpose, not just the topic or audience. Debugger setup and documentation contribution procedures are how-to guides; option tables are reference; architecture and tradeoffs are explanation.
-- Keep one primary purpose per page. When a page mixes substantial instructions, reference tables, and background, split it into focused pages and link between them. A setup example is only a tutorial if it is designed as a guided learning exercise.
+- Choose the category by what the reader needs from the page. This applies to operators, app developers, and repository contributors alike. A setup example is only a tutorial if it is designed as a guided learning exercise.
+- Reference answers a concrete lookup question while the reader works, such as what a workflow input means or which values an environment variable accepts. A factual description of the image pipeline or validation approach belongs in Explanation when its purpose is to build understanding. A table, code block, or list of facts does not determine the category.
+- Keep one primary purpose per page. Split substantial instructions, interface definitions, and background into focused pages and link between them. Reassess the remaining content after a split; extracting commands does not automatically make the rest Reference. Short prerequisites, expected results, and supporting details can stay with the page they serve.
 - Use descriptive kebab-case names with numeric prefixes, following the existing folders and files. The sidebar uses these prefixes to order pages and categories.
 
-For Markdown, frontmatter, links, images, and CI requirements, follow [Contribute to the documentation](docs/11-how-to/01-contribute-documentation.md). Update documentation alongside feature and fix PRs whenever behavior changes.
+For placement examples, Markdown, frontmatter, links, images, and CI requirements, follow [Contribute to the documentation](docs/11-how-to/01-contribute-documentation.md). Update documentation alongside feature and fix PRs whenever behavior changes.
 
 ## Repository versioning policy
 
