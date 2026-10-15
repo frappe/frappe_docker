@@ -4,54 +4,24 @@ title: Automated Builds and Deployment
 
 # Automated Builds and Deployment
 
-This is a brief guide to automated builds and deployment for custom Frappe images.
-Depending on your specific setup, environment and security rules, the information below may need to be adapted to your needs.
+Build custom Frappe images in CI with controlled cache refreshes, then migrate existing sites after deploying the updated image. Adapt the workflow to your CI platform, environment, and security rules.
 
 ## Requirements
 
-### Knowledge
-
-Basic knowledge of Docker and build pipelines is expected.
-
-Please refer to the Setup chapter first, especially [Build Setup](../02-setup/02-build-setup.md), for basic understanding.
-
-### Additional Files
-
-#### Apps
-
-At build time an `apps.json` file can be provided. This specifies additional Frappe framework compatible apps to include in custom images.
-
-#### Build
-
-A workflow file for your CI platform and environment is required.
+- Basic knowledge of Docker and build pipelines.
+- A repository checkout and a [compatible builder](../02-setup/02-build-setup.md#builder-compatibility).
+- An [`apps.json` file](../02-setup/02-build-setup.md#define-custom-apps) in the repository root for the examples below.
+- A workflow file for your CI platform. The examples use GitHub Actions steps and run from the repository root; the run ID and commit SHA examples use GitHub-provided environment variables.
 
 ## Build Cache
 
-Unlike manual builds, automated build commands should generally not use `--no-cache`.
+Keep normal Docker caching enabled and choose one of the refresh values below for `CACHE_BUST`. For ephemeral runners, configure cache import and export in your CI build step so later runs can reuse earlier work.
 
-Reusing cached layers can greatly reduce build times, disk usage, and bandwidth usage when pushing to image registries.
+Changing `apps.json` or updating a remote branch alone does not force a rebuild. See [Build Cache Behavior](../13-explanation/09-build-cache-behavior.md) for why this happens and how to choose a refresh strategy. The examples use `images/layered/Containerfile`; `images/custom/Containerfile` also supports `CACHE_BUST`.
 
-Instead, `CACHE_BUST` can be used to control cache invalidation of the Frappe layer when rebuilding is desired.
+### 1. No override - not recommended for moving branches
 
-This is especially relevant because `apps.json` is provided as a secret. Secret contents are not part of [Docker layer cache keys](https://docs.docker.com/build/cache/invalidation/#build-secrets) and therefore cannot trigger cache invalidation automatically.
-
-As a result, Docker may reuse an older cached layer even when the custom app definition has changed.
-
-Changing `FRAPPE_BRANCH` or using an updated builder image can also invalidate this layer. Updates to an upstream branch alone do not invalidate a cached `RUN` instruction.
-
-### Possible techniques for cache invalidation using `CACHE_BUST`:
-
-1. No override: normal Docker layer caching is used - not recommended in this use case
-2. Timestamp: force a rebuild on every pipeline run - since the value will change every run
-3. Pipeline run ID: rebuild once per CI run
-4. Commit SHA: rebuild once per commit
-5. apps.json hash: rebuild only when the custom app definition changes - additional requirements, see below example
-
-### Examples:
-
-#### 1. No override - not recommended
-
-Docker can reuse the cached `bench init` layer while its inputs and builder image remain unchanged. Updates to an upstream app or Frappe branch alone do not force a rebuild. Frappe is fetched again when this layer is rebuilt, for example after changing `FRAPPE_BRANCH` or the builder image.
+Use this only when reusing cached application sources is acceptable. To fetch moving branch updates on each run, use a timestamp or pipeline run ID instead.
 
 ```yaml
 - name: Build Docker image
@@ -65,7 +35,7 @@ Docker can reuse the cached `bench init` layer while its inputs and builder imag
       --file=images/layered/Containerfile .
 ```
 
-#### 2. Timestamp
+### 2. Timestamp
 
 ```yaml
 - name: Build Docker image
@@ -80,7 +50,9 @@ Docker can reuse the cached `bench init` layer while its inputs and builder imag
       --file=images/layered/Containerfile .
 ```
 
-#### 3. Pipeline run ID from GitHub
+### 3. Pipeline run ID from GitHub
+
+To refresh on a workflow rerun as well, use `CACHE_BUST="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"` in place of `CACHE_BUST="$GITHUB_RUN_ID"` below.
 
 ```yaml
 - name: Build Docker image
@@ -95,7 +67,9 @@ Docker can reuse the cached `bench init` layer while its inputs and builder imag
       --file=images/layered/Containerfile .
 ```
 
-#### 4. Commit SHA from GitHub
+### 4. Commit SHA from GitHub
+
+Use this when the triggering commit should determine the refresh. Rebuilding that commit will not pick up independent updates to remote app or Frappe branches.
 
 ```yaml
 - name: Build Docker image
@@ -110,9 +84,9 @@ Docker can reuse the cached `bench init` layer while its inputs and builder imag
       --file=images/layered/Containerfile .
 ```
 
-#### 5. apps.json hash
+### 5. apps.json hash
 
-Note: When using branch references in `apps.json`, the hash only changes when the file content changes, not when an upstream app branch receives updates. This method works best when pinning release tags in `apps.json`. To pick up changes to moving branches, use a timestamp or pipeline run ID instead.
+Pin release tags in `apps.json` for this approach. The hash does not detect updates to moving app or Frappe branches; use a timestamp or pipeline run ID to fetch those updates. The command requires `sha256sum` and `awk` on the runner.
 
 ```yaml
 - name: Build Docker image
