@@ -132,6 +132,7 @@ RUN bench init \
   --skip-redis-config-generation \
   --verbose \
   /home/frappe/frappe-bench && \
+  chmod -R g=u /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
   bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
   echo "{}" > sites/common_site_config.json && \
@@ -143,13 +144,12 @@ USER frappe
 
 RUN echo "echo \"Commands restricted in prodution container, Read FAQ before you proceed: https://frappe.io/ctr-faq\"" >> ~/.bashrc
 
-COPY --from=builder --chown=frappe:0 --chmod=g=u /home/frappe/frappe-bench /home/frappe/frappe-bench
+COPY --from=builder --chown=frappe:0 /home/frappe/frappe-bench /home/frappe/frappe-bench
 
 WORKDIR /home/frappe/frappe-bench
 
 # Keep the COPY destination group-writable and move assets to image-layer storage
-RUN chmod g=u /home/frappe/frappe-bench && \
-  cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
+RUN cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
   rm -rf /home/frappe/frappe-bench/sites/assets
 
 VOLUME [ \
