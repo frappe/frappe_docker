@@ -123,6 +123,10 @@ Documentation lives in `docs/` and is published with VitePress from the same Mar
 
 For Markdown, frontmatter, links, images, and CI requirements, follow [Contribute to the documentation](docs/11-how-to/01-contribute-documentation.md). Update documentation alongside feature and fix PRs whenever behavior changes.
 
+## Repository versioning policy
+
+Follow the [repository versioning policy](docs/12-reference/01-repository-versioning-policy.md). Flag compatibility changes in your PR, including deployment or runtime impacts and build-tool minimum increases. Maintainers decide release versions.
+
 # Frappe and ERPNext updates
 
 Each Frappe/ERPNext release triggers new stable images builds as well as bump to helm chart.
