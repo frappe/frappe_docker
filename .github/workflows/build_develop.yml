@@ -7,6 +7,7 @@ jobs:
   delegate:
     uses: ./.github/workflows/core-build-develop.yml
     permissions:
+      actions: read
       contents: read
       packages: write
       security-events: write

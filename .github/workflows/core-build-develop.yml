@@ -1,6 +1,7 @@
 name: Core / Build Develop
 
 permissions:
+  actions: read
   contents: read
   packages: write
   security-events: write
@@ -21,6 +22,10 @@ on:
       - .github/workflows/core-build-develop.yml
       - .github/workflows/core-build-test-images.yml
       - .github/workflows/core-publish-images.yml
+      - .github/scripts/image_sizes.py
+      - .github/scripts/test_image_sizes.py
+      - .github/scripts/get_latest_tags.py
+      - .github/image-size-policy.json
 
   schedule:
     # Every Monday at 03:17 UTC
