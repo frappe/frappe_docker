@@ -128,6 +128,12 @@ for each release line and architecture. It reads the registry manifests and imag
 configuration already produced by the build. It does not download filesystem
 layers or build a second reference image.
 
+The architecture jobs run on matching native GitHub-hosted runners: `ubuntu-latest`
+for amd64 and `ubuntu-24.04-arm` for ARM64. Each Bake build explicitly sets
+`*.platform=linux/<architecture>`. Configuring the Buildx node's supported platforms
+alone does not select the platform of the image being built. The measurement check
+verifies the platform in both the manifest index and the image configuration.
+
 The metric is the sum of **compressed filesystem layer sizes**, including inherited
 base layers. It describes image download size, rather than Docker's local disk
 usage. The job summary shows the baseline, current size, percentage change, layer

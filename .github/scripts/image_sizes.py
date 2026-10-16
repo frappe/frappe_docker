@@ -183,7 +183,15 @@ def measure_image(registry: str, name: str, tag: str, arch: str) -> dict:
             and item.get("platform", {}).get("architecture") == arch
         ]
         if len(matches) != 1:
-            raise ValueError(f"Expected one linux/{arch} manifest for {name}:{tag}")
+            available = ", ".join(
+                f"{item.get('platform', {}).get('os', '?')}/"
+                f"{item.get('platform', {}).get('architecture', '?')}"
+                for item in manifest["manifests"]
+            )
+            raise ValueError(
+                f"Expected one linux/{arch} manifest for {name}:{tag}; "
+                f"available: {available or 'none'}"
+            )
         manifest = registry_json(f"{url}/manifests/{matches[0]['digest']}")
     config = registry_json(f"{url}/blobs/{manifest['config']['digest']}")
     if (config["os"], config["architecture"]) != ("linux", arch):
