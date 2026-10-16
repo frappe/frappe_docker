@@ -130,6 +130,7 @@ ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 ARG CACHE_BUST=""
 
+# Apply group permissions after app installation and cleanup, before the runtime COPY.
 RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=0 \
   : "${CACHE_BUST}" && \
   export APP_INSTALL_ARGS="" && \
@@ -146,13 +147,14 @@ RUN --mount=type=secret,id=apps_json,target=/opt/frappe/apps.json,uid=1000,gid=0
     /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
   echo "{}" > sites/common_site_config.json && \
-  find apps -mindepth 1 -path "*/.git" | xargs rm -fr
+  find apps -mindepth 1 -path "*/.git" | xargs rm -fr && \
+  chmod -R g=u /home/frappe/frappe-bench
 
 FROM base AS backend
 
 USER frappe
 
-COPY --from=builder --chown=frappe:0 --chmod=g=u /home/frappe/frappe-bench /home/frappe/frappe-bench
+COPY --from=builder --chown=frappe:0 /home/frappe/frappe-bench /home/frappe/frappe-bench
 
 WORKDIR /home/frappe/frappe-bench
 
