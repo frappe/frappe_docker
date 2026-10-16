@@ -89,7 +89,7 @@ podman build \
 
 This repository is fully suited for automated builds, i.e. using CI/CD pipelines.
 
-See [Automated Builds and Deployment](../11-how-to/06-automated-builds-and-deployment.md) for more information.
+To choose and configure when a CI build fetches fresh application sources, follow [Control application-source refreshes in CI builds](../11-how-to/06-control-source-refreshes-in-ci-builds.md). For the deployment migration stage, see [Automate site migrations](../11-how-to/11-automate-site-migrations.md).
 
 ## Build args, secrets and flags
 

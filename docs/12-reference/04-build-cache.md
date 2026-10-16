@@ -4,7 +4,7 @@ title: Build Cache
 
 # Build cache
 
-This page describes cache inputs and invalidation rules for `images/layered/Containerfile`, `images/custom/Containerfile`, and the reusable app image workflow. For refresh strategy selection and build commands, see [Automated Builds and Deployment](../11-how-to/06-automated-builds-and-deployment.md). The [build setup guide](../02-setup/02-build-setup.md#build-args-secrets-and-flags) lists the other build arguments and secrets.
+This page describes cache inputs and invalidation rules for `images/layered/Containerfile`, `images/custom/Containerfile`, and the reusable app image workflow. For refresh strategy selection and build commands, see [Control application-source refreshes in CI builds](../11-how-to/06-control-source-refreshes-in-ci-builds.md). The [build setup guide](../02-setup/02-build-setup.md#build-args-secrets-and-flags) lists the other build arguments and secrets.
 
 ## Cache invalidation
 
