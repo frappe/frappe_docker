@@ -424,6 +424,26 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Wrong platform"):
             sizes.measure_image(self.registry, "erpnext", "v16.51.1", "amd64")
 
+    def test_arm64_manifest_is_selected_and_verified(self):
+        prefix = "/v2/frappe/erpnext"
+        arm_manifest = copy.deepcopy(self.manifest)
+        arm_manifest["config"]["digest"] = "sha256:config-arm64"
+        self.routes[f"{prefix}/manifests/sha256:arm64"] = arm_manifest
+        self.routes[f"{prefix}/blobs/sha256:config-arm64"] = {
+            **self.config,
+            "architecture": "arm64",
+        }
+        image = sizes.measure_image(self.registry, "erpnext", "v16.51.1", "arm64")
+        self.assertEqual(image["compressed_bytes"], 1000 * MIB)
+        self.assertIn(f"{prefix}/manifests/sha256:arm64", self.requests)
+        self.assertNotIn(f"{prefix}/manifests/sha256:amd64", self.requests)
+
+    def test_mislabeled_arm64_build_reports_the_actual_platform(self):
+        index = self.routes["/v2/frappe/erpnext/manifests/v16.51.1"]
+        index["manifests"] = [index["manifests"][1]]
+        with self.assertRaisesRegex(ValueError, "linux/arm64.*available: linux/amd64"):
+            sizes.measure_image(self.registry, "erpnext", "v16.51.1", "arm64")
+
     def test_inconsistent_history_is_an_error(self):
         self.config["history"].pop(0)
         with self.assertRaisesRegex(ValueError, "history does not match"):
