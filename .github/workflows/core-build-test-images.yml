@@ -33,6 +33,7 @@ on:
         value: ${{ jobs.resolve.outputs.erpnext_version }}
 
 permissions:
+  actions: read
   contents: read
   security-events: write
 
@@ -43,18 +44,26 @@ jobs:
     outputs:
       frappe_version: ${{ steps.resolve.outputs.frappe_version }}
       erpnext_version: ${{ steps.resolve.outputs.erpnext_version }}
+      baseline_artifacts: ${{ steps.resolve.outputs.baseline_artifacts }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Resolve image versions
         id: resolve
-        run: python3 ./.github/scripts/get_latest_tags.py --repo ${{ inputs.repo }} --version ${{ inputs.version }}
+        run: python3 .github/scripts/image_sizes.py prepare --repo "$APP_REPO" --version "$RELEASE_LINE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APP_REPO: ${{ inputs.repo }}
+          RELEASE_LINE: ${{ inputs.version }}
 
   build:
-    name: Build
-    runs-on: ubuntu-latest
+    name: Build (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
     needs: resolve
+    env:
+      TEST_IMAGE_PLATFORM: linux/${{ matrix.arch }}
+      TRIVY_PLATFORM: linux/${{ matrix.arch }}
     services:
       registry:
         image: docker.io/registry:2
@@ -62,17 +71,21 @@ jobs:
           - 5000:5000
     strategy:
       matrix:
-        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v4
-        with:
-          image: tonistiigi/binfmt:latest
-          platforms: all
+      - name: Download successful main size baseline
+        run: python3 .github/scripts/image_sizes.py download --artifact-id "$BASELINE_ARTIFACT_ID" --output image-size-baseline.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASELINE_ARTIFACT_ID: ${{ fromJSON(needs.resolve.outputs.baseline_artifacts)[matrix.arch] }}
 
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v4
@@ -98,8 +111,17 @@ jobs:
         with:
           source: .
           push: true
+          set: |
+            *.platform=linux/${{ matrix.arch }}
         env:
           REGISTRY_USER: localhost:5000/frappe
+
+      - name: Check image sizes and permission layers
+        run: python3 .github/scripts/image_sizes.py check --repo "$APP_REPO" --version "$RELEASE_LINE" --arch "$IMAGE_ARCH"
+        env:
+          APP_REPO: ${{ inputs.repo }}
+          RELEASE_LINE: ${{ inputs.version }}
+          IMAGE_ARCH: ${{ matrix.arch }}
 
       - name: Create Trivy report directory
         run: mkdir -p trivy-results
@@ -234,3 +256,15 @@ jobs:
 
       - name: Test
         run: venv/bin/pytest --color=yes
+
+      # Failed runs retain a report for review, but only a fully successful main
+      # workflow run can be selected as a future baseline.
+      - name: Save image size report
+        if: ${{ always() && hashFiles('report.json') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-sizes-${{ github.event_name == 'pull_request' && 'pr-' || '' }}${{ inputs.repo }}-${{ inputs.version }}-${{ matrix.arch }}
+          path: report.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90
