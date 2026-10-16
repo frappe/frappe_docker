@@ -61,6 +61,9 @@ jobs:
     name: Build (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     needs: resolve
+    env:
+      TEST_IMAGE_PLATFORM: linux/${{ matrix.arch }}
+      TRIVY_PLATFORM: linux/${{ matrix.arch }}
     services:
       registry:
         image: docker.io/registry:2
