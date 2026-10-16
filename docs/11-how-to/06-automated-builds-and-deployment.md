@@ -15,9 +15,13 @@ Build custom Frappe images in CI with controlled cache refreshes, then migrate e
 
 ## Build Cache
 
-Keep normal Docker caching enabled and choose one of the refresh values below for `CACHE_BUST`. For ephemeral runners, configure cache import and export in your CI build step so later runs can reuse earlier work.
+Keep normal Docker caching enabled and choose one of the refresh values below for `CACHE_BUST`. Selective invalidation can reduce build time and repeated transfers while preserving reusable dependency layers. Retaining cached results also consumes local disk space.
 
-Changing `apps.json` or updating a remote branch alone does not force a rebuild. See [Build Cache Behavior](../13-explanation/09-build-cache-behavior.md) for why this happens and how to choose a refresh strategy. The examples use `images/layered/Containerfile`; `images/custom/Containerfile` also supports `CACHE_BUST`.
+For ephemeral runners, configure cache import and export in your CI build step so later runs can reuse earlier work.
+
+Changing `apps.json` or updating a remote branch alone does not force a rebuild. See the [build cache reference](../12-reference/04-build-cache.md) for invalidation rules and the reusable workflow's cache behavior. The examples use `images/layered/Containerfile`; `images/custom/Containerfile` also supports `CACHE_BUST`.
+
+Choose a refresh value according to which changes your pipeline needs to pick up. Refreshing a layer controls when sources are fetched; it does not make a moving branch reproducible. Two builds can fetch different source revisions from the same branch even with an unchanged app definition.
 
 ### 1. No override - not recommended for moving branches
 
@@ -37,6 +41,8 @@ Use this only when reusing cached application sources is acceptable. To fetch mo
 
 ### 2. Timestamp
 
+Use a changing timestamp when each build should fetch current sources, including builds of the same triggering commit.
+
 ```yaml
 - name: Build Docker image
   shell: sh
@@ -52,7 +58,7 @@ Use this only when reusing cached application sources is acceptable. To fetch mo
 
 ### 3. Pipeline run ID from GitHub
 
-To refresh on a workflow rerun as well, use `CACHE_BUST="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"` in place of `CACHE_BUST="$GITHUB_RUN_ID"` below.
+Use the run ID to refresh once per workflow run while allowing builds within that run to reuse the layer. [GitHub reruns retain `GITHUB_RUN_ID`](https://docs.github.com/en/actions/reference/workflows-and-actions/variables#default-environment-variables). To refresh on a rerun as well, use `CACHE_BUST="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"` in place of `CACHE_BUST="$GITHUB_RUN_ID"` below.
 
 ```yaml
 - name: Build Docker image
@@ -86,7 +92,7 @@ Use this when the triggering commit should determine the refresh. Rebuilding tha
 
 ### 5. apps.json hash
 
-Pin release tags in `apps.json` for this approach. The hash does not detect updates to moving app or Frappe branches; use a timestamp or pipeline run ID to fetch those updates. The command requires `sha256sum` and `awk` on the runner.
+Use this when changes to the app definition should trigger a refresh. Pin release tags in `apps.json` and keep those tags unchanged. The hash does not detect updates to moving app or Frappe branches; use a timestamp or pipeline run ID to fetch those updates. The command requires `sha256sum` and `awk` on the runner.
 
 ```yaml
 - name: Build Docker image
