@@ -4,7 +4,7 @@ title: Framework Comparisons
 
 # Framework Comparisons
 
-> **Note:** This section provides comparisons to other frameworks for developers familiar with them. If you're new to all frameworks, you can skip this section - the rest of the guide is self-contained.
+> **Note:** This section provides comparisons to other frameworks for developers familiar with them. If you're new to all frameworks, you can skip this section.
 
 ## Frappe vs Django Concepts
 
