@@ -133,6 +133,10 @@ for amd64 and `ubuntu-24.04-arm` for ARM64. Each Bake build explicitly sets
 `*.platform=linux/<architecture>`. Configuring the Buildx node's supported platforms
 alone does not select the platform of the image being built. The measurement check
 verifies the platform in both the manifest index and the image configuration.
+The job also sets `TRIVY_PLATFORM` for vulnerability scans and `TEST_IMAGE_PLATFORM`
+for `tests/compose.ci.yaml`, so scanners and integration tests consume the same
+architecture that was built. The CI Compose override replaces the base Compose
+file's amd64 platform for all seven application services.
 
 The metric is the sum of **compressed filesystem layer sizes**, including inherited
 base layers. It describes image download size, rather than Docker's local disk
