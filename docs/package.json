@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "mermaid": "12.1.0",
+    "mermaid": "12.2.0",
     "vitepress": "2.0.0-alpha.20",
     "vitepress-mermaid-viewer": "0.5.1",
     "vitepress-sidebar": "1.40.0"
