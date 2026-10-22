@@ -1,11 +1,12 @@
 version: 2
-# Check every six hours, including weekends, without waiting for releases to age.
+# Check every day, including weekends, without waiting for releases to age.
+# Dependabot requires at least 24 hours between scheduled runs.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: cron
-      cronjob: "0 */6 * * *"
+      cronjob: "0 6 * * *"
     cooldown:
       exclude:
         - "*"
@@ -21,7 +22,7 @@ updates:
     directory: images/bench
     schedule:
       interval: cron
-      cronjob: "0 */6 * * *"
+      cronjob: "0 6 * * *"
     cooldown:
       exclude:
         - "*"
@@ -30,7 +31,7 @@ updates:
     directory: /overrides
     schedule:
       interval: cron
-      cronjob: "0 */6 * * *"
+      cronjob: "0 6 * * *"
     cooldown:
       exclude:
         - "*"
@@ -49,7 +50,7 @@ updates:
     directory: /
     schedule:
       interval: cron
-      cronjob: "0 */6 * * *"
+      cronjob: "0 6 * * *"
     cooldown:
       exclude:
         - "*"
@@ -65,7 +66,7 @@ updates:
     directory: /docs
     schedule:
       interval: cron
-      cronjob: "0 */6 * * *"
+      cronjob: "0 6 * * *"
     cooldown:
       exclude:
         - "*"
@@ -81,7 +82,7 @@ updates:
     directory: /
     schedule:
       interval: cron
-      cronjob: "0 */6 * * *"
+      cronjob: "0 6 * * *"
     cooldown:
       exclude:
         - "*"
