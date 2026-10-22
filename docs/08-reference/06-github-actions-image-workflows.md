@@ -21,6 +21,7 @@ They decide when the core image pipeline runs.
 
 - resolves the image versions for the requested release line
 - builds the shared core images into a local registry
+- compares image sizes with a successful `main` baseline
 - scans the locally built images with Trivy
 - runs the test suite against those images
 
@@ -61,6 +62,7 @@ flowchart TD
         B[core-build-test-images.yml]
         C[Resolve versions]
         D[Build local test images]
+        P[Check image growth and layers]
         E[Scan images with Trivy]
         F[Run pytest]
         G[core-publish-images.yml]
@@ -70,7 +72,8 @@ flowchart TD
         A --> B
         B --> C
         C --> D
-        D --> E
+        D --> P
+        P --> E
         E --> F
         F --> G
         G --> H
@@ -102,6 +105,7 @@ More concretely:
 core-build-test-images.yml
   -> resolves frappe and erpnext tags
   -> builds images into a local CI registry
+  -> checks image growth and reports the largest layers
   -> scans the locally built images with Trivy
   -> runs tests
 
@@ -116,6 +120,72 @@ app-build-image.yml
   -> installs app from app_repo + app_ref
   -> pushes final image_name:image_tag
 ```
+
+# Automatic image size checks
+
+The core build and test workflow measures `base`, `build`, and `erpnext` separately
+for each release line and architecture. It reads the registry manifests and image
+configuration already produced by the build. It does not download filesystem
+layers or build a second reference image.
+
+The architecture jobs run on matching native GitHub-hosted runners: `ubuntu-latest`
+for amd64 and `ubuntu-24.04-arm` for ARM64. Each Bake build explicitly sets
+`*.platform=linux/<architecture>`. Configuring the Buildx node's supported platforms
+alone does not select the platform of the image being built. The measurement check
+verifies the platform in both the manifest index and the image configuration.
+The job also sets `TRIVY_PLATFORM` for vulnerability scans and `TEST_IMAGE_PLATFORM`
+for `tests/compose.ci.yaml`, so scanners and integration tests consume the same
+architecture that was built. The CI Compose override replaces the base Compose
+file's amd64 platform for all seven application services.
+
+The metric is the sum of **compressed filesystem layer sizes**, including inherited
+base layers. It describes image download size, rather than Docker's local disk
+usage. The job summary shows the baseline, current size, percentage change, layer
+count, and the ten largest layers with their build instructions. Layer count alone
+does not cause a failure.
+
+Growth fails the build when it exceeds **both 5% and 100 MiB**. The limits live in
+`.github/image-size-policy.json`; intentional larger increases require a reviewed
+change to that policy. The size check runs before integration tests and the
+dependent publishing jobs.
+
+Every build saves a small `image-sizes-<repo>-<release-line>-<architecture>` report
+artifact (PR report names include an extra `pr-` prefix). Only reports from a
+**fully successful workflow run on `main` in this
+repository**, using the same calling workflow, can become the next baseline.
+Failed runs and pull requests are excluded, even if they uploaded measurements.
+Both architecture reports must be present. Selection uses prior workflow runs, so
+an older run finishing late cannot overwrite a newer baseline.
+Lookup examines up to 500 recent baseline artifacts, ordered by workflow run ID.
+
+This updates the baseline after successful image builds triggered by relevant
+pushes to `main`, upstream releases, and the existing develop schedule. Pushes that
+do not trigger image builds need no new measurements. No additional trigger,
+manual run, or commit of generated measurements is required.
+
+PR builds use the Frappe and ERPNext tags recorded in the baseline. Main and release
+builds continue to resolve the latest application versions. When build inputs
+change, the summary makes that explicit; the growth limit still applies. Moving
+`develop` refs, mutable base images, and unpinned dependencies can also affect sizes,
+so the comparison does not imply that all inputs are reproducible.
+
+Reports are retained for 90 days. On the initial rollout, or after all eligible
+reports expire, CI reports sizes without a numerical comparison. The next
+successful `main` build supplies a baseline automatically. API or download failures
+fail the check rather than silently discarding the baseline.
+
+The lint workflow also checks **production, custom, and layered Containerfiles** for
+recursive permission changes to the bench after it has been copied into a runtime
+stage. Such changes can duplicate the bench in another image layer. Apply recursive
+permissions in the builder before the copy; a nonrecursive permission change to the
+bench directory itself is allowed. The same guard checks the built core images'
+history. This guard works even before a numerical baseline exists.
+
+Numeric size comparisons cover the production images that the core pipeline
+already builds. Custom and layered recipes receive the permission guard; their
+complete image sizes would require additional builds. The publishing workflow
+currently rebuilds images after the test workflow, so these reports describe the
+tested images rather than a verification of each published digest.
 
 # Naming convention
 
