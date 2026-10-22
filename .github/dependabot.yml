@@ -1,9 +1,14 @@
 version: 2
+# Check every six hours, including weekends, without waiting for releases to age.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 */6 * * *"
+    cooldown:
+      exclude:
+        - "*"
     groups:
       actions-minor-patch:
         patterns:
@@ -15,12 +20,20 @@ updates:
   - package-ecosystem: docker
     directory: images/bench
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 */6 * * *"
+    cooldown:
+      exclude:
+        - "*"
 
   - package-ecosystem: docker-compose
     directory: /overrides
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 */6 * * *"
+    cooldown:
+      exclude:
+        - "*"
     allow:
       - dependency-name: nginxproxy/acme-companion
       - dependency-name: nginxproxy/nginx-proxy
@@ -35,12 +48,27 @@ updates:
   - package-ecosystem: pip
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 */6 * * *"
+    cooldown:
+      exclude:
+        - "*"
+    groups:
+      python-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: npm
     directory: /docs
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 */6 * * *"
+    cooldown:
+      exclude:
+        - "*"
     groups:
       docs-minor-patch:
         patterns:
@@ -52,7 +80,11 @@ updates:
   - package-ecosystem: pre-commit
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 */6 * * *"
+    cooldown:
+      exclude:
+        - "*"
     groups:
       pre-commit-hooks:
         patterns:
