@@ -9,7 +9,7 @@ To modify any VitePress related settings, a JavaScript development environment i
 ## Prerequisites
 
 1. Node.js v24 or above is recommended. To install and manage Node.js [nvm](https://github.com/nvm-sh/nvm) is the preferred way for Linux and MacOS. For Windows either official installer or [fnm](https://github.com/Schniz/fnm).
-2. pnpm package manager, v10.28 or above. Easiest way to install pnpm is using [corepack](https://pnpm.io/installation#using-corepack) which is part of Node.js.
+2. pnpm package manager, v10.28 or above. Easiest way to install pnpm is using [corepack](https://pnpm.io/installation#using-corepack) which can be installed separately when it is not bundled with Node.js.
 
 ## Development
 

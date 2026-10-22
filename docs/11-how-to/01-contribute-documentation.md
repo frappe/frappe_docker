@@ -10,14 +10,25 @@ Include documentation changes in feature and fix PRs when they affect how people
 
 ## Choose the right page
 
-Update existing coverage where appropriate. For a new page, choose a directory by the reader's purpose:
+Update existing coverage where appropriate. For a new page, choose a category by the reader's purpose.
 
-- `docs/10-tutorials/`: a guided exercise that teaches a skill.
-- `docs/11-how-to/`: steps to complete a specific task.
-- `docs/12-reference/`: technical facts, settings, and defaults to look up.
-- `docs/13-explanation/`: background, concepts, and design choices.
+[Diátaxis](https://diataxis.fr/compass/) distinguishes **learning** from **working**, and **practical action** from **theoretical knowledge**. Tutorials involve doing too; the distinction is whether the reader is acquiring skills or applying them.
 
-Keep the page focused on that purpose and link to related material instead of repeating it. See the [documentation contribution guidelines](https://github.com/frappe/frappe_docker/blob/main/CONTRIBUTING.md#documentation) for the placement policy.
+| Category          | Reader's purpose | Approach              | What the page provides                                            |
+| ----------------- | ---------------- | --------------------- | ----------------------------------------------------------------- |
+| **Tutorials**     | Learning         | Practical action      | A guided exercise through which the reader acquires skills.       |
+| **How-to guides** | Working          | Practical action      | Directions for completing a specific task using existing skills.  |
+| **Reference**     | Working          | Theoretical knowledge | Precise information to consult while applying existing knowledge. |
+| **Explanation**   | Learning         | Theoretical knowledge | Context and reasoning that develop the reader's understanding.    |
+
+Place the page in the corresponding directory:
+
+- `docs/10-tutorials/`: Tutorials.
+- `docs/11-how-to/`: How-to Guides.
+- `docs/12-reference/`: Reference.
+- `docs/13-explanation/`: Explanation.
+
+Keep each page focused on one reader need. Split substantial sections that serve different needs into separate pages and link between them. Short prerequisites, examples, and supporting context can stay with the page they help. See the [documentation contribution guidelines](https://github.com/frappe/frappe_docker/blob/main/CONTRIBUTING.md#documentation) for the placement policy.
 
 Category indexes should briefly explain their purpose rather than list every document.
 
@@ -47,4 +58,4 @@ Follow the repository's existing [pre-commit requirements](https://github.com/fr
 
 The PR must pass the lint and documentation build checks. CI builds the site and reports errors such as broken page links or invalid Markdown syntax. If a check fails, read its log, correct the affected source, and push the fix. CI does not verify every heading fragment, so check those yourself.
 
-Maintainers working on site configuration can use the specialist [Configuring VitePress](../08-reference/02-configuring-vitepress.md) guide.
+Maintainers working on site configuration can use the specialist [Configuring VitePress](07-configuring-vitepress.md) guide.
