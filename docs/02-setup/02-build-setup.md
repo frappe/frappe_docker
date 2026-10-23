@@ -14,14 +14,9 @@ This guide walks you through building Frappe images from the repository resource
 
 ## Builder compatibility
 
-Building the `layered`, `custom`, and `production` images requires:
+Use Docker with BuildKit/Buildx or Podman with Buildah. The `custom` and `layered` images require support for [build secret mounts](https://docs.docker.com/build/building/secrets/) (`RUN --mount=type=secret`) to read `apps.json`.
 
-- **Docker:** Engine **v27.4+** with Buildx, or a separate Buildx builder using [BuildKit **v0.17+**](https://github.com/moby/buildkit/releases/tag/v0.17.0).
-- **Podman:** its Buildah backend must be [**v1.45+**](https://github.com/podman-container-tools/buildah/releases/tag/v1.45.0).
-
-The Containerfiles select the Dockerfile frontend automatically with `# syntax=docker/dockerfile:1`. If you override it, use [frontend **v1.14+**](https://docs.docker.com/reference/dockerfile/#copy---chmod).
-
-These versions support `COPY --chmod=g=u` and are required only for building images.
+The Containerfiles select the stable Dockerfile frontend with `# syntax=docker/dockerfile:1`. Bench permissions are applied with `chmod` in the builder stage, so symbolic `COPY --chmod` support is not required.
 
 # Clone this repo
 

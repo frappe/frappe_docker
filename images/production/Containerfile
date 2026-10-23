@@ -124,6 +124,7 @@ ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 ARG ERPNEXT_REPO=https://github.com/frappe/erpnext
 ARG ERPNEXT_BRANCH=version-16
+# Apply group permissions after app installation and cleanup, before the runtime COPY.
 RUN bench init \
   --frappe-branch=${FRAPPE_BRANCH} \
   --frappe-path=${FRAPPE_PATH} \
@@ -135,7 +136,8 @@ RUN bench init \
   cd /home/frappe/frappe-bench && \
   bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
   echo "{}" > sites/common_site_config.json && \
-  find apps -mindepth 1 -path "*/.git" | xargs rm -fr
+  find apps -mindepth 1 -path "*/.git" | xargs rm -fr && \
+  chmod -R g=u /home/frappe/frappe-bench
 
 FROM base AS erpnext
 
@@ -143,7 +145,7 @@ USER frappe
 
 RUN echo "echo \"Commands restricted in prodution container, Read FAQ before you proceed: https://frappe.io/ctr-faq\"" >> ~/.bashrc
 
-COPY --from=builder --chown=frappe:0 --chmod=g=u /home/frappe/frappe-bench /home/frappe/frappe-bench
+COPY --from=builder --chown=frappe:0 /home/frappe/frappe-bench /home/frappe/frappe-bench
 
 WORKDIR /home/frappe/frappe-bench
 
