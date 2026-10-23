@@ -1,0 +1,75 @@
+name: Build Custom Image
+
+on:
+  repository_dispatch:
+    types: [erpnext-source-updated]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CUSTOM_IMAGE: thinhnd02/custom
+  CUSTOM_TAG: latest
+  PULL_POLICY: missing
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: images/layered/Containerfile
+          push: true
+          build-args: |
+            FRAPPE_PATH=https://github.com/frappe/frappe
+            FRAPPE_BRANCH=version-16
+            CACHE_BUST=${{ github.run_id }}
+          secret-files: |
+            apps_json=apps.json
+          tags: |
+            ${{ env.CUSTOM_IMAGE }}:${{ env.CUSTOM_TAG }}
+            ${{ env.CUSTOM_IMAGE }}:${{ github.sha }}
+  
+  compose:
+    needs: build-and-push
+    runs-on: self-hosted
+    steps:
+      - name: Create environment file
+        shell: pwsh
+        run: |
+          Copy-Item example.env custom.env
+          @"
+          CUSTOM_IMAGE=${{ env.CUSTOM_IMAGE }}
+          CUSTOM_TAG=${{ env.CUSTOM_TAG }}
+          PULL_POLICY=${{ env.PULL_POLICY }}
+          "@ | Add-Content custom.env
+
+      - name: Create compose file
+        shell: pwsh
+        run: |
+          docker compose --env-file custom.env `
+            -f compose.yaml `
+            -f overrides/compose.mariadb.yaml `
+            -f overrides/compose.redis.yaml `
+            -f overrides/compose.noproxy.yaml `
+            config | Set-Content -Encoding utf8 compose.custom.yaml
+
+      - name: Pull image in compose file
+        shell: pwsh
+        run: |
+          docker compose -p frappe -f compose.custom.yaml pull
+
+      - name: Compose up
+        shell: pwsh
+        run: |
+          docker compose -p frappe -f compose.custom.yaml up -d
+
+
