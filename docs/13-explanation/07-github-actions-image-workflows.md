@@ -25,12 +25,13 @@ They decide when the core image pipeline runs.
 
 - resolves the image versions for the requested release line
 - builds the shared core images into a local registry
+- compares image growth with a successful earlier `main` build
 - scans the locally built images with Trivy
 - runs the test suite against those images
 
 `core-publish-images.yml` is the reusable workflow that:
 
-- publishes the tested images to Docker Hub
+- rebuilds the resolved application versions and publishes images to Docker Hub
 - publishes `base` and `build` to GHCR
 
 `app-build-image.yml` is the reusable workflow that downstream repositories call to:
@@ -65,6 +66,7 @@ flowchart TD
         B[core-build-test-images.yml]
         C[Resolve versions]
         D[Build local test images]
+        P[Check image growth and layers]
         E[Scan images with Trivy]
         F[Run pytest]
         G[core-publish-images.yml]
@@ -74,7 +76,8 @@ flowchart TD
         A --> B
         B --> C
         C --> D
-        D --> E
+        D --> P
+        P --> E
         E --> F
         F --> G
         G --> H
@@ -106,6 +109,7 @@ More concretely:
 core-build-test-images.yml
   -> resolves frappe and erpnext tags
   -> builds images into a local CI registry
+  -> checks image growth and reports the largest layers
   -> scans the locally built images with Trivy
   -> runs tests
 
@@ -120,3 +124,26 @@ app-build-image.yml
   -> installs app from app_repo + app_ref
   -> pushes final image_name:image_tag
 ```
+
+## Image size regressions
+
+An image can pass integration tests while carrying an unnecessary second copy of
+its application files. A permission change after copying the bench into the
+runtime image can add its files to another layer. Counting layers alone does not
+show how much data each instruction adds.
+
+The core pipeline therefore compares compressed layer sizes with a report from a
+successful earlier `main` run and shows the largest layers with their build
+instructions. Reusing measurements from existing builds keeps the comparison
+automatic without adding a second reference build. PR and failed-run reports
+cannot become baselines. Release lines and architectures have separate baselines,
+and PR builds reuse their baseline's application tags to reduce unrelated changes.
+
+The permission-layer guard also checks custom and layered Containerfiles that core
+CI does not fully build. It provides a check before the first numerical baseline
+exists. The [image size check reference](../12-reference/06-image-size-checks.md)
+describes thresholds, reports, baseline selection, and coverage.
+
+Publishing is a separate build after the tests. Size reports describe the tested
+images; they do not verify that every published digest is identical to the tested
+one.

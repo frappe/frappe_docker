@@ -154,6 +154,125 @@ class PermissionTests(unittest.TestCase):
     def test_current_recipes_pass(self):
         self.assertEqual(sizes.guard(), [])
 
+    def test_cd_out_of_bench_allows_safe_relative_permissions(self):
+        for command in (
+            "RUN cd /tmp && chmod -R g=u .",
+            "RUN cd -- /tmp; chown -R frappe:0 .",
+            "RUN cd ../.. && chgrp -R 0 /tmp",
+            "RUN cd '/tmp/safe directory' && chmod -R g=u .",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(
+                    sizes.permission_errors(
+                        [
+                            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                            "WORKDIR /home/frappe/frappe-bench",
+                            command,
+                        ]
+                    ),
+                    [],
+                )
+
+    def test_cd_into_bench_rejects_relative_permissions(self):
+        for command in (
+            "RUN cd /home/frappe/frappe-bench && chmod -R g=u .",
+            "RUN cd ../home/frappe/frappe-bench && chown -R frappe:0 apps",
+            "RUN cd /home/frappe/frappe-bench/apps && chgrp -R 0 ../env",
+        ):
+            with self.subTest(command=command):
+                self.assertTrue(
+                    sizes.permission_errors(
+                        [
+                            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                            "WORKDIR /tmp",
+                            command,
+                        ]
+                    )
+                )
+
+    def test_cd_changes_do_not_leak_between_run_instructions(self):
+        self.assertTrue(
+            sizes.permission_errors(
+                [
+                    "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                    "WORKDIR /home/frappe/frappe-bench",
+                    "RUN cd /tmp && chmod -R g=u .",
+                    "RUN chmod -R g=u .",
+                ]
+            )
+        )
+
+    def test_subshell_cd_does_not_change_the_parent_directory(self):
+        self.assertTrue(
+            sizes.permission_errors(
+                [
+                    "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                    "WORKDIR /home/frappe/frappe-bench",
+                    "RUN (cd /tmp && chmod -R g=u .) && chmod -R g=u .",
+                ]
+            )
+        )
+
+    def test_quoted_cd_text_does_not_change_directory(self):
+        self.assertTrue(
+            sizes.permission_errors(
+                [
+                    "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                    "WORKDIR /home/frappe/frappe-bench",
+                    "RUN echo 'cd /tmp' && chmod -R g=u .",
+                ]
+            )
+        )
+
+    def test_pipeline_cd_does_not_change_the_parent_directory(self):
+        for command in (
+            "RUN echo ignored | cd /tmp && chmod -R g=u .",
+            "RUN cd /tmp | cat && chmod -R g=u .",
+        ):
+            with self.subTest(command=command):
+                self.assertTrue(
+                    sizes.permission_errors(
+                        [
+                            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                            "WORKDIR /home/frappe/frappe-bench",
+                            command,
+                        ]
+                    )
+                )
+
+    def test_cd_back_to_bench_and_failed_cd_fallback_are_rejected(self):
+        for command in (
+            "RUN cd /tmp && cd - && chmod -R g=u .",
+            "RUN cd /missing || chmod -R g=u .",
+        ):
+            with self.subTest(command=command):
+                self.assertTrue(
+                    sizes.permission_errors(
+                        [
+                            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                            "WORKDIR /home/frappe/frappe-bench",
+                            command,
+                        ]
+                    )
+                )
+
+    def test_normalized_paths_distinguish_bench_from_sibling_directories(self):
+        prefix = [
+            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+            "WORKDIR /tmp",
+        ]
+        self.assertTrue(
+            sizes.permission_errors(
+                prefix + ["RUN chmod -R g=u ../home/frappe/frappe-bench"]
+            )
+        )
+        self.assertEqual(
+            sizes.permission_errors(
+                prefix + ["RUN chmod -R g=u /home/frappe/frappe-bench-cache"]
+            ),
+            [],
+        )
+
 
 class BaselineTests(unittest.TestCase):
     def setUp(self):
