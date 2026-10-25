@@ -134,7 +134,10 @@ compound commands. It supports shell, JSON exec, and shell-heredoc `RUN` forms,
 relative `WORKDIR` values, and literal `cd` commands. Directory changes in one
 `RUN` do not affect the next instruction. Syntax that cannot be analysed fails
 explicitly instead of silently passing.
-Unsupported constructs include arithmetic and Bash-specific brace expansions.
+Unsupported constructs include arithmetic and Bash-specific brace expansions, and
+non-local control commands (`break`, `continue`, `return`, and `exit`). These are
+rejected explicitly so they cannot hide later permission changes. Shell comments
+are ignored when detecting heredocs.
 Unresolved variables in `COPY` or `ADD` destinations are treated as potentially
 copying bench files, so they cannot disable the permission check.
 Quoted patterns and heredoc data retain their literal meaning. Unquoted pathname

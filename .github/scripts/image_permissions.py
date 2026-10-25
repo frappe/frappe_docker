@@ -11,12 +11,55 @@ from dataclasses import dataclass
 
 BENCH = "/home/frappe/frappe-bench"
 HEREDOC = re.compile(
-    r"'[^']*'|\"(?:\\.|[^\"\\])*\"|\\.|"
+    r"(?P<quoted>'[^']*'|\"(?:\\[\s\S]|[^\"\\])*\")|"
+    r"(?P<escaped>\\[\s\S])|(?P<comment>#)|"
     r"(?P<doc><<(?P<tabs>-?)\s*(?P<delimiter>(?:'[^']*'|\"(?:\\.|[^\"\\])*\"|[^\s'\";|&<>()])+))"
 )
 
 
-def heredocs(header: str):
+class HeredocScanner:
+    """Find heredoc operators while respecting shell words, quotes and comments."""
+
+    def __init__(self, source, comments=True):
+        self.source = source
+        self.position = 0
+        self.word_start = True
+        self.comments = comments
+        self.comment_spans = []
+
+    def next(self):
+        while match := HEREDOC.search(self.source, self.position):
+            for char in self.source[self.position : match.start()]:
+                self.word_start = char.isspace() or char in ";&|()<>"
+            self.position = match.end()
+            if match["comment"] is not None:
+                if self.comments and self.word_start:
+                    end = self.source.find("\n", self.position)
+                    self.comment_spans.append(
+                        (match.start(), len(self.source) if end < 0 else end)
+                    )
+                    self.position = len(self.source) if end < 0 else end + 1
+                    self.word_start = True
+                else:
+                    self.word_start = False
+            elif match["escaped"] == "\\\n":
+                pass
+            else:
+                self.word_start = False
+                if match["doc"] is not None:
+                    return match
+        return None
+
+    def skip(self, position):
+        self.position = position
+        self.word_start = True
+
+
+def heredocs(header: str, comments=True):
+    scanner = HeredocScanner(header, comments)
+    matches = []
+    while match := scanner.next():
+        matches.append(match)
     return [
         (
             match.start(),
@@ -24,8 +67,7 @@ def heredocs(header: str):
             shlex.split(match["delimiter"])[0],
             bool(match["tabs"]),
         )
-        for match in HEREDOC.finditer(header)
-        if match["doc"] is not None
+        for match in matches
     ]
 
 
@@ -49,7 +91,11 @@ def instructions(text: str) -> list[str]:
         pending = ""
         parts = header.split(None, 1)
         operation, value = parts[0], parts[1] if len(parts) > 1 else ""
-        markers = heredocs(value) if operation.upper() in ("RUN", "COPY", "ADD") else []
+        markers = (
+            heredocs(value, comments=operation.upper() == "RUN")
+            if operation.upper() in ("RUN", "COPY", "ADD")
+            else []
+        )
         body = []
         for _, _, delimiter, tabs in markers:
             for line in lines:
@@ -109,14 +155,11 @@ def touches_bench(target: str | None, directory: str | None) -> bool:
 
 
 def shell_heredocs(script: str):
-    """Make quoted delimiters parseable by bashlex, retaining expansion rules."""
-    output = []
+    """Normalize heredoc delimiters and mask comments before shell parsing."""
     documents = {}
-    written = search = 0
-    while match := HEREDOC.search(script, search):
-        if match["doc"] is None:
-            search = match.end()
-            continue
+    edits = []
+    scanner = HeredocScanner(script)
+    while match := scanner.next():
         start = script.rfind("\n", 0, match.start()) + 1
         end = script.find("\n", match.end())
         if end < 0:
@@ -125,8 +168,6 @@ def shell_heredocs(script: str):
         markers = heredocs(script[match.start() : end])
         offset = match.start() - start
         body_start = end + 1
-        replacements = []
-        bodies = []
         for left, right, delimiter, tabs in markers:
             left, right = left + offset, right + offset
             name = f"__FRAPPE_GUARD_HEREDOC_{len(documents)}__"
@@ -146,15 +187,18 @@ def shell_heredocs(script: str):
             body = script[body_start:body_end]
             quoted = any(char in header[left:right] for char in "'\"\\")
             documents[name] = body, not quoted
-            replacements.append((left, right, ("<<-" if tabs else "<<") + name))
-            bodies.append(body + name + "\n")
+            edits.append(
+                (start + left, start + right, ("<<-" if tabs else "<<") + name)
+            )
+            edits.append((body_end, line_end, name))
             body_start = line_end + 1 if line_end < len(script) else line_end
-        for left, right, replacement in reversed(replacements):
-            header = header[:left] + replacement + header[right:]
-        output.extend((script[written:start], header, "\n", *bodies))
-        written = search = body_start
-    output.append(script[written:])
-    return "".join(output), documents
+        scanner.skip(body_start)
+    edits.extend(
+        (start, end, " " * (end - start)) for start, end in scanner.comment_spans
+    )
+    for start, end, replacement in sorted(edits, reverse=True):
+        script = script[:start] + replacement + script[end:]
+    return script, documents
 
 
 @dataclass(frozen=True)
@@ -405,6 +449,8 @@ class ShellGuard:
         if argv[0] is None or isinstance(argv[0], Glob):
             raise ValueError("Cannot analyse a dynamically selected runtime command")
         name = posixpath.basename(argv[0])
+        if argv[0] in ("break", "continue", "return", "exit"):
+            raise ValueError(f"Cannot analyse non-local shell control: {name}")
         if name in ("command", "builtin", "exec"):
             if any(arg in ("-v", "-V") for arg in argv[1:2]):
                 return set(states), set(states)

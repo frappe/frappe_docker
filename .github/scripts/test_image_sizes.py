@@ -563,6 +563,55 @@ class PermissionTests(unittest.TestCase):
             [],
         )
 
+    def test_nonlocal_shell_control_cannot_hide_later_permissions(self):
+        prefix = ["COPY /home/frappe/frappe-bench /home/frappe/frappe-bench"]
+        for run in (
+            "RUN while true; do break; done; chmod -R g=u /home/frappe/frappe-bench",
+            "RUN for item in once; do continue; done; chmod -R g=u /home/frappe/frappe-bench",
+            "RUN f() { while true; do return; done; }; f; chmod -R g=u /home/frappe/frappe-bench",
+            "RUN (while true; do exit; done); chmod -R g=u /home/frappe/frappe-bench",
+            "RUN while true; do command break; done; chmod -R g=u /home/frappe/frappe-bench",
+        ):
+            with self.subTest(run=run):
+                with self.assertRaisesRegex(ValueError, "non-local shell control"):
+                    sizes.permission_errors(prefix + [run])
+        self.assertEqual(
+            sizes.permission_errors(prefix + ["RUN echo 'break continue return exit'"]),
+            [],
+        )
+
+    def test_shell_comments_do_not_create_heredocs(self):
+        prefix = "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench\n"
+        for run in (
+            "RUN echo safe # example: cat <<EOF\n",
+            "RUN <<SCRIPT\n# example: cat <<EOF\necho safe\nSCRIPT\n",
+            "RUN <<SCRIPT\necho safe;# example: cat <<EOF\nSCRIPT\n",
+            "RUN <<SCRIPT\necho safe # comment with an unmatched ' and <<EOF\necho still-safe\nSCRIPT\n",
+        ):
+            with self.subTest(run=run):
+                self.assertEqual(
+                    sizes.permission_errors(sizes.instructions(prefix + run)), []
+                )
+
+    def test_literal_hashes_do_not_hide_real_heredocs(self):
+        prefix = "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench\n"
+        for header in (
+            "cat word#literal <<EOF",
+            r"cat word\ #literal <<EOF",
+            r"cat \#literal <<EOF",
+            "cat <<EOF # example: cat <<OTHER",
+        ):
+            run = f"RUN {header}\n$(chmod -R g=u /home/frappe/frappe-bench)\nEOF\n"
+            with self.subTest(header=header):
+                self.assertTrue(
+                    sizes.permission_errors(sizes.instructions(prefix + run))
+                )
+        source = (
+            prefix
+            + "RUN <<SCRIPT\n# example: cat <<IGNORED\ncat <<EOF\n$(chmod -R g=u /home/frappe/frappe-bench)\nEOF\nSCRIPT\n"
+        )
+        self.assertTrue(sizes.permission_errors(sizes.instructions(source)))
+
     def test_heredoc_run_forms_and_data(self):
         prefix = (
             "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench\nWORKDIR /tmp\n"
