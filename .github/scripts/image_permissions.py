@@ -376,7 +376,8 @@ def permission_errors(commands: list[str]) -> list[str]:
             paths = (
                 json.loads(header) if header.startswith("[") else shlex.split(header)
             )
-            destination = resolve(directory, paths[-1])
+            target = paths[-1]
+            destination = resolve(directory, None if "$" in target else target)
             if (
                 destination is None
                 or destination == BENCH

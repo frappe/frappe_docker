@@ -391,6 +391,38 @@ class PermissionTests(unittest.TestCase):
             )
         )
 
+    def test_variable_copy_and_add_destinations_cannot_skip_the_bench(self):
+        for operation in ("COPY --from=builder", "ADD"):
+            for destination in ("$BENCH_DIR", "${BENCH_DIR}", "/home/${BENCH_NAME}"):
+                for arguments in (
+                    f"/home/frappe/frappe-bench {destination}",
+                    json.dumps(["/home/frappe/frappe-bench", destination]),
+                ):
+                    with self.subTest(operation=operation, arguments=arguments):
+                        source = (
+                            "ENV BENCH_DIR=/home/frappe/frappe-bench\n"
+                            "ENV BENCH_NAME=frappe-bench\n"
+                            f"{operation} {arguments}\n"
+                        )
+                        prefix = sizes.instructions(source)
+                        self.assertTrue(
+                            sizes.permission_errors(
+                                prefix
+                                + [
+                                    "RUN chmod -R g=u /home/frappe/frappe-bench",
+                                ]
+                            )
+                        )
+                        self.assertEqual(
+                            sizes.permission_errors(
+                                prefix
+                                + [
+                                    "RUN chmod -R g=u /tmp",
+                                ]
+                            ),
+                            [],
+                        )
+
     def test_json_run_forms(self):
         prefix = [
             "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
