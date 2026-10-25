@@ -23,6 +23,8 @@ on:
       - .github/workflows/core-build-test-images.yml
       - .github/workflows/core-publish-images.yml
       - .github/scripts/image_sizes.py
+      - .github/scripts/image_permissions.py
+      - .github/scripts/requirements-image-checks.txt
       - .github/scripts/test_image_sizes.py
       - .github/scripts/get_latest_tags.py
       - .github/image-size-policy.json
@@ -41,6 +43,8 @@ on:
       - .github/workflows/core-build-test-images.yml
       - .github/workflows/core-publish-images.yml
       - .github/scripts/image_sizes.py
+      - .github/scripts/image_permissions.py
+      - .github/scripts/requirements-image-checks.txt
       - .github/scripts/test_image_sizes.py
       - .github/scripts/get_latest_tags.py
       - .github/image-size-policy.json

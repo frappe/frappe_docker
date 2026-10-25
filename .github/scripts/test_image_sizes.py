@@ -72,7 +72,7 @@ class GrowthTests(unittest.TestCase):
                     expected,
                 )
 
-    def test_missing_baseline_reports_and_still_checks_permissions(self):
+    def test_missing_baseline_reports_sizes_and_source_guard_is_independent(self):
         current = report()
         summary, failures = sizes.compare(current, None, POLICY)
         self.assertIn("next successful", summary)
@@ -81,7 +81,15 @@ class GrowthTests(unittest.TestCase):
             "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
             "RUN chmod -R g=u /home/frappe/frappe-bench",
         ]
-        self.assertTrue(sizes.compare(current, None, POLICY)[1])
+        self.assertEqual(sizes.compare(current, None, POLICY)[1], [])
+        self.assertTrue(
+            sizes.permission_errors(
+                sizes.instructions(
+                    "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench\n"
+                    "RUN chmod -R g=u /home/frappe/frappe-bench\n"
+                )
+            )
+        )
 
     def test_report_shows_delta_and_large_layers(self):
         summary, failures = sizes.compare(report(1200 * MIB), report(), POLICY)
@@ -95,6 +103,17 @@ class GrowthTests(unittest.TestCase):
         summary, failures = sizes.compare(current, report(), POLICY)
         self.assertIn("Build inputs changed", summary)
         self.assertTrue(failures)
+
+    def test_buildkit_display_history_is_not_executed_as_shell(self):
+        for workdir in ("/tmp", "/home/frappe/frappe-bench"):
+            current = report()
+            current["images"]["erpnext"]["history"] = [
+                "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                "WORKDIR " + workdir,
+                "RUN |1 NODE_VERSION=24 /bin/sh -c cd /tmp && chmod -R g=u . # buildkit",
+                "RUN |1 VALUE=one two /bin/sh -c echo '&&' cd /tmp # buildkit",
+            ]
+            self.assertEqual(sizes.compare(current, report(), POLICY)[1], [])
 
     def test_image_sets_cannot_silently_change(self):
         previous = report()
@@ -126,7 +145,6 @@ class PermissionTests(unittest.TestCase):
             "RUN chown --recursive frappe:0 /home/frappe",
             "RUN chgrp -Rf 0 .",
             "RUN chmod -R g=u /",
-            "/bin/sh -c chmod -R g=u /home/frappe/frappe-bench",
         ):
             with self.subTest(command=command):
                 self.assertTrue(
@@ -272,6 +290,223 @@ class PermissionTests(unittest.TestCase):
             ),
             [],
         )
+
+    def test_compound_commands_track_literal_cd(self):
+        prefix = ["COPY /home/frappe/frappe-bench /home/frappe/frappe-bench"]
+        for workdir, target, expected in (
+            ("/tmp", "/home/frappe/frappe-bench", True),
+            ("/home/frappe/frappe-bench", "/tmp", False),
+        ):
+            for command in (
+                f"RUN if true; then cd {target}; fi; chmod -R g=u .",
+                f"RUN {{ cd {target}; }}; chmod -R g=u .",
+                f"RUN command cd {target} && chmod -R g=u .",
+                f"RUN builtin cd {target} && chmod -R g=u .",
+                f"RUN if false; then cd /unreachable; elif true; then cd {target}; else cd /; fi; chmod -R g=u .",
+            ):
+                with self.subTest(workdir=workdir, command=command):
+                    self.assertEqual(
+                        bool(
+                            sizes.permission_errors(
+                                prefix + ["WORKDIR " + workdir, command]
+                            )
+                        ),
+                        expected,
+                    )
+
+    def test_unexecuted_cd_branches_do_not_change_directory(self):
+        prefix = [
+            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+            "WORKDIR /home/frappe/frappe-bench",
+        ]
+        for command in (
+            "RUN if false; then cd /tmp; fi; chmod -R g=u .",
+            "RUN while false; do cd /tmp; done; chmod -R g=u .",
+            "RUN false && cd /tmp; chmod -R g=u .",
+            "RUN true || cd /tmp; chmod -R g=u .",
+        ):
+            with self.subTest(command=command):
+                self.assertTrue(sizes.permission_errors(prefix + [command]))
+
+    def test_finite_for_loops_apply_directory_changes(self):
+        prefix = [
+            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+            "WORKDIR /home/frappe/frappe-bench",
+        ]
+        self.assertEqual(
+            sizes.permission_errors(
+                prefix + ["RUN for item in once; do cd /tmp; done; chmod -R g=u ."]
+            ),
+            [],
+        )
+        self.assertTrue(
+            sizes.permission_errors(
+                prefix + ["RUN for item in; do cd /tmp; done; chmod -R g=u ."]
+            )
+        )
+
+    def test_quoted_operators_remain_arguments(self):
+        prefix = [
+            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+            "WORKDIR /home/frappe/frappe-bench",
+        ]
+        self.assertTrue(
+            sizes.permission_errors(
+                prefix + ["RUN echo '&&' cd /tmp && chmod -R g=u ."]
+            )
+        )
+        self.assertEqual(
+            sizes.permission_errors(
+                prefix + ["RUN cd /tmp && echo '(' && chmod -R g=u . && echo ')' "]
+            ),
+            [],
+        )
+        self.assertEqual(
+            sizes.permission_errors(prefix + ["RUN echo chmod -R g=u ."]), []
+        )
+
+    def test_relative_and_quoted_workdir_instructions_are_resolved(self):
+        for commands in (
+            ["WORKDIR /home/frappe/frappe-bench", "WORKDIR apps"],
+            ['WORKDIR "/home/frappe/frappe-bench"', 'WORKDIR "apps"'],
+        ):
+            self.assertTrue(
+                sizes.permission_errors(
+                    [
+                        "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                        *commands,
+                        "RUN chmod -R g=u .",
+                    ]
+                )
+            )
+
+    def test_relative_copy_destination_marks_the_bench(self):
+        self.assertTrue(
+            sizes.permission_errors(
+                [
+                    "WORKDIR /home/frappe/frappe-bench",
+                    "COPY --from=builder /home/frappe/frappe-bench .",
+                    "RUN chmod -R g=u .",
+                ]
+            )
+        )
+
+    def test_json_run_forms(self):
+        prefix = [
+            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+            "WORKDIR /tmp",
+        ]
+        for command, expected in (
+            ('RUN ["chmod", "-R", "g=u", "/home/frappe/frappe-bench"]', True),
+            (
+                'RUN ["/bin/sh", "-c", "cd /home/frappe/frappe-bench && chmod -R g=u ."]',
+                True,
+            ),
+            ('RUN ["chmod", "-R", "g=u", "/tmp"]', False),
+            (
+                'RUN ["echo", "&&", "cd", "/home/frappe/frappe-bench", "chmod", "-R", "g=u", "."]',
+                False,
+            ),
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(
+                    bool(sizes.permission_errors(prefix + [command])), expected
+                )
+
+    def test_heredoc_run_forms_and_data(self):
+        prefix = (
+            "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench\nWORKDIR /tmp\n"
+        )
+        for command, expected in (
+            ("RUN <<EOF\ncd /home/frappe/frappe-bench\nchmod -R g=u .\nEOF\n", True),
+            ("RUN <<'EOF'\nchmod -R g=u /home/frappe/frappe-bench\nEOF\n", True),
+            ("RUN <<-EOF\n\tchmod -R g=u /home/frappe/frappe-bench\n\tEOF\n", True),
+            ("RUN sh <<EOF\nchmod -R g=u /home/frappe/frappe-bench\nEOF\n", True),
+            ("RUN <<EOF sh\nchmod -R g=u /home/frappe/frappe-bench\nEOF\n", True),
+            ("RUN\t<<EOF\nchmod -R g=u /home/frappe/frappe-bench\nEOF\n", True),
+            ("RUN <<EOF\ncd /tmp\nchmod -R g=u .\nEOF\n", False),
+            ("RUN cat <<EOF\nchmod -R g=u /home/frappe/frappe-bench\nEOF\n", False),
+            ("RUN echo '<<EOF'\n", False),
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(
+                    bool(sizes.permission_errors(sizes.instructions(prefix + command))),
+                    expected,
+                )
+
+    def test_all_recipes_reject_json_and_heredoc_runtime_changes(self):
+        for filename in (sizes.ROOT / "images").glob("*/Containerfile"):
+            source = filename.read_text()
+            marker = next(
+                line
+                for line in source.splitlines()
+                if line.startswith("COPY --from=builder")
+            )
+            for command in (
+                'RUN ["chmod", "-R", "g=u", "/home/frappe/frappe-bench"]',
+                "RUN <<EOF\nchmod -R g=u /home/frappe/frappe-bench\nEOF",
+            ):
+                with self.subTest(filename=filename, command=command):
+                    modified = source.replace(marker, marker + "\n" + command, 1)
+                    self.assertTrue(
+                        sizes.permission_errors(sizes.instructions(modified))
+                    )
+
+    def test_unsupported_shell_and_unterminated_heredoc_fail_explicitly(self):
+        with self.assertRaises(ValueError):
+            sizes.instructions("RUN <<EOF\nchmod -R g=u /home/frappe/frappe-bench\n")
+        with self.assertRaises(ValueError):
+            sizes.permission_errors(
+                [
+                    "COPY /home/frappe/frappe-bench /home/frappe/frappe-bench",
+                    "RUN echo $((1 + 2))",
+                ]
+            )
+
+    def test_directory_analysis_agrees_with_real_shell_execution(self):
+        bench = "/home/frappe/frappe-bench"
+        cases = [
+            (bench, "cd /tmp && chmod -R g=u ."),
+            ("/tmp", f"if true; then cd {bench}; fi; chmod -R g=u ."),
+            (bench, "if true; then cd /tmp; fi; chmod -R g=u ."),
+            ("/tmp", f"{{ cd {bench}; }}; chmod -R g=u ."),
+            (bench, "command cd /tmp && chmod -R g=u ."),
+            (bench, "echo '&&' cd /tmp && chmod -R g=u ."),
+            (bench, "cd /tmp && echo '(' && chmod -R g=u . && echo ')'"),
+            (bench, "if false; then cd /tmp; fi; chmod -R g=u ."),
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            actual_bench, outside = root / "bench", root / "outside"
+            actual_bench.mkdir()
+            outside.mkdir()
+            recording = root / "recording"
+            # Record the directory only. Never execute the real chmod command.
+            stub = 'chmod() { printf "%s\\n" "$PWD" >> "$PERMISSION_RECORD"; }; '
+            for directory, script in cases:
+                with self.subTest(directory=directory, script=script):
+                    recording.write_text("")
+                    executable = script.replace("/tmp", str(outside)).replace(
+                        bench, str(actual_bench)
+                    )
+                    subprocess.run(
+                        ["/bin/sh", "-c", stub + executable],
+                        cwd=actual_bench if directory == bench else outside,
+                        env={**os.environ, "PERMISSION_RECORD": str(recording)},
+                        capture_output=True,
+                        check=True,
+                    )
+                    executed_in_bench = (
+                        str(actual_bench) in recording.read_text().splitlines()
+                    )
+                    errors = sizes.permission_errors(
+                        [
+                            f"COPY {bench} {bench}",
+                            "WORKDIR " + directory,
+                            "RUN " + script,
+                        ]
+                    )
+                    self.assertEqual(bool(errors), executed_in_bench)
 
 
 class BaselineTests(unittest.TestCase):

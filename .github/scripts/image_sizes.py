@@ -8,9 +8,7 @@ import io
 import json
 import math
 import os
-import posixpath
 import re
-import shlex
 import subprocess
 import sys
 import zipfile
@@ -19,6 +17,7 @@ from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 from get_latest_tags import get_latest_tag
+from image_permissions import instructions, permission_errors
 
 ROOT = Path(__file__).resolve().parents[2]
 ARCHITECTURES = ("amd64", "arm64")
@@ -215,138 +214,6 @@ def measure_image(registry: str, name: str, tag: str, arch: str) -> dict:
     }
 
 
-def instructions(text: str) -> list[str]:
-    """Join Dockerfile continuations, ignoring full-line comments."""
-    result = []
-    pending = ""
-    for line in text.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        pending += line.removesuffix("\\") + " "
-        if not line.endswith("\\"):
-            result.append(pending.strip())
-            pending = ""
-    if pending:
-        result.append(pending.strip())
-    return result
-
-
-def command_directories(shell: str, workdir: str):
-    """Track literal cd commands within one RUN, including subshell scope."""
-    shell = shell.removeprefix("/bin/sh -c ")
-    lexer = shlex.shlex(shell, posix=True, punctuation_chars=";&|()")
-    lexer.whitespace_split = True
-    tokens = []
-    for token in lexer:
-        if all(character in ";&|()" for character in token):
-            tokens.extend(re.findall(r"&&|\|\||[;&|()]", token))
-        else:
-            tokens.append(token)
-    current = previous = workdir
-    pipeline = None
-    scopes = []
-    words = []
-    for token in tokens + [";"]:
-        if token not in ("&&", "||", ";", "&", "|", "(", ")"):
-            words.append(token)
-            continue
-        before = current, previous
-        if words:
-            yield words, current
-            if words[0] == "cd":
-                targets = [word for word in words[1:] if word not in ("--", "-L", "-P")]
-                if targets == ["-"]:
-                    current, previous = previous, current
-                elif len(targets) == 1:
-                    target = targets[0]
-                    previous = current
-                    if "$" in target or "`" in target:
-                        current = None
-                    elif target.startswith("/") or current is not None:
-                        current = posixpath.normpath(
-                            posixpath.join(current or "/", target)
-                        )
-                else:
-                    # An omitted target uses HOME, which the guard cannot resolve.
-                    current = None
-            words = []
-        if token == "|":
-            if pipeline is None:
-                pipeline = before
-            current, previous = pipeline
-        elif pipeline is not None:
-            current, previous = pipeline
-            pipeline = None
-        elif token in ("||", "&"):
-            current, previous = before
-        if token == "(":
-            scopes.append((current, previous))
-        elif token == ")" and scopes:
-            current, previous = scopes.pop()
-
-
-def touches_bench(target: str, directory: str | None) -> bool:
-    if directory is None and not target.startswith("/"):
-        return True
-    resolved = posixpath.normpath(posixpath.join(directory or "/", target))
-    bench = "/home/frappe/frappe-bench"
-    return (
-        resolved == bench
-        or resolved.startswith(bench + "/")
-        or bench.startswith(resolved.rstrip("/") + "/")
-    )
-
-
-def permission_errors(commands: list[str]) -> list[str]:
-    """Catch recursive changes to copied bench files in runtime stages."""
-    copied = False
-    workdir = "/"
-    stages = {}
-    stage = ""
-    failures = []
-    for command in commands:
-        if "#(nop)" in command:
-            command = command.split("#(nop)", 1)[1].strip()
-        elif command.startswith("/bin/sh -c "):
-            command = "RUN " + command.removeprefix("/bin/sh -c ")
-        operation, _, value = command.partition(" ")
-        if operation.upper() == "FROM":
-            parts = value.split()
-            copied, workdir = stages.get(parts[0].lower(), (False, "/"))
-            stage = parts[-1].lower() if len(parts) >= 3 else ""
-        elif operation.upper() == "COPY" and "/home/frappe/frappe-bench" in value:
-            copied = True
-        elif operation.upper() == "WORKDIR":
-            workdir = value.strip()
-        elif operation.upper() == "RUN" and copied:
-            for words, directory in command_directories(value, workdir):
-                for index, word in enumerate(words):
-                    if word not in ("chmod", "chown", "chgrp"):
-                        continue
-                    arguments = words[index + 1 :]
-                    recursive = any(
-                        arg == "--recursive" or (arg.startswith("-") and "R" in arg)
-                        for arg in arguments
-                    )
-                    operands = [arg for arg in arguments if not arg.startswith("-")]
-                    targets = (
-                        operands
-                        if any(arg.startswith("--reference=") for arg in arguments)
-                        else operands[1:]
-                    )
-                    if recursive and any(
-                        touches_bench(target, directory) for target in targets
-                    ):
-                        failures.append(
-                            "Recursive permissions after the bench COPY duplicate its files: "
-                            + command
-                        )
-        if stage:
-            stages[stage] = (copied, workdir)
-    return failures
-
-
 def guard() -> list[str]:
     return [
         f"{filename}: {error}"
@@ -410,17 +277,11 @@ def compare(report: dict, baseline: dict | None, policy: dict) -> tuple[str, lis
             failures.append(
                 f"{name} grew by {mib(current - previous)}; size limit exceeded"
             )
-        permission_failures = permission_errors(image["history"])
-        failures.extend(permission_failures)
         delta = f"{mib(current - previous)}" if previous is not None else "—"
         percent = (current - previous) * 100 / previous if previous else 0
         if previous:
             delta += f" ({percent:+.1f}%)"
-        result = (
-            "FAIL"
-            if exceeded or permission_failures
-            else ("PASS" if baseline else "First baseline")
-        )
+        result = "FAIL" if exceeded else ("PASS" if baseline else "First baseline")
         lines.append(
             f"| {name} | {mib(previous) if previous is not None else '—'} | "
             f"{mib(current)} | {delta} | {len(image['layers'])} | {result} |"

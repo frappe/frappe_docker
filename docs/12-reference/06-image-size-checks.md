@@ -122,15 +122,26 @@ this variable, the CI Compose override defaults to `linux/amd64`.
 
 ## Permission-layer guard
 
-The lint workflow checks production, custom, and layered Containerfiles for
-recursive permission changes to the bench after it has been copied into a runtime
-stage. The same guard checks the built core images' history.
+The lint workflow and the core workflow's version-resolution job check production,
+custom, and layered Containerfiles for recursive permission changes to the bench
+after it has been copied into a runtime stage. This source check runs before image
+builds, independently of numerical baselines.
 
 Recursive permission changes belong in the builder before the copy. A
 nonrecursive permission change to the bench directory itself is allowed. The
-guard operates independently of numerical baselines. Relative targets follow the
-current directory, including literal `cd` commands within a `RUN` instruction.
-Directory changes in one `RUN` do not affect the next instruction.
+guard parses shell syntax with pinned `bashlex`, preserving quoted arguments and
+compound commands. It supports shell, JSON exec, and shell-heredoc `RUN` forms,
+relative `WORKDIR` values, and literal `cd` commands. Directory changes in one
+`RUN` do not affect the next instruction. Syntax that cannot be analysed fails
+explicitly instead of silently passing.
+
+CI installs `.github/scripts/requirements-image-checks.txt` automatically. For
+local commands, see [Validate container changes](../11-how-to/10-validate-container-changes.md#check-runtime-permissions).
+
+The guard analyses commands visible in Dockerfile source; it does not inspect
+external scripts or resolve filesystem symlinks. Image history remains available
+in layer reports, but is not interpreted as shell code: BuildKit's history format
+joins arguments without retaining their quoting.
 
 ## Publishing boundary
 
