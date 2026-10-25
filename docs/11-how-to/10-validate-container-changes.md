@@ -47,8 +47,8 @@ python -m unittest discover -s .github/scripts -p 'test_image_sizes.py'
 
 The guard checks production, custom, and layered Dockerfiles without building
 images or executing their commands. A successful check exits with zero; a failure
-identifies a recursive permission change to bench files copied into a runtime
-stage. Apply those changes in the builder before the copy. See the
+identifies a recursive permission change or syntax that cannot be analysed.
+Apply bench permission changes in the builder before the runtime copy. See the
 [image size check reference](../12-reference/06-image-size-checks.md#permission-layer-guard)
 for supported forms and coverage.
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import fnmatch
 import json
 import posixpath
 import re
@@ -66,16 +67,94 @@ def instructions(text: str) -> list[str]:
 def resolve(directory: str | None, target: str | None) -> str | None:
     if target is None or (directory is None and not target.startswith("/")):
         return None
-    return posixpath.normpath(posixpath.join(directory or "/", target))
+    path = posixpath.normpath(posixpath.join(directory or "/", target))
+    return (
+        Glob(path)
+        if isinstance(target, Glob)
+        or (isinstance(directory, Glob) and not target.startswith("/"))
+        else path
+    )
+
+
+class Glob(str):
+    """A pathname pattern with at least one unquoted expansion character."""
+
+    def __eq__(self, other):
+        return isinstance(other, Glob) and str.__eq__(self, other)
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __hash__(self):
+        return hash((Glob, str(self)))
 
 
 def touches_bench(target: str | None, directory: str | None) -> bool:
     path = resolve(directory, target)
+    if isinstance(path, Glob):
+        parts = path.strip("/").split("/")
+        bench_parts = BENCH.strip("/").split("/")
+        if "**" in parts:
+            prefix = re.split(r"[*?\[]", path, maxsplit=1)[0].rstrip("/") or "/"
+            return touches_bench(prefix, "/")
+        return all(
+            index >= len(bench_parts) or fnmatch.fnmatchcase(bench_parts[index], part)
+            for index, part in enumerate(parts)
+        )
     return path is None or (
         path == BENCH
         or path.startswith(BENCH + "/")
         or BENCH.startswith(path.rstrip("/") + "/")
     )
+
+
+def shell_heredocs(script: str):
+    """Make quoted delimiters parseable by bashlex, retaining expansion rules."""
+    output = []
+    documents = {}
+    written = search = 0
+    while match := HEREDOC.search(script, search):
+        if match["doc"] is None:
+            search = match.end()
+            continue
+        start = script.rfind("\n", 0, match.start()) + 1
+        end = script.find("\n", match.end())
+        if end < 0:
+            raise ValueError("Unterminated shell heredoc")
+        header = script[start:end]
+        markers = heredocs(script[match.start() : end])
+        offset = match.start() - start
+        body_start = end + 1
+        replacements = []
+        bodies = []
+        for left, right, delimiter, tabs in markers:
+            left, right = left + offset, right + offset
+            name = f"__FRAPPE_GUARD_HEREDOC_{len(documents)}__"
+            while name in script or name in documents:
+                name += "_"
+            body_end = body_start
+            while True:
+                line_end = script.find("\n", body_end)
+                if line_end < 0:
+                    line_end = len(script)
+                line = script[body_end:line_end]
+                if (line.lstrip("\t") if tabs else line) == delimiter:
+                    break
+                if line_end == len(script):
+                    raise ValueError(f"Unterminated shell heredoc: {delimiter}")
+                body_end = line_end + 1
+            body = script[body_start:body_end]
+            quoted = any(char in header[left:right] for char in "'\"\\")
+            documents[name] = body, not quoted
+            replacements.append((left, right, ("<<-" if tabs else "<<") + name))
+            bodies.append(body + name + "\n")
+            body_start = line_end + 1 if line_end < len(script) else line_end
+        for left, right, replacement in reversed(replacements):
+            header = header[:left] + replacement + header[right:]
+        output.extend((script[written:start], header, "\n", *bodies))
+        written = search = body_start
+    output.append(script[written:])
+    return "".join(output), documents
 
 
 @dataclass(frozen=True)
@@ -92,6 +171,8 @@ class ShellGuard:
         self.unsafe = False
         self.functions = {}
         self.calls = set()
+        self.source = ""
+        self.documents = {}
         self.known = {"/", "/tmp", BENCH}
         for path in (directory, BENCH):
             while path:
@@ -104,11 +185,69 @@ class ShellGuard:
     def shell(self, script, states):
         import bashlex
 
+        previous = self.source, self.documents
+        self.source, self.documents = shell_heredocs(script)
         try:
-            nodes = bashlex.parse(script)
+            nodes = bashlex.parse(self.source)
+            return self.sequence(nodes, states)
         except (bashlex.errors.ParsingError, NotImplementedError) as exc:
             raise ValueError(f"Cannot analyse runtime shell syntax: {exc}") from exc
-        return self.sequence(nodes, states)
+        finally:
+            self.source, self.documents = previous
+
+    def word(self, node):
+        if node.parts:
+            return None
+        raw = self.source[node.pos[0] : node.pos[1]]
+        quote = None
+        escaped = False
+        pattern = False
+        unquoted = []
+        for char in raw:
+            if escaped:
+                escaped = False
+                unquoted.append(" ")
+            elif char == "\\" and quote != "'":
+                escaped = True
+            elif char == quote:
+                quote = None
+            elif char in "'\"" and quote is None:
+                quote = char
+            elif quote is None and char in "*?[":
+                pattern = True
+                unquoted.append(char)
+            elif quote is None:
+                unquoted.append(char)
+            else:
+                unquoted.append(" ")
+        if re.search(r"\{[^{}]*(?:,|\.\.)[^{}]*\}", "".join(unquoted)):
+            raise ValueError("Cannot analyse shell brace expansion")
+        return Glob(node.word) if pattern else node.word
+
+    def loop(self, body, states, condition=None, until=False):
+        pending, seen = set(states), set()
+        exits = set(states) if condition is None else set()
+        while pending:
+            current = pending - seen
+            if not current:
+                break
+            seen |= current
+            if len(seen) > 64:
+                unknown = {Directory(None)}
+                if condition is not None:
+                    self.visit(condition, unknown)
+                self.visit(body, unknown)
+                return exits | unknown, set()
+            enter = current
+            if condition is not None:
+                yes, no = self.visit(condition, current)
+                enter, skip = (no, yes) if until else (yes, no)
+                exits |= skip
+            good, bad = self.visit(body, enter)
+            pending = good | bad
+            if condition is None:
+                exits |= pending
+        return exits, set()
 
     def sequence(self, nodes, states):
         flow = states, set()
@@ -124,7 +263,7 @@ class ShellGuard:
             for part in node.parts:
                 self.substitutions(part, states)
             words = [part for part in node.parts if part.kind == "word"]
-            argv = [None if word.parts else word.word for word in words]
+            argv = [self.word(word) for word in words]
             redirects = [part for part in node.parts if part.kind == "redirect"]
             return self.command(argv, states, redirects)
         if node.kind == "list":
@@ -182,13 +321,7 @@ class ShellGuard:
                     index += 1
             return success | pending, failure
         if node.kind in ("while", "until"):
-            yes, no = self.visit(node.parts[1], states)
-            enter, skip = (no, yes) if node.kind == "until" else (yes, no)
-            good, bad = self.visit(node.parts[3], enter)
-            after = skip | good | bad
-            if after != states:
-                after.add(Directory(None))
-            return after, set()
+            return self.loop(node.parts[3], states, node.parts[1], node.kind == "until")
         if node.kind == "for":
             body = next(part for part in node.parts if part.kind == "list")
             keywords = [getattr(part, "word", None) for part in node.parts]
@@ -200,19 +333,16 @@ class ShellGuard:
                     ]
                     if part.kind == "word"
                 ]
+                values = [self.word(part) for part in items]
                 if all(
-                    not part.parts and not any(char in part.word for char in "*?[")
-                    for part in items
+                    value is not None and not isinstance(value, Glob)
+                    for value in values
                 ):
                     flow = states, set()
                     for _ in items:
                         flow = self.visit(body, flow[0] | flow[1])
                     return flow
-            good, bad = self.visit(body, states)
-            after = states | good | bad
-            if after != states:
-                after.add(Directory(None))
-            return after, set()
+            return self.loop(body, states)
         if node.kind == "function":
             self.functions[node.parts[0].word] = node.parts[-1]
             return set(states), set()
@@ -221,13 +351,58 @@ class ShellGuard:
     def substitutions(self, node, states):
         if node.kind in ("commandsubstitution", "processsubstitution"):
             self.visit(node.command, states)
+        if node.kind == "redirect" and getattr(node, "heredoc", None):
+            body, expands = self.documents[node.output.word]
+            if expands and body:
+                self.heredoc_substitutions(body, states)
         for child in getattr(node, "parts", []):
             self.substitutions(child, states)
+
+    def heredoc_substitutions(self, body, states):
+        # bashlex 0.18 does not expand heredoc AST nodes. Reuse its pinned
+        # here-document word expander, where quotes are data and $()/`...` run.
+        from bashlex import errors, flags, parser, subst, tokenizer, utils
+
+        # Unquoted heredocs join backslash-newline before expanding $()/backticks.
+        joined = []
+        index = 0
+        while index < len(body):
+            if body[index] == "\\" and index + 1 < len(body):
+                if body[index + 1] == "\n":
+                    index += 2
+                    continue
+                if body[index + 1] in "\\$`":
+                    joined.append(body[index : index + 2])
+                    index += 2
+                    continue
+            joined.append(body[index])
+            index += 1
+        body = "".join(joined)
+        previous = self.source
+        self.source = body
+        try:
+            word = tokenizer.token(
+                tokenizer.tokentype.WORD,
+                body,
+                pos=(0, len(body)),
+                flags=utils.typedset(
+                    flags.word, [flags.word.DQUOTE, flags.word.NOTILDE]
+                ),
+            )
+            parts, _ = subst._expandwordinternal(
+                parser._parser(body), word, True, True, True, False
+            )
+            for part in parts:
+                self.substitutions(part, states)
+        except (errors.ParsingError, NotImplementedError) as exc:
+            raise ValueError(f"Cannot analyse heredoc expansion: {exc}") from exc
+        finally:
+            self.source = previous
 
     def command(self, argv, states, redirects=()):
         if not argv:
             return set(states), set()
-        if argv[0] is None:
+        if argv[0] is None or isinstance(argv[0], Glob):
             raise ValueError("Cannot analyse a dynamically selected runtime command")
         name = posixpath.basename(argv[0])
         if name in ("command", "builtin", "exec"):
@@ -266,15 +441,49 @@ class ShellGuard:
                     bad.add(state)
             return good, bad
         if name in ("sh", "bash", "dash", "ash"):
-            if "-c" in argv[1:]:
-                index = argv.index("-c") + 1
-                if index >= len(argv) or argv[index] is None:
-                    raise ValueError("Cannot analyse a dynamic runtime shell script")
-                self.shell(argv[index], states)
-            else:
-                for redirect in redirects:
-                    if getattr(redirect, "heredoc", None):
-                        self.shell(redirect.heredoc.value.rsplit("\n", 1)[0], states)
+            index = 1
+            script = None
+            stdin = False
+            while index < len(argv):
+                option = argv[index]
+                if option is None:
+                    raise ValueError("Cannot analyse dynamic shell options")
+                if option == "--":
+                    index += 1
+                    break
+                if not option.startswith(("-", "+")):
+                    break
+                stdin |= (
+                    option.startswith("-")
+                    and not option.startswith("--")
+                    and "s" in option
+                )
+                if (
+                    option.startswith("-")
+                    and not option.startswith("--")
+                    and "c" in option
+                ):
+                    if index + 1 >= len(argv) or argv[index + 1] is None:
+                        raise ValueError(
+                            "Cannot analyse a dynamic runtime shell script"
+                        )
+                    script = argv[index + 1]
+                    break
+                index += (
+                    2
+                    if option in ("-o", "+o", "-O", "+O", "--rcfile", "--init-file")
+                    else 1
+                )
+            if script is not None:
+                self.shell(script, states)
+            elif stdin or index >= len(argv):
+                inputs = [
+                    redirect
+                    for redirect in redirects
+                    if getattr(redirect, "input", None) in (None, 0)
+                ]
+                if inputs and getattr(inputs[-1], "heredoc", None):
+                    self.shell(self.documents[inputs[-1].output.word][0], states)
             return set(states), set(states)
         if name in self.functions:
             if name in self.calls:
@@ -292,6 +501,16 @@ class ShellGuard:
             for arg in argv[1:]:
                 if options and arg == "--":
                     options = False
+                elif (
+                    name == "chmod"
+                    and not operands
+                    and arg is not None
+                    and re.fullmatch(
+                        r"[ugoa]*(?:[+=-][rwxXstugo]*)+(?:,[ugoa]*(?:[+=-][rwxXstugo]*)+)*",
+                        arg,
+                    )
+                ):
+                    operands.append(arg)
                 elif options and arg is not None and arg.startswith("-"):
                     recursive |= arg == "--recursive" or (
                         not arg.startswith("--") and "R" in arg
