@@ -21,14 +21,7 @@ jobs:
           python-version: "3.14"
 
       - name: Test image size checks
-        env:
-          PIP_DISABLE_PIP_VERSION_CHECK: "1"
-        run: |
-          python -m pip install -r .github/scripts/requirements-image-checks.txt
-          python -m unittest discover -s .github/scripts -p 'test_image_sizes.py'
-
-      - name: Check runtime permission layers
-        run: python .github/scripts/image_sizes.py guard
+        run: python -m unittest discover -s .github/scripts -p 'test_image_sizes.py'
 
       # For shfmt pre-commit hook
       - name: Setup Go

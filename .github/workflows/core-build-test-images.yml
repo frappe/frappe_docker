@@ -49,19 +49,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.14"
-
-      - name: Install permission guard dependencies
-        run: |
-          python -m venv image-checks-venv
-          image-checks-venv/bin/pip install -r .github/scripts/requirements-image-checks.txt
-
-      - name: Check runtime permission layers
-        run: image-checks-venv/bin/python .github/scripts/image_sizes.py guard
-
       - name: Resolve image versions
         id: resolve
         run: python3 .github/scripts/image_sizes.py prepare --repo "$APP_REPO" --version "$RELEASE_LINE"

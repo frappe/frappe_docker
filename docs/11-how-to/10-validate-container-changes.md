@@ -34,24 +34,6 @@ Address error-level Hadolint findings before submitting. The [Hadolint policy](h
 
 Warnings remain visible without failing the check.
 
-## Check runtime permissions
-
-With the lint workflow's Python version (3.14) in a virtual environment, install
-the permission guard's dependencies and run it from the repository root:
-
-```sh
-python -m pip install -r .github/scripts/requirements-image-checks.txt
-python .github/scripts/image_sizes.py guard
-python -m unittest discover -s .github/scripts -p 'test_image_sizes.py'
-```
-
-The guard checks production, custom, and layered Dockerfiles without building
-images or executing their commands. A successful check exits with zero; a failure
-identifies a recursive permission change or syntax that cannot be analysed.
-Apply bench permission changes in the builder before the runtime copy. See the
-[image size check reference](../12-reference/06-image-size-checks.md#permission-layer-guard)
-for supported forms and coverage.
-
 ## Register a Compose override
 
 1. Add `overrides/compose.<name>.yaml`.

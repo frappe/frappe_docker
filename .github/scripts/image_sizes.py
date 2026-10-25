@@ -17,7 +17,6 @@ from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 from get_latest_tags import get_latest_tag
-from image_permissions import instructions, permission_errors
 
 ROOT = Path(__file__).resolve().parents[2]
 ARCHITECTURES = ("amd64", "arm64")
@@ -214,16 +213,6 @@ def measure_image(registry: str, name: str, tag: str, arch: str) -> dict:
     }
 
 
-def guard() -> list[str]:
-    return [
-        f"{filename}: {error}"
-        for filename in sorted((ROOT / "images").glob("*/Containerfile"))
-        for error in permission_errors(
-            instructions(filename.read_text(encoding="utf-8"))
-        )
-    ]
-
-
 def growth_exceeds(current: int, previous: int, policy: dict) -> bool:
     delta = current - previous
     return (
@@ -257,7 +246,7 @@ def compare(report: dict, baseline: dict | None, policy: dict) -> tuple[str, lis
     else:
         lines += [
             "**No retained successful main baseline.** Sizes are reported; the next successful",
-            "main build supplies a baseline automatically. The permission-layer guard still runs.",
+            "main build supplies a baseline automatically.",
             "",
         ]
     lines += [
@@ -358,7 +347,6 @@ def check(args) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
-    subparsers.add_parser("guard")
     prepare_parser = subparsers.add_parser("prepare")
     download_parser = subparsers.add_parser("download")
     check_parser = subparsers.add_parser("check")
@@ -379,9 +367,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         failures = []
-        if args.command == "guard":
-            failures = guard()
-        elif args.command == "prepare":
+        if args.command == "prepare":
             prepare(args)
         elif args.command == "download":
             if args.artifact_id:

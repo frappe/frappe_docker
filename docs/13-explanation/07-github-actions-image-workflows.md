@@ -29,6 +29,10 @@ They decide when the core image pipeline runs.
 - scans the locally built images with Trivy
 - runs the test suite against those images
 
+The existing architecture matrix uses matching native runners and selects the
+same platform for Bake, Trivy, and the CI Compose services. This keeps builds,
+scans, tests, and size reports aligned with each job's intended architecture.
+
 `core-publish-images.yml` is the reusable workflow that:
 
 - rebuilds the resolved application versions and publishes images to Docker Hub
@@ -139,10 +143,8 @@ automatic without adding a second reference build. PR and failed-run reports
 cannot become baselines. Release lines and architectures have separate baselines,
 and PR builds reuse their baseline's application tags to reduce unrelated changes.
 
-The permission-layer guard also checks custom and layered Containerfiles that core
-CI does not fully build. It provides a check before the first numerical baseline
-exists. The [image size check reference](../12-reference/06-image-size-checks.md)
-describes thresholds, reports, baseline selection, and coverage.
+The [image size check reference](../12-reference/06-image-size-checks.md) describes
+thresholds, reports, baseline selection, and coverage for the existing core builds.
 
 Publishing is a separate build after the tests. Size reports describe the tested
 images; they do not verify that every published digest is identical to the tested

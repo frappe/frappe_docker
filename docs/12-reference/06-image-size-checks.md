@@ -26,9 +26,8 @@ Shared base layers are included in each image's measurement. The metric does not
 represent Docker's local disk usage or the bytes needed by a host that already has
 some layers cached.
 
-Numeric comparisons cover production images already built by core CI. Custom and
-layered Containerfiles receive the [permission-layer guard](#permission-layer-guard);
-their complete image sizes are not measured by this workflow.
+Comparisons cover the `base`, `build`, and `erpnext` images already built by core
+CI. Custom and layered image builds are outside this check's coverage.
 
 ## Growth policy
 
@@ -71,8 +70,7 @@ measurements are not committed to Git, and no manual baseline update is required
 
 Reports are retained for 90 days. When no eligible retained baseline exists, CI
 reports sizes without a numerical comparison. The next successful `main` build
-supplies a baseline automatically. The permission-layer guard still runs during
-this initial period.
+supplies a baseline automatically.
 
 API and download failures fail the check rather than silently discarding an
 existing baseline.
@@ -104,53 +102,6 @@ The job summary contains the baseline, current size, absolute and percentage
 changes, layer counts, results, and the ten largest layers per image with their
 build instructions. Failed runs retain their reports for review but cannot become
 baselines.
-
-## Platform settings
-
-| Setting               | amd64 job       | ARM64 job          |
-| --------------------- | --------------- | ------------------ |
-| Native runner         | `ubuntu-latest` | `ubuntu-24.04-arm` |
-| Bake `*.platform`     | `linux/amd64`   | `linux/arm64`      |
-| `TRIVY_PLATFORM`      | `linux/amd64`   | `linux/arm64`      |
-| `TEST_IMAGE_PLATFORM` | `linux/amd64`   | `linux/arm64`      |
-
-The measurement check verifies the platform in the manifest index and image
-configuration. `TRIVY_PLATFORM` selects the scanner's target architecture.
-`TEST_IMAGE_PLATFORM` is consumed by `tests/compose.ci.yaml`, which overrides the
-base Compose file's amd64 platform for all seven application services. Without
-this variable, the CI Compose override defaults to `linux/amd64`.
-
-## Permission-layer guard
-
-The lint workflow and the core workflow's version-resolution job check production,
-custom, and layered Containerfiles for recursive permission changes to the bench
-after it has been copied into a runtime stage. This source check runs before image
-builds, independently of numerical baselines.
-
-Recursive permission changes belong in the builder before the copy. A
-nonrecursive permission change to the bench directory itself is allowed. The
-guard parses shell syntax with pinned `bashlex`, preserving quoted arguments and
-compound commands. It supports shell, JSON exec, and shell-heredoc `RUN` forms,
-relative `WORKDIR` values, and literal `cd` commands. Directory changes in one
-`RUN` do not affect the next instruction. Syntax that cannot be analysed fails
-explicitly instead of silently passing.
-Unsupported constructs include arithmetic and Bash-specific brace expansions, and
-non-local control commands (`break`, `continue`, `return`, and `exit`). These are
-rejected explicitly so they cannot hide later permission changes. Shell comments
-are ignored when detecting heredocs.
-Unresolved variables in `COPY` or `ADD` destinations are treated as potentially
-copying bench files, so they cannot disable the permission check.
-Quoted patterns and heredoc data retain their literal meaning. Unquoted pathname
-patterns and heredoc command substitutions are analysed, and loop bodies are
-rechecked when directory changes make later iterations reach new locations.
-
-CI installs `.github/scripts/requirements-image-checks.txt` automatically. For
-local commands, see [Validate container changes](../11-how-to/10-validate-container-changes.md#check-runtime-permissions).
-
-The guard analyses commands visible in Dockerfile source; it does not inspect
-external scripts or resolve filesystem symlinks. Image history remains available
-in layer reports, but is not interpreted as shell code: BuildKit's history format
-joins arguments without retaining their quoting.
 
 ## Publishing boundary
 
