@@ -38,7 +38,7 @@ compose.my-*.yaml              # Your custom compose overrides
 scripts/my-*.sh                # Your custom scripts
 docs/my-*.md                   # Your custom documentation
 .env.local                     # Local environment overrides
-.gitignore.local              # Additional gitignore rules
+.git/info/exclude             # Local gitignore rules
 ```
 
 **⚠️ Modification Needed (May conflict):**
@@ -83,8 +83,6 @@ Create override files for your customizations:
 
 ```yaml
 # compose.my-env.yaml
-version: "3.7"
-
 services:
   backend:
     environment:
@@ -109,7 +107,7 @@ services:
 
 ## .gitignore Strategy
 
-Add to `.gitignore` (or create `.gitignore.local`):
+Add to `.gitignore`, or use [`.git/info/exclude`](https://git-scm.com/docs/gitignore) for rules local to your clone:
 
 ```gitignore
 # Local environment files
