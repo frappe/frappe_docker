@@ -19,6 +19,9 @@ const vitePressOptions: UserConfig = {
     socialLinks: [
       { icon: "github", link: "https://github.com/frappe/frappe_docker/" },
     ],
+    search: {
+      provider: "local",
+    },
   },
 };
 
