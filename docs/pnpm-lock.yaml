@@ -19,8 +19,8 @@ importers:
         specifier: 2.0.0-alpha.20
         version: 2.0.0-alpha.20(esbuild@0.27.7)(postcss@8.5.28)
       vitepress-mermaid-viewer:
-        specifier: 0.5.1
-        version: 0.5.1(mermaid@12.2.0)(vitepress@2.0.0-alpha.20(esbuild@0.27.7)(postcss@8.5.28))(vue@3.5.42)
+        specifier: 0.5.2
+        version: 0.5.2(mermaid@12.2.0)(vitepress@2.0.0-alpha.20(esbuild@0.27.7)(postcss@8.5.28))(vue@3.5.42)
       vitepress-sidebar:
         specifier: 1.40.0
         version: 1.40.0
@@ -1249,8 +1249,8 @@ packages:
       yaml:
         optional: true
 
-  vitepress-mermaid-viewer@0.5.1:
-    resolution: {integrity: sha512-nRxMdX9AvpV/BjkA8wUVN1IxXNjP8i5z/8gdIxxwoDYN9o+Qif9ctn1Sqxkb8V9YlpnPplWDb4CwsjE4jAbjug==}
+  vitepress-mermaid-viewer@0.5.2:
+    resolution: {integrity: sha512-d+MC0uXL8hM7KI8xINMG6lAsbgxPV9J8R61apVqohk9zyng/gsoPq1R4DPNrIvyE9LDCl3c5BTeP1Slohb/qcw==}
     engines: {node: '>=24.0.0'}
     peerDependencies:
       mermaid: '>=10'
@@ -2426,7 +2426,7 @@ snapshots:
       esbuild: 0.27.7
       fsevents: 2.3.3
 
-  vitepress-mermaid-viewer@0.5.1(mermaid@12.2.0)(vitepress@2.0.0-alpha.20(esbuild@0.27.7)(postcss@8.5.28))(vue@3.5.42):
+  vitepress-mermaid-viewer@0.5.2(mermaid@12.2.0)(vitepress@2.0.0-alpha.20(esbuild@0.27.7)(postcss@8.5.28))(vue@3.5.42):
     dependencies:
       mermaid: 12.2.0
       vitepress: 2.0.0-alpha.20(esbuild@0.27.7)(postcss@8.5.28)
