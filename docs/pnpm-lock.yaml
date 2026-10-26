@@ -175,11 +175,11 @@ importers:
         specifier: 12.2.0
         version: 12.2.0
       vitepress:
-        specifier: 2.0.0-alpha.20
-        version: 2.0.0-alpha.20(postcss@8.5.31)
+        specifier: 2.0.0-alpha.21
+        version: 2.0.0-alpha.21(postcss@8.5.31)
       vitepress-mermaid-viewer:
         specifier: 0.5.2
-        version: 0.5.2(mermaid@12.2.0)(vitepress@2.0.0-alpha.20(postcss@8.5.31))(vue@3.5.44)
+        version: 0.5.2(mermaid@12.2.0)(vitepress@2.0.0-alpha.21(postcss@8.5.31))(vue@3.5.44)
       vitepress-sidebar:
         specifier: 1.40.0
         version: 1.40.0
@@ -555,18 +555,20 @@ packages:
   '@vue/shared@3.5.44':
     resolution: {integrity: sha512-H82XLH0DjmSOdbEwO15x3QTo1f5PWEtv237eLpYKc0mqLu+B8hnq16lFWmuBmNurkeiG3wr+oM1FhOll/YVFRg==}
 
-  '@vueuse/core@14.4.0':
-    resolution: {integrity: sha512-X4WHz1HlCzCBoYXesUkifzzWBAcZgXG8Fi5iNPQg/epdzOB3gu8Fawj3hvuwYR1nGcXGnvxwYYcUC/71++svtQ==}
+  '@vueuse/core@15.0.0':
+    resolution: {integrity: sha512-Zv67h5mrk7YHDJsRObx+DXaCBz6RKBUpxqLesJ+3xZNPG6yuQs7ja7kg3veFrrouYLWAqydQ7CwGEbLVxB43Ng==}
+    engines: {node: '>=22'}
     peerDependencies:
       vue: ^3.5.0
 
-  '@vueuse/integrations@14.4.0':
-    resolution: {integrity: sha512-oJz9qTgczvA7L1nXQFRU7h8tQbOCoiceqvMMhT9XYMyOGTqLJ2rEa09PON+nD2t48sZUfeOmg4eaWJXV4sZb/w==}
+  '@vueuse/integrations@15.0.0':
+    resolution: {integrity: sha512-uWC1608pEocJPeRk1IqrEA3uYHhAGTJNibcMAdxgdK2Sy2Hypc6b+VdNO9KekCxyPc4VXK8SKDp8vsXefR/ZFg==}
+    engines: {node: '>=22'}
     peerDependencies:
       async-validator: ^4
       axios: ^1
       change-case: ^5
-      drauu: ^0.4
+      drauu: ^1 || ^0.4
       focus-trap: ^7 || ^8
       fuse.js: ^7
       idb-keyval: ^6
@@ -602,11 +604,13 @@ packages:
       universal-cookie:
         optional: true
 
-  '@vueuse/metadata@14.4.0':
-    resolution: {integrity: sha512-swx/255R6JyHZFJhx845iz5CRWDZdCfvkZOpACWc5+c5WHcG24mv8gUT1WIdFQaHt6dq79rvILd9QnCWiyVm9g==}
+  '@vueuse/metadata@15.0.0':
+    resolution: {integrity: sha512-sfWE5LADAKJ0KnjtGliMdSN8Ij/L7uP6rXIZlgPloAI4zvvefbw6H5Lt7KJA6RqQOYgVqWF5Guj50HHMIzygBg==}
+    engines: {node: '>=22'}
 
-  '@vueuse/shared@14.4.0':
-    resolution: {integrity: sha512-JRgY90Sz8DDtPMsaDflvPMp9xYk69JZAmbuDvAquUVXKr2gEjqtzGNTTthLfckH0BzBqvnu31gb4a8TGLRe79g==}
+  '@vueuse/shared@15.0.0':
+    resolution: {integrity: sha512-vbNXhGrbV53xPOMSyOzMHQRvhMgZf7oNDw2RChUetVxwTIEkInQ1joZ9JbT0G3z2n2AJNjvmCWeM9ySYrnvogA==}
+    engines: {node: '>=22'}
     peerDependencies:
       vue: ^3.5.0
 
@@ -1259,8 +1263,8 @@ packages:
     resolution: {integrity: sha512-HwcZHixwwnLSbcDAbh+TRISX0zNerzL4UUpVlIEjbQleae095lfOQEFtB0Jkbxajy2yUiluH+TgLTLVMOj7+Tw==}
     engines: {node: '>=20.0.0'}
 
-  vitepress@2.0.0-alpha.20:
-    resolution: {integrity: sha512-uQWKmP9PaBkf9zxHn0iOml/ZPPDaGKqQXVMBHz3yjwyyd9Eg+BKLGxbqmOGlfOMCt6Fj8TLiAnE59qlKZ0A3xw==}
+  vitepress@2.0.0-alpha.21:
+    resolution: {integrity: sha512-b2PFPIw2mVfxDi490FhSq4AlkFi17b9lofLCqWfH4uPKz/dF4oy2C9vBpP2r7l7hl2hc5BG7OTRPvRFfRzF7MA==}
     hasBin: true
     peerDependencies:
       markdown-it-mathjax3: ^4
@@ -1660,24 +1664,24 @@ snapshots:
 
   '@vue/shared@3.5.44': {}
 
-  '@vueuse/core@14.4.0(vue@3.5.44)':
+  '@vueuse/core@15.0.0(vue@3.5.44)':
     dependencies:
       '@types/web-bluetooth': 0.0.21
-      '@vueuse/metadata': 14.4.0
-      '@vueuse/shared': 14.4.0(vue@3.5.44)
+      '@vueuse/metadata': 15.0.0
+      '@vueuse/shared': 15.0.0(vue@3.5.44)
       vue: 3.5.44
 
-  '@vueuse/integrations@14.4.0(focus-trap@8.2.3)(vue@3.5.44)':
+  '@vueuse/integrations@15.0.0(focus-trap@8.2.3)(vue@3.5.44)':
     dependencies:
-      '@vueuse/core': 14.4.0(vue@3.5.44)
-      '@vueuse/shared': 14.4.0(vue@3.5.44)
+      '@vueuse/core': 15.0.0(vue@3.5.44)
+      '@vueuse/shared': 15.0.0(vue@3.5.44)
       vue: 3.5.44
     optionalDependencies:
       focus-trap: 8.2.3
 
-  '@vueuse/metadata@14.4.0': {}
+  '@vueuse/metadata@15.0.0': {}
 
-  '@vueuse/shared@14.4.0(vue@3.5.44)':
+  '@vueuse/shared@15.0.0(vue@3.5.44)':
     dependencies:
       vue: 3.5.44
 
@@ -2315,10 +2319,10 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vitepress-mermaid-viewer@0.5.2(mermaid@12.2.0)(vitepress@2.0.0-alpha.20(postcss@8.5.31))(vue@3.5.44):
+  vitepress-mermaid-viewer@0.5.2(mermaid@12.2.0)(vitepress@2.0.0-alpha.21(postcss@8.5.31))(vue@3.5.44):
     dependencies:
       mermaid: 12.2.0
-      vitepress: 2.0.0-alpha.20(postcss@8.5.31)
+      vitepress: 2.0.0-alpha.21(postcss@8.5.31)
       vue: 3.5.44
 
   vitepress-sidebar@1.40.0:
@@ -2327,7 +2331,7 @@ snapshots:
       gray-matter: 4.0.3
       qsu: 1.18.0
 
-  vitepress@2.0.0-alpha.20(postcss@8.5.31):
+  vitepress@2.0.0-alpha.21(postcss@8.5.31):
     dependencies:
       '@docsearch/css': 4.7.1
       '@docsearch/js': 4.7.1
@@ -2338,8 +2342,8 @@ snapshots:
       '@vitejs/plugin-vue': 6.0.10(vite@8.3.5)(vue@3.5.44)
       '@vue/devtools-api': 8.2.1
       '@vue/shared': 3.5.44
-      '@vueuse/core': 14.4.0(vue@3.5.44)
-      '@vueuse/integrations': 14.4.0(focus-trap@8.2.3)(vue@3.5.44)
+      '@vueuse/core': 15.0.0(vue@3.5.44)
+      '@vueuse/integrations': 15.0.0(focus-trap@8.2.3)(vue@3.5.44)
       focus-trap: 8.2.3
       mark.js: 8.11.1
       minisearch: 7.2.0
