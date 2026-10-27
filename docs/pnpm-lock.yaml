@@ -165,7 +165,6 @@ settings:
 overrides:
   minimatch: 10.2.5
   picomatch: 4.0.4
-  qsu: 1.18.0
 
 importers:
 
@@ -1107,9 +1106,9 @@ packages:
   property-information@7.2.0:
     resolution: {integrity: sha512-IAtzIB6sUiWaJYrX9smp3V46pBGbBeLFRGdh25kg1334VcBlD8HzhPeNIWQH9zhGmo2itIe25EHt9dQP7G5hmg==}
 
-  qsu@1.18.0:
-    resolution: {integrity: sha512-YMfqHAbfQzyJueKDW0E+khjn4HrRxfTLSYZ7/U1kaywn3YQDyUUNvCFnZ/SyfPypvRVA6jpx3Dm5wIi8T0rN7g==}
-    engines: {node: '>=18.0.0'}
+  qsu@1.100.0:
+    resolution: {integrity: sha512-esVtSwI4AetasN5wl6olIoNGNkK26+5lN769d5JCiCYxRGFEEgjV1zGvrU/4uImz9iVNQCrIxmy9nQh5KhZ8dA==}
+    engines: {node: '>=20.0.0'}
 
   regex-recursion@6.0.2:
     resolution: {integrity: sha512-0YCaSCq2VRIebiaUviZNs0cBz1kg5kVS2UKUfNIx8YVs1cN3AV7NTctO5FOKBA+UT2BPJIWZauYHPqJODG50cg==}
@@ -2184,7 +2183,7 @@ snapshots:
 
   property-information@7.2.0: {}
 
-  qsu@1.18.0: {}
+  qsu@1.100.0: {}
 
   regex-recursion@6.0.2:
     dependencies:
@@ -2329,7 +2328,7 @@ snapshots:
     dependencies:
       glob: 13.0.6
       gray-matter: 4.0.3
-      qsu: 1.18.0
+      qsu: 1.100.0
 
   vitepress@2.0.0-alpha.21(postcss@8.5.31):
     dependencies:
