@@ -20,6 +20,9 @@ jobs:
         with:
           python-version: "3.14"
 
+      - name: Test image size checks
+        run: python -m unittest discover -s .github/scripts -p 'test_image_sizes.py'
+
       # For shfmt pre-commit hook
       - name: Setup Go
         uses: actions/setup-go@v7

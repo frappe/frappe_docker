@@ -1,21 +1,28 @@
 services:
   configurator:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+    platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}
 
   backend:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+    platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}
 
   frontend:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+    platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}
 
   websocket:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+    platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}
 
   queue-short:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+    platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}
 
   queue-long:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+    platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}
 
   scheduler:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+    platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}
