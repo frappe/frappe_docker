@@ -4,4 +4,3 @@ allowBuilds:
 overrides:
   "minimatch": "10.2.5"
   "picomatch": "4.0.4"
-  "qsu": "1.18.0"
