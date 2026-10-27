@@ -181,8 +181,8 @@ importers:
         specifier: 0.5.2
         version: 0.5.2(mermaid@12.2.0)(vitepress@2.0.0-alpha.21(postcss@8.5.31))(vue@3.5.44)
       vitepress-sidebar:
-        specifier: 1.40.0
-        version: 1.40.0
+        specifier: 1.41.0
+        version: 1.41.0
 
 packages:
 
@@ -1259,8 +1259,8 @@ packages:
       vitepress: '>=1.0.0'
       vue: ^3.0.0
 
-  vitepress-sidebar@1.40.0:
-    resolution: {integrity: sha512-HwcZHixwwnLSbcDAbh+TRISX0zNerzL4UUpVlIEjbQleae095lfOQEFtB0Jkbxajy2yUiluH+TgLTLVMOj7+Tw==}
+  vitepress-sidebar@1.41.0:
+    resolution: {integrity: sha512-nL+jWlSgmn0Ssg8/PBcZmwbJ2vBFFg3nur+pX1qWihuP/ihTCI12Z/U2cFG54e/jTsWAGLm0KVfaid0NpA/jsQ==}
     engines: {node: '>=20.0.0'}
 
   vitepress@2.0.0-alpha.21:
@@ -2325,7 +2325,7 @@ snapshots:
       vitepress: 2.0.0-alpha.21(postcss@8.5.31)
       vue: 3.5.44
 
-  vitepress-sidebar@1.40.0:
+  vitepress-sidebar@1.41.0:
     dependencies:
       glob: 13.0.6
       gray-matter: 4.0.3
