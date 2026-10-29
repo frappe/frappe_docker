@@ -84,4 +84,4 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml logs
 
 > Depending on the registrar, the assignment may take some time, whereby it must also be ensured that A and AAAA records are correctly directed to the server for the issuance of the certificate, if necessary.
 
-See also: [Environment Variables](../02-setup/04-env-variables.md) and [TLS/SSL Setup Overview](../13-explanation/04-tls-ssl-approaches.md).
+See also: [Environment Variables](../02-setup/04-env-variables.md), [TLS/SSL options](../12-reference/03-tls-ssl-options.md), and [TLS/SSL deployment choices](../13-explanation/04-tls-ssl-approaches.md).
