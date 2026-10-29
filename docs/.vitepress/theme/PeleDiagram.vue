@@ -301,6 +301,26 @@ onBeforeUnmount(() => {
   background: var(--vp-c-bg-soft);
   border: 1px solid var(--vp-c-divider);
   border-radius: 12px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 5%);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pele-diagram[aria-disabled="false"]:hover {
+    border-color: var(--vp-c-brand-1);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 10%);
+    transform: translateY(-2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pele-diagram {
+    transition: none;
+  }
+  .pele-diagram[aria-disabled="false"]:hover {
+    transform: none;
+  }
 }
 .pele-diagram:focus-visible,
 button:focus-visible {
