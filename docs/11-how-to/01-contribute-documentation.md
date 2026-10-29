@@ -50,6 +50,50 @@ Category indexes should briefly explain their purpose rather than list every doc
 5. Put article images in `docs/images/` and use relative paths with descriptive alternative text, for example `![Service diagram](../images/service-diagram.png)`. Reserve `docs/public/` for site assets.
 6. State prerequisites and expected results for instructions. Clearly identify destructive operations. Keep commands, configuration names, and examples consistent with the repository's behavior.
 
+## Add diagrams
+
+Write diagrams using standard [Mermaid syntax](https://mermaid.js.org/intro/syntax-reference.html)
+in a fenced `mermaid` code block. The website uses [Pele](https://pele.run/) to
+render that source; authors do not need Vue code or a different diagram language.
+For example:
+
+````markdown
+```mermaid
+flowchart LR
+    accTitle: Image publishing flow
+    accDescr: Build images, run tests, then publish them.
+    Build[Build images] --> Test[Run tests] --> Publish[Publish images]
+```
+````
+
+Use `accTitle` and `accDescr` to give diagrams an accessible name and description.
+The website also accepts the `mmd` fence alias; prefer `mermaid` for compatibility
+with other Markdown viewers. See the [image pipeline overview](../13-explanation/07-github-actions-image-workflows.md#current-flow)
+for an existing diagram. Click a rendered diagram to open its fullscreen viewer,
+zoom and pan, copy its source, or download SVG/PNG files.
+
+Diagram colors follow the website's light/dark theme by default. To highlight a
+node, append standard Mermaid styling inside the same code block, for example:
+
+```text
+classDef published fill:#d1fae5,stroke:#047857,color:#064e3b
+class Publish published
+```
+
+These explicit colors stay fixed when the theme changes. Set fill, border, and
+text colors together and check readability in both themes; otherwise, use the
+automatic palette. See [Mermaid styling](https://mermaid.js.org/syntax/flowchart.html#styling-and-classes)
+for syntax and [Pele theming](https://pele.run/theming) for renderer styling.
+Site-wide palette changes belong in the VitePress theme's `PeleDiagram.vue`
+component, which maps Pele's CSS variables to VitePress colors. Mermaid theme
+settings such as `themeVariables` do not configure this renderer.
+
+Check diagram appearance in the [local VitePress preview](07-configuring-vitepress.md#development).
+Other Mermaid renderers can produce different layouts and styles. Diagrams render
+in the browser, so a successful documentation build alone does not confirm that
+they render correctly. See [renderer compatibility](07-configuring-vitepress.md#diagram-rendering)
+before using advanced features.
+
 ## Check the documentation
 
 Review the Markdown preview in your editor or on GitHub. Check heading levels, code fences, tables, links, and images.

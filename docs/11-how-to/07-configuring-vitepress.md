@@ -46,6 +46,8 @@ pnpm run docs:dev
 
 ## Diagram rendering
 
+For authoring syntax, examples, and color guidance, see [Add diagrams](01-contribute-documentation.md#add-diagrams).
+
 Mermaid fenced code blocks are rendered in the reader's browser with [Pele](https://pele.run/).
 The `PeleDiagram` component provides fullscreen viewing, zoom and pan, source
 copying, and SVG/PNG downloads. Diagram colors follow the VitePress light/dark
