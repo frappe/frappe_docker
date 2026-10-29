@@ -50,6 +50,14 @@ Category indexes should briefly explain their purpose rather than list every doc
 5. Put article images in `docs/images/` and use relative paths with descriptive alternative text, for example `![Service diagram](../images/service-diagram.png)`. Reserve `docs/public/` for site assets.
 6. State prerequisites and expected results for instructions. Clearly identify destructive operations. Keep commands, configuration names, and examples consistent with the repository's behavior.
 
+## Add diagrams
+
+Use fenced `mermaid` blocks with standard [Mermaid syntax](https://mermaid.js.org/intro/syntax-reference.html).
+Include `accTitle` and `accDescr` for accessibility. Check diagrams in the
+[local preview](07-configuring-vitepress.md#development), including light/dark
+readability when adding custom colors. We use [Pele](https://pele.run/compatibility),
+so Mermaid theme settings such as `themeVariables` do not apply.
+
 ## Check the documentation
 
 Review the Markdown preview in your editor or on GitHub. Check heading levels, code fences, tables, links, and images.
