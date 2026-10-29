@@ -43,3 +43,17 @@ pnpm run docs:dev
 4. VitePress specific config is `docs/.vitepress/config.mts`.
 5. To auto populate the sidebar, a plugin called 'VitePress Sidebar' is used. The `config.mts` also include config for this plugin. More details can be found in the [documentation page](https://vitepress-sidebar.cdget.com/guide/getting-started).
 6. Each subfolder has an `index.md` file. This is used to specify the group heading of the pages in the sidebar.
+
+## Diagram rendering
+
+Mermaid fenced code blocks are rendered in the reader's browser with [Pele](https://pele.run/).
+The `PeleDiagram` component provides fullscreen viewing, zoom and pan, source
+copying, and SVG/PNG downloads. Diagram colors follow the VitePress light/dark
+theme. The diagram component loads on pages containing `mermaid` or `mmd` fences.
+Neither Mermaid.js nor `vitepress-mermaid-viewer` is needed.
+
+Pele has its own layout and styling. Mermaid themes, `themeVariables`, and the
+`mermaidTheme` frontmatter setting do not configure Pele.
+Arbitrary HTML labels, JavaScript callbacks, and external Mermaid
+plugins are unsupported. Math typesetting and custom icon libraries need
+additional integration. See [Pele compatibility](https://pele.run/compatibility).
