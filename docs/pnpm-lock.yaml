@@ -171,8 +171,8 @@ importers:
   .:
     devDependencies:
       pele:
-        specifier: 1.12.0
-        version: 1.12.0
+        specifier: 1.13.0
+        version: 1.13.0
       vitepress:
         specifier: 2.0.0-alpha.21
         version: 2.0.0-alpha.21(postcss@8.5.31)
@@ -716,8 +716,8 @@ packages:
     resolution: {integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==}
     engines: {node: 18 || 20 || >=22}
 
-  pele@1.12.0:
-    resolution: {integrity: sha512-3OdOK6rvkaTB569R4/I8U0H82MqPRxj7vfkbowa2rRhgSBPFhvWlfFy5eae0jP+2A6hE8abE17nsdyxJz2VBiQ==}
+  pele@1.13.0:
+    resolution: {integrity: sha512-Ie8UKY9x00MsuR3jO6AzUwzK2Z6MIV3Tf4EDdITiuk8Uaz8K7g0R082WqsqNaSU8DdgkrRvZThzhit83mi/uiw==}
     engines: {node: '>=20'}
 
   perfect-debounce@2.1.0:
@@ -1325,7 +1325,7 @@ snapshots:
       lru-cache: 11.5.3
       minipass: 7.1.3
 
-  pele@1.12.0: {}
+  pele@1.13.0: {}
 
   perfect-debounce@2.1.0: {}
 
