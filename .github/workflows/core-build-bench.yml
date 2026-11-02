@@ -49,6 +49,7 @@ jobs:
             exit 1
           fi
           echo "LATEST_BENCH_RELEASE=${tag}" >> "$GITHUB_ENV"
+          
       - name: Build and test
         uses: docker/bake-action@v7.5.0
         with:
