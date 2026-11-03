@@ -1,0 +1,28 @@
+{
+  "$schema": "../schemas/image-definitions-v1.schema.json",
+  "schema_version": "1.0",
+  "registry": {
+    "host": "ghcr.io",
+    "namespace": "ndftechlabs"
+  },
+  "images": [
+    {
+      "id": "dhanaerp-master-v16",
+      "product": "dhanaerp-master",
+      "manifest": "products/master/dhanaerp-master-v16.json",
+      "repository": "ghcr.io/ndftechlabs/dhanaerp-master"
+    },
+    {
+      "id": "dalali-v16",
+      "product": "dalali",
+      "manifest": "products/tenant/dalali-v16.json",
+      "repository": "ghcr.io/ndftechlabs/dhanaerp-dalali"
+    },
+    {
+      "id": "vincowoods-v16",
+      "product": "vincowoods",
+      "manifest": "products/tenant/vincowoods-v16.json",
+      "repository": "ghcr.io/ndftechlabs/dhanaerp-vincowoods"
+    }
+  ]
+}

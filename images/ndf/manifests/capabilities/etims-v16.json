@@ -34,7 +34,7 @@
     {
       "name": "csf_ke",
       "repository": "https://github.com/navariltd/navari_csf_ke",
-      "target_ref": "main",
+      "target_ref": "version-16",
       "ref": null,
       "required": true,
       "install_order": 100,
@@ -49,7 +49,7 @@
     {
       "name": "kenya_compliance_via_slade",
       "repository": "https://github.com/navariltd/kenya-compliance-via-slade",
-      "target_ref": "main",
+      "target_ref": "version-16",
       "ref": null,
       "required": true,
       "install_order": 110,

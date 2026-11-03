@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ndftechlabs.com/schemas/image-definitions-v1.schema.json",
+  "title": "NDF Image Definitions",
+  "description": "Maps deployable NDF products to their container image repositories.",
+  "type": "object",
+  "required": ["schema_version", "registry", "images"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "registry": {
+      "type": "object",
+      "required": ["host", "namespace"],
+      "properties": {
+        "host": {
+          "type": "string",
+          "pattern": "^[a-z0-9.-]+$"
+        },
+        "namespace": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "images": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "product", "manifest", "repository"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "product": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "manifest": {
+            "type": "string",
+            "minLength": 1
+          },
+          "repository": {
+            "type": "string",
+            "pattern": "^[a-z0-9.-]+/[a-z0-9-]+/[a-z0-9][a-z0-9._-]*$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
