@@ -1,0 +1,158 @@
+{
+  "$schema": "../../schemas/application-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
+  "id": "ai-automation-v16",
+  "name": "NDF AI & Automation",
+  "description": "Optional AI, agent, MCP integration, and workflow automation capability for NDF Frappe Platform deployments targeting Frappe v16.",
+  "framework": {
+    "name": "frappe",
+    "version": "16",
+    "release_channel": "stable",
+    "target_ref": "version-16"
+  },
+  "profile": {
+    "type": "capability",
+    "required": false,
+    "install_by_default": false
+  },
+  "resolution": {
+    "strategy": "locked",
+    "require_immutable_commit": true,
+    "allow_development_branches": false,
+    "fail_on_unverified_compatibility": true,
+    "notes": [
+      "Optional capability layered on top of dhana-base-v16.",
+      "The applications array contains bench-installable Frappe apps only.",
+      "The services array contains independently built and deployed runtime services; services must not be passed to bench get-app or included in apps.json.",
+      "Resolve all approved repository refs to immutable commit SHAs before producing a production lock.",
+      "Flow is retained for evaluation but must be excluded from production locks until an NDF-maintained fork or verified successor is selected."
+    ]
+  },
+  "applications": [
+    {
+      "name": "frappe_ai",
+      "repository": "https://github.com/NdfTechLabs/frappe_ai",
+      "target_ref": "main",
+      "ref": null,
+      "required": false,
+      "install_order": 110,
+      "dependencies": [
+        "frappe"
+      ],
+      "compatibility_status": "pending_frappe_v16_install_and_migration_validation",
+      "notes": "Frappe Desk AI integration. Its agent endpoint and authentication settings must be configured to reach the separately deployed frappe-ai-agent service."
+    },
+    {
+      "name": "flow",
+      "repository": "https://github.com/frappe/flow_client",
+      "target_ref": "develop",
+      "ref": null,
+      "required": false,
+      "install_order": 120,
+      "dependencies": ["frappe"],
+      "compatibility_status": "experimental_v16_validation_required"
+    }
+  ],
+  "services": [
+    {
+      "name": "frappe-ai-agent",
+      "kind": "python_http_service",
+      "repository": "https://github.com/NdfTechLabs/frappe-ai-agent",
+      "target_ref": "main",
+      "ref": null,
+      "required": false,
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile",
+        "python": ">=3.12",
+        "build_system": "hatchling",
+        "project_file": "pyproject.toml"
+      },
+      "runtime": {
+        "deployment": "separate_container",
+        "port": 8484,
+        "protocol": "http",
+        "healthcheck": {
+          "path": "/health",
+          "method": "GET",
+          "status": "needs_confirmation_against_pinned_source"
+        },
+        "entrypoint": "needs_confirmation_against_pinned_source"
+      },
+      "dependencies": {
+        "services": [],
+        "applications": [
+          "frappe_ai"
+        ]
+      },
+      "configuration": {
+        "secrets": "inject_at_runtime_only",
+        "environment_contract": "derive_from_repository_configuration_and_document_before_production"
+      },
+      "status": "source_confirmed_container_runtime_contract_pending",
+      "notes": "The repository pyproject declares Python >=3.12 and FastAPI/Uvicorn-based dependencies. Do not assume a port, entrypoint, or health route until confirmed from the pinned source revision and deployment config."
+    },
+    {
+      "name": "frappe-mcp-server",
+      "kind": "go_http_service",
+      "repository": "https://github.com/NdfTechLabs/frappe-mcp-server",
+      "target_ref": "main",
+      "ref": null,
+      "required": false,
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile",
+        "build_system": "go",
+        "go_module": "go.mod"
+      },
+      "runtime": {
+        "deployment": "separate_container",
+        "port": 8080,
+        "protocol": "http",
+        "entrypoint": [
+          "./frappe-mcp-server"
+        ],
+        "healthcheck": {
+          "path": "/health",
+          "method": "GET",
+          "interval_seconds": 30,
+          "timeout_seconds": 3,
+          "start_period_seconds": 5,
+          "retries": 3
+        }
+      },
+      "dependencies": {
+        "services": [],
+        "applications": []
+      },
+      "configuration": {
+        "config_file": "config.yaml",
+        "config_template": "config.yaml.example",
+        "secrets": "inject_at_runtime_only",
+        "authentication": "Frappe credentials or OAuth2 configuration; verify exact options against pinned source"
+      },
+      "status": "dockerfile_and_runtime_metadata_inspected_commit_pin_pending",
+      "notes": "The current repository Dockerfile builds a Go binary, runs as UID 1001, exposes 8080, and defines an HTTP /health check. Confirm the final image digest and runtime configuration from the pinned commit."
+    }
+  ],
+  "validation": {
+    "required_checks": [
+      "all_repositories_and_refs_exist",
+      "all_refs_resolve_to_immutable_commit_shas",
+      "all_bench_apps_support_target_frappe_version",
+      "all_bench_app_dependencies_are_included",
+      "bench_app_dependency_graph_is_acyclic",
+      "bench_app_install_order_respects_dependencies",
+      "production_refs_are_not_development_branches",
+      "archived_repositories_are_blocked_from_production",
+      "frappe_ai_install_and_migration_are_tested_on_target_frappe_v16",
+      "frappe_ai_can_connect_to_frappe_ai_agent_using_runtime_configuration",
+      "frappe_ai_agent_container_build_and_healthcheck_are_tested",
+      "frappe_mcp_server_container_build_and_healthcheck_are_tested",
+      "mcp_server_authentication_and_frappe_connectivity_are_tested",
+      "service_credentials_are_injected_at_runtime_not_baked_into_images",
+      "external_services_are_excluded_from_bench_apps_json",
+      "flow_source_is_maintained_and_v16_compatible_before_production"
+    ]
+  }
+}

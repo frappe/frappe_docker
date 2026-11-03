@@ -1,0 +1,88 @@
+{
+  "$schema": "../../schemas/application-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
+  "id": "etims-v16",
+  "name": "NDF eTIMS Integration",
+  "description": "Optional Kenya Revenue Authority eTIMS integration for NDF Frappe Platform deployments targeting Frappe v16, using Navari's Kenya Compliance via Slade360 VSCU integration.",
+  "framework": {
+    "name": "frappe",
+    "version": "16",
+    "release_channel": "stable",
+    "target_ref": "version-16"
+  },
+  "profile": {
+    "type": "capability",
+    "required": false,
+    "install_by_default": false
+  },
+  "resolution": {
+    "strategy": "locked",
+    "require_immutable_commit": true,
+    "allow_development_branches": false,
+    "fail_on_unverified_compatibility": true,
+    "notes": [
+      "Optional capability layered on top of dhana-base-v16.",
+      "The capability uses Navari's existing Kenya Compliance via Slade360 integration.",
+      "The primary integration uses KRA VSCU through the external Slade360 Advantage service.",
+      "csf_ke is a required application dependency of kenya_compliance_via_slade.",
+      "Slade360 Advantage is an externally managed integration dependency and must not be included as a bench application or container service.",
+      "Resolve all application refs to immutable commit SHAs before producing a production lock.",
+      "Production deployment requires valid taxpayer onboarding, Slade360 configuration and applicable KRA integration approval."
+    ]
+  },
+  "applications": [
+    {
+      "name": "csf_ke",
+      "repository": "https://github.com/navariltd/navari_csf_ke",
+      "target_ref": "main",
+      "ref": null,
+      "required": true,
+      "install_order": 100,
+      "dependencies": [
+        "frappe",
+        "erpnext",
+        "hrms"
+      ],
+      "compatibility_status": "declared_frappe_v16_erpnext_v16_hrms_v16_pending_install_validation",
+      "notes": "Navari Kenya Country Specific Functionality application. Provides Kenya-specific ERPNext functionality and is a dependency of kenya_compliance_via_slade."
+    },
+    {
+      "name": "kenya_compliance_via_slade",
+      "repository": "https://github.com/navariltd/kenya-compliance-via-slade",
+      "target_ref": "main",
+      "ref": null,
+      "required": true,
+      "install_order": 110,
+      "dependencies": [
+        "frappe",
+        "erpnext",
+        "csf_ke"
+      ],
+      "compatibility_status": "declared_frappe_v16_erpnext_v16_csf_ke_v16_pending_install_and_integration_validation",
+      "notes": "Primary eTIMS integration application. Uses Slade360 Advantage as the intermediary for KRA VSCU integration. Requires external Slade360 onboarding, credentials and configuration."
+    }
+  ],
+  "validation": {
+    "required_checks": [
+      "all_repositories_and_refs_exist",
+      "all_refs_resolve_to_immutable_commit_shas",
+      "all_bench_apps_support_target_frappe_version",
+      "all_bench_app_dependencies_are_included",
+      "bench_app_dependency_graph_is_acyclic",
+      "bench_app_install_order_respects_dependencies",
+      "production_refs_are_not_development_branches",
+      "csf_ke_installs_and_migrates_on_target_frappe_v16",
+      "kenya_compliance_via_slade_installs_and_migrates_on_target_frappe_v16",
+      "slade360_advantage_configuration_is_documented",
+      "slade360_credentials_are_injected_or_configured_securely",
+      "kra_vscu_sandbox_integration_is_tested",
+      "item_registration_and_classification_are_tested",
+      "sales_invoice_submission_and_kra_response_handling_are_tested",
+      "purchase_transaction_synchronization_is_tested",
+      "retry_and_duplicate_submission_handling_are_tested",
+      "credit_note_and_invoice_correction_flows_are_tested",
+      "taxpayer_and_branch_configuration_are_verified",
+      "external_services_and_credentials_are_excluded_from_container_images"
+    ]
+  }
+}

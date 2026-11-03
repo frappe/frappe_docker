@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ndftechlabs.com/schemas/application-manifest-v1.schema.json",
+  "title": "NDF Frappe Application Manifest",
+  "description": "Schema for NDF Frappe platform application bundles.",
+  "type": "object",
+  "required": [
+    "manifest_version",
+    "id",
+    "name",
+    "framework",
+    "profile",
+    "resolution",
+    "validation"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "manifest_version": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "framework": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "release_channel",
+        "target_ref"
+      ],
+      "properties": {
+        "name": {
+          "const": "frappe"
+        },
+        "version": {
+          "type": "string"
+        },
+        "release_channel": {
+          "enum": ["stable", "development"]
+        },
+        "target_ref": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "type",
+        "required",
+        "install_by_default"
+      ],
+      "properties": {
+        "type": {
+          "enum": ["base", "capability", "product"]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "install_by_default": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "resolution": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "enum": ["locked", "latest-compatible"]
+        },
+        "require_immutable_commit": {
+          "type": "boolean"
+        },
+        "allow_development_branches": {
+          "type": "boolean"
+        },
+        "fail_on_unverified_compatibility": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "applications": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "repository",
+          "target_ref",
+          "required",
+          "install_order",
+          "dependencies"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string",
+            "format": "uri"
+          },
+          "target_ref": {
+            "type": "string"
+          },
+          "ref": {
+            "type": ["string", "null"]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "install_order": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "dependencies": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "compatibility_status": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "required_checks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

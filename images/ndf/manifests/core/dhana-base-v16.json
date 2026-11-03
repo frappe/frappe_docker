@@ -1,0 +1,163 @@
+{
+  "$schema": "../../schemas/application-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
+  "id": "dhana-base-v16",
+  "name": "DhanaERP Base",
+  "description": "Standard NDF Frappe platform application bundle for Frappe/ERPNext v16 deployments.",
+  "framework": {
+    "name": "frappe",
+    "version": "16",
+    "release_channel": "stable",
+    "target_ref": "version-16"
+  },
+  "profile": {
+    "type": "base",
+    "required": true,
+    "install_by_default": true
+  },
+  "resolution": {
+    "strategy": "locked",
+    "require_immutable_commit": true,
+    "allow_development_branches": false,
+    "fail_on_unverified_compatibility": true,
+    "notes": [
+      "The resolver must resolve every approved ref to an immutable commit SHA.",
+      "Do not use develop branches or floating refs in production builds.",
+      "Applications with pending v16 compatibility verification must be blocked from a production lock until verified."
+    ]
+  },
+  "applications": [
+    {
+      "name": "frappe",
+      "repository": "https://github.com/frappe/frappe",
+      "target_ref": "version-16",
+      "ref": null,
+      "required": true,
+      "install_order": 10,
+      "dependencies": [],
+      "compatibility_status": "target_ref_to_verify"
+    },
+    {
+      "name": "erpnext",
+      "repository": "https://github.com/frappe/erpnext",
+      "target_ref": "version-16",
+      "ref": null,
+      "required": true,
+      "install_order": 20,
+      "dependencies": [
+        "frappe"
+      ],
+      "compatibility_status": "target_ref_to_verify"
+    },
+    {
+      "name": "payments",
+      "repository": "https://github.com/frappe/payments",
+      "target_ref": "version-16",
+      "ref": null,
+      "required": true,
+      "install_order": 30,
+      "dependencies": [
+        "frappe"
+      ],
+      "compatibility_status": "target_ref_to_verify"
+    },
+    {
+      "name": "webshop",
+      "repository": "https://github.com/frappe/webshop",
+      "target_ref": "version-16",
+      "ref": null,
+      "required": true,
+      "install_order": 40,
+      "dependencies": [
+        "erpnext",
+        "payments"
+      ],
+      "compatibility_status": "target_ref_to_verify"
+    },
+    {
+      "name": "hrms",
+      "repository": "https://github.com/frappe/hrms",
+      "target_ref": "version-16",
+      "ref": null,
+      "required": true,
+      "install_order": 50,
+      "dependencies": [
+        "erpnext"
+      ],
+      "compatibility_status": "target_ref_to_verify"
+    },
+    {
+      "name": "lending",
+      "repository": "https://github.com/frappe/lending",
+      "target_ref": "version-16",
+      "ref": null,
+      "required": true,
+      "install_order": 60,
+      "dependencies": [
+        "erpnext"
+      ],
+      "compatibility_status": "target_ref_to_verify"
+    },
+    {
+      "name": "frappe_mpsa_payments",
+      "repository": "https://github.com/navariltd/frappe-mpsa-payments",
+      "target_ref": "version-16",
+      "ref": null,
+      "required": true,
+      "install_order": 70,
+      "dependencies": [
+        "erpnext",
+        "hrms",
+        "lending"
+      ],
+      "compatibility_status": "verify_version_16_hooks_and_dependencies"
+    },
+    {
+      "name": "insights",
+      "repository": "https://github.com/frappe/insights",
+      "target_ref": "version-3",
+      "ref": null,
+      "required": true,
+      "install_order": 80,
+      "dependencies": [
+        "frappe"
+      ],
+      "compatibility_status": "verify_stable_v16_ref"
+    },
+    {
+      "name": "telephony",
+      "repository": "https://github.com/frappe/telephony",
+      "target_ref": "develop",
+      "ref": null,
+      "required": true,
+      "install_order": 90,
+      "dependencies": [
+        "frappe"
+      ],
+      "compatibility_status": "verify_stable_v16_ref"
+    },
+    {
+      "name": "helpdesk",
+      "repository": "https://github.com/frappe/helpdesk",
+      "target_ref": "main",
+      "ref": null,
+      "required": true,
+      "install_order": 100,
+      "dependencies": [
+        "telephony"
+      ],
+      "compatibility_status": "verify_stable_v16_ref"
+    }
+  ],
+  "validation": {
+    "required_checks": [
+      "all_repositories_and_refs_exist",
+      "all_refs_resolve_to_commits",
+      "all_apps_support_target_frappe_version",
+      "all_declared_dependencies_are_included",
+      "dependency_graph_is_acyclic",
+      "install_order_respects_dependencies",
+      "production_refs_are_not_development_branches"
+    ]
+  }
+}

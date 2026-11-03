@@ -1,0 +1,109 @@
+{
+  "$schema": "../../../schemas/application-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
+  "id": "dalali-v16",
+  "name": "Dalali",
+  "description": "Dalali ecommerce and retail deployment built on DhanaERP and Frappe v16.",
+
+  "framework": {
+    "name": "frappe",
+    "version": "16",
+    "release_channel": "stable",
+    "target_ref": "version-16"
+  },
+
+  "profile": {
+    "type": "product",
+    "required": true,
+    "install_by_default": true
+  },
+
+  "deployment": {
+    "role": "tenant",
+    "product": "dalali",
+    "purpose": "ecommerce_and_retail"
+  },
+
+  "resolution": {
+    "strategy": "locked",
+    "require_immutable_commit": true,
+    "allow_development_branches": false,
+    "fail_on_unverified_compatibility": true,
+    "notes": [
+      "Dalali is a DhanaERP tenant product.",
+      "The shared ERP foundation is composed through dhana-base-v16.",
+      "The tenant application is composed through dhana-tenant-base-v16.",
+      "The Master control-plane application is not included.",
+      "Ecommerce capabilities are included.",
+      "Dalali-specific ecommerce functionality is provided by dt_dalali_ecommerce.",
+      "AI and automation can be enabled as an optional capability.",
+      "All production application references must resolve to immutable commit SHAs."
+    ]
+  },
+
+  "includes": [
+    {
+      "manifest": "core/dhana-base-v16.json",
+      "required": true
+    },
+    {
+      "manifest": "products/tenant/dhana-tenant-base-v16.json",
+      "required": true
+    },
+    {
+      "manifest": "capabilities/ecommerce-v16.json",
+      "required": true
+    }
+  ],
+
+  "capabilities": [
+    {
+      "manifest": "capabilities/ai-automation-v16.json",
+      "required": false,
+      "install_by_default": false,
+      "description": "Optional AI and automation functionality for Dalali."
+    }
+  ],
+
+  "applications": [
+    {
+      "name": "dt_dalali_ecommerce",
+      "repository": "https://github.com/NdfTechLabs/dt_dalali_ecommerce",
+      "target_ref": "version-1",
+      "ref": null,
+      "required": true,
+      "install_order": 200,
+      "dependencies": [
+        "frappe",
+        "erpnext",
+        "webshop",
+        "dt_ecommerce",
+        "dt_recomendations"
+      ],
+      "compatibility_status": "pending_frappe_v16_validation",
+      "notes": "Dalali-specific ecommerce application for Dalali Merchants Ltd."
+    }
+  ],
+
+  "validation": {
+    "required_checks": [
+      "all_included_manifests_exist",
+      "all_included_manifests_are_schema_valid",
+      "all_repositories_and_refs_exist",
+      "all_refs_resolve_to_immutable_commit_shas",
+      "all_bench_apps_support_target_frappe_version",
+      "all_bench_app_dependencies_are_included",
+      "bench_app_dependency_graph_is_acyclic",
+      "bench_app_install_order_respects_dependencies",
+      "no_duplicate_application_definitions",
+      "dt_tenant_installs_and_migrates",
+      "dt_dalali_ecommerce_installs_and_migrates",
+      "dalali_storefront_initialization_is_functional",
+      "dalali_product_catalogue_is_functional",
+      "dalali_cart_and_checkout_are_functional",
+      "dalali_payment_integration_is_functional",
+      "dalali_delivery_integration_is_functional",
+      "tenant_application_operates_independently_of_dt_master"
+    ]
+  }
+}

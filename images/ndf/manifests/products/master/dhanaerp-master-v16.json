@@ -1,0 +1,91 @@
+{
+  "$schema": "../../../schemas/application-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
+  "id": "dhanaerp-master-v16",
+  "name": "DhanaERP Master",
+  "description": "DhanaERP Master control-plane product for provisioning, configuring and managing DhanaERP tenant deployments on Frappe v16.",
+
+  "framework": {
+    "name": "frappe",
+    "version": "16",
+    "release_channel": "stable",
+    "target_ref": "version-16"
+  },
+
+  "profile": {
+    "type": "product",
+    "required": true,
+    "install_by_default": true
+  },
+
+  "deployment": {
+    "role": "master",
+    "purpose": "control_plane",
+    "tenant_management": true,
+    "tenant_provisioning": true,
+    "tenant_lifecycle_management": true
+  },
+
+  "resolution": {
+    "strategy": "locked",
+    "require_immutable_commit": true,
+    "allow_development_branches": false,
+    "fail_on_unverified_compatibility": true,
+    "notes": [
+      "This product manifest composes the shared DhanaERP foundation with the Master-specific application bundle.",
+      "The Master deployment operates as the DhanaERP control plane.",
+      "Tenant-specific applications are not installed as part of the Master product.",
+      "Optional capabilities are independently selectable.",
+      "The Master and Tenant application families remain independent.",
+      "All production application references must resolve to immutable commit SHAs."
+    ]
+  },
+
+  "includes": [
+    {
+      "manifest": "core/dhana-base-v16.json",
+      "required": true
+    },
+    {
+      "manifest": "products/master/dhana-master-base-v16.json",
+      "required": true
+    },
+    {
+      "manifest": "capabilities/etims-v16.json",
+      "required": true
+    },
+    {
+      "manifest": "capabilities/ecommerce-v16.json",
+      "required": true
+    }
+  ],
+  "capabilities": [
+    {
+      "manifest": "capabilities/ai-automation-v16.json",
+      "required": false,
+      "install_by_default": false,
+      "description": "Optional AI and automation functionality for DhanaERP Master."
+    }
+  ],
+
+  "validation": {
+    "required_checks": [
+      "all_included_manifests_exist",
+      "all_included_manifests_are_schema_valid",
+      "all_repositories_and_refs_exist",
+      "all_refs_resolve_to_immutable_commit_shas",
+      "all_bench_apps_support_target_frappe_version",
+      "all_bench_app_dependencies_are_included",
+      "bench_app_dependency_graph_is_acyclic",
+      "bench_app_install_order_respects_dependencies",
+      "no_duplicate_application_definitions",
+      "master_application_installs_and_migrates",
+      "master_control_plane_initialization_is_functional",
+      "tenant_provisioning_workflow_is_functional",
+      "tenant_lifecycle_management_is_functional",
+      "master_and_tenant_applications_remain_independent",
+      "tenant_credentials_are_not_embedded_in_images",
+      "production_manifest_contains_no_unverified_applications"
+    ]
+  }
+}
