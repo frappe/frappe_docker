@@ -73,6 +73,12 @@ def test_build_labels_include_manifest_lock_and_application_refs():
     labels = build_labels(metadata, lock)
     apps = json.loads(labels["com.ndf.applications"])
 
+    assert labels["org.opencontainers.image.source"] == (
+        "https://github.com/NdfTechLabs/frappe_docker"
+    )
+    assert labels["org.opencontainers.image.url"] == (
+        "https://github.com/NdfTechLabs/frappe_docker"
+    )
     assert labels["com.ndf.image.id"] == "dalali-v16"
     assert labels["com.ndf.manifest.sha256"] == "a" * 64
     assert labels["com.ndf.lock.sha256"] == "b" * 64
