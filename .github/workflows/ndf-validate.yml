@@ -1,0 +1,69 @@
+name: NDF / Validate
+
+on:
+  push:
+    paths:
+      - "images/ndf/**"
+      - "requirements-test.txt"
+      - ".github/workflows/ndf-validate.yml"
+  pull_request:
+    paths:
+      - "images/ndf/**"
+      - "requirements-test.txt"
+      - ".github/workflows/ndf-validate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ndf-validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate manifests, locks and scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-test.txt
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-test.txt
+
+      - name: Validate image definitions
+        run: python images/ndf/scripts/validate_image_definitions.py
+
+      - name: Validate product build inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for image in \
+            dhanaerp-master-v16 \
+            dalali-v16 \
+            vincowoods-v16
+          do
+            echo "::group::Prepare ${image}"
+            python images/ndf/scripts/prepare_build.py \
+              --image "${image}" \
+              --output-dir "${RUNNER_TEMP}/ndf-build/${image}"
+            echo "::endgroup::"
+          done
+
+      - name: Run NDF tests
+        run: python -m pytest images/ndf/tests/ -v
+
+      - name: Compile NDF scripts
+        run: python -m compileall -q images/ndf/scripts/
