@@ -1,4 +1,4 @@
-name: NDF / Build and Validate Product Image
+name: NDF / Build and Validate Product Images
 
 on:
   push:
@@ -18,22 +18,66 @@ on:
       - ".github/workflows/ndf-build-product.yml"
       - "requirements-test.txt"
   workflow_dispatch:
+    inputs:
+      product:
+        description: Product image to build
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - dhanaerp-master-v16
+          - dalali-v16
+          - vincowoods-v16
 
 permissions:
   contents: read
 
 concurrency:
-  group: ndf-product-build-dalali-${{ github.ref }}
+  group: ndf-product-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  select-products:
+    name: Select product images
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Configure product matrix
+        id: set-matrix
+        env:
+          SELECTED_PRODUCT: ${{ inputs.product || 'all' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          case "$SELECTED_PRODUCT" in
+            all)
+              PRODUCTS='["dhanaerp-master-v16","dalali-v16","vincowoods-v16"]'
+              ;;
+            dhanaerp-master-v16|dalali-v16|vincowoods-v16)
+              PRODUCTS="[\\"$SELECTED_PRODUCT\\"]"
+              ;;
+            *)
+              echo "Unsupported product selection: $SELECTED_PRODUCT" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "matrix={\\"image\\":$PRODUCTS}" >> "$GITHUB_OUTPUT"
+
   build-and-validate:
-    name: Build and validate Dalali image
+    name: Build and validate ${{ matrix.image }}
+    needs: select-products
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.select-products.outputs.matrix) }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
-      IMAGE_REF: ghcr.io/ndftechlabs/dhanaerp-dalali:ci-${{ github.run_id }}-${{ github.run_attempt }}
-      BUILD_OUTPUT: .ndf-build/dalali-v16
+      IMAGE_TAG: ci-${{ github.run_id }}-${{ github.run_attempt }}
+      BUILD_OUTPUT: .ndf-build/${{ matrix.image }}
 
     steps:
       - name: Checkout
@@ -54,31 +98,45 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Build Dalali product image
+      - name: Build product image
         run: |
           set -euo pipefail
           mkdir -p "$BUILD_OUTPUT"
+
           python images/ndf/scripts/build_image.py \
-            --image dalali-v16 \
-            --tag "ci-${{ github.run_id }}-${{ github.run_attempt }}" \
+            --image "${{ matrix.image }}" \
+            --tag "$IMAGE_TAG" \
             --platform linux/amd64 \
             --output-dir "$BUILD_OUTPUT" \
+            --cache-from "type=gha,scope=ndf-${{ matrix.image }}" \
+            --cache-to "type=gha,mode=max,scope=ndf-${{ matrix.image }}" \
             --progress plain
+
+      - name: Resolve image reference
+        id: image
+        run: |
+          set -euo pipefail
+          IMAGE_REPOSITORY=$(python -c '
+          import json
+          with open("'"$BUILD_OUTPUT"'/build-metadata.json", encoding="utf-8") as file:
+              print(json.load(file)["image"]["repository"])
+          ')
+          echo "image_ref=${IMAGE_REPOSITORY}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Validate image contents and metadata
         run: |
           set -euo pipefail
           python images/ndf/scripts/validate_image.py \
-            --image "$IMAGE_REF" \
+            --image "${{ steps.image.outputs.image_ref }}" \
             --metadata "$BUILD_OUTPUT/build-metadata.json" \
-            --lock images/ndf/locks/dalali-v16.lock.json \
+            --lock "images/ndf/locks/${{ matrix.image }}.lock.json" \
             --report "$BUILD_OUTPUT/image-validation.json"
 
       - name: Upload build and validation artifacts
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
-          name: ndf-dalali-image-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .ndf-build/dalali-v16/
+          name: ndf-${{ matrix.image }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .ndf-build/${{ matrix.image }}/
           if-no-files-found: warn
           retention-days: 14
