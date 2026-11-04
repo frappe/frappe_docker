@@ -1,0 +1,84 @@
+name: NDF / Build and Validate Product Image
+
+on:
+  push:
+    paths:
+      - "images/ndf/**"
+      - "images/layered/Containerfile"
+      - "images/custom/**"
+      - "images/production/**"
+      - ".github/workflows/ndf-build-product.yml"
+      - "requirements-test.txt"
+  pull_request:
+    paths:
+      - "images/ndf/**"
+      - "images/layered/Containerfile"
+      - "images/custom/**"
+      - "images/production/**"
+      - ".github/workflows/ndf-build-product.yml"
+      - "requirements-test.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ndf-product-build-dalali-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-validate:
+    name: Build and validate Dalali image
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      IMAGE_REF: local/dalali:${{ github.run_id }}-${{ github.run_attempt }}
+      BUILD_OUTPUT: ${{ runner.temp }}/ndf-build/dalali-v16
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-test.txt
+
+      - name: Install build and validation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-test.txt
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Dalali product image
+        run: |
+          set -euo pipefail
+          mkdir -p "$BUILD_OUTPUT"
+          python images/ndf/scripts/build_image.py \
+            --image dalali-v16 \
+            --tag "$IMAGE_REF" \
+            --platform linux/amd64 \
+            --output-dir "$BUILD_OUTPUT" \
+            --progress plain
+
+      - name: Validate image contents and metadata
+        run: |
+          set -euo pipefail
+          python images/ndf/scripts/validate_image.py \
+            --image "$IMAGE_REF" \
+            --metadata "$BUILD_OUTPUT/build-metadata.json" \
+            --lock images/ndf/locks/dalali-v16.lock.json \
+            --report "$BUILD_OUTPUT/image-validation.json"
+
+      - name: Upload build and validation artifacts
+        if: ${{ always() && hashFiles('${{ runner.temp }}/ndf-build/dalali-v16/**') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ndf-dalali-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ndf-build/dalali-v16/
+          if-no-files-found: warn
+          retention-days: 14
