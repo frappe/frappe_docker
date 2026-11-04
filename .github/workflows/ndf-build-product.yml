@@ -65,7 +65,7 @@ jobs:
               ;;
           esac
 
-          MATRIX_JSON=$(printf '%s\\n' "${PRODUCTS[@]}" | python -c '
+          MATRIX_JSON=$(printf '%s\n' "${PRODUCTS[@]}" | python -c '
           import json
           import sys
           images = [line.strip() for line in sys.stdin if line.strip()]
