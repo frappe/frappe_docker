@@ -10,18 +10,27 @@ in build metadata for traceability.
 import argparse
 import hashlib
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
 
-from resolve_manifest import ManifestError, ManifestLoader
-from validate_image_definitions import (
-    ImageDefinitionError,
-    load_json,
-    validate_definitions,
-    validate_schema,
-)
+try:
+    from .resolve_manifest import ManifestError, ManifestLoader
+    from .validate_image_definitions import (
+        ImageDefinitionError,
+        load_json,
+        validate_definitions,
+        validate_schema,
+    )
+except ImportError:
+    # Support direct execution: python images/ndf/scripts/prepare_build.py
+    from resolve_manifest import ManifestError, ManifestLoader
+    from validate_image_definitions import (
+        ImageDefinitionError,
+        load_json,
+        validate_definitions,
+        validate_schema,
+    )
 
 
 class BuildPreparationError(Exception):
