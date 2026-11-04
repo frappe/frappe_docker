@@ -54,10 +54,10 @@ jobs:
 
           case "$SELECTED_PRODUCT" in
             all)
-              PRODUCTS='["dhanaerp-master-v16","dalali-v16","vincowoods-v16"]'
+              PRODUCTS=("dhanaerp-master-v16" "dalali-v16" "vincowoods-v16")
               ;;
             dhanaerp-master-v16|dalali-v16|vincowoods-v16)
-              PRODUCTS="[\\"$SELECTED_PRODUCT\\"]"
+              PRODUCTS=("$SELECTED_PRODUCT")
               ;;
             *)
               echo "Unsupported product selection: $SELECTED_PRODUCT" >&2
@@ -65,7 +65,13 @@ jobs:
               ;;
           esac
 
-          echo "matrix={\\"image\\":$PRODUCTS}" >> "$GITHUB_OUTPUT"
+          MATRIX_JSON=$(printf '%s\\n' "${PRODUCTS[@]}" | python -c '
+          import json
+          import sys
+          images = [line.strip() for line in sys.stdin if line.strip()]
+          print(json.dumps({"image": images}))
+          ')
+          echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
 
   build-and-validate:
     name: Build and validate ${{ matrix.image }}
