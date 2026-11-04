@@ -29,10 +29,8 @@ def load_json(path: Path) -> dict[str, Any]:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise BuildExecutionError(f"Unable to read build metadata {path}: {exc}") from exc
-
     if not isinstance(data, dict):
         raise BuildExecutionError(f"Expected a JSON object in {path}")
-
     return data
 
 
@@ -101,6 +99,8 @@ def build_command(
     no_cache: bool = False,
     builder: str | None = None,
     progress: str = "plain",
+    cache_from: list[str] | None = None,
+    cache_to: list[str] | None = None,
 ) -> list[str]:
     """Construct a deterministic, local-only Docker Buildx command."""
     command = [
@@ -131,6 +131,12 @@ def build_command(
 
     if builder:
         command.extend(["--builder", builder])
+
+    for cache_ref in cache_from or []:
+        command.extend(["--cache-from", cache_ref])
+
+    for cache_ref in cache_to or []:
+        command.extend(["--cache-to", cache_ref])
 
     for name, value in sorted(labels.items()):
         command.extend(["--label", f"{name}={value}"])
@@ -190,6 +196,8 @@ def build_image(
     no_cache: bool = False,
     builder: str | None = None,
     progress: str = "plain",
+    cache_from: list[str] | None = None,
+    cache_to: list[str] | None = None,
     dry_run: bool = False,
 ) -> dict[str, Any]:
     """Prepare and build one NDF product image into the local Docker store."""
@@ -200,15 +208,12 @@ def build_image(
     if not dockerfile.is_file():
         raise BuildExecutionError(f"Layered Containerfile not found: {dockerfile}")
 
-    try:
-        prepared = prepare_build(
-            ndf_dir=ndf_dir,
-            image_id=image_id,
-            definitions_relative_path=definitions_relative_path,
-            output_dir=output_dir,
-        )
-    except BuildPreparationError:
-        raise
+    prepared = prepare_build(
+        ndf_dir=ndf_dir,
+        image_id=image_id,
+        definitions_relative_path=definitions_relative_path,
+        output_dir=output_dir,
+    )
 
     metadata = load_json(prepared["metadata_path"])
     lock_data = load_json(prepared["lock_path"])
@@ -230,6 +235,8 @@ def build_image(
         no_cache=no_cache,
         builder=builder,
         progress=progress,
+        cache_from=cache_from,
+        cache_to=cache_to,
     )
 
     execute_build(command, dry_run=dry_run)
@@ -269,24 +276,32 @@ def main() -> int:
         type=Path,
         help="Build-input output directory (defaults to images/ndf/.build/<image-id>).",
     )
-    parser.add_argument(
-        "--platform",
-        help="Optional Buildx target platform, e.g. linux/amd64.",
-    )
+    parser.add_argument("--platform", help="Optional Buildx target platform.")
     parser.add_argument(
         "--no-cache",
         action="store_true",
         help="Build without using the Docker layer cache.",
     )
-    parser.add_argument(
-        "--builder",
-        help="Optional Docker Buildx builder instance.",
-    )
+    parser.add_argument("--builder", help="Optional Docker Buildx builder instance.")
     parser.add_argument(
         "--progress",
         choices=("auto", "plain", "tty", "quiet"),
         default="plain",
         help="Docker Buildx progress output mode.",
+    )
+    parser.add_argument(
+        "--cache-from",
+        action="append",
+        default=[],
+        metavar="BACKEND",
+        help="Buildx cache source (repeatable), e.g. type=gha,scope=ndf-dalali-v16.",
+    )
+    parser.add_argument(
+        "--cache-to",
+        action="append",
+        default=[],
+        metavar="BACKEND",
+        help="Buildx cache destination (repeatable), e.g. type=gha,mode=max,scope=ndf-dalali-v16.",
     )
     parser.add_argument(
         "--dry-run",
@@ -307,6 +322,8 @@ def main() -> int:
             no_cache=args.no_cache,
             builder=args.builder,
             progress=args.progress,
+            cache_from=args.cache_from,
+            cache_to=args.cache_to,
             dry_run=args.dry_run,
         )
     except (BuildPreparationError, BuildExecutionError) as exc:
