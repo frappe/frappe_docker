@@ -1,1 +1,2 @@
 pytest==9.2.0
+jsonschema>=4.23,<5
