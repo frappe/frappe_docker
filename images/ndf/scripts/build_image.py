@@ -68,6 +68,7 @@ def build_labels(
     return {
         "org.opencontainers.image.title": image["product"],
         "org.opencontainers.image.source": "https://github.com/NdfTechLabs/frappe_docker",
+        "org.opencontainers.image.url": "https://github.com/NdfTechLabs/frappe_docker",
         "com.ndf.image.id": image["id"],
         "com.ndf.product": image["product"],
         "com.ndf.manifest.path": image["manifest"],
