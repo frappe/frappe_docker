@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
-      IMAGE_REF: local/dalali:${{ github.run_id }}-${{ github.run_attempt }}
+      IMAGE_REF: ghcr.io/ndftechlabs/dhanaerp-dalali:ci-${{ github.run_id }}-${{ github.run_attempt }}
       BUILD_OUTPUT: .ndf-build/dalali-v16
 
     steps:
@@ -60,7 +60,7 @@ jobs:
           mkdir -p "$BUILD_OUTPUT"
           python images/ndf/scripts/build_image.py \
             --image dalali-v16 \
-            --tag "$IMAGE_REF" \
+            --tag "ci-${{ github.run_id }}-${{ github.run_attempt }}" \
             --platform linux/amd64 \
             --output-dir "$BUILD_OUTPUT" \
             --progress plain
