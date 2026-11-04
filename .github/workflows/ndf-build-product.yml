@@ -75,7 +75,7 @@ jobs:
             --report "$BUILD_OUTPUT/image-validation.json"
 
       - name: Upload build and validation artifacts
-        if: ${{ always() && hashFiles('${{ runner.temp }}/ndf-build/dalali-v16/**') != '' }}
+        if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
           name: ndf-dalali-image-${{ github.run_id }}-${{ github.run_attempt }}
