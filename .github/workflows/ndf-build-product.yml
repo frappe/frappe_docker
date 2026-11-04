@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 120
     env:
       IMAGE_REF: local/dalali:${{ github.run_id }}-${{ github.run_attempt }}
-      BUILD_OUTPUT: ${{ runner.temp }}/ndf-build/dalali-v16
+      BUILD_OUTPUT: .ndf-build/dalali-v16
 
     steps:
       - name: Checkout
@@ -79,6 +79,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ndf-dalali-image-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/ndf-build/dalali-v16/
+          path: .ndf-build/dalali-v16/
           if-no-files-found: warn
           retention-days: 14
