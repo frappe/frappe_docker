@@ -6,6 +6,7 @@ LABEL author=frappé
 ARG GIT_REPO=https://github.com/frappe/bench.git
 ARG GIT_BRANCH=v5.x
 ARG INSTALL_CHROMIUM=true
+ARG INSTALL_WKHTMLTOPDF=true
 ARG WKHTMLTOPDF_VERSION=0.12.6.1-3
 ARG WKHTMLTOPDF_DISTRO=bookworm
 
@@ -82,12 +83,14 @@ RUN apt-get update \
         apt-get install --no-install-recommends -y tzdata-legacy; \
     fi \
     # Install wkhtmltopdf with patched qt
-    && if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
-    && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
-    && downloaded_file=wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_DISTRO}_${ARCH}.deb \
-    && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
-    && apt-get install --no-install-recommends -y ./$downloaded_file \
-    && rm $downloaded_file \
+    && if [ "$INSTALL_WKHTMLTOPDF" != "false" ]; then \
+        if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
+        && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
+        && downloaded_file=wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_DISTRO}_${ARCH}.deb \
+        && curl -fsSLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
+        && apt-get install --no-install-recommends -y "./$downloaded_file" \
+        && rm "$downloaded_file"; \
+    fi \
     # Chromium
     && if [ "$INSTALL_CHROMIUM" != "false" ]; then \
         DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \

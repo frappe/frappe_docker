@@ -15,6 +15,18 @@ BACKEND_SERVICES = (
 )
 
 
+def test_wkhtmltopdf_installation(compose: Compose, python_path: str):
+    expected = os.getenv("INSTALL_WKHTMLTOPDF", "true") != "false"
+    compose.exec(
+        "backend",
+        python_path,
+        "-c",
+        f"import shutil; assert bool(shutil.which('wkhtmltopdf')) == {expected}",
+    )
+    if expected:
+        compose.exec("backend", "wkhtmltopdf", "--version")
+
+
 @pytest.mark.parametrize("service", BACKEND_SERVICES)
 def test_links_in_backends(service: str, compose: Compose, python_path: str):
     filename = "_check_connections.py"
