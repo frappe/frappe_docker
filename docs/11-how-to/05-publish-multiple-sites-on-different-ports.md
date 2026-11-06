@@ -8,7 +8,7 @@ Publish multiple Frappe sites (tenants) from the same bench on separate host por
 
 WARNING: Do not use this in production if the site is going to be served over plain http.
 
-Use an existing Compose setup with `backend`, `websocket`, and the `sites` volume. [Create each Frappe site](../04-operations/01-site-operations.md#setup-new-site) before serving it. Use the same environment file as the bench so that the additional frontend services use the same image and tag.
+Use an existing Compose setup with `backend`, `websocket`, and the `sites` volume. [Create each Frappe site](17-site-operations.md#setup-new-site) before serving it. Use the same environment file as the bench so that the additional frontend services use the same image and tag.
 
 ## Step 1
 

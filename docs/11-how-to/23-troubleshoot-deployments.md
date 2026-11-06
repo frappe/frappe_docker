@@ -1,13 +1,17 @@
 ---
-title: Troubleshoot
+title: Troubleshoot Deployments
 ---
+
+# Troubleshoot deployments
+
+Use these remedies for an existing deployment. Back up site data before changing database permissions or removing volumes.
 
 - [Fixing MariaDB issues after rebuilding the container](#fixing-mariadb-issues-after-rebuilding-the-container)
 - [docker-compose does not recognize variables from `.env` file](#docker-compose-does-not-recognize-variables-from-env-file)
 - [Windows Based Installation](#windows-based-installation)
 - [Redo installation](#redo-installation)
 
-### Fixing MariaDB issues after rebuilding the container
+## Fixing MariaDB issues after rebuilding the container
 
 For any reason after rebuilding the container if you are not be able to access MariaDB correctly (i.e. `Access denied for user [...]`) with the previous configuration. Follow these instructions.
 
@@ -65,17 +69,17 @@ EXIT;
 
 Note: For MariaDB 10.3 and older use `mysql.user` instead of `mysql.global_priv`.
 
-### docker-compose does not recognize variables from `.env` file
+## docker-compose does not recognize variables from `.env` file
 
 If you are using old version of `docker-compose` the .env file needs to be located in directory from where the docker-compose command is executed. There may also be difference in official `docker-compose` and the one packaged by distro. Use `--env-file=.env` if available to explicitly specify the path to file.
 
-### Windows Based Installation
+## Windows Based Installation
 
 - Set environment variable `COMPOSE_CONVERT_WINDOWS_PATHS` e.g. `set COMPOSE_CONVERT_WINDOWS_PATHS=1`
 - While using docker machine, port-forward the ports of VM to ports of host machine. (ports 8080/8000/9000)
 - Name all the sites ending with `.localhost`. and access it via browser locally. e.g. `http://site1.localhost`
 
-### Redo installation
+## Redo installation
 
 - If you have made changes and just want to start over again (abandoning all changes), remove all docker
   - containers
