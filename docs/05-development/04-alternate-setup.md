@@ -216,17 +216,7 @@ Paste:
 }
 ```
 
-### Configure Chromium for PDF generation
-
-For Frappe v16 and later, configure the bench to use Chromium included in the
-bench image. Run this from the bench directory, including for existing benches:
-
-```bash
-bench set-config -g chromium_path /usr/lib/chromium/chromium-headless-shell
-```
-
-Without this setting, Frappe downloads a separate browser that may fail to start
-because of missing system libraries.
+For Frappe v16 and later, also [configure Chromium for PDF generation](01-development.md#configure-chromium-for-pdf-generation).
 
 ---
 
