@@ -15,6 +15,10 @@ variable DEBIAN_BASE {
     default = "trixie"
 }
 
+variable "INSTALL_WKHTMLTOPDF" {
+    default = "true"
+}
+
 variable "FRAPPE_VERSION" {
     default = "develop"
 }
@@ -45,6 +49,7 @@ target "bench" {
     args = {
         GIT_REPO = "${BENCH_REPO}"
         DEBIAN_BASE = "${DEBIAN_BASE}"
+        INSTALL_WKHTMLTOPDF = "${INSTALL_WKHTMLTOPDF}"
     }
     labels = {
         "org.opencontainers.image.source" = "https://github.com/frappe/frappe_docker"
@@ -98,6 +103,7 @@ target "default-args" {
         PYTHON_VERSION = "${PYTHON_VERSION}"
         NODE_VERSION = "${NODE_VERSION}"
         DEBIAN_BASE = "${DEBIAN_BASE}"
+        INSTALL_WKHTMLTOPDF = "${INSTALL_WKHTMLTOPDF}"
     }
     labels = {
         "org.opencontainers.image.source" = "https://github.com/frappe/frappe_docker"
