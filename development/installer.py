@@ -188,6 +188,17 @@ def init_bench_if_not_exist(args):
             ],
             cwd=os.getcwd() + "/" + args.bench_name,
         )
+        cprint("Set chromium_path to the system Chromium", level=3)
+        subprocess.call(
+            [
+                "bench",
+                "set-config",
+                "-g",
+                "chromium_path",
+                "/usr/lib/chromium/chromium-headless-shell",
+            ],
+            cwd=os.getcwd() + "/" + args.bench_name,
+        )
         cprint("Set developer_mode", level=3)
         subprocess.call(
             ["bench", "set-config", "-gp", "developer_mode", "1"],

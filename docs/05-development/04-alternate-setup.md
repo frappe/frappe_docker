@@ -216,6 +216,8 @@ Paste:
 }
 ```
 
+For Frappe v16 and later, also [configure Chromium for PDF generation](01-development.md#configure-chromium-for-pdf-generation).
+
 ---
 
 ## Step 9 — Fix the Procfile
