@@ -100,7 +100,7 @@ See [Automated Builds and Deployment](../11-how-to/06-automated-builds-and-deplo
 | PYTHON_VERSION       | Python version for the base image                                                                                             |
 | NODE_VERSION         | Node.js version                                                                                                               |
 | DEBIAN_BASE          | Debian base version for base, custom, and bench images, defaults to `trixie` (`bookworm` for v15)                             |
-| INSTALL_WKHTMLTOPDF  | Include wkhtmltopdf, defaults to `true`. See [build guide](../11-how-to/13-build-without-wkhtmltopdf.md).                     |
+| INSTALL_WKHTMLTOPDF  | Include wkhtmltopdf, defaults to `true`. See the [deprecation plan](../13-explanation/09-wkhtmltopdf-deprecation.md).         |
 | WKHTMLTOPDF_VERSION  | wkhtmltopdf version                                                                                                           |
 | WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                                                            |
 | INSTALL_CHROMIUM     | Configure chromium installation, defaults to `true` - needed for Frappe Workbench version >15                                 |
