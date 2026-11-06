@@ -1,6 +1,10 @@
 ---
-title: Debugging
+title: Debug the Bench Console
 ---
+
+# Debug the bench console in VS Code
+
+Start with an existing [development bench](../05-development/01-development.md) and the VS Code Python extension installed in the development container.
 
 Add the following configuration to `launch.json` `configurations` array to start bench console and use debugger. Replace `development.localhost` with appropriate site. Also replace `frappe-bench` with name of the bench directory.
 

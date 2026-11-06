@@ -14,7 +14,7 @@ This guide explains how to use nginx-proxy with acme-companion to provide HTTPS 
 
 If you need advanced routing or complex multi-site setups, **Traefik** is usually the better choice.
 
-The usual Frappe Docker setup is assumed. [Create the Frappe sites](../04-operations/01-site-operations.md#setup-new-site) for your hostnames if they do not exist yet.
+The usual Frappe Docker setup is assumed. [Create the Frappe sites](17-site-operations.md#setup-new-site) for your hostnames if they do not exist yet.
 
 ## Prerequisites
 
@@ -84,4 +84,4 @@ docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml logs
 
 > Depending on the registrar, the assignment may take some time, whereby it must also be ensured that A and AAAA records are correctly directed to the server for the issuance of the certificate, if necessary.
 
-See also: [Environment Variables](../02-setup/04-env-variables.md), [TLS/SSL options](../12-reference/03-tls-ssl-options.md), and [TLS/SSL deployment choices](../13-explanation/04-tls-ssl-approaches.md).
+See also: [Environment Variables](../12-reference/08-environment-variables.md), [TLS/SSL options](../12-reference/03-tls-ssl-options.md), and [TLS/SSL deployment choices](../13-explanation/04-tls-ssl-approaches.md).

@@ -44,10 +44,10 @@ Once images are built, containers are orchestrated using a [compose file](https:
 
 Additional functionality can be added using [overrides](https://docs.docker.com/compose/extends/). These files modify existing services or add new ones without changing the main `compose.yaml`.
 
-Example: The main compose file has no database service, but `compose.mariadb.yaml` adds MariaDB. See [overrides.md](05-overrides.md) for the complete list of available overrides and how to use them.
+Example: The main compose file has no database service, but `compose.mariadb.yaml` adds MariaDB. See [overrides.md](../12-reference/09-compose-overrides.md) for the complete list of available overrides and how to use them.
 
 ---
 
 **Next:** [Build Setup →](02-build-setup.md)
 
-**See also:** [Setup Examples](06-setup-examples.md) for practical deployment scenarios.
+**See also:** [Setup Examples](../11-how-to/14-compose-setup-examples.md) for practical deployment scenarios.
