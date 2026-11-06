@@ -51,4 +51,4 @@ The `custom-domain` service in `compose.custom-domain.yaml` is a different setup
 
 When using `tls internal`, Caddy issues certificates from its internal CA. Import and trust the Caddy root certificate on any client that needs to access the site.
 
-See also: [TLS/SSL Setup Overview](../13-explanation/04-tls-ssl-approaches.md).
+See also: [TLS/SSL options](../12-reference/03-tls-ssl-options.md) and [TLS/SSL deployment choices](../13-explanation/04-tls-ssl-approaches.md).
