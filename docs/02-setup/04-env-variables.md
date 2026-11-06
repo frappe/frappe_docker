@@ -6,6 +6,8 @@ title: Environment Variables
 
 Environment variables configure your Frappe Docker setup. They can be set directly in the container or defined in a `.env` file referenced by Docker Compose.
 
+Build-time settings are passed to the build tools as described in [Build-Time Configuration](#build-time-configuration).
+
 **Getting Started:**
 
 ```bash
@@ -153,6 +155,26 @@ If your site is named `example.com` and you access it via that domain, no need t
 | `CUSTOM_TAG`     | Custom Docker image tag        | Latest stable         | Corresponds to `FRAPPE_VERSION`                         |
 | `PULL_POLICY`    | Image pull behavior            | `always`              | Options: `always`, `never`, `if-not-present`            |
 | `RESTART_POLICY` | Container restart behavior     | `unless-stopped`      | Options: `no`, `always`, `unless-stopped`, `on-failure` |
+
+---
+
+## Build-Time Configuration
+
+These settings configure image builds. Docker Buildx Bake reads them from the shell environment.
+
+| Variable              | Purpose                                                     | Default | When to Set                                      |
+| --------------------- | ----------------------------------------------------------- | ------- | ------------------------------------------------ |
+| `INSTALL_WKHTMLTOPDF` | Include wkhtmltopdf in production, custom, and bench images | `true`  | Set to `false` when building without wkhtmltopdf |
+
+```bash
+INSTALL_WKHTMLTOPDF=false docker buildx bake base build erpnext
+```
+
+For Docker or Podman builds, pass `--build-arg INSTALL_WKHTMLTOPDF=false` instead.
+Setting this variable in a deployment `.env` file does not change a prebuilt image.
+
+See [Build without wkhtmltopdf](02-build-setup.md#build-without-wkhtmltopdf) for v16
+printing preparation, custom-image examples, and the base-image requirements for layered builds.
 
 ---
 
