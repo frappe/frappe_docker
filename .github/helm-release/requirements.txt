@@ -1,6 +1,6 @@
 # Dependencies for frappe/helm's release wizard, maintained here so Dependabot
 # can update the environment used by the stable image workflow.
-ruamel.yaml==0.18.6
+ruamel.yaml==0.19.1
 ruamel.yaml.clib==0.2.15
 semantic-version==2.10.0
-GitPython==3.1.41
+GitPython==3.2.1
