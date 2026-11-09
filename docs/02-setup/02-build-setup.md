@@ -105,6 +105,11 @@ To choose and configure when a CI build fetches fresh application sources, follo
 | WKHTMLTOPDF_DISTRO   | use the specified distro for debian package. Default is `bookworm`                                                            |
 | INSTALL_CHROMIUM     | Configure chromium installation, defaults to `true` - needed for Frappe Workbench version >15                                 |
 
+The custom and production images enable pnpm through Corepack. If the selected
+Node.js version does not bundle Corepack, the image installs it separately.
+Apps can select their pnpm version with the `packageManager` field in
+`package.json`; Corepack downloads that version when the app build first uses pnpm.
+
 # Deploy the stack
 
 ## env file
