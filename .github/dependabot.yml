@@ -62,6 +62,22 @@ updates:
           - minor
           - patch
 
+  - package-ecosystem: pip
+    directory: /.github/helm-release
+    schedule:
+      interval: cron
+      cronjob: "0 6 * * *"
+    cooldown:
+      exclude:
+        - "*"
+    groups:
+      helm-release-python-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
   - package-ecosystem: npm
     directory: /docs
     schedule:

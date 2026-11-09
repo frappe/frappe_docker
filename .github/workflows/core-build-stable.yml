@@ -22,6 +22,7 @@ on:
       - .github/workflows/core-build-stable.yml
       - .github/workflows/core-build-test-images.yml
       - .github/workflows/core-publish-images.yml
+      - .github/helm-release/**
       - .github/scripts/image_sizes.py
       - .github/scripts/test_image_sizes.py
       - .github/scripts/get_latest_tags.py
@@ -40,6 +41,7 @@ on:
       - .github/workflows/core-build-stable.yml
       - .github/workflows/core-build-test-images.yml
       - .github/workflows/core-publish-images.yml
+      - .github/helm-release/**
       - .github/scripts/image_sizes.py
       - .github/scripts/test_image_sizes.py
       - .github/scripts/get_latest_tags.py
@@ -136,13 +138,51 @@ jobs:
             git push origin main
           fi
 
+  test_helm_release:
+    name: Test Helm release dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Checkout Helm release wizard
+        uses: actions/checkout@v7
+        with:
+          repository: frappe/helm
+          path: helm
+          persist-credentials: false
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.14"
+          enable-cache: false
+
+      - name: Check release wizard
+        run: |
+          uv run --no-project \
+            --with-requirements .github/helm-release/requirements.txt \
+            python helm/release_wizard/wizard --help
+
   release_helm:
     name: Release Helm
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
-    needs: v16_publish
+    needs: [v16_publish, test_helm_release]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.14"
+          enable-cache: false
+
       - name: Setup deploy key
         uses: webfactory/ssh-agent@v0.10.0
         with:
@@ -156,5 +196,6 @@ jobs:
       - name: Release
         run: |
           git clone git@github.com:frappe/helm.git && cd helm
-          pip install -r release_wizard/requirements.txt
-          ./release_wizard/wizard 16 patch --remote origin --ci
+          uv run --no-project \
+            --with-requirements "$GITHUB_WORKSPACE/.github/helm-release/requirements.txt" \
+            python release_wizard/wizard 16 patch --remote origin --ci
