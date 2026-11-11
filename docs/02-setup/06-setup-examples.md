@@ -85,6 +85,12 @@ Setup Frappe/ERPNext using containerized MariaDB and Redis with Let's Encrypt SS
 - Set `LETSENCRYPT_EMAIL` and `SITES_RULE` environment variables
 - DNS must point to your server IP
 
+The following example uses one controlled stack. Set `FORWARDED_ALLOW_IPS=*` in
+`.env` so Gunicorn recognizes HTTPS forwarded by the frontend. Keep the backend
+port unpublished and trust every service that can reach it. See
+[forwarded HTTPS and OAuth redirects](04-env-variables.md#forwarded-https-and-oauth-redirects)
+for shared networks and stricter allowlists.
+
 ```sh
 # Generate YAML
 docker compose -f compose.yaml \

@@ -10,13 +10,31 @@ The usual Frappe Docker setup is assumed. [Create the Frappe sites](../04-operat
 
 ## Prerequisites
 
-- Expose the frontend container on a host port (default 8080)
+- Publish the frontend's HTTP port on localhost for Caddy (8080 in this example)
 - Add a local domain to your hosts file (or use internal DNS)
 - Install Caddy
 
 ## Step 1: Expose the frontend service
 
-Include the no-proxy override so the frontend is reachable on the host:
+Set these values in the `.env` file before generating the Compose configuration:
+
+```dotenv
+HTTP_PUBLISH_PORT=127.0.0.1:8080
+TRUST_UPSTREAM_FORWARDED_PROTO=on
+FORWARDED_ALLOW_IPS=*
+```
+
+Caddy terminates HTTPS and forwards the original protocol to Nginx over HTTP.
+The frontend must trust that indication, and Gunicorn must trust the frontend.
+Publish the frontend only on localhost so remote clients cannot bypass Caddy and
+submit their own protocol headers. Keep backend port 8000 unpublished.
+
+`FORWARDED_ALLOW_IPS=*` assumes all callers on the backend's Docker networks are
+trusted together. If the backend joins shared networks with untrusted callers,
+use a stable frontend IP and an explicit Gunicorn allowlist instead. See
+[forwarded HTTPS and OAuth redirects](../02-setup/04-env-variables.md#forwarded-https-and-oauth-redirects).
+
+Include the no-proxy override to publish the frontend for the host proxy:
 
 ```sh
 docker compose -f compose.yaml \
@@ -28,7 +46,9 @@ docker compose -f compose.yaml \
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
-If you changed the HTTP port, note the value of `HTTP_PUBLISH_PORT` for the next step.
+If you change the published port, keep the `127.0.0.1:` binding and use that port
+in the Caddyfile below. These Nginx settings require an image containing the
+updated entrypoint and template; rebuild a custom image when testing local changes.
 
 ## Step 2: Configure Caddy
 
@@ -37,7 +57,7 @@ Add a site block to your Caddyfile (usually `/etc/caddy/Caddyfile`):
 ```caddy
 erp.localdev.net {
   tls internal
-  reverse_proxy localhost:8080
+  reverse_proxy 127.0.0.1:8080
 }
 ```
 

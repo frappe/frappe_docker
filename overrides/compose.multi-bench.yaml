@@ -1,5 +1,7 @@
 services:
   frontend:
+    environment:
+      TRUST_UPSTREAM_FORWARDED_PROTO: ${TRUST_UPSTREAM_FORWARDED_PROTO:-on}
     networks:
       - traefik-public
       - bench-network
