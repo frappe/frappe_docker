@@ -1,6 +1,6 @@
 services:
   backend:
-    image: frappe/erpnext:v16.54.0
+    image: frappe/erpnext:v16.55.0
     networks:
       - frappe_network
     deploy:
@@ -19,7 +19,7 @@ services:
         condition: service_completed_successfully
 
   configurator:
-    image: frappe/erpnext:v16.54.0
+    image: frappe/erpnext:v16.55.0
     networks:
       - frappe_network
     deploy:
@@ -48,7 +48,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   create-site:
-    image: frappe/erpnext:v16.54.0
+    image: frappe/erpnext:v16.55.0
     networks:
       - frappe_network
     deploy:
@@ -109,7 +109,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext:v16.54.0
+    image: frappe/erpnext:v16.55.0
     networks:
       - frappe_network
     depends_on:
@@ -136,7 +136,7 @@ services:
       - "8080:8080"
 
   queue-long:
-    image: frappe/erpnext:v16.54.0
+    image: frappe/erpnext:v16.55.0
     networks:
       - frappe_network
     deploy:
@@ -158,7 +158,7 @@ services:
         condition: service_completed_successfully
 
   queue-short:
-    image: frappe/erpnext:v16.54.0
+    image: frappe/erpnext:v16.55.0
     networks:
       - frappe_network
     deploy:
@@ -198,7 +198,7 @@ services:
         condition: on-failure
 
   scheduler:
-    image: frappe/erpnext:v16.54.0
+    image: frappe/erpnext:v16.55.0
     networks:
       - frappe_network
     deploy:
@@ -215,7 +215,7 @@ services:
         condition: service_completed_successfully
 
   websocket:
-    image: frappe/erpnext:v16.54.0
+    image: frappe/erpnext:v16.55.0
     networks:
       - frappe_network
     deploy:
