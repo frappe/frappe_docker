@@ -24,6 +24,12 @@ Single instance of **MariaDB** will be installed and act as database service for
 
 Each instance of ERPNext project (bench) will have its own redis, socketio, gunicorn, nginx, workers and scheduler. It will connect to internal MariaDB by connecting to MariaDB network. It will expose sites to public through Traefik by connecting to Traefik network.
 
+Configure `FORWARDED_ALLOW_IPS` in each bench's environment file so Gunicorn can
+recognize HTTPS forwarded by Nginx. Use `*` only if all callers on both the bench
+network and the shared MariaDB network are trusted together. Otherwise, use a
+stable Nginx IP and an explicit allowlist. See
+[forwarded HTTPS and OAuth redirects](04-env-variables.md#forwarded-https-and-oauth-redirects).
+
 ### Install Docker
 
 Easiest way to install docker is to use the [convenience script](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script).

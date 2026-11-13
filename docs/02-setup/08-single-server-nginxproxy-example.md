@@ -104,12 +104,16 @@ cp example.env ~/gitops/erpnext.env
 sed -i 's/DB_PASSWORD=123/DB_PASSWORD=changeit/g' ~/gitops/erpnext.env
 echo 'NGINX_PROXY_HOSTS=erp.your-domain.com,crm.your-domain.com' >> ~/gitops/erpnext.env
 echo 'LETSENCRYPT_EMAIL=admin@your-domain.com' >> ~/gitops/erpnext.env
+echo 'FORWARDED_ALLOW_IPS=*' >> ~/gitops/erpnext.env
 ```
 
 Notes:
 
 - Replace `changeit` with a strong password.
 - Replace domains and email with your production values.
+- `FORWARDED_ALLOW_IPS=*` trusts the stack's internal callers for forwarded HTTPS
+  information. Keep Gunicorn's port unpublished and review any additional networks.
+  See [forwarded HTTPS and OAuth redirects](04-env-variables.md#forwarded-https-and-oauth-redirects).
 - `NGINX_PROXY_HOSTS` is a comma-separated list without spaces.
 - If you built a custom image, add:
 

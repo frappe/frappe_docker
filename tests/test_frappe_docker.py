@@ -1,6 +1,12 @@
+import json
 import os
+import ssl
+import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, Optional
+from urllib.error import HTTPError
+from urllib.parse import parse_qs, urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
 
 import pytest
 
@@ -152,9 +158,179 @@ def test_push_backup(
     compose.exec(*restic_args, "backend", "restic", "check", "--read-data")
 
 
+def assert_oauth_return_url(
+    base_url: str, site: str, scheme: str, headers: Optional[Dict[str, str]] = None
+) -> None:
+    class NoRedirect(HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    opener = build_opener(NoRedirect, HTTPSHandler(context=context))
+    params = {
+        "client_id": "proxy-regression-test",
+        "redirect_uri": "https://client.example.test/callback",
+        "response_type": "code",
+        "state": "preserve&query=parameters",
+    }
+    query = urlencode(params)
+    path = "/api/method/frappe.integrations.oauth2.authorize"
+    request = Request(
+        f"{base_url}{path}?{query}", headers={"Host": site, **(headers or {})}
+    )
+    with pytest.raises(HTTPError) as redirect:
+        opener.open(request, timeout=10)
+    with redirect.value as response:
+        assert response.code == 302
+        login_url = urlsplit(response.headers["Location"])
+        assert login_url.path == "/login"
+        return_url = urlsplit(parse_qs(login_url.query)["redirect-to"][0])
+        assert return_url.scheme == scheme
+        assert return_url.netloc == site
+        assert return_url.path == path
+        assert parse_qs(return_url.query) == {
+            key: [value] for key, value in params.items()
+        }
+
+
+@pytest.fixture
+def proxy_frontend(compose: Compose, frappe_site: str, tmp_path: Path, request):
+    mode, allowed_ips = request.param
+    config = {
+        "services": {
+            "frontend": {
+                "environment": {"TRUST_UPSTREAM_FORWARDED_PROTO": mode},
+                "ports": [{"target": 8080, "host_ip": "127.0.0.1"}],
+            },
+        }
+    }
+    override = tmp_path / "proxy-headers.json"
+    override.write_text(json.dumps(config))
+    try:
+        compose(
+            "-f",
+            str(override),
+            "up",
+            "-d",
+            "--no-deps",
+            "--force-recreate",
+            "frontend",
+        )
+        if allowed_ips == "frontend":
+            allowed_ips = compose.output(
+                "exec", "-T", "frontend", "getent", "ahostsv4", "frontend"
+            ).split()[0]
+        config["services"]["backend"] = {
+            "environment": {"FORWARDED_ALLOW_IPS": allowed_ips}
+        }
+        override.write_text(json.dumps(config))
+        compose("-f", str(override), "up", "-d", "--no-deps", "backend")
+        # Refresh Nginx's upstream DNS after backend recreation without changing
+        # the frontend address that the explicit allowlist just selected.
+        compose("restart", "frontend")
+        address = compose.output(
+            "-f", str(override), "port", "frontend", "8080"
+        ).strip()
+        url = f"http://{address}"
+        wait_for_url(f"{url}/api/method/ping", frappe_site).close()
+        yield url
+    finally:
+        compose("up", "-d", "--no-deps", "--force-recreate", "backend", "frontend")
+
+
+@pytest.mark.parametrize(
+    ("proxy_frontend", "https_scheme"),
+    [
+        (("off", "*"), "http"),
+        (("on", "*"), "https"),
+        (("on", "127.0.0.1,::1"), "http"),
+        (("on", "frontend"), "https"),
+    ],
+    indirect=["proxy_frontend"],
+    ids=["direct", "wildcard", "loopback-only", "explicit-frontend-ip"],
+)
+def test_proxy_headers(proxy_frontend: str, https_scheme: str, frappe_site: str):
+    for headers, scheme in (
+        ({"X-Forwarded-Proto": "https"}, https_scheme),
+        ({"X-Forwarded-Proto": "http"}, "http"),
+        ({"X-Forwarded-Proto": "unknown"}, "http"),
+        ({}, "http"),
+        (
+            {
+                "X-Forwarded-Proto": "https",
+                "X-Forwarded-SSL": "off",
+                "X-Forwarded-Protocol": "http",
+            },
+            https_scheme,
+        ),
+    ):
+        assert_oauth_return_url(proxy_frontend, frappe_site, scheme, headers)
+
+
+def test_invalid_proxy_mode(compose: Compose):
+    with pytest.raises(subprocess.CalledProcessError) as invalid:
+        compose.output(
+            "run",
+            "--rm",
+            "--no-deps",
+            "--entrypoint",
+            "nginx-entrypoint.sh",
+            "-e",
+            "TRUST_UPSTREAM_FORWARDED_PROTO=invalid",
+            "frontend",
+        )
+    assert "must be on or off" in invalid.value.output
+
+
+@pytest.mark.parametrize("host_caddy", [False, True], ids=["direct", "host-caddy"])
+def test_proxy_configuration(tmp_path: Path, host_caddy: bool, monkeypatch):
+    for name in (
+        "HTTP_PUBLISH_PORT",
+        "TRUST_UPSTREAM_FORWARDED_PROTO",
+        "FORWARDED_ALLOW_IPS",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    env_file = tmp_path / ".env"
+    settings = Path("example.env").read_text()
+    if host_caddy:
+        settings += "\nTRUST_UPSTREAM_FORWARDED_PROTO=on\nFORWARDED_ALLOW_IPS=*\nHTTP_PUBLISH_PORT=127.0.0.1:8080\n"
+    env_file.write_text(settings)
+    compose = Compose(
+        project_name="proxy-config-test",
+        env_file=str(env_file),
+        files=(
+            "compose.yaml",
+            "overrides/compose.mariadb.yaml",
+            "overrides/compose.redis.yaml",
+            "overrides/compose.noproxy.yaml",
+        ),
+    )
+    services = json.loads(compose.output("config", "--format", "json"))["services"]
+    assert services["frontend"]["environment"]["TRUST_UPSTREAM_FORWARDED_PROTO"] == (
+        "on" if host_caddy else "off"
+    )
+    assert services["backend"]["environment"]["FORWARDED_ALLOW_IPS"] == (
+        "*" if host_caddy else "127.0.0.1,::1"
+    )
+    assert not services["backend"].get("ports")
+    if host_caddy:
+        ports = services["frontend"]["ports"]
+        assert len(ports) == 1
+        assert ports[0]["host_ip"] == "127.0.0.1"
+        assert ports[0]["published"] == "8080"
+        assert ports[0]["target"] == 8080
+
+
 def test_https(frappe_site: str, compose: Compose):
     compose("-f", "overrides/compose.https.yaml", "up", "-d")
-    check_url_content(url="https://127.0.0.1", callback=index_cb, site_name=frappe_site)
+    address = compose.output(
+        "-f", "overrides/compose.https.yaml", "port", "proxy", "443"
+    ).strip()
+    url = f"https://{address}"
+    check_url_content(url=url, callback=index_cb, site_name=frappe_site)
+    assert_oauth_return_url(url, frappe_site, "https")
 
 
 @pytest.mark.usefixtures("erpnext_setup")
