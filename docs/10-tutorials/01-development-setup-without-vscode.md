@@ -1,8 +1,8 @@
 ---
-title: Docker Development Setup
+title: Development Without VS Code
 ---
 
-# Docker Development Setup
+# Set up a development environment without VS Code
 
 A complete guide for setting up a Frappe development environment on x86 and ARM based computers running UNIX based OSes by running containers directly and working inside them via the terminal. No VS Code Dev Containers extension needed.
 
@@ -86,7 +86,9 @@ Frappe's development server binds to `127.0.0.1` by default. `FRAPPE_BIND_ADDR=0
 
 ---
 
-## Step 4 — Add ARM64 Platform to All Services
+## Step 4 — Add ARM64 Platform to All Services (ARM only)
+
+On x86 computers, skip this step.
 
 Open `.devcontainer/docker-compose.yml` in any editor and add `platform: linux/arm64` to every service block. It should look like this:
 
@@ -216,7 +218,7 @@ Paste:
 }
 ```
 
-For Frappe v16 and later, also [configure Chromium for PDF generation](01-development.md#configure-chromium-for-pdf-generation).
+For Frappe v16 and later, also [configure Chromium for PDF generation](../05-development/01-development.md#configure-chromium-for-pdf-generation).
 
 ---
 

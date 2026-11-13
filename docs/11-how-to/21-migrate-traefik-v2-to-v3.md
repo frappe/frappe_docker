@@ -68,7 +68,7 @@ docker compose --env-file .env \
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
-See [Single Server Example](../02-setup/07-single-server-example.md)
+See [Single Server Example](15-single-server-traefik.md)
 
 ### Step 3: Verify Traefik
 

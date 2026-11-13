@@ -71,7 +71,7 @@ Real-time:
 ### 📁 Core Configuration Files
 
 > ⚠️ Before deploying, read
-> **[Choosing a Deployment Method](01-getting-started/01-choosing-a-deployment-method.md)**
+> **[Choosing a Deployment Method](13-explanation/10-choosing-a-deployment-method.md)**
 > to understand the differences between `pwd.yml`, development setup, the Easy Install script and the production setup.
 
 - **compose.yaml** - Main Docker Compose file defining all services
@@ -432,7 +432,7 @@ bench build --app library_management
 
 ```bash
 # Follow detailed guide
-# See: docs/single-server-example.md
+# See: docs/11-how-to/15-single-server-traefik.md
 
 # Quick overview:
 # 1. Setup server with Docker
@@ -492,9 +492,9 @@ See [Official documentation](12-reference/index.md#official-documentation) for F
 ### Key Files in This Repository
 
 - [`docs/05-development/01-development.md`](05-development/01-development.md) - Detailed development setup
-- [`docs/02-setup/04-env-variables.md`](02-setup/04-env-variables.md) - Environment variable reference
-- [`docs/02-setup/07-single-server-example.md`](02-setup/07-single-server-example.md) - Production deployment guide
-- [`docs/04-operations/01-site-operations.md`](04-operations/01-site-operations.md) - Common site management tasks
+- [`docs/12-reference/08-environment-variables.md`](12-reference/08-environment-variables.md) - Environment variable reference
+- [`docs/11-how-to/15-single-server-traefik.md`](11-how-to/15-single-server-traefik.md) - Production deployment guide
+- [`docs/11-how-to/17-site-operations.md`](11-how-to/17-site-operations.md) - Common site management tasks
 - `development/installer.py` - Automated setup script
 - [`pwd.yml`](https://github.com/frappe/frappe_docker/blob/main/pwd.yml) - Quick test configuration
 - [`compose.yaml`](https://github.com/frappe/frappe_docker/blob/main/compose.yaml) - Base Docker Compose configuration
@@ -588,7 +588,7 @@ bench update                     # Update framework and apps
 
 ### Getting Help
 
-1. **Check existing docs** - Most issues covered in [`docs/07-troubleshooting/01-troubleshoot.md](07-troubleshooting/01-troubleshoot.md)
+1. **Check existing docs** - Most issues covered in [`docs/11-how-to/23-troubleshoot-deployments.md](11-how-to/23-troubleshoot-deployments.md)
 2. **Search Frappe Forum** - [discuss.frappe.io](https://discuss.frappe.io)
 3. **GitHub Issues** - Search existing issues first
 4. **Discord/Telegram** - Community real-time chat (links in main repo)

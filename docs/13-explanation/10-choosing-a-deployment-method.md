@@ -17,12 +17,12 @@ Reading this document **before following any setup guide** is strongly recommend
 
 ## Overview
 
-| Goal                         | Recommended Method        | Production Ready |
-| ---------------------------- | ------------------------- | ---------------- |
-| Quick exploration            | `pwd.yml`                 | ❌               |
-| Local development            | VS Code Devcontainers     | ❌               |
-| Automated production install | Easy Install Script       | ✅               |
-| Manual production deployment | `compose.yml` + overrides | ✅               |
+| Goal                         | Recommended Method         | Production Ready |
+| ---------------------------- | -------------------------- | ---------------- |
+| Quick exploration            | `pwd.yml`                  | ❌               |
+| Local development            | VS Code Devcontainers      | ❌               |
+| Automated production install | Easy Install Script        | ✅               |
+| Manual production deployment | `compose.yaml` + overrides | ✅               |
 
 ## 1. `pwd.yml` – Quick Test / Exploration Setup
 
@@ -49,7 +49,7 @@ If you start with `pwd.yml`, you should expect to **throw the environment away**
 
 ## 2. VS Code Devcontainers – Local Development Setup
 
-The development setup described in [`/docs/05-development/development.md`](../05-development/01-development.md)
+The development setup described in [Development](../05-development/01-development.md)
 
 uses **VS Code Devcontainers** to provide a **local Frappe development environment**.
 
@@ -72,7 +72,7 @@ uses **VS Code Devcontainers** to provide a **local Frappe development environme
 - ❌ **Not intended for production**
 - ✔ The **correct way** to do local development with this repository
 
-Using production-oriented setups (`pwd.yml` or `compose.yml`) for development is strongly discouraged.
+Using production-oriented setups (`pwd.yml` or `compose.yaml`) for development is strongly discouraged.
 
 ## 3. Easy Install Script (from `frappe/bench`)
 
@@ -98,13 +98,13 @@ It is comparable to what a **deployment pipeline** would perform.
 ✔ **Yes** — suitable for real production systems
 ✔ Uses the same components as the manual production setup
 
-## 4. `compose.yml` + Overrides – Intended Production Setup
+## 4. `compose.yaml` + Overrides – Intended Production Setup
 
 This is the **canonical production deployment method** for `frappe_docker`.
 
 It uses:
 
-- The main `compose.yml`
+- The main `compose.yaml`
 - Override files from the `overrides/` directory
 
 Detailed instructions are available in [`/docs/02-setup`](../02-setup/01-overview.md)
@@ -123,4 +123,4 @@ Detailed instructions are available in [`/docs/02-setup`](../02-setup/01-overvie
 - Each setup serves a **distinct purpose**
 - Development, testing, and production are **separate workflows**
 - Do not expect to evolve a disposable setup into production
-- In production, app code must be included **at build time**; apps already in the image can then be installed onto a site ([Container immutability and persistence](../13-explanation/01-container-immutability.md)).
+- In production, app code must be included **at build time**; apps already in the image can then be installed onto a site ([Container immutability and persistence](01-container-immutability.md)).
