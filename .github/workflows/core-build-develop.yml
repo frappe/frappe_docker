@@ -8,6 +8,10 @@ permissions:
 
 on:
   workflow_call:
+    inputs:
+      accept_image_growth:
+        type: boolean
+        default: false
 
   pull_request:
     branches:
@@ -32,6 +36,11 @@ on:
     - cron: "17 3 * * 1"
 
   workflow_dispatch:
+    inputs:
+      accept_image_growth:
+        description: Allow images to exceed size limits for this run on main
+        type: boolean
+        default: false
 
 jobs:
   test:
@@ -41,6 +50,7 @@ jobs:
       version: develop
       python_version: "3.14"
       node_version: "24"
+      accept_image_growth: ${{ inputs.accept_image_growth == true }}
 
   publish:
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}

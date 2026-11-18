@@ -42,8 +42,21 @@ A build fails when growth exceeds **both** limits for any measured image.
 Equality with a limit is permitted. For example, growth from 1,000 MiB to 1,200 MiB
 fails; growth from 1,000 MiB to 1,100 MiB does not exceed the absolute limit.
 
-Intentional larger increases require a reviewed change to the versioned policy.
 Limits must be non-negative, finite numbers.
+
+### Accept image growth for one run
+
+In GitHub Actions, open a stable or develop build workflow, choose **Run workflow**
+on `main`, and enable **Allow images to exceed size limits for this run on main**.
+
+The size check records growth above the limits as a warning and marks it
+**Accepted** in the job summary for every affected image, release line, and
+architecture in the run. Measurements must still succeed, and integration tests
+must pass before publishing. Automatic runs continue to enforce the limits.
+
+After a successful run, its size report becomes eligible as the baseline for the
+same workflow. Use **Core / Build Stable** or **Core / Build Develop** to update
+the baseline for the corresponding automated builds.
 
 ## Baseline selection
 

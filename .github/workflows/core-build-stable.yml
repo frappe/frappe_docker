@@ -8,6 +8,10 @@ permissions:
 
 on:
   workflow_call:
+    inputs:
+      accept_image_growth:
+        type: boolean
+        default: false
 
   pull_request:
     branches:
@@ -51,6 +55,11 @@ on:
   repository_dispatch:
 
   workflow_dispatch:
+    inputs:
+      accept_image_growth:
+        description: Allow images to exceed size limits for this run on main
+        type: boolean
+        default: false
 
 jobs:
   v15_test:
@@ -61,6 +70,7 @@ jobs:
       python_version: "3.11"
       node_version: "22"
       debian_base: "bookworm"
+      accept_image_growth: ${{ inputs.accept_image_growth == true }}
 
   v15_publish:
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
@@ -84,6 +94,7 @@ jobs:
       version: "16"
       python_version: "3.14"
       node_version: "24"
+      accept_image_growth: ${{ inputs.accept_image_growth == true }}
   v16_publish:
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v16_test

@@ -2,10 +2,17 @@ name: Legacy / Build Stable
 
 on:
   workflow_dispatch:
+    inputs:
+      accept_image_growth:
+        description: Allow images to exceed size limits for this run on main
+        type: boolean
+        default: false
 
 jobs:
   delegate:
     uses: ./.github/workflows/core-build-stable.yml
+    with:
+      accept_image_growth: ${{ inputs.accept_image_growth }}
     permissions:
       actions: read
       contents: write
