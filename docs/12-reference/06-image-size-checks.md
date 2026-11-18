@@ -42,8 +42,22 @@ A build fails when growth exceeds **both** limits for any measured image.
 Equality with a limit is permitted. For example, growth from 1,000 MiB to 1,200 MiB
 fails; growth from 1,000 MiB to 1,100 MiB does not exceed the absolute limit.
 
-Intentional larger increases require a reviewed change to the versioned policy.
 Limits must be non-negative, finite numbers.
+
+### Accept ERPNext v16 growth for one run
+
+In GitHub Actions, open **Core / Build Stable** or **Legacy / Build Stable**,
+choose **Run workflow** on `main`, and enable **Accept ERPNext v16 image growth
+for this run on main**.
+
+The final ERPNext v16 image can exceed the limits on either architecture. The
+size check records the growth as a warning and marks it **Accepted** in the job
+summary. The `base` and `build` images still need to meet the limits, and the
+integration tests must pass before publishing.
+
+After a successful run, its size report becomes eligible as the baseline for the
+same workflow. Use **Core / Build Stable** to update the baseline for automated
+stable builds.
 
 ## Baseline selection
 

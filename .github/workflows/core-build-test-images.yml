@@ -29,6 +29,10 @@ on:
         type: boolean
         default: true
         description: Include wkhtmltopdf for legacy PDF formats
+      accept_erpnext_growth:
+        type: boolean
+        default: false
+        description: Warn if the final ERPNext image exceeds the growth limits
     outputs:
       frappe_version:
         description: "Resolved frappe image tag"
@@ -125,11 +129,17 @@ jobs:
           REGISTRY_USER: localhost:5000/frappe
 
       - name: Check image sizes
-        run: python3 .github/scripts/image_sizes.py check --repo "$APP_REPO" --version "$RELEASE_LINE" --arch "$IMAGE_ARCH"
+        run: |
+          size_check_args=()
+          if [[ "$ACCEPT_ERPNEXT_GROWTH" == "true" ]]; then
+            size_check_args+=(--accept-erpnext-growth)
+          fi
+          python3 .github/scripts/image_sizes.py check --repo "$APP_REPO" --version "$RELEASE_LINE" --arch "$IMAGE_ARCH" "${size_check_args[@]}"
         env:
           APP_REPO: ${{ inputs.repo }}
           RELEASE_LINE: ${{ inputs.version }}
           IMAGE_ARCH: ${{ matrix.arch }}
+          ACCEPT_ERPNEXT_GROWTH: ${{ inputs.accept_erpnext_growth }}
 
       - name: Create Trivy report directory
         run: mkdir -p trivy-results

@@ -74,12 +74,12 @@ class GrowthTests(unittest.TestCase):
 
     def test_missing_baseline_reports_sizes(self):
         current = report()
-        summary, failures = sizes.compare(current, None, POLICY)
+        summary, failures, _ = sizes.compare(current, None, POLICY)
         self.assertIn("next successful", summary)
         self.assertEqual(failures, [])
 
     def test_report_shows_delta_and_large_layers(self):
-        summary, failures = sizes.compare(report(1200 * MIB), report(), POLICY)
+        summary, failures, _ = sizes.compare(report(1200 * MIB), report(), POLICY)
         self.assertEqual(len(failures), 1)
         self.assertIn("200.0 MiB (+20.0%)", summary)
         self.assertIn("largest layers", summary)
@@ -87,7 +87,7 @@ class GrowthTests(unittest.TestCase):
     def test_changed_inputs_are_explicit_and_still_checked(self):
         current = report(1200 * MIB)
         current["inputs"]["erpnext_version"] = "v16.52.0"
-        summary, failures = sizes.compare(current, report(), POLICY)
+        summary, failures, _ = sizes.compare(current, report(), POLICY)
         self.assertIn("Build inputs changed", summary)
         self.assertTrue(failures)
 
@@ -392,51 +392,75 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "history does not match"):
             sizes.measure_image(self.registry, "erpnext", "v16.51.1", "amd64")
 
-    def test_cli_reports_failure_and_keeps_measurements(self):
+    def test_cli_accepts_only_final_erpnext_image_growth(self):
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
-            previous = report(700 * MIB)
-            previous["images"]["base"] = copy.deepcopy(previous["images"]["erpnext"])
-            previous["images"]["build"] = copy.deepcopy(previous["images"]["erpnext"])
             baseline = directory / "baseline.json"
-            baseline.write_text(json.dumps(previous))
             output = directory / "report.json"
             summary = directory / "summary.md"
             environment = {
                 **os.environ,
                 **{key.upper(): value for key, value in report()["inputs"].items()},
+                "GITHUB_STEP_SUMMARY": str(summary),
             }
-            environment["GITHUB_STEP_SUMMARY"] = str(summary)
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    str(Path(sizes.__file__)),
-                    "check",
-                    "--repo",
-                    "erpnext",
-                    "--version",
-                    "16",
-                    "--arch",
-                    "amd64",
-                    "--registry",
-                    self.registry,
-                    "--baseline",
-                    str(baseline),
-                    "--output",
-                    str(output),
-                ],
-                env=environment,
-                capture_output=True,
-                text=True,
-            )
-            self.assertEqual(result.returncode, 1, result.stderr)
-            self.assertIn("size limit exceeded", result.stdout)
-            self.assertIn("FAIL", summary.read_text())
-            self.assertEqual(
-                json.loads(output.read_text())["images"]["erpnext"]["compressed_bytes"],
-                1000 * MIB,
-            )
-            self.assertEqual(len(self.requests), 9)
+            command = [
+                sys.executable,
+                str(Path(sizes.__file__)),
+                "check",
+                "--repo",
+                "erpnext",
+                "--version",
+                "16",
+                "--arch",
+                "amd64",
+                "--registry",
+                self.registry,
+                "--baseline",
+                str(baseline),
+                "--output",
+                str(output),
+            ]
+            for flags, other_size, expected_exit, annotation, status in (
+                ([], 1000, 1, "::error::erpnext", "FAIL"),
+                (
+                    ["--accept-erpnext-growth"],
+                    1000,
+                    0,
+                    "::warning::erpnext",
+                    "Accepted",
+                ),
+                (["--accept-erpnext-growth"], 700, 1, "::warning::erpnext", "Accepted"),
+            ):
+                with self.subTest(flags=flags, other_size=other_size):
+                    previous = report(700 * MIB)
+                    previous["images"].update(
+                        {
+                            name: report(other_size * MIB)["images"]["erpnext"]
+                            for name in ("base", "build")
+                        }
+                    )
+                    baseline.write_text(json.dumps(previous))
+                    summary.write_text("")
+                    self.requests.clear()
+                    result = subprocess.run(
+                        command + flags,
+                        env=environment,
+                        capture_output=True,
+                        text=True,
+                    )
+                    self.assertEqual(result.returncode, expected_exit, result.stderr)
+                    self.assertIn(f"{annotation} grew by 300.0 MiB", result.stdout)
+                    self.assertIn(f"| {status} |", summary.read_text())
+                    if other_size == 700:
+                        self.assertIn("::error::base", result.stdout)
+                        self.assertIn("::error::build", result.stdout)
+                    self.assertEqual(
+                        json.loads(output.read_text())["images"]["erpnext"][
+                            "compressed_bytes"
+                        ],
+                        1000 * MIB,
+                    )
+                    self.assertEqual(len(self.requests), 9)
 
 
 if __name__ == "__main__":

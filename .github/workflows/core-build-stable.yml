@@ -8,6 +8,10 @@ permissions:
 
 on:
   workflow_call:
+    inputs:
+      accept_erpnext_v16_growth:
+        type: boolean
+        default: false
 
   pull_request:
     branches:
@@ -51,6 +55,11 @@ on:
   repository_dispatch:
 
   workflow_dispatch:
+    inputs:
+      accept_erpnext_v16_growth:
+        description: Accept ERPNext v16 image growth for this run on main
+        type: boolean
+        default: false
 
 jobs:
   v15_test:
@@ -84,6 +93,7 @@ jobs:
       version: "16"
       python_version: "3.14"
       node_version: "24"
+      accept_erpnext_growth: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.accept_erpnext_v16_growth }}
   v16_publish:
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v16_test

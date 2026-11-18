@@ -225,8 +225,15 @@ def mib(size: int) -> str:
     return f"{size / 1024 / 1024:,.1f} MiB"
 
 
-def compare(report: dict, baseline: dict | None, policy: dict) -> tuple[str, list[str]]:
+def compare(
+    report: dict,
+    baseline: dict | None,
+    policy: dict,
+    *,
+    accept_erpnext_growth: bool = False,
+) -> tuple[str, list[str], list[str]]:
     failures = []
+    warnings = []
     lines = [
         f"## Image sizes: {report['release_line']} / {report['arch']}",
         "",
@@ -253,6 +260,13 @@ def compare(report: dict, baseline: dict | None, policy: dict) -> tuple[str, lis
         f"Fail when growth exceeds both {policy['max_growth_percent']}% and "
         f"{mib(policy['max_growth_bytes'])}.",
         "",
+    ]
+    if accept_erpnext_growth:
+        lines += [
+            "Growth of the final ERPNext image has been approved for this run.",
+            "",
+        ]
+    lines += [
         "| Image | Baseline | Current | Change | Layers | Result |",
         "| --- | ---: | ---: | ---: | ---: | --- |",
     ]
@@ -261,16 +275,21 @@ def compare(report: dict, baseline: dict | None, policy: dict) -> tuple[str, lis
     for name, image in report["images"].items():
         previous = baseline["images"][name]["compressed_bytes"] if baseline else None
         current = image["compressed_bytes"]
-        exceeded = previous is not None and growth_exceeds(current, previous, policy)
-        if exceeded:
-            failures.append(
-                f"{name} grew by {mib(current - previous)}; size limit exceeded"
-            )
+        result = "PASS" if baseline else "First baseline"
+        if previous is not None and growth_exceeds(current, previous, policy):
+            growth = f"{name} grew by {mib(current - previous)}"
+            if accept_erpnext_growth and name == "erpnext":
+                warnings.append(
+                    f"{growth}. Growth above the size limit accepted for this run."
+                )
+                result = "Accepted"
+            else:
+                failures.append(f"{growth}; size limit exceeded")
+                result = "FAIL"
         delta = f"{mib(current - previous)}" if previous is not None else "—"
         percent = (current - previous) * 100 / previous if previous else 0
         if previous:
             delta += f" ({percent:+.1f}%)"
-        result = "FAIL" if exceeded else ("PASS" if baseline else "First baseline")
         lines.append(
             f"| {name} | {mib(previous) if previous is not None else '—'} | "
             f"{mib(current)} | {delta} | {len(image['layers'])} | {result} |"
@@ -288,10 +307,10 @@ def compare(report: dict, baseline: dict | None, policy: dict) -> tuple[str, lis
             command = command.replace("\n", " ")
             lines.append(f"| {mib(layer['bytes'])} | <code>{command}</code> |")
         lines += ["", "</details>"]
-    return "\n".join(lines) + "\n", failures
+    return "\n".join(lines) + "\n", failures, warnings
 
 
-def check(args) -> list[str]:
+def check(args) -> tuple[list[str], list[str]]:
     baseline = None
     if args.baseline.is_file():
         baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
@@ -335,13 +354,15 @@ def check(args) -> list[str]:
         for value in policy.values()
     ):
         raise ValueError("Image growth limits must be non-negative numbers")
-    summary, failures = compare(report, baseline, policy)
+    summary, failures, warnings = compare(
+        report, baseline, policy, accept_erpnext_growth=args.accept_erpnext_growth
+    )
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as output:
             output.write(summary)
     print(summary)
-    return failures
+    return failures, warnings
 
 
 def main() -> int:
@@ -364,9 +385,15 @@ def main() -> int:
     check_parser.add_argument(
         "--policy", type=Path, default=ROOT / ".github/image-size-policy.json"
     )
+    check_parser.add_argument(
+        "--accept-erpnext-growth",
+        action="store_true",
+        help="warn if the final ERPNext image exceeds the growth limits",
+    )
     args = parser.parse_args()
     try:
         failures = []
+        warnings = []
         if args.command == "prepare":
             prepare(args)
         elif args.command == "download":
@@ -376,12 +403,15 @@ def main() -> int:
                 )
                 args.output.write_text(json.dumps(report), encoding="utf-8")
         else:
-            failures = check(args)
-        for failure in failures:
-            escaped = (
-                failure.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-            )
-            print(f"::error::{escaped}")
+            failures, warnings = check(args)
+        for level, messages in (("warning", warnings), ("error", failures)):
+            for message in messages:
+                escaped = (
+                    message.replace("%", "%25")
+                    .replace("\r", "%0D")
+                    .replace("\n", "%0A")
+                )
+                print(f"::{level}::{escaped}")
         return int(bool(failures))
     except (
         OSError,
