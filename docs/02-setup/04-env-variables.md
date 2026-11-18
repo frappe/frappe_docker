@@ -191,6 +191,15 @@ other benches on that network. Use `*` there only if those benches share the sam
 trust boundary. An explicit allowlist requires stable proxy IP addresses;
 Gunicorn 23 does not accept DNS names or CIDR ranges for this setting.
 
+The frontend's incoming connection is a separate trust boundary. With
+`TRUST_UPSTREAM_FORWARDED_PROTO=on`, it accepts protocol information from every
+caller that can reach it. In the multi-bench setup, this includes peers on the
+shared `traefik-public` network. Trust those peers together, or isolate or
+source-restrict the proxy-to-frontend connection. An explicit Gunicorn allowlist
+only limits which immediate backend peers can supply trusted headers; it does
+not prove that a request entered through Traefik and does not provide tenant
+isolation.
+
 The Nginx frontend clears `X-Forwarded-SSL` and `X-Forwarded-Protocol` so that
 Gunicorn receives one consistent protocol indication in `X-Forwarded-Proto`.
 
@@ -211,6 +220,12 @@ With `TRUST_UPSTREAM_FORWARDED_PROTO=on`, Nginx accepts an incoming
 `X-Forwarded-Proto: https` indication. Restrict frontend access to trusted proxies
 or internal services, and have the public proxy replace client-supplied protocol
 headers. This mode does not check the upstream's IP address.
+
+The public nginx-proxy service sets `TRUST_DOWNSTREAM_PROXY=false`, so it derives
+forwarded protocol information from its actual client connection instead of
+accepting a client's claim. If nginx-proxy itself sits behind another proxy,
+review that additional hop and restrict its callers before enabling upstream
+header trust; the supplied recipe assumes nginx-proxy is the public edge.
 
 The base configuration, `compose.noproxy.yaml`, and images used directly default
 to `off`, so clients cannot override the connection scheme during direct HTTP

@@ -1,17 +1,18 @@
 import json
 import os
-import ssl
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Optional
-from urllib.error import HTTPError
-from urllib.parse import parse_qs, urlencode, urlsplit
-from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
+from typing import Any
 
 import pytest
 
 from tests.conftest import S3ServiceResult
-from tests.utils import Compose, check_url_content, wait_for_url
+from tests.utils import (
+    Compose,
+    assert_oauth_return_url,
+    check_url_content,
+    wait_for_url,
+)
 
 BACKEND_SERVICES = (
     "backend",
@@ -158,43 +159,6 @@ def test_push_backup(
     compose.exec(*restic_args, "backend", "restic", "check", "--read-data")
 
 
-def assert_oauth_return_url(
-    base_url: str, site: str, scheme: str, headers: Optional[Dict[str, str]] = None
-) -> None:
-    class NoRedirect(HTTPRedirectHandler):
-        def redirect_request(self, req, fp, code, msg, headers, newurl):
-            return None
-
-    context = ssl.create_default_context()
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-    opener = build_opener(NoRedirect, HTTPSHandler(context=context))
-    params = {
-        "client_id": "proxy-regression-test",
-        "redirect_uri": "https://client.example.test/callback",
-        "response_type": "code",
-        "state": "preserve&query=parameters",
-    }
-    query = urlencode(params)
-    path = "/api/method/frappe.integrations.oauth2.authorize"
-    request = Request(
-        f"{base_url}{path}?{query}", headers={"Host": site, **(headers or {})}
-    )
-    with pytest.raises(HTTPError) as redirect:
-        opener.open(request, timeout=10)
-    with redirect.value as response:
-        assert response.code == 302
-        login_url = urlsplit(response.headers["Location"])
-        assert login_url.path == "/login"
-        return_url = urlsplit(parse_qs(login_url.query)["redirect-to"][0])
-        assert return_url.scheme == scheme
-        assert return_url.netloc == site
-        assert return_url.path == path
-        assert parse_qs(return_url.query) == {
-            key: [value] for key, value in params.items()
-        }
-
-
 @pytest.fixture
 def proxy_frontend(compose: Compose, frappe_site: str, tmp_path: Path, request):
     mode, allowed_ips = request.param
@@ -275,13 +239,24 @@ def test_invalid_proxy_mode(compose: Compose):
             "run",
             "--rm",
             "--no-deps",
+            "-T",
             "--entrypoint",
             "nginx-entrypoint.sh",
             "-e",
             "TRUST_UPSTREAM_FORWARDED_PROTO=invalid",
             "frontend",
         )
-    assert "must be on or off" in invalid.value.output
+    assert "must be on or off" in invalid.value.stderr
+
+
+def test_compose_output_keeps_json_clean(compose: Compose, tmp_path: Path):
+    override = tmp_path / "obsolete-version.json"
+    # Recent Compose versions warn about this field on stderr.
+    override.write_text(json.dumps({"version": "3.8"}))
+    services = json.loads(
+        compose.output("-f", str(override), "config", "--format", "json")
+    )["services"]
+    assert "backend" in services
 
 
 @pytest.mark.parametrize("host_caddy", [False, True], ids=["direct", "host-caddy"])

@@ -144,6 +144,13 @@ docker compose --project-name erpnext -f ~/gitops/erpnext.yaml up -d
 
 This starts MariaDB and Redis containers as part of the same stack.
 
+The nginx-proxy service is the public edge in this recipe. It sets
+`TRUST_DOWNSTREAM_PROXY=false`, replacing client-supplied forwarding information
+with values derived from the actual connection. A caller cannot downgrade an
+HTTPS request to HTTP, or claim HTTPS on an HTTP request, using
+`X-Forwarded-Proto`. Do not enable upstream header trust without reviewing and
+restricting an additional proxy-to-nginx-proxy hop.
+
 ### Create sites
 
 ```shell

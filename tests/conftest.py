@@ -63,7 +63,9 @@ def env_file(tmp_path_factory: pytest.TempPathFactory):
 
 @pytest.fixture(scope="session")
 def compose(env_file: str):
-    return Compose(project_name="test", env_file=env_file)
+    return Compose(
+        project_name=os.getenv("FRAPPE_DOCKER_TEST_PROJECT", "test"), env_file=env_file
+    )
 
 
 @pytest.fixture(autouse=True, scope="session")

@@ -26,8 +26,14 @@ Each instance of ERPNext project (bench) will have its own redis, socketio, guni
 
 Configure `FORWARDED_ALLOW_IPS` in each bench's environment file so Gunicorn can
 recognize HTTPS forwarded by Nginx. Use `*` only if all callers on both the bench
-network and the shared MariaDB network are trusted together. Otherwise, use a
-stable Nginx IP and an explicit allowlist. See
+network and the shared MariaDB network are trusted together. A stable Nginx IP
+and an explicit allowlist narrow trust on the final hop to Gunicorn.
+
+The frontend also accepts forwarded protocol information from every caller on
+`traefik-public`, including other benches' frontends. All peers on that shared
+ingress network must be trusted together as well. If benches must be isolated
+from one another, isolate or source-restrict the Traefik-to-frontend connection;
+changing the Gunicorn allowlist alone does not establish that boundary. See
 [forwarded HTTPS and OAuth redirects](04-env-variables.md#forwarded-https-and-oauth-redirects).
 
 ### Install Docker
@@ -258,6 +264,13 @@ docker compose --project-name erpnext-two exec backend \
 
 In case you need to point custom domain to existing site follow these steps.
 Also useful if custom domain is required for LAN based access.
+
+This recipe adds a Caddy hop between Traefik and the frontend. Traefik reaches
+Caddy over HTTP. Preserving the original HTTPS indication across that hop
+requires Caddy to trust Traefik explicitly; the default Caddy configuration
+derives HTTP from its own incoming connection. Configuring Gunicorn's allowlist
+alone does not correct that existing limitation. Restrict Caddy's incoming
+callers before configuring that additional proxy trust.
 
 Create environment file
 
