@@ -1,10 +1,17 @@
+import json
+import subprocess
 import unittest
 from unittest.mock import patch
 
 import report_pr_build as reporter
 
 REPOSITORY = "frappe/frappe_docker"
-RUN = {"id": 19, "run_attempt": 2, "conclusion": "failure"}
+RUN = {
+    "id": 19,
+    "run_attempt": 2,
+    "conclusion": "failure",
+    "head_sha": "f1234567890abcdef",
+}
 
 
 def job(arch, attempt):
@@ -19,6 +26,15 @@ def job(arch, attempt):
                 "completed_at": "2026-11-18T12:02:01Z",
             }
         ],
+    }
+
+
+def artifact(arch, attempt, artifact_id):
+    return {
+        "name": f"image-sizes-pr-erpnext-15-{arch}-attempt-{attempt}",
+        "id": artifact_id,
+        "expired": False,
+        "size_in_bytes": 2000,
     }
 
 
@@ -46,14 +62,7 @@ class BuildReportTests(unittest.TestCase):
                 reporter.matching_pull_request(REPOSITORY, {**run, "head_sha": "stale"})
             )
 
-    def test_report_keeps_build_times_and_available_sizes_on_failure(self):
-        artifact = {
-            "name": "image-sizes-pr-erpnext-15-arm64",
-            "id": 72,
-            "expired": False,
-            "size_in_bytes": 2000,
-            "created_at": "2026-11-18T12:02:05Z",
-        }
+    def test_report_pairs_sizes_with_the_selected_job_attempt(self):
         report = {
             "repo": "erpnext",
             "release_line": "15",
@@ -70,12 +79,21 @@ class BuildReportTests(unittest.TestCase):
                 "api",
                 side_effect=[
                     [{"jobs": [job("amd64", 3), job("amd64", 2), job("arm64", 1)]}],
-                    [{"artifacts": [artifact]}],
+                    [
+                        {
+                            "artifacts": [
+                                artifact("arm64", 1, 72),
+                                artifact("arm64", 2, 73),
+                                artifact("amd64", 1, 74),
+                            ]
+                        }
+                    ],
                 ],
             ),
-            patch.object(reporter, "download_report", return_value=report),
+            patch.object(reporter, "download_report", return_value=report) as download,
         ):
             rows = list(reporter.report_rows(REPOSITORY, RUN, (("15", "v15_test"),)))
+        download.assert_called_once_with(REPOSITORY, 72)
         self.assertEqual(
             rows,
             [
@@ -84,8 +102,41 @@ class BuildReportTests(unittest.TestCase):
             ],
         )
         body = reporter.report_comment(REPOSITORY, RUN, "Stable", rows)
-        self.assertIn("attempts/2) · failure", body)
+        self.assertIn("attempts/2) for `f123456` · failure", body)
         self.assertNotIn("@someone", body)
+
+    def test_failed_download_prevents_comment_update(self):
+        event = {
+            "workflow_run": {
+                **RUN,
+                "path": ".github/workflows/core-build-stable.yml",
+                "event": "pull_request",
+            }
+        }
+        with (
+            patch.dict(
+                "os.environ",
+                {"GITHUB_REPOSITORY": REPOSITORY, "GITHUB_EVENT_PATH": "event.json"},
+            ),
+            patch.object(reporter.Path, "read_text", return_value=json.dumps(event)),
+            patch.object(
+                reporter,
+                "api",
+                side_effect=[
+                    [{"jobs": [job("amd64", 2)]}],
+                    [{"artifacts": [artifact("amd64", 2, 73)]}],
+                ],
+            ),
+            patch.object(
+                reporter,
+                "download_report",
+                side_effect=subprocess.CalledProcessError(1, ["gh", "api"]),
+            ),
+            patch.object(reporter, "update_comment") as update,
+        ):
+            with self.assertRaises(subprocess.CalledProcessError):
+                reporter.main()
+        update.assert_not_called()
 
     def test_comment_is_created_or_updated_without_replacing_a_newer_report(self):
         for comments, expected in (
@@ -120,9 +171,10 @@ class BuildReportTests(unittest.TestCase):
                 "GET",
             ),
         ):
-            with self.subTest(expected=expected), patch.object(
-                reporter, "api", return_value=[comments]
-            ) as api:
+            with (
+                self.subTest(expected=expected),
+                patch.object(reporter, "api", return_value=[comments]) as api,
+            ):
                 reporter.update_comment(REPOSITORY, 42, RUN, "Stable", "Report")
                 self.assertEqual(api.call_args.kwargs.get("method", "GET"), expected)
 

@@ -81,16 +81,8 @@ def build_duration(step):
     return f"{minutes}m {seconds:02d}s"
 
 
-def image_sizes(repository, artifact, run_id, version, arch, step):
-    if (
-        not artifact
-        or artifact["expired"]
-        or artifact["size_in_bytes"] > 1024 * 1024
-        or step.get("conclusion") != "success"
-        or not step.get("completed_at")
-        or datetime.fromisoformat(artifact["created_at"])
-        < datetime.fromisoformat(step["completed_at"])
-    ):
+def image_sizes(repository, artifact, run_id, version, arch):
+    if not artifact or artifact["expired"] or artifact["size_in_bytes"] > 1024 * 1024:
         return {}
     try:
         # Only numeric sizes from the untrusted report are rendered.
@@ -108,14 +100,7 @@ def image_sizes(repository, artifact, run_id, version, arch, step):
                 return {}
             sizes[image] = mib(value)
         return sizes
-    except (
-        KeyError,
-        TypeError,
-        ValueError,
-        OSError,
-        zipfile.BadZipFile,
-        subprocess.CalledProcessError,
-    ):
+    except (KeyError, TypeError, ValueError, zipfile.BadZipFile):
         return {}
 
 
@@ -141,10 +126,14 @@ def report_rows(repository, run, release_lines):
         for arch in ARCHITECTURES:
             job = jobs.get(f"{job_prefix} / Build ({arch})")
             step = build_step(job) if job else {}
-            name = artifact_name("erpnext", version, arch, pull_request=True)
-            sizes = image_sizes(
-                repository, artifacts.get(name), run["id"], version, arch, step
-            )
+            sizes = {}
+            if step.get("conclusion") == "success":
+                name = artifact_name(
+                    "erpnext", version, arch, attempt=job["run_attempt"]
+                )
+                sizes = image_sizes(
+                    repository, artifacts.get(name), run["id"], version, arch
+                )
             yield [
                 version,
                 arch,
@@ -159,7 +148,7 @@ def report_comment(repository, run, label, rows):
         f"<!-- image-build-report:{label}:{run['id']}:{run['run_attempt']} -->",
         f"### {label} image build report",
         "",
-        f"[Workflow run]({run_url}) · {run['conclusion'].replace('_', ' ')}",
+        f"[Workflow run]({run_url}) for `{run['head_sha'][:7]}` · {run['conclusion'].replace('_', ' ')}",
         "",
         "| Release line | Architecture | Docker Bake time | Base | Build | ERPNext |",
         "| --- | --- | ---: | ---: | ---: | ---: |",

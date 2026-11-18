@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency:
       group: pr-build-report-${{ github.event.workflow_run.workflow_id }}-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+      queue: max
 
     steps:
       - name: Check out the reporter from the default branch

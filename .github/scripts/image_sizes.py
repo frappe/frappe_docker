@@ -32,10 +32,11 @@ MANIFEST_TYPES = ", ".join(
 
 
 def artifact_name(
-    repo: str, version: str, arch: str, *, pull_request: bool = False
+    repo: str, version: str, arch: str, *, attempt: int | None = None
 ) -> str:
-    prefix = "image-sizes-pr" if pull_request else "image-sizes"
-    return f"{prefix}-{repo}-{version}-{arch}"
+    if attempt is not None:
+        return f"image-sizes-pr-{repo}-{version}-{arch}-attempt-{attempt}"
+    return f"image-sizes-{repo}-{version}-{arch}"
 
 
 def github_api(endpoint: str, *, binary: bool = False):
