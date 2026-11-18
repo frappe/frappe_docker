@@ -116,6 +116,11 @@ changes, layer counts, results, and the ten largest layers per image with their
 build instructions. Failed runs retain their reports for review but cannot become
 baselines.
 
+For pull requests, GitHub Actions posts a build report when a Stable or Develop
+build finishes. Each report shows the Docker Bake step duration and compressed
+sizes by release line and architecture. New runs update the existing comment
+for that workflow, including when the build fails after collecting measurements.
+
 ## Publishing boundary
 
 The publishing workflow rebuilds images after the test workflow. Size reports

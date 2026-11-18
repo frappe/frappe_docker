@@ -31,8 +31,11 @@ MANIFEST_TYPES = ", ".join(
 )
 
 
-def artifact_name(repo: str, version: str, arch: str) -> str:
-    return f"image-sizes-{repo}-{version}-{arch}"
+def artifact_name(
+    repo: str, version: str, arch: str, *, pull_request: bool = False
+) -> str:
+    prefix = "image-sizes-pr" if pull_request else "image-sizes"
+    return f"{prefix}-{repo}-{version}-{arch}"
 
 
 def github_api(endpoint: str, *, binary: bool = False):
@@ -53,7 +56,7 @@ def download_report(repository: str, artifact_id: int, api=github_api) -> dict:
         if entry.file_size > 2 * 1024 * 1024:
             raise ValueError("Image size report exceeds 2 MiB")
         report = json.loads(bundle.read(entry))
-    if report.get("schema_version") != 1:
+    if not isinstance(report, dict) or report.get("schema_version") != 1:
         raise ValueError("Unsupported image size report schema")
     return report
 
