@@ -29,10 +29,10 @@ on:
         type: boolean
         default: true
         description: Include wkhtmltopdf for legacy PDF formats
-      accept_erpnext_growth:
+      accept_image_growth:
         type: boolean
         default: false
-        description: Warn if the final ERPNext image exceeds the growth limits
+        description: Warn when images exceed growth limits in a manual run on main
     outputs:
       frappe_version:
         description: "Resolved frappe image tag"
@@ -131,15 +131,15 @@ jobs:
       - name: Check image sizes
         run: |
           size_check_args=()
-          if [[ "$ACCEPT_ERPNEXT_GROWTH" == "true" ]]; then
-            size_check_args+=(--accept-erpnext-growth)
+          if [[ "$ACCEPT_IMAGE_GROWTH" == "true" ]]; then
+            size_check_args+=(--accept-image-growth)
           fi
           python3 .github/scripts/image_sizes.py check --repo "$APP_REPO" --version "$RELEASE_LINE" --arch "$IMAGE_ARCH" "${size_check_args[@]}"
         env:
           APP_REPO: ${{ inputs.repo }}
           RELEASE_LINE: ${{ inputs.version }}
           IMAGE_ARCH: ${{ matrix.arch }}
-          ACCEPT_ERPNEXT_GROWTH: ${{ inputs.accept_erpnext_growth }}
+          ACCEPT_IMAGE_GROWTH: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.accept_image_growth }}
 
       - name: Create Trivy report directory
         run: mkdir -p trivy-results

@@ -44,20 +44,19 @@ fails; growth from 1,000 MiB to 1,100 MiB does not exceed the absolute limit.
 
 Limits must be non-negative, finite numbers.
 
-### Accept ERPNext v16 growth for one run
+### Accept image growth for one run
 
-In GitHub Actions, open **Core / Build Stable** or **Legacy / Build Stable**,
-choose **Run workflow** on `main`, and enable **Accept ERPNext v16 image growth
-for this run on main**.
+In GitHub Actions, open a stable or develop build workflow, choose **Run workflow**
+on `main`, and enable **Allow images to exceed size limits for this run on main**.
 
-The final ERPNext v16 image can exceed the limits on either architecture. The
-size check records the growth as a warning and marks it **Accepted** in the job
-summary. The `base` and `build` images still need to meet the limits, and the
-integration tests must pass before publishing.
+The size check records growth above the limits as a warning and marks it
+**Accepted** in the job summary for every affected image, release line, and
+architecture in the run. Measurements must still succeed, and integration tests
+must pass before publishing. Automatic runs continue to enforce the limits.
 
 After a successful run, its size report becomes eligible as the baseline for the
-same workflow. Use **Core / Build Stable** to update the baseline for automated
-stable builds.
+same workflow. Use **Core / Build Stable** or **Core / Build Develop** to update
+the baseline for the corresponding automated builds.
 
 ## Baseline selection
 

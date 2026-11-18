@@ -3,8 +3,8 @@ name: Legacy / Build Stable
 on:
   workflow_dispatch:
     inputs:
-      accept_erpnext_v16_growth:
-        description: Accept ERPNext v16 image growth for this run on main
+      accept_image_growth:
+        description: Allow images to exceed size limits for this run on main
         type: boolean
         default: false
 
@@ -12,7 +12,7 @@ jobs:
   delegate:
     uses: ./.github/workflows/core-build-stable.yml
     with:
-      accept_erpnext_v16_growth: ${{ inputs.accept_erpnext_v16_growth }}
+      accept_image_growth: ${{ inputs.accept_image_growth }}
     permissions:
       actions: read
       contents: write

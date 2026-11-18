@@ -230,7 +230,7 @@ def compare(
     baseline: dict | None,
     policy: dict,
     *,
-    accept_erpnext_growth: bool = False,
+    accept_image_growth: bool = False,
 ) -> tuple[str, list[str], list[str]]:
     failures = []
     warnings = []
@@ -261,9 +261,9 @@ def compare(
         f"{mib(policy['max_growth_bytes'])}.",
         "",
     ]
-    if accept_erpnext_growth:
+    if accept_image_growth:
         lines += [
-            "Growth of the final ERPNext image has been approved for this run.",
+            "Growth above the size limits has been approved for this run.",
             "",
         ]
     lines += [
@@ -278,7 +278,7 @@ def compare(
         result = "PASS" if baseline else "First baseline"
         if previous is not None and growth_exceeds(current, previous, policy):
             growth = f"{name} grew by {mib(current - previous)}"
-            if accept_erpnext_growth and name == "erpnext":
+            if accept_image_growth:
                 warnings.append(
                     f"{growth}. Growth above the size limit accepted for this run."
                 )
@@ -355,7 +355,7 @@ def check(args) -> tuple[list[str], list[str]]:
     ):
         raise ValueError("Image growth limits must be non-negative numbers")
     summary, failures, warnings = compare(
-        report, baseline, policy, accept_erpnext_growth=args.accept_erpnext_growth
+        report, baseline, policy, accept_image_growth=args.accept_image_growth
     )
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
@@ -386,9 +386,9 @@ def main() -> int:
         "--policy", type=Path, default=ROOT / ".github/image-size-policy.json"
     )
     check_parser.add_argument(
-        "--accept-erpnext-growth",
+        "--accept-image-growth",
         action="store_true",
-        help="warn if the final ERPNext image exceeds the growth limits",
+        help="warn when an image exceeds the growth limits",
     )
     args = parser.parse_args()
     try:

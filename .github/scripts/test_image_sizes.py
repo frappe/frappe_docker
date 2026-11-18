@@ -392,12 +392,16 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "history does not match"):
             sizes.measure_image(self.registry, "erpnext", "v16.51.1", "amd64")
 
-    def test_cli_accepts_only_final_erpnext_image_growth(self):
+    def test_cli_can_accept_growth_for_every_image(self):
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
             baseline = directory / "baseline.json"
             output = directory / "report.json"
             summary = directory / "summary.md"
+            previous = report(700 * MIB)
+            for name in ("base", "build"):
+                previous["images"][name] = copy.deepcopy(previous["images"]["erpnext"])
+            baseline.write_text(json.dumps(previous))
             environment = {
                 **os.environ,
                 **{key.upper(): value for key, value in report()["inputs"].items()},
@@ -420,26 +424,11 @@ class RegistryTests(unittest.TestCase):
                 "--output",
                 str(output),
             ]
-            for flags, other_size, expected_exit, annotation, status in (
-                ([], 1000, 1, "::error::erpnext", "FAIL"),
-                (
-                    ["--accept-erpnext-growth"],
-                    1000,
-                    0,
-                    "::warning::erpnext",
-                    "Accepted",
-                ),
-                (["--accept-erpnext-growth"], 700, 1, "::warning::erpnext", "Accepted"),
+            for flags, expected_exit, annotation, status in (
+                ([], 1, "::error::", "FAIL"),
+                (["--accept-image-growth"], 0, "::warning::", "Accepted"),
             ):
-                with self.subTest(flags=flags, other_size=other_size):
-                    previous = report(700 * MIB)
-                    previous["images"].update(
-                        {
-                            name: report(other_size * MIB)["images"]["erpnext"]
-                            for name in ("base", "build")
-                        }
-                    )
-                    baseline.write_text(json.dumps(previous))
+                with self.subTest(flags=flags):
                     summary.write_text("")
                     self.requests.clear()
                     result = subprocess.run(
@@ -449,18 +438,24 @@ class RegistryTests(unittest.TestCase):
                         text=True,
                     )
                     self.assertEqual(result.returncode, expected_exit, result.stderr)
-                    self.assertIn(f"{annotation} grew by 300.0 MiB", result.stdout)
-                    self.assertIn(f"| {status} |", summary.read_text())
-                    if other_size == 700:
-                        self.assertIn("::error::base", result.stdout)
-                        self.assertIn("::error::build", result.stdout)
-                    self.assertEqual(
-                        json.loads(output.read_text())["images"]["erpnext"][
-                            "compressed_bytes"
-                        ],
-                        1000 * MIB,
-                    )
+                    self.assertEqual(summary.read_text().count(f"| {status} |"), 3)
+                    measured = json.loads(output.read_text())["images"]
+                    for name in ("base", "build", "erpnext"):
+                        self.assertIn(
+                            f"{annotation}{name} grew by 300.0 MiB", result.stdout
+                        )
+                        self.assertEqual(measured[name]["compressed_bytes"], 1000 * MIB)
                     self.assertEqual(len(self.requests), 9)
+
+            self.config["architecture"] = "arm64"
+            result = subprocess.run(
+                command + ["--accept-image-growth"],
+                env=environment,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("Wrong platform", result.stderr)
 
 
 if __name__ == "__main__":
