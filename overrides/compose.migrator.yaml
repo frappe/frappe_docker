@@ -19,6 +19,7 @@ x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
     - sites:/home/frappe/frappe-bench/sites
+    - flow-server-data:/home/frappe/frappe-bench/flow-server
 
 services:
   migrator:

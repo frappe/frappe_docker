@@ -29,6 +29,9 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     libharfbuzz0b \
     libpangoft2-1.0-0 \
     libpangocairo-1.0-0 \
+    # OpenCV / Flow dependencies
+    libgl1 \
+    libglib2.0-0 \
     # For backups
     restic \
     gpg \
