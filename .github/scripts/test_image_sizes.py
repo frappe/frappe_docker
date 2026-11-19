@@ -399,6 +399,7 @@ class RegistryTests(unittest.TestCase):
             output = directory / "report.json"
             summary = directory / "summary.md"
             previous = report(700 * MIB)
+            previous["source"]["run_attempt"] = 2
             for name in ("base", "build"):
                 previous["images"][name] = copy.deepcopy(previous["images"]["erpnext"])
             baseline.write_text(json.dumps(previous))
@@ -406,6 +407,7 @@ class RegistryTests(unittest.TestCase):
                 **os.environ,
                 **{key.upper(): value for key, value in report()["inputs"].items()},
                 "GITHUB_STEP_SUMMARY": str(summary),
+                "GITHUB_RUN_ATTEMPT": "3",
             }
             command = [
                 sys.executable,
@@ -439,7 +441,17 @@ class RegistryTests(unittest.TestCase):
                     )
                     self.assertEqual(result.returncode, expected_exit, result.stderr)
                     self.assertEqual(summary.read_text().count(f"| {status} |"), 3)
-                    measured = json.loads(output.read_text())["images"]
+                    current = json.loads(output.read_text())
+                    self.assertEqual(current["source"]["run_attempt"], 3)
+                    self.assertEqual(
+                        current["baseline"],
+                        {
+                            "run_id": previous["source"]["run_id"],
+                            "run_attempt": 2,
+                            "sizes": {name: 700 * MIB for name in previous["images"]},
+                        },
+                    )
+                    measured = current["images"]
                     for name in ("base", "build", "erpnext"):
                         self.assertIn(
                             f"{annotation}{name} grew by 300.0 MiB", result.stdout

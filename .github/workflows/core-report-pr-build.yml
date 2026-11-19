@@ -2,7 +2,7 @@ name: Core / Report PR Build
 
 on:
   workflow_run:
-    workflows: [Core / Build Stable, Core / Build Develop]
+    workflows: [Core / Build Stable]
     types: [completed]
 
 permissions:

@@ -67,7 +67,7 @@ def trusted_run(run: dict, repository: str, workflow: str, current_run: int) -> 
         run["id"] < current_run
         and run["conclusion"] == "success"
         and run["head_branch"] == "main"
-        and run["head_repository"]["full_name"] == repository
+        and (run.get("head_repository") or {}).get("full_name") == repository
         and run["event"] in TRUSTED_EVENTS
         and run["path"] == workflow
     )
@@ -348,9 +348,23 @@ def check(args) -> tuple[list[str], list[str]]:
         "source": {
             "sha": os.environ.get("GITHUB_SHA", ""),
             "run_id": int(os.environ.get("GITHUB_RUN_ID", "0")),
+            "run_attempt": (
+                int(os.environ["GITHUB_RUN_ATTEMPT"])
+                if "GITHUB_RUN_ATTEMPT" in os.environ
+                else None
+            ),
         },
         "images": images,
     }
+    if baseline:
+        report["baseline"] = {
+            "run_id": baseline["source"]["run_id"],
+            "run_attempt": baseline["source"].get("run_attempt"),
+            "sizes": {
+                name: image["compressed_bytes"]
+                for name, image in baseline["images"].items()
+            },
+        }
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     policy = json.loads(args.policy.read_text(encoding="utf-8"))
     if set(policy) != {"max_growth_bytes", "max_growth_percent"} or any(

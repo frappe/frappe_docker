@@ -116,10 +116,15 @@ changes, layer counts, results, and the ten largest layers per image with their
 build instructions. Failed runs retain their reports for review but cannot become
 baselines.
 
-For pull requests, GitHub Actions posts a build report when a Stable or Develop
-build finishes. Each report shows the Docker Bake step duration and compressed
-sizes by release line and architecture, paired from the same attempt of each
-build job. New runs update the existing comment for that workflow, including
+For pull requests, GitHub Actions posts a build report when a Stable build
+finishes. The report shows the Docker Bake step duration and compressed
+sizes by release line and architecture alongside the same successful `main`
+baseline used in the Actions size summary. Each row also shows the outcome of
+the full build-and-test job. The comment links to the baseline
+run and shows absolute and percentage changes in time and size when the
+measurements are available. An orange circle marks an increase, and a green
+circle marks a decrease.
+New Stable runs update the existing comment, including
 when the build fails after collecting measurements. If an artifact download
 fails, rerun **Core / Report PR Build** to retry posting the comment.
 
