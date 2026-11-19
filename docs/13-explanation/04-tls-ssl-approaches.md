@@ -27,3 +27,43 @@ A central Traefik instance lets several benches share those ports. Each bench jo
 An existing host proxy can keep certificate management outside the Frappe stack. The stack exposes its frontend on a host port, and the external proxy forwards requests there. This fits environments where a proxy already serves other applications, while making its lifecycle and configuration a separate operational responsibility.
 
 The [Caddy local HTTPS guide](../11-how-to/03-caddy-https.md) uses this model with an internal certificate authority. It is useful for local or internal access because public certificate issuance is unnecessary, but clients must trust that authority. For public deployments, the certificate authority's domain validation requirements still apply; changing a published container port does not change those requirements.
+
+## Forwarded protocol and trust boundaries
+
+After the public proxy terminates TLS, the connections to Nginx and Gunicorn can
+use HTTP. Frappe still needs the original visitor's protocol when generating URLs
+and deciding whether to mark cookies `Secure`. The forwarded protocol header
+preserves that information. Incorrect information can produce an HTTP OAuth
+return URL for a visitor using HTTPS.
+
+Trust applies at two separate connections:
+
+- **Proxy to frontend:** with forwarded-protocol handling enabled, the frontend
+  accepts an HTTPS indication from any caller that can reach it. The public
+  proxy must replace visitor-supplied claims using the real connection protocol.
+  Other callers on the frontend's networks can bypass that public proxy.
+- **Frontend to Gunicorn:** Gunicorn accepts protocol information only from its
+  configured trusted peers. Its default loopback addresses do not include a
+  separate frontend container. Wildcard trust includes every caller that can
+  reach the backend, while an explicit frontend IP limits trust on this final
+  connection.
+
+These settings govern forwarded information. Network access is controlled by
+published ports, Docker network membership and any additional access rules.
+Wildcard Gunicorn trust does not publish its port, and an explicit frontend IP
+does not prove that a request originally entered through the public proxy.
+
+In the multi-bench arrangement, the shared MariaDB network gives other benches a
+path to the backend. The shared Traefik network also gives their frontends a path
+to one another. Both sets of peers must be trusted together, or access must be
+isolated or restricted at the relevant connection. A backend IP allowlist alone
+does not establish isolation between independent tenants.
+
+Each extra proxy hop introduces the same decision. For example, the custom-domain
+recipe places Caddy between Traefik and the frontend over HTTP. Caddy's default
+upstream handling derives HTTP from that connection; preserving the visitor's
+HTTPS indication requires explicit trust in Traefik and restricted incoming
+callers. Changing Gunicorn's allowlist cannot recover information lost earlier.
+
+For configuration and upgrade steps, see
+[Configure forwarded HTTPS](../11-how-to/13-configure-forwarded-https.md).

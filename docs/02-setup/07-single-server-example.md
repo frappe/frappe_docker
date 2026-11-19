@@ -24,17 +24,11 @@ Single instance of **MariaDB** will be installed and act as database service for
 
 Each instance of ERPNext project (bench) will have its own redis, socketio, gunicorn, nginx, workers and scheduler. It will connect to internal MariaDB by connecting to MariaDB network. It will expose sites to public through Traefik by connecting to Traefik network.
 
-Configure `FORWARDED_ALLOW_IPS` in each bench's environment file so Gunicorn can
-recognize HTTPS forwarded by Nginx. Use `*` only if all callers on both the bench
-network and the shared MariaDB network are trusted together. A stable Nginx IP
-and an explicit allowlist narrow trust on the final hop to Gunicorn.
-
-The frontend also accepts forwarded protocol information from every caller on
-`traefik-public`, including other benches' frontends. All peers on that shared
-ingress network must be trusted together as well. If benches must be isolated
-from one another, isolate or source-restrict the Traefik-to-frontend connection;
-changing the Gunicorn allowlist alone does not establish that boundary. See
-[forwarded HTTPS and OAuth redirects](04-env-variables.md#forwarded-https-and-oauth-redirects).
+Configure `FORWARDED_ALLOW_IPS` in each bench's environment file using the
+[forwarded HTTPS setup guide](../11-how-to/13-configure-forwarded-https.md).
+This recipe assumes trusted peers on the bench, shared MariaDB, and shared
+Traefik networks. A Gunicorn IP allowlist alone does not isolate benches; see
+[proxy trust boundaries](../13-explanation/04-tls-ssl-approaches.md#forwarded-protocol-and-trust-boundaries).
 
 ### Install Docker
 

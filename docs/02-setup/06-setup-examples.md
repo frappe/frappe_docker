@@ -88,7 +88,7 @@ Setup Frappe/ERPNext using containerized MariaDB and Redis with Let's Encrypt SS
 The following example uses one controlled stack. Set `FORWARDED_ALLOW_IPS=*` in
 `.env` so Gunicorn recognizes HTTPS forwarded by the frontend. Keep the backend
 port unpublished and trust every service that can reach it. See
-[forwarded HTTPS and OAuth redirects](04-env-variables.md#forwarded-https-and-oauth-redirects)
+[forwarded HTTPS setup](../11-how-to/13-configure-forwarded-https.md)
 for shared networks and stricter allowlists.
 
 ```sh

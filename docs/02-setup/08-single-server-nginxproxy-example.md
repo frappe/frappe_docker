@@ -113,7 +113,7 @@ Notes:
 - Replace domains and email with your production values.
 - `FORWARDED_ALLOW_IPS=*` trusts the stack's internal callers for forwarded HTTPS
   information. Keep Gunicorn's port unpublished and review any additional networks.
-  See [forwarded HTTPS and OAuth redirects](04-env-variables.md#forwarded-https-and-oauth-redirects).
+  See [forwarded HTTPS setup](../11-how-to/13-configure-forwarded-https.md).
 - `NGINX_PROXY_HOSTS` is a comma-separated list without spaces.
 - If you built a custom image, add:
 
@@ -144,12 +144,10 @@ docker compose --project-name erpnext -f ~/gitops/erpnext.yaml up -d
 
 This starts MariaDB and Redis containers as part of the same stack.
 
-The nginx-proxy service is the public edge in this recipe. It sets
-`TRUST_DOWNSTREAM_PROXY=false`, replacing client-supplied forwarding information
-with values derived from the actual connection. A caller cannot downgrade an
-HTTPS request to HTTP, or claim HTTPS on an HTTP request, using
-`X-Forwarded-Proto`. Do not enable upstream header trust without reviewing and
-restricting an additional proxy-to-nginx-proxy hop.
+This recipe assumes nginx-proxy is the public edge and sets
+`TRUST_DOWNSTREAM_PROXY=false`. If another proxy precedes it, review
+[proxy trust boundaries](../13-explanation/04-tls-ssl-approaches.md#forwarded-protocol-and-trust-boundaries)
+before enabling upstream header trust.
 
 ### Create sites
 

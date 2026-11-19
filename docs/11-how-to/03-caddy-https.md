@@ -32,7 +32,7 @@ submit their own protocol headers. Keep backend port 8000 unpublished.
 `FORWARDED_ALLOW_IPS=*` assumes all callers on the backend's Docker networks are
 trusted together. If the backend joins shared networks with untrusted callers,
 use a stable frontend IP and an explicit Gunicorn allowlist instead. See
-[forwarded HTTPS and OAuth redirects](../02-setup/04-env-variables.md#forwarded-https-and-oauth-redirects).
+[proxy trust boundaries](../13-explanation/04-tls-ssl-approaches.md#forwarded-protocol-and-trust-boundaries).
 
 Include the no-proxy override to publish the frontend for the host proxy:
 
