@@ -102,10 +102,10 @@ unpinned dependencies can affect sizes even when the recorded inputs match.
 Once measurements have been collected, the workflow uploads `report.json`,
 including when the size check or a later step fails.
 
-| Run type | Artifact name                                         |
-| -------- | ----------------------------------------------------- |
-| Main     | `image-sizes-<repo>-<release-line>-<architecture>`    |
-| PR       | `image-sizes-pr-<repo>-<release-line>-<architecture>` |
+| Run type | Artifact name                                                           |
+| -------- | ----------------------------------------------------------------------- |
+| Main     | `image-sizes-<repo>-<release-line>-<architecture>`                      |
+| PR       | `image-sizes-pr-<repo>-<release-line>-<architecture>-attempt-<attempt>` |
 
 For the existing core matrix, `<repo>` is `erpnext`. Each report records its source
 commit and workflow run, architecture, application and build versions, image
@@ -115,6 +115,13 @@ The job summary contains the baseline, current size, absolute and percentage
 changes, layer counts, results, and the ten largest layers per image with their
 build instructions. Failed runs retain their reports for review but cannot become
 baselines.
+
+For pull requests, GitHub Actions posts a build report when a Stable or Develop
+build finishes. Each report shows the Docker Bake step duration and compressed
+sizes by release line and architecture, paired from the same attempt of each
+build job. New runs update the existing comment for that workflow, including
+when the build fails after collecting measurements. If an artifact download
+fails, rerun **Core / Report PR Build** to retry posting the comment.
 
 ## Publishing boundary
 

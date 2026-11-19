@@ -281,8 +281,8 @@ jobs:
         if: ${{ always() && hashFiles('report.json') != '' }}
         uses: actions/upload-artifact@v7
         with:
-          name: image-sizes-${{ github.event_name == 'pull_request' && 'pr-' || '' }}${{ inputs.repo }}-${{ inputs.version }}-${{ matrix.arch }}
+          name: image-sizes-${{ github.event_name == 'pull_request' && 'pr-' || '' }}${{ inputs.repo }}-${{ inputs.version }}-${{ matrix.arch }}${{ github.event_name == 'pull_request' && format('-attempt-{0}', github.run_attempt) || '' }}
           path: report.json
           if-no-files-found: error
-          overwrite: true
+          overwrite: ${{ github.event_name != 'pull_request' }}
           retention-days: 90
