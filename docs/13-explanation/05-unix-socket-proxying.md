@@ -18,7 +18,7 @@ proxy and the frontend container. This can provide the following benefits:
 2. SELinux can be used to further restrict access to the socket file with custom policies.
 3. Unix sockets have slightly lower overhead than a local TCP connection.
 
-The value of the [`NGINX_LISTEN_PORT`](../02-setup/04-env-variables.md#frontend-nginx-configuration-inside-the-frontend-container)
+The value of the [`NGINX_LISTEN_PORT`](../12-reference/08-environment-variables.md#frontend-nginx-configuration-inside-the-frontend-container)
 environment variable is directly substituted into the internal Nginx server's [listen](https://nginx.org/en/docs/http/ngx_http_core_module.html#listen)
 directive, which allows passing a `unix:/path/to/socket` value instead of a port value. Note that this may break some
 compose overrides that strictly expect a port value here.

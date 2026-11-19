@@ -1,8 +1,8 @@
 ---
-title: Single Server Setup
+title: Single Server with Traefik
 ---
 
-# Single Server Example
+# Set up a single server with Traefik
 
 This guide demonstrates setting up multiple Frappe/ERPNext benches (projects) on a single server with shared infrastructure components.
 
@@ -291,8 +291,8 @@ docker compose --project-name custom-one-example -f ~/gitops/custom-one-example.
 
 ### Site operations
 
-Refer: [site operations](../04-operations/01-site-operations.md)
+Refer: [site operations](17-site-operations.md)
 
 ---
 
-**Back:** [Setup Examples →](06-setup-examples.md)
+**Back:** [Setup Examples →](14-compose-setup-examples.md)

@@ -1,8 +1,8 @@
 ---
-title: Single Server Example
+title: Single Server with nginx-proxy
 ---
 
-# Single Server Example (nginx-proxy + acme-companion)
+# Set up a single server with nginx-proxy and acme-companion
 
 This guide demonstrates a single-server setup using nginx-proxy and acme-companion for HTTPS. It is best for a small number of hostnames and a single bench. If you need multiple benches or advanced routing, use the Traefik-based example instead.
 
@@ -84,7 +84,7 @@ cat > ~/gitops/apps.json <<'EOF'
 EOF
 ```
 
-Use a [compatible builder](02-build-setup.md#builder-compatibility) and pass `apps.json` as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) to keep private repository tokens out of image metadata:
+Use a [compatible builder](../02-setup/02-build-setup.md#builder-compatibility) and pass `apps.json` as a [BuildKit secret](https://docs.docker.com/build/building/secrets/) to keep private repository tokens out of image metadata:
 
 ```shell
 docker build \
@@ -160,7 +160,7 @@ docker compose --project-name erpnext exec backend \
 
 ### Site operations
 
-Refer: [site operations](../04-operations/01-site-operations.md)
+Refer: [site operations](17-site-operations.md)
 
 ### Troubleshooting (ACME / certificates)
 
@@ -170,4 +170,4 @@ Refer: [site operations](../04-operations/01-site-operations.md)
 
 ---
 
-**Back:** [Single Server Example (Traefik)](07-single-server-example.md)
+**Back:** [Single Server Example (Traefik)](15-single-server-traefik.md)

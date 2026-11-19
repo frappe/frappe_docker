@@ -19,7 +19,7 @@ docker-compose exec backend bench new-site --mariadb-user-host-login-scope=% --d
 
 If you need to install some app, specify `--install-app`. To see all options, just run `bench new-site --help`.
 
-To create a Postgres site (assuming you already use [Postgres compose override](../02-setup/05-overrides.md)), the `root_login` and `root_password` are now automatically set by the `configurator`. For major version upgrades, please refer to the [Postgres Migration Guide](../06-migration/03-postgres-major-version-upgrade.md).
+To create a Postgres site (assuming you already use [Postgres compose override](../12-reference/09-compose-overrides.md)), the `root_login` and `root_password` are now automatically set by the `configurator`. For major version upgrades, please refer to the [Postgres Migration Guide](22-upgrade-postgresql-13-to-15.md).
 
 To create a new Postgres site:
 

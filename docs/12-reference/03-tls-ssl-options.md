@@ -16,7 +16,7 @@ All override paths below are relative to `overrides/` in the repository root. Ad
 - **Certificate storage:** `cert-data` volume, with ACME data at `/letsencrypt/acme.json`.
 - **Dashboard:** not enabled by these overrides.
 
-See [environment variables](../02-setup/04-env-variables.md#reverse-proxy-and-ssl-https-configuration) for rule syntax and [the HTTPS setup example](../02-setup/06-setup-examples.md#example-3-production-setup-with-https) for deployment commands.
+See [environment variables](08-environment-variables.md#reverse-proxy-and-ssl-https-configuration) for rule syntax and [the HTTPS setup example](../11-how-to/14-compose-setup-examples.md#example-3-production-setup-with-https) for deployment commands.
 
 ## Central Traefik for multiple stacks
 
@@ -28,7 +28,7 @@ See [environment variables](../02-setup/04-env-variables.md#reverse-proxy-and-ss
 - **Certificate storage:** `cert-data` volume in the proxy stack, with ACME data at `/certificates/acme.json`.
 - **Dashboard:** enabled with HTTP Basic authentication; adding the SSL override serves it over HTTPS.
 
-See [the single server example](../02-setup/07-single-server-example.md) for proxy, database, and bench configuration.
+See [the single server example](../11-how-to/15-single-server-traefik.md) for proxy, database, and bench configuration.
 
 ## nginx-proxy with acme-companion
 
@@ -46,7 +46,7 @@ See [nginx-proxy + acme-companion](../11-how-to/02-nginx-proxy-acme-companion.md
 - **Proxy configuration:** managed on the host, outside the Compose stack.
 - **Local certificates:** the documented `tls internal` configuration uses Caddy's internal CA; clients must trust its root certificate. Public DNS and public ACME validation are not required for this local configuration.
 
-See [Caddy reverse proxy](../11-how-to/03-caddy-https.md) for the local HTTPS recipe. The `compose.custom-domain.yaml` override is a separate arrangement that runs Caddy in a container behind central Traefik; see [custom domains for an existing site](../02-setup/07-single-server-example.md#create-custom-domain-to-existing-site).
+See [Caddy reverse proxy](../11-how-to/03-caddy-https.md) for the local HTTPS recipe. The `compose.custom-domain.yaml` override is a separate arrangement that runs Caddy in a container behind central Traefik; see [custom domains for an existing site](../11-how-to/15-single-server-traefik.md#create-custom-domain-to-existing-site).
 
 ## Routing and certificate comparison
 
@@ -63,4 +63,4 @@ Public certificates require DNS for the requested hostnames to resolve to the pr
 
 `HTTP_PUBLISH_PORT` and `HTTPS_PUBLISH_PORT` change the host ports published by the Traefik and nginx-proxy overrides; their defaults are `80` and `443`. If you change them, public traffic must still reach the ports required by the configured challenge, for example through upstream port forwarding.
 
-With `compose.noproxy.yaml`, `HTTP_PUBLISH_PORT` defaults to `8080` and publishes the frontend directly. A host Caddy configuration must target that published port. See [published ports](../02-setup/04-env-variables.md#published-ports-traefik-and-nginx-proxy) for the variable lookup.
+With `compose.noproxy.yaml`, `HTTP_PUBLISH_PORT` defaults to `8080` and publishes the frontend directly. A host Caddy configuration must target that published port. See [published ports](08-environment-variables.md#published-ports-traefik-and-nginx-proxy) for the variable lookup.

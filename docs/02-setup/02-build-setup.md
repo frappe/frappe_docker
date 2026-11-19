@@ -120,7 +120,7 @@ The compose file requires several environment variables. You can either export t
 cp example.env custom.env
 ```
 
-Edit `custom.env` to customize variables for your setup. The template includes common variables, but you can add, modify, or remove any as needed. See [env-variables.md](04-env-variables.md) for detailed descriptions of all available variables.
+Edit `custom.env` to customize variables for your setup. The template includes common variables, but you can add, modify, or remove any as needed. See [env-variables.md](../12-reference/08-environment-variables.md) for detailed descriptions of all available variables.
 
 For this setup, make sure **at least** the following values are added to `custom.env`:
 
@@ -134,7 +134,7 @@ PULL_POLICY=missing
 > `PULL_POLICY` ensures Docker does not attempt to pull the image, but instead uses the locally built one (the default pull policy is `always`).
 
 **⚠️ This is not meant to be a complete `.env` configuration guide. These are only the minimal additions required for this example.
-Please have a look at [env-variables.md](04-env-variables.md) for a full description of all available variables and adjust them according to your needs.**
+Please have a look at [env-variables.md](../12-reference/08-environment-variables.md) for a full description of all available variables and adjust them according to your needs.**
 
 ## Creating the final compose file
 
@@ -155,8 +155,8 @@ This generates `compose.custom.yaml`, which you'll use to start all containers. 
 
 ---
 
-**Next:** [Start Setup →](03-start-setup.md)
+**Next:** [Start Setup →](../11-how-to/13-start-containers-and-create-a-site.md)
 
 **Back:** [Container Overview ←](01-overview.md)
 
-**See also:** [Setup Examples](06-setup-examples.md) for practical deployment scenarios.
+**See also:** [Setup Examples](../11-how-to/14-compose-setup-examples.md) for practical deployment scenarios.

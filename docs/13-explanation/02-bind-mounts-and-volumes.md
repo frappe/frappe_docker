@@ -12,7 +12,7 @@ The base `compose.yaml` shares the named `sites` volume between application serv
 
 By default, Docker manages these named volumes. The `compose.bind-mount-sites.yaml`, `compose.bind-mount-db-data.yaml`, and `compose.bind-mount-redis-queue.yaml` overrides retain the same volume names but use the local driver's bind options to place their contents in host directories. This changes where data is stored without changing the services' mount paths.
 
-Choose those overrides when you need to manage data at a particular host location. Their directories must already exist and be writable by the corresponding container user. The [Compose overrides reference](../02-setup/05-overrides.md) lists the required location variables and compatible database and Redis overrides.
+Choose those overrides when you need to manage data at a particular host location. Their directories must already exist and be writable by the corresponding container user. The [Compose overrides reference](../12-reference/09-compose-overrides.md) lists the required location variables and compatible database and Redis overrides.
 
 The production images also declare a volume for `/home/frappe/frappe-bench/logs`. Without an explicit mount, Docker creates an anonymous volume for it. The base Compose file does not configure shared named log storage; `pwd.yml`, the disposable demo, explicitly mounts a named `logs` volume.
 

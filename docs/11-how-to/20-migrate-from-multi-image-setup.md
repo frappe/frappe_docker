@@ -2,15 +2,15 @@
 title: Migrate from Multi Image Setup
 ---
 
-## Migrate from multi-image setup
+# Migrate from multi-image setup
 
 All the containers now use same image. Use `frappe/erpnext` instead of `frappe/frappe-worker`, `frappe/frappe-nginx` , `frappe/frappe-socketio` , `frappe/erpnext-worker` and `frappe/erpnext-nginx`.
 
 Now you need to specify command and environment variables for following containers:
 
-### Frontend
+## Frontend
 
-For `frontend` service to act as static assets frontend and reverse proxy, you need to pass `nginx-entrypoint.sh` as container `command` and `BACKEND` and `SOCKETIO` environment variables pointing `{host}:{port}` for gunicorn and websocket services. Check [environment variables](../02-setup/04-env-variables.md)
+For `frontend` service to act as static assets frontend and reverse proxy, you need to pass `nginx-entrypoint.sh` as container `command` and `BACKEND` and `SOCKETIO` environment variables pointing `{host}:{port}` for gunicorn and websocket services. Check [environment variables](../12-reference/08-environment-variables.md)
 
 Now you only need to mount the `sites` volume at location `/home/frappe/frappe-bench/sites`. No need for `assets` volume and asset population script or steps.
 
@@ -30,7 +30,7 @@ frontend:
 # ... removed for brevity
 ```
 
-### Websocket
+## Websocket
 
 For `websocket` service to act as socketio backend, you need to pass `["node", "/home/frappe/frappe-bench/apps/frappe/socketio.js"]` as container `command`
 
@@ -46,7 +46,7 @@ websocket:
 # ... removed for brevity
 ```
 
-### Configurator
+## Configurator
 
 For `configurator` service to act as run once configuration job, you need to pass `["bash", "-c"]` as container `entrypoint` and bash script inline to yaml. There is no `configure.py` in the container now.
 
@@ -76,7 +76,7 @@ configurator:
 # ... removed for brevity
 ```
 
-### Site Creation
+## Site Creation
 
 For `create-site` service to act as run once site creation job, you need to pass `["bash", "-c"]` as container `entrypoint` and bash script inline to yaml. Make sure to use `--mariadb-user-host-login-scope=%` as upstream bench is installed in container.
 

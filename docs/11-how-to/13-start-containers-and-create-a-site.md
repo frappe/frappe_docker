@@ -1,10 +1,14 @@
 ---
-title: Start Container
+title: Start Containers and Create a Site
 ---
 
-# start Container
+# Start containers and create a site
 
-Once your compose file is ready, start all containers with a single command:
+Prepare `compose.custom.yaml` using [Build Setup](../02-setup/02-build-setup.md). Run the following commands from the directory containing that file. The image must already include the apps you want to install.
+
+## Start containers
+
+Start all containers with a single command:
 
 ```bash
 docker compose -p frappe -f compose.custom.yaml up -d
@@ -16,15 +20,15 @@ podman-compose --in-pod=1 --project-name frappe -f compose.custom.yaml up -d
 
 The `-p` (or `--project-name`) flag names the project `frappe`, allowing you to easily reference and manage all containers together.
 
-# Create a site and install apps
+## Create a site and install apps
 
 Frappe is now running, but it's not yet configured. You need to create a site and install your apps.
 
-## Basic site creation
+### Basic site creation
 
 ```bash
-docker compose -p frappe exec backend bench new-site <sitename> --mariadb-user-host-login-scope='172.%.%.%'
-docker compose -p frappe exec backend bench --site <sitename> install-app erpnext
+docker compose -p frappe -f compose.custom.yaml exec backend bench new-site <sitename> --mariadb-user-host-login-scope='172.%.%.%'
+docker compose -p frappe -f compose.custom.yaml exec backend bench --site <sitename> install-app erpnext
 ```
 
 ```bash
@@ -35,12 +39,12 @@ bench --site <sitename> install-app erpnext
 
 Replace `<sitename>` with your desired site name.
 
-## Create site with app installation
+### Create site with app installation
 
 You can install apps during site creation:
 
 ```bash
-docker compose -p frappe exec backend bench new-site <sitename> \
+docker compose -p frappe -f compose.custom.yaml exec backend bench new-site <sitename> \
   --mariadb-user-host-login-scope='%' \
   --db-root-password <db-password> \
   --admin-password <admin-password> \
@@ -49,7 +53,7 @@ docker compose -p frappe exec backend bench new-site <sitename> \
 
 > **Note:** Wait for the `db` service to start and `configurator` to exit before trying to create a new site. Usually this takes up to 10 seconds.
 
-For more site operations, refer to [site operations](../04-operations/01-site-operations.md).
+For more site operations, refer to [site operations](17-site-operations.md).
 
 > ## Understanding the MariaDB User Scope
 >
@@ -61,6 +65,6 @@ For more site operations, refer to [site operations](../04-operations/01-site-op
 
 ---
 
-**Back:** [Build Setup →](02-build-setup.md)
+**Back:** [Build Setup →](../02-setup/02-build-setup.md)
 
-**Next:** [Setup Examples →](06-setup-examples.md)
+**Next:** [Setup Examples →](14-compose-setup-examples.md)

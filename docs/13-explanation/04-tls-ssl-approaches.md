@@ -14,13 +14,13 @@ Multiple sites do not by themselves require complex routing: several hostnames c
 
 Traefik's rule expressions can combine conditions on hosts, paths, or headers. This gives more flexibility as routing requirements grow, at the cost of maintaining those rules. Its certificate resolver runs in the proxy itself, so routing and certificate issuance share one service.
 
-These routing choices determine which frontend receives a request. They do not create Frappe sites or replace the application's site selection. See [site operations](../04-operations/01-site-operations.md#setup-new-site) for creating the sites behind the proxy.
+These routing choices determine which frontend receives a request. They do not create Frappe sites or replace the application's site selection. See [site operations](../11-how-to/17-site-operations.md#setup-new-site) for creating the sites behind the proxy.
 
 ## A proxy per stack or a shared proxy
 
 Keeping Traefik inside a Frappe stack ties the proxy's deployment and certificate storage to that stack. This keeps one stack self-contained, but separate stacks cannot each bind the same public ports on the same host address.
 
-A central Traefik instance lets several benches share those ports. Each bench joins a shared proxy network and supplies its own routing labels. The proxy can be maintained separately from the benches, but its availability and routing configuration now affect every bench that depends on it. The [single server example](../02-setup/07-single-server-example.md) demonstrates this arrangement with shared infrastructure.
+A central Traefik instance lets several benches share those ports. Each bench joins a shared proxy network and supplies its own routing labels. The proxy can be maintained separately from the benches, but its availability and routing configuration now affect every bench that depends on it. The [single server example](../11-how-to/15-single-server-traefik.md) demonstrates this arrangement with shared infrastructure.
 
 ## A proxy managed outside Compose
 
