@@ -1,11 +1,18 @@
+import json
 import os
+import subprocess
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from tests.conftest import S3ServiceResult
-from tests.utils import Compose, check_url_content, wait_for_url
+from tests.utils import (
+    Compose,
+    assert_oauth_return_url,
+    check_url_content,
+    wait_for_url,
+)
 
 BACKEND_SERVICES = (
     "backend",
@@ -152,9 +159,153 @@ def test_push_backup(
     compose.exec(*restic_args, "backend", "restic", "check", "--read-data")
 
 
+@pytest.fixture
+def proxy_frontend(compose: Compose, frappe_site: str, tmp_path: Path, request):
+    mode, allowed_ips = request.param
+    config = {
+        "services": {
+            "frontend": {
+                "environment": {"TRUST_UPSTREAM_FORWARDED_PROTO": mode},
+                "ports": [{"target": 8080, "host_ip": "127.0.0.1"}],
+            },
+        }
+    }
+    override = tmp_path / "proxy-headers.json"
+    override.write_text(json.dumps(config))
+    try:
+        compose(
+            "-f",
+            str(override),
+            "up",
+            "-d",
+            "--no-deps",
+            "--force-recreate",
+            "frontend",
+        )
+        if allowed_ips == "frontend":
+            allowed_ips = compose.output(
+                "exec", "-T", "frontend", "getent", "ahostsv4", "frontend"
+            ).split()[0]
+        config["services"]["backend"] = {
+            "environment": {"FORWARDED_ALLOW_IPS": allowed_ips}
+        }
+        override.write_text(json.dumps(config))
+        compose("-f", str(override), "up", "-d", "--no-deps", "backend")
+        # Refresh Nginx's upstream DNS after backend recreation without changing
+        # the frontend address that the explicit allowlist just selected.
+        compose("restart", "frontend")
+        address = compose.output(
+            "-f", str(override), "port", "frontend", "8080"
+        ).strip()
+        url = f"http://{address}"
+        wait_for_url(f"{url}/api/method/ping", frappe_site).close()
+        yield url
+    finally:
+        compose("up", "-d", "--no-deps", "--force-recreate", "backend", "frontend")
+
+
+@pytest.mark.parametrize(
+    ("proxy_frontend", "https_scheme"),
+    [
+        (("off", "*"), "http"),
+        (("on", "*"), "https"),
+        (("on", "127.0.0.1,::1"), "http"),
+        (("on", "frontend"), "https"),
+    ],
+    indirect=["proxy_frontend"],
+    ids=["direct", "wildcard", "loopback-only", "explicit-frontend-ip"],
+)
+def test_proxy_headers(proxy_frontend: str, https_scheme: str, frappe_site: str):
+    for headers, scheme in (
+        ({"X-Forwarded-Proto": "https"}, https_scheme),
+        ({"X-Forwarded-Proto": "http"}, "http"),
+        ({"X-Forwarded-Proto": "unknown"}, "http"),
+        ({}, "http"),
+        (
+            {
+                "X-Forwarded-Proto": "https",
+                "X-Forwarded-SSL": "off",
+                "X-Forwarded-Protocol": "http",
+            },
+            https_scheme,
+        ),
+    ):
+        assert_oauth_return_url(proxy_frontend, frappe_site, scheme, headers)
+
+
+def test_invalid_proxy_mode(compose: Compose):
+    with pytest.raises(subprocess.CalledProcessError) as invalid:
+        compose.output(
+            "run",
+            "--rm",
+            "--no-deps",
+            "-T",
+            "--entrypoint",
+            "nginx-entrypoint.sh",
+            "-e",
+            "TRUST_UPSTREAM_FORWARDED_PROTO=invalid",
+            "frontend",
+        )
+    assert "must be on or off" in invalid.value.stderr
+
+
+def test_compose_output_keeps_json_clean(compose: Compose, tmp_path: Path):
+    override = tmp_path / "obsolete-version.json"
+    # Recent Compose versions warn about this field on stderr.
+    override.write_text(json.dumps({"version": "3.8"}))
+    services = json.loads(
+        compose.output("-f", str(override), "config", "--format", "json")
+    )["services"]
+    assert "backend" in services
+
+
+@pytest.mark.parametrize("host_caddy", [False, True], ids=["direct", "host-caddy"])
+def test_proxy_configuration(tmp_path: Path, host_caddy: bool, monkeypatch):
+    for name in (
+        "HTTP_PUBLISH_PORT",
+        "TRUST_UPSTREAM_FORWARDED_PROTO",
+        "FORWARDED_ALLOW_IPS",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    env_file = tmp_path / ".env"
+    settings = Path("example.env").read_text()
+    if host_caddy:
+        settings += "\nTRUST_UPSTREAM_FORWARDED_PROTO=on\nFORWARDED_ALLOW_IPS=*\nHTTP_PUBLISH_PORT=127.0.0.1:8080\n"
+    env_file.write_text(settings)
+    compose = Compose(
+        project_name="proxy-config-test",
+        env_file=str(env_file),
+        files=(
+            "compose.yaml",
+            "overrides/compose.mariadb.yaml",
+            "overrides/compose.redis.yaml",
+            "overrides/compose.noproxy.yaml",
+        ),
+    )
+    services = json.loads(compose.output("config", "--format", "json"))["services"]
+    assert services["frontend"]["environment"]["TRUST_UPSTREAM_FORWARDED_PROTO"] == (
+        "on" if host_caddy else "off"
+    )
+    assert services["backend"]["environment"]["FORWARDED_ALLOW_IPS"] == (
+        "*" if host_caddy else "127.0.0.1,::1"
+    )
+    assert not services["backend"].get("ports")
+    if host_caddy:
+        ports = services["frontend"]["ports"]
+        assert len(ports) == 1
+        assert ports[0]["host_ip"] == "127.0.0.1"
+        assert ports[0]["published"] == "8080"
+        assert ports[0]["target"] == 8080
+
+
 def test_https(frappe_site: str, compose: Compose):
     compose("-f", "overrides/compose.https.yaml", "up", "-d")
-    check_url_content(url="https://127.0.0.1", callback=index_cb, site_name=frappe_site)
+    address = compose.output(
+        "-f", "overrides/compose.https.yaml", "port", "proxy", "443"
+    ).strip()
+    url = f"https://{address}"
+    check_url_content(url=url, callback=index_cb, site_name=frappe_site)
+    assert_oauth_return_url(url, frappe_site, "https")
 
 
 @pytest.mark.usefixtures("erpnext_setup")

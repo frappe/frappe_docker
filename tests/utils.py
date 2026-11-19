@@ -5,15 +5,32 @@ import sys
 import time
 from contextlib import suppress
 from http.client import HTTPResponse
-from typing import Callable, Optional
+from typing import Callable, Dict, Optional, Tuple
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.parse import parse_qs, urlencode, urlsplit
+from urllib.request import (
+    HTTPRedirectHandler,
+    HTTPSHandler,
+    Request,
+    build_opener,
+    urlopen,
+)
 
 CI = os.getenv("CI")
 
 
 class Compose:
-    def __init__(self, project_name: str, env_file: str):
+    def __init__(
+        self,
+        project_name: str,
+        env_file: str,
+        files: Tuple[str, ...] = (
+            "compose.yaml",
+            "overrides/compose.proxy.yaml",
+            "overrides/compose.mariadb.yaml",
+            "overrides/compose.redis.yaml",
+        ),
+    ):
         self.project_name = project_name
         self.base_cmd = (
             "docker",
@@ -24,22 +41,20 @@ class Compose:
             env_file,
         )
 
-    def __call__(self, *cmd: str) -> None:
-        file_args = [
-            "-f",
-            "compose.yaml",
-            "-f",
-            "overrides/compose.proxy.yaml",
-            "-f",
-            "overrides/compose.mariadb.yaml",
-            "-f",
-            "overrides/compose.redis.yaml",
-        ]
+        self.file_args = tuple(arg for filename in files for arg in ("-f", filename))
         if CI:
-            file_args += ("-f", "tests/compose.ci.yaml")
+            self.file_args += ("-f", "tests/compose.ci.yaml")
 
-        args = self.base_cmd + tuple(file_args) + cmd
-        subprocess.check_call(args)
+    def __call__(self, *cmd: str) -> None:
+        subprocess.check_call(self.base_cmd + self.file_args + cmd)
+
+    def output(self, *cmd: str) -> str:
+        return subprocess.run(
+            self.base_cmd + self.file_args + cmd,
+            text=True,
+            capture_output=True,
+            check=True,
+        ).stdout
 
     def exec(self, *cmd: str) -> None:
         if sys.stdout.isatty():
@@ -48,10 +63,9 @@ class Compose:
             self("exec", "-T", *cmd)
 
     def stop(self) -> None:
-        # Stop all containers in `test` project if they are running.
-        # We don't care if it fails.
+        # Include the configured files so their named volumes are removed too.
         with suppress(subprocess.CalledProcessError):
-            subprocess.check_call(self.base_cmd + ("down", "-v", "--remove-orphans"))
+            self("down", "-v", "--remove-orphans")
 
     def bench(self, *cmd: str) -> None:
         self.exec("backend", "bench", *cmd)
@@ -85,15 +99,57 @@ def wait_for_url(url: str, site_name: str, attempts: int = 100) -> HTTPResponse:
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
 
+    last_error = None
     for _ in range(attempts):
         try:
             return urlopen(request, context=ctx)
         except HTTPError as exc:
-            if exc.code not in (404, 502):
+            if exc.code not in (404, 502, 503):
                 raise
-        except URLError:
-            pass
+            last_error = exc
+            exc.close()
+        except URLError as exc:
+            last_error = exc
 
         time.sleep(0.1)
 
-    raise RuntimeError(f"Couldn't ping {url}")
+    raise RuntimeError(f"Couldn't ping {url}") from last_error
+
+
+def assert_oauth_return_url(
+    base_url: str, site: str, scheme: str, headers: Optional[Dict[str, str]] = None
+) -> None:
+    class NoRedirect(HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    opener = build_opener(NoRedirect, HTTPSHandler(context=context))
+    params = {
+        "client_id": "proxy-regression-test",
+        "redirect_uri": "https://client.example.test/callback",
+        "response_type": "code",
+        "state": "preserve&query=parameters",
+    }
+    query = urlencode(params)
+    path = "/api/method/frappe.integrations.oauth2.authorize"
+    request = Request(
+        f"{base_url}{path}?{query}", headers={"Host": site, **(headers or {})}
+    )
+    try:
+        response = opener.open(request, timeout=10)
+    except HTTPError as error:
+        response = error
+    with response:
+        assert response.status == 302
+        login_url = urlsplit(response.headers["Location"])
+        assert login_url.path == "/login"
+        return_url = urlsplit(parse_qs(login_url.query)["redirect-to"][0])
+        assert return_url.scheme == scheme
+        assert return_url.netloc == site
+        assert return_url.path == path
+        assert parse_qs(return_url.query) == {
+            key: [value] for key, value in params.items()
+        }

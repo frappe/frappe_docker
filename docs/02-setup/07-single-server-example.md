@@ -24,6 +24,12 @@ Single instance of **MariaDB** will be installed and act as database service for
 
 Each instance of ERPNext project (bench) will have its own redis, socketio, gunicorn, nginx, workers and scheduler. It will connect to internal MariaDB by connecting to MariaDB network. It will expose sites to public through Traefik by connecting to Traefik network.
 
+Configure `FORWARDED_ALLOW_IPS` in each bench's environment file using the
+[forwarded HTTPS setup guide](../11-how-to/13-configure-forwarded-https.md).
+This recipe assumes trusted peers on the bench, shared MariaDB, and shared
+Traefik networks. A Gunicorn IP allowlist alone does not isolate benches; see
+[proxy trust boundaries](../13-explanation/04-tls-ssl-approaches.md#forwarded-protocol-and-trust-boundaries).
+
 ### Install Docker
 
 Easiest way to install docker is to use the [convenience script](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script).
@@ -252,6 +258,13 @@ docker compose --project-name erpnext-two exec backend \
 
 In case you need to point custom domain to existing site follow these steps.
 Also useful if custom domain is required for LAN based access.
+
+This recipe adds a Caddy hop between Traefik and the frontend. Traefik reaches
+Caddy over HTTP. Preserving the original HTTPS indication across that hop
+requires Caddy to trust Traefik explicitly; the default Caddy configuration
+derives HTTP from its own incoming connection. Configuring Gunicorn's allowlist
+alone does not correct that existing limitation. Restrict Caddy's incoming
+callers before configuring that additional proxy trust.
 
 Create environment file
 

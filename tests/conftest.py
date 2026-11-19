@@ -49,23 +49,34 @@ def env_file(tmp_path_factory: pytest.TempPathFactory):
     for var in ("FRAPPE_VERSION", "ERPNEXT_VERSION"):
         _add_version_var(name=var, env_path=file_path)
 
+    # The integration stack has one controlled network and no published backend.
+    with open(file_path, "a") as f:
+        f.write(
+            "\nFORWARDED_ALLOW_IPS=*\n"
+            "HTTP_PUBLISH_PORT=127.0.0.1:80\n"
+            "HTTPS_PUBLISH_PORT=127.0.0.1:443\n"
+        )
+
     yield str(file_path)
     os.remove(file_path)
 
 
 @pytest.fixture(scope="session")
 def compose(env_file: str):
-    return Compose(project_name="test", env_file=env_file)
+    return Compose(
+        project_name=os.getenv("FRAPPE_DOCKER_TEST_PROJECT", "test"), env_file=env_file
+    )
 
 
 @pytest.fixture(autouse=True, scope="session")
 def frappe_setup(compose: Compose):
     compose.stop()
-
-    compose("up", "-d", "--quiet-pull")
-    yield
-
-    compose.stop()
+    try:
+        compose("up", "-d", "--quiet-pull")
+        yield
+    finally:
+        # The HTTPS test adds a certificate volume beyond the base stack.
+        compose("-f", "overrides/compose.https.yaml", "down", "-v", "--remove-orphans")
 
 
 @pytest.fixture(scope="session")

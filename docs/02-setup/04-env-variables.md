@@ -158,23 +158,31 @@ If your site is named `example.com` and you access it via that domain, no need t
 
 ## Backend (Gunicorn) Configuration
 
-| Variable           | Purpose                                                        | Default | When to Set / Allowed Values                                                     |
-| :----------------- | :------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------- |
-| `GUNICORN_WORKERS` | Number of worker processes handling web requests               | `2`     | Scale up for multi-core CPUs. Formula: `(2 x Cores) + 1`                         |
-| `GUNICORN_THREADS` | Number of concurrent threads per worker process                | `4`     | Increase to handle more simultaneous I/O-bound requests without high memory cost |
-| `GUNICORN_TIMEOUT` | Max time a worker can spend on a single request before restart | `120`   | Increase if long-running reports or data imports time out                        |
+| Variable              | Purpose                                                        | Default         | When to Set / Allowed Values                                                                                  |
+| :-------------------- | :------------------------------------------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------ |
+| `GUNICORN_WORKERS`    | Number of worker processes handling web requests               | `2`             | Scale up for multi-core CPUs. Formula: `(2 x Cores) + 1`                                                      |
+| `GUNICORN_THREADS`    | Number of concurrent threads per worker process                | `4`             | Increase to handle more simultaneous I/O-bound requests without high memory cost                              |
+| `GUNICORN_TIMEOUT`    | Max time a worker can spend on a single request before restart | `120`           | Increase if long-running reports or data imports time out                                                     |
+| `FORWARDED_ALLOW_IPS` | Proxy IPs Gunicorn trusts for forwarded HTTPS information      | `127.0.0.1,::1` | Comma-separated IPs; `*` trusts all reachable callers. Gunicorn 23 accepts neither DNS names nor CIDR ranges. |
+
+For configuration and upgrade steps, see
+[Configure forwarded HTTPS](../11-how-to/13-configure-forwarded-https.md).
 
 ---
 
 ## Frontend Nginx Configuration (inside the frontend container)
 
-| Variable               | Purpose                            | Default        | Allowed Values                               |
-| ---------------------- | ---------------------------------- | -------------- | -------------------------------------------- |
-| `NGINX_LISTEN_PORT`    | Sets the `listen` directive        | `8080`         | `{port}`                                     |
-| `BACKEND`              | Backend service address and port   | `0.0.0.0:8000` | `{host}:{port}`                              |
-| `SOCKETIO`             | Socket.IO service address and port | `0.0.0.0:9000` | `{host}:{port}`                              |
-| `PROXY_READ_TIMEOUT`   | Upstream request timeout           | `120s`         | Any nginx timeout value (e.g., `300s`, `5m`) |
-| `CLIENT_MAX_BODY_SIZE` | Maximum upload file size           | `50m`          | Any nginx size value (e.g., `100m`, `1g`)    |
+| Variable                         | Purpose                                                                              | Default                                | Allowed Values                                 |
+| -------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------- | ---------------------------------------------- |
+| `NGINX_LISTEN_PORT`              | Sets the `listen` directive                                                          | `8080`                                 | `{port}`                                       |
+| `TRUST_UPSTREAM_FORWARDED_PROTO` | Preserve an upstream HTTPS indication instead of using Nginx's own connection scheme | `off`; proxy overrides default to `on` | `on` or `off`; does not validate the source IP |
+| `BACKEND`                        | Backend service address and port                                                     | `0.0.0.0:8000`                         | `{host}:{port}`                                |
+| `SOCKETIO`                       | Socket.IO service address and port                                                   | `0.0.0.0:9000`                         | `{host}:{port}`                                |
+| `PROXY_READ_TIMEOUT`             | Upstream request timeout                                                             | `120s`                                 | Any nginx timeout value (e.g., `300s`, `5m`)   |
+| `CLIENT_MAX_BODY_SIZE`           | Maximum upload file size                                                             | `50m`                                  | Any nginx size value (e.g., `100m`, `1g`)      |
+
+For the network trust model, see
+[Forwarded protocol and trust boundaries](../13-explanation/04-tls-ssl-approaches.md#forwarded-protocol-and-trust-boundaries).
 
 ### Real IP Configuration (Behind Proxy)
 
