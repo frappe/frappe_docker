@@ -15,10 +15,11 @@ RUN = {
 }
 
 
-def job(arch, attempt):
+def job(arch, attempt, conclusion="success"):
     return {
         "name": f"v15_test / Build ({arch})",
         "run_attempt": attempt,
+        "conclusion": conclusion,
         "steps": [
             {
                 "name": "Build",
@@ -79,7 +80,15 @@ class BuildReportTests(unittest.TestCase):
                 reporter,
                 "api",
                 side_effect=[
-                    [{"jobs": [job("amd64", 3), job("amd64", 2), job("arm64", 1)]}],
+                    [
+                        {
+                            "jobs": [
+                                job("amd64", 3),
+                                job("amd64", 2, "failure"),
+                                job("arm64", 1),
+                            ]
+                        }
+                    ],
                     [
                         {
                             "artifacts": [
@@ -98,15 +107,41 @@ class BuildReportTests(unittest.TestCase):
         self.assertEqual(
             rows,
             [
-                ["15", "amd64", "—", "1m 59s", "—", "—", "—"],
-                ["15", "arm64", "—", "2m 00s", "1.0 MiB", "1.0 MiB", "1.0 MiB"],
-                ["16", "amd64", "—", "—", "—", "—", "—"],
-                ["16", "arm64", "—", "—", "—", "—", "—"],
+                ["15", "amd64", "❌ Failed", "—", "1m 59s", "—", "—", "—"],
+                [
+                    "15",
+                    "arm64",
+                    "✅ Passed",
+                    "—",
+                    "2m 00s",
+                    "1.0 MiB",
+                    "1.0 MiB",
+                    "1.0 MiB",
+                ],
+                ["16", "amd64", "—", "—", "—", "—", "—", "—"],
+                ["16", "arm64", "—", "—", "—", "—", "—", "—"],
             ],
         )
         body = reporter.report_comment(REPOSITORY, RUN, rows)
-        self.assertIn("attempts/2) for `f123456` · failure", body)
+        self.assertIn("attempts/2) for `f123456` · ❌ Failed", body)
         self.assertNotIn("@someone", body)
+
+    def test_comment_status_distinguishes_passed_and_cancelled_runs(self):
+        for conclusion, status in (
+            ("success", "✅ Passed"),
+            ("cancelled", "cancelled"),
+        ):
+            with self.subTest(conclusion=conclusion):
+                body = reporter.report_comment(
+                    REPOSITORY, {**RUN, "conclusion": conclusion}, []
+                )
+                self.assertIn(f" · {status}", body)
+
+    def test_duration_change_handles_unchanged_and_zero_time_baselines(self):
+        self.assertEqual(
+            reporter.duration_cell(10, 10), "0m 10s → 0m 10s<br>0m 00s (+0.0%)"
+        )
+        self.assertEqual(reporter.duration_cell(10, 0), "0m 00s → 0m 10s<br>🟠 +0m 10s")
 
     def test_report_compares_the_recorded_baseline_attempt(self):
         previous_run = {
@@ -133,8 +168,8 @@ class BuildReportTests(unittest.TestCase):
             },
         }
         for attempt, previous_latest, expected_time in (
-            (1, 2, "2m 00s → 1m 59s<br>−0m 01s"),
-            (None, 1, "2m 00s → 1m 59s<br>−0m 01s"),
+            (1, 2, "2m 00s → 1m 59s<br>🟢 −0m 01s (-0.8%)"),
+            (None, 1, "2m 00s → 1m 59s<br>🟢 −0m 01s (-0.8%)"),
             (None, 2, "1m 59s"),
         ):
             with self.subTest(attempt=attempt, previous_latest=previous_latest):
@@ -150,10 +185,10 @@ class BuildReportTests(unittest.TestCase):
                     patch.object(reporter, "download_report", return_value=report),
                 ):
                     row = next(reporter.report_rows(REPOSITORY, RUN))
-                self.assertIn("/actions/runs/12", row[2])
-                self.assertEqual(row[3], expected_time)
+                self.assertIn("/actions/runs/12", row[3])
+                self.assertEqual(row[4], expected_time)
                 self.assertEqual(
-                    row[4:], ["100.0 MiB → 110.0 MiB<br>+10.0 MiB (+10.0%)"] * 3
+                    row[5:], ["100.0 MiB → 110.0 MiB<br>🟠 +10.0 MiB (+10.0%)"] * 3
                 )
                 if attempt or previous_latest == 1:
                     self.assertIn("/runs/12/attempts/1/jobs", api.call_args.args[0])

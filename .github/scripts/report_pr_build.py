@@ -65,6 +65,14 @@ def build_step(job):
     return next((step for step in job.get("steps", []) if step["name"] == "Build"), {})
 
 
+def build_status(conclusion):
+    if conclusion is None:
+        return "—"
+    return {"success": "✅ Passed", "failure": "❌ Failed"}.get(
+        conclusion, conclusion.replace("_", " ")
+    )
+
+
 def build_duration(step):
     if step.get("conclusion") == "skipped" or not (
         step.get("started_at") and step.get("completed_at")
@@ -82,6 +90,12 @@ def duration_text(seconds):
     return f"{minutes}m {seconds:02d}s"
 
 
+def change_text(delta, previous, absolute):
+    circle = "🟠 " if delta > 0 else "🟢 " if delta < 0 else ""
+    percent = f" ({delta * 100 / previous:+.1f}%)" if previous else ""
+    return f"{circle}{absolute}{percent}"
+
+
 def duration_cell(current, previous):
     if current is None:
         return "—"
@@ -89,7 +103,8 @@ def duration_cell(current, previous):
         return duration_text(current)
     delta = current - previous
     sign = "+" if delta > 0 else "−" if delta < 0 else ""
-    return f"{duration_text(previous)} → {duration_text(current)}<br>{sign}{duration_text(delta)}"
+    change = change_text(delta, previous, f"{sign}{duration_text(delta)}")
+    return f"{duration_text(previous)} → {duration_text(current)}<br>{change}"
 
 
 def size_cell(current, previous):
@@ -98,9 +113,8 @@ def size_cell(current, previous):
     if previous is None:
         return mib(current)
     delta = current - previous
-    change = f"{'+' if delta > 0 else ''}{mib(delta)}"
-    if previous:
-        change += f" ({delta * 100 / previous:+.1f}%)"
+    sign = "+" if delta > 0 else ""
+    change = change_text(delta, previous, f"{sign}{mib(delta)}")
     return f"{mib(previous)} → {mib(current)}<br>{change}"
 
 
@@ -192,8 +206,8 @@ def report_rows(repository, run):
     for version, job_prefix in RELEASE_LINES:
         for arch in ARCHITECTURES:
             job_name = f"{job_prefix} / Build ({arch})"
-            job = jobs.get(job_name)
-            step = build_step(job) if job else {}
+            job = jobs.get(job_name, {})
+            step = build_step(job)
             sizes, baseline = {}, None
             if step.get("conclusion") == "success":
                 name = artifact_name(
@@ -208,6 +222,7 @@ def report_rows(repository, run):
             yield [
                 version,
                 arch,
+                build_status(job.get("conclusion")),
                 baseline_link,
                 duration_cell(build_duration(step), previous_time),
                 *(
@@ -219,14 +234,15 @@ def report_rows(repository, run):
 
 def report_comment(repository, run, rows):
     run_url = f"https://github.com/{repository}/actions/runs/{run['id']}/attempts/{run['run_attempt']}"
+    status = build_status(run["conclusion"])
     lines = [
         f"<!-- image-build-report:Stable:{run['id']}:{run['run_attempt']} -->",
         "### Stable image build report",
         "",
-        f"[Workflow run]({run_url}) for `{run['head_sha'][:7]}` · {run['conclusion'].replace('_', ' ')}",
+        f"[Workflow run]({run_url}) for `{run['head_sha'][:7]}` · {status}",
         "",
-        "| Release line | Architecture | Baseline | Docker Bake time | Base | Build | ERPNext |",
-        "| --- | --- | --- | ---: | ---: | ---: | ---: |",
+        "| Release line | Architecture | Status | Baseline | Docker Bake time | Base | Build | ERPNext |",
+        "| --- | --- | --- | --- | ---: | ---: | ---: | ---: |",
     ]
     lines.extend("| " + " | ".join(row) + " |" for row in rows)
     lines += [

@@ -119,8 +119,11 @@ baselines.
 For pull requests, GitHub Actions posts a build report when a Stable build
 finishes. The report shows the Docker Bake step duration and compressed
 sizes by release line and architecture alongside the same successful `main`
-baseline used in the Actions size summary. The comment links to the baseline
-run and shows changes in time and size when the measurements are available.
+baseline used in the Actions size summary. Each row also shows the outcome of
+the full build-and-test job. The comment links to the baseline
+run and shows absolute and percentage changes in time and size when the
+measurements are available. An orange circle marks an increase, and a green
+circle marks a decrease.
 New Stable runs update the existing comment, including
 when the build fails after collecting measurements. If an artifact download
 fails, rerun **Core / Report PR Build** to retry posting the comment.
