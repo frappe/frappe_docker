@@ -78,7 +78,7 @@ def test_assets_endpoint(frappe_site: str):
 
 def test_files_reachable(frappe_site: str, tmp_path: Path, compose: Compose):
     content = "lalala\n"
-    file_path = tmp_path / "testfile.txt"
+    file_path = tmp_path / "testfile.svg.txt"
 
     with file_path.open("w") as f:
         f.write(content)
@@ -89,24 +89,20 @@ def test_files_reachable(frappe_site: str, tmp_path: Path, compose: Compose):
         f"backend:/home/frappe/frappe-bench/sites/{frappe_site}/public/files/",
     )
 
-    def callback(text: str):
-        if text == content:
-            return text
-
-    check_url_content(
+    with wait_for_url(
         url=f"http://127.0.0.1/files/{file_path.name}",
-        callback=callback,
         site_name=frappe_site,
-    )
+    ) as response:
+        assert response.read().decode() == content
+        assert "Content-Disposition" not in response.headers
 
 
-def test_files_html_security_headers(
-    frappe_site: str, tmp_path: Path, compose: Compose
+@pytest.mark.parametrize("extension", ("html", "HTML", "SvG", "SVGZ", "XHTML", "SHTML"))
+def test_public_attachment_security_headers(
+    extension: str, frappe_site: str, tmp_path: Path, compose: Compose
 ):
-    file_path = tmp_path / "testfile.html"
-    file_path.write_text(
-        "<html><body>This is a Frappe Docker test html file</body></html>"
-    )
+    file_path = tmp_path / f"testfile.{extension}"
+    file_path.write_text("Frappe Docker public attachment test fixture\n")
 
     compose(
         "cp",
