@@ -11,4 +11,6 @@ rm -rf "$ASSETS_PATH"
 mkdir -p "$(dirname "$ASSETS_PATH")"
 ln -s "$BAKED_PATH" "$ASSETS_PATH"
 
+mkdir -p /home/frappe/frappe-bench/flow-server 2>/dev/null || true
+
 exec "$@"

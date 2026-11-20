@@ -26,3 +26,7 @@ services:
   scheduler:
     image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
     platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}
+
+  flow-server:
+    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+    platform: ${TEST_IMAGE_PLATFORM:-linux/amd64}

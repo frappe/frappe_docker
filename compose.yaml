@@ -15,6 +15,7 @@ x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
     - sites:/home/frappe/frappe-bench/sites
+    - flow-server-data:/home/frappe/frappe-bench/flow-server
 
 services:
   configurator:
@@ -34,6 +35,8 @@ services:
         bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
         bench set-config -g chromium_path /usr/lib/chromium/chromium-headless-shell;
+        bench set-config -g flow_server_manager supervisor;
+        bench set-config -g flow_server_url "http://backend:8000";
     environment:
       DB_HOST: ${DB_HOST:-}
       DB_PORT: ${DB_PORT:-}
@@ -98,6 +101,23 @@ services:
     platform: linux/amd64
     command: bench schedule
 
+  flow-server:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command:
+      - bash
+      - -c
+      - >
+        if bench flow-server --help >/dev/null 2>&1; then
+          exec bench flow-server serve;
+        else
+          echo "Flow server is not supported in this Frappe version";
+          sleep infinity;
+        fi
+    environment:
+      FLOW_SERVER_MANAGER: supervisor
+
 # ERPNext requires local assets access (Frappe does not)
 volumes:
   sites:
+  flow-server-data:

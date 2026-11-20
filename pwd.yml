@@ -9,6 +9,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - flow-server-data:/home/frappe/frappe-bench/flow-server
     environment:
       DB_HOST: db
       DB_PORT: "3306"
@@ -37,6 +38,8 @@ services:
         bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
         bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
+        bench set-config -g flow_server_manager supervisor;
+        bench set-config -g flow_server_url "http://backend:8000";
     environment:
       DB_HOST: db
       DB_PORT: "3306"
@@ -46,6 +49,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - flow-server-data:/home/frappe/frappe-bench/flow-server
 
   create-site:
     image: frappe/erpnext:v16.60.0
@@ -57,6 +61,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - flow-server-data:/home/frappe/frappe-bench/flow-server
     entrypoint:
       - bash
       - -c
@@ -150,6 +155,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - flow-server-data:/home/frappe/frappe-bench/flow-server
     environment:
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
@@ -172,6 +178,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - flow-server-data:/home/frappe/frappe-bench/flow-server
     environment:
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
@@ -210,6 +217,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - flow-server-data:/home/frappe/frappe-bench/flow-server
     depends_on:
       configurator:
         condition: service_completed_successfully
@@ -234,11 +242,39 @@ services:
       configurator:
         condition: service_completed_successfully
 
+  flow-server:
+    image: frappe/erpnext:v16.60.0
+    networks:
+      - frappe_network
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bash
+      - -c
+      - >
+        if bench flow-server --help >/dev/null 2>&1; then
+          exec bench flow-server serve;
+        else
+          echo "Flow server is not supported in this Frappe version";
+          sleep infinity;
+        fi
+    environment:
+      FLOW_SERVER_MANAGER: supervisor
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+      - flow-server-data:/home/frappe/frappe-bench/flow-server
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
 volumes:
   db-data:
   redis-queue-data:
   sites:
   logs:
+  flow-server-data:
 
 networks:
   frappe_network:
