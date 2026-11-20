@@ -250,9 +250,15 @@ services:
       restart_policy:
         condition: on-failure
     command:
-      - bench
-      - flow-server
-      - serve
+      - bash
+      - -c
+      - >
+        if bench flow-server --help >/dev/null 2>&1; then
+          exec bench flow-server serve;
+        else
+          echo "Flow server is not supported in this Frappe version";
+          sleep infinity;
+        fi
     environment:
       FLOW_SERVER_MANAGER: supervisor
     volumes:
