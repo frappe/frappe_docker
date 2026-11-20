@@ -17,7 +17,7 @@ Maintainers decide release versions using the highest-impact category among all 
 | Release | Effect                                                                                                                                                                  |
 | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Major   | Incompatible changes to supported configurations or interfaces, runtime or persistent-data requirements, deployment or build workflows, or platform/capability support. |
-| Minor   | Compatible features and support additions; routine build-tool prerequisite updates that preserve supported capabilities and workflows.                                  |
+| Minor   | Compatible features and support additions. Routine build-tool prerequisite updates and security default changes as described below.                                     |
 | Patch   | Compatible fixes and dependency maintenance that preserve supported interfaces, requirements, and workflows.                                                            |
 
 Routine build-tool minimum increases can be minor when updating the stated prerequisites lets users continue the supported workflow. Losing a supported build capability or platform, or introducing a substantive workflow incompatibility, requires a major release.
@@ -25,6 +25,8 @@ Routine build-tool minimum increases can be minor when updating the stated prere
 Classify dependency updates by their effect on supported users and workflows. An upstream dependency's major version does not automatically require a repository major release.
 
 A deprecation can be announced in a minor release while existing supported use remains available. Removing that supported use requires a major release.
+
+A minor release may tighten a default to address a security risk when affected deployments can continue using the same supported workflow after a limited configuration change and require no data migration. The release notes must lead with who is affected and what they need to do before upgrading.
 
 ## Release communication
 
