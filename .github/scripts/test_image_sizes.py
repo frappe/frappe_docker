@@ -320,7 +320,7 @@ class RegistryTests(unittest.TestCase):
         }
         for name, tag in (
             ("base", "v16.52.0"),
-            ("build", "v16.51.1"),
+            ("build", "v16.52.0"),
             ("erpnext", "v16.51.1"),
         ):
             prefix = f"/v2/frappe/{name}"
