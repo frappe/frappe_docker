@@ -110,7 +110,7 @@ services:
       - >
         if output=$$(bench flow-server --help 2>&1); then
           exec bench flow-server serve;
-        elif echo "$$output" | grep -iqE "Traceback|Error|Exception" ; then
+        elif echo "$$output" | grep -vEi "no such command.*flow-server" | grep -vEi "^[[:space:]]*(Usage:.*|Try .*--help.*)?$$" | grep -q .; then
           echo "$$output" >&2;
           exit 1;
         elif echo "$$output" | grep -iqE "no such command.*flow-server"; then
