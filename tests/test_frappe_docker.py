@@ -430,4 +430,3 @@ def test_flow_server_health_and_restart(compose: Compose):
     _wait_for_health()
     compose("restart", "flow-server")
     _wait_for_health()
-
