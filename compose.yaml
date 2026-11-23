@@ -108,11 +108,14 @@ services:
       - bash
       - -c
       - >
-        if bench flow-server --help >/dev/null 2>&1; then
+        if output=$$(bench flow-server --help 2>&1); then
           exec bench flow-server serve;
-        else
+        elif echo "$$output" | grep -iqE "no such command.*flow-server"; then
           echo "Flow server is not supported in this Frappe version";
           sleep infinity;
+        else
+          echo "$$output" >&2;
+          exit 1;
         fi
     environment:
       FLOW_SERVER_MANAGER: supervisor

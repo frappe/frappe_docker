@@ -36,6 +36,7 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     # OpenCV / Flow dependencies
     libgl1 \
     libglib2.0-0 \
+    procps \
     # For backups
     restic \
     gpg \

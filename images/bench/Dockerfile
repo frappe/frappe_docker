@@ -32,6 +32,7 @@ RUN apt-get update \
     # OpenCV / Flow dependencies
     libgl1 \
     libglib2.0-0 \
+    procps \
     # to work inside the container
     locales \
     build-essential \
