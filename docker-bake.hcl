@@ -132,5 +132,5 @@ target "build" {
     context = "."
     dockerfile = "images/production/Containerfile"
     target = "build"
-    tags = tag("build", "${ERPNEXT_VERSION}")
+    tags = tag("build", "${FRAPPE_VERSION}")
 }

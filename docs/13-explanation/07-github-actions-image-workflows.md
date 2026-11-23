@@ -38,6 +38,9 @@ scans, tests, and size reports aligned with each job's intended architecture.
 - rebuilds the resolved application versions and publishes images to Docker Hub
 - publishes `base` and `build` to GHCR
 
+The `base` and `build` images use the same Frappe Framework release tag on both
+registries. The `erpnext` image uses the ERPNext release tag.
+
 `app-build-image.yml` is the reusable workflow that downstream repositories call to:
 
 - create an `apps.json` file from the caller's app repository and ref

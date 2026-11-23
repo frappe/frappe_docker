@@ -159,12 +159,11 @@ jobs:
           exit-code: 0
 
       - name: Scan build image
-        if: ${{ env.ERPNEXT_VERSION != '' }}
         id: trivy_build
         continue-on-error: true
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: localhost:5000/frappe/build:${{ env.ERPNEXT_VERSION }}
+          image-ref: localhost:5000/frappe/build:${{ env.FRAPPE_VERSION }}
           scanners: vuln
           format: sarif
           output: trivy-results/build.sarif

@@ -335,10 +335,12 @@ def check(args) -> tuple[list[str], list[str]]:
         )
     }
     if args.repo == "erpnext":
-        for name in ("build", "erpnext"):
-            images[name] = measure_image(
-                args.registry, name, inputs["erpnext_version"], args.arch
-            )
+        images["build"] = measure_image(
+            args.registry, "build", inputs["frappe_version"], args.arch
+        )
+        images["erpnext"] = measure_image(
+            args.registry, "erpnext", inputs["erpnext_version"], args.arch
+        )
     report = {
         "schema_version": 1,
         "repo": args.repo,
