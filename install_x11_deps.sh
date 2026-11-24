@@ -34,7 +34,7 @@ update_x11_forwarding() {
       sudo sed -i 's/#\?X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
     elif [[ "$OSTYPE" == "darwin"* ]]; then
       # macOS: Use sed for macOS
-      sudo sed -i -E 's/#X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
+      sudo sed -i '' -E 's/^#?X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
       restart_ssh_macos
     fi
     if [[ "$OSTYPE" == "linux-gnu" ]]; then
@@ -49,28 +49,21 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   if command -v startx >/dev/null 2>&1; then
     echo "X11 is already installed."
   else
-    # Check which package manager is available
+    # Check which package manager is available and install
     if command -v apt-get >/dev/null 2>&1; then
-      install_command="sudo apt-get update && sudo apt-get install xorg openbox"
+      install_x11() { sudo apt-get update && sudo apt-get install -y xorg openbox; }
     elif command -v dnf >/dev/null 2>&1; then
-      install_command="sudo dnf install xorg-x11-server-Xorg openbox"
+      install_x11() { sudo dnf install -y xorg-x11-server-Xorg openbox; }
     else
       echo "Error: Unable to determine the package manager. Manual installation required."
       exit 1
     fi
-  fi
-  # Check if the installation command is defined
-  if [ -n "$install_command" ]; then
-    # Execute the installation command
-    if $install_command; then
+    if install_x11; then
       echo "X11 and Openbox have been successfully installed."
     else
       echo "Error: Failed to install X11 and Openbox."
       exit 1
     fi
-  else
-    echo "Error: Unsupported package manager."
-    exit 1
   fi
 
   # Call the function to update X11Forwarding
