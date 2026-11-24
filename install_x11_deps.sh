@@ -25,21 +25,41 @@ restart_ssh_macos() {
   launchctl start com.openssh.sshd
 }
 
+SSHD_CONFIG=/etc/ssh/sshd_config
+# Any X11Forwarding line, commented or not, allowing leading whitespace.
+X11_FORWARDING_LINE='^[[:space:]]*#?[[:space:]]*[Xx]11[Ff]orwarding([[:space:]=]|$).*'
+
+# Print the X11Forwarding value sshd uses: the first uncommented directive.
+# Keywords and values are case-insensitive; "Keyword value" or "Keyword=value".
+x11_forwarding_value() {
+  awk -F'[[:space:]=]+' '
+    { sub(/^[[:space:]]+/, "") }
+    tolower($1) == "x11forwarding" { print tolower($2); exit }
+  ' "$SSHD_CONFIG"
+}
+
 update_x11_forwarding() {
-  if grep -q "X11Forwarding yes" /etc/ssh/sshd_config; then
-    echo "X11Forwarding is already set to 'yes' in ssh_config."
-  else
-    if [[ "$OSTYPE" == "linux-gnu" ]]; then
-      # Linux: Use sed for Linux
-      sudo sed -i 's/#\?X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-      # macOS: Use sed for macOS
-      sudo sed -i '' -E 's/^#?X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
-      restart_ssh_macos
-    fi
-    if [[ "$OSTYPE" == "linux-gnu" ]]; then
-      restart_ssh_linux
-    fi
+  if [ "$(x11_forwarding_value)" = "yes" ]; then
+    echo "X11Forwarding is already set to 'yes' in $SSHD_CONFIG."
+    return
+  fi
+
+  if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    sudo sed -i -E "s/$X11_FORWARDING_LINE/X11Forwarding yes/" "$SSHD_CONFIG"
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # BSD sed needs an explicit (empty) backup suffix after -i
+    sudo sed -i '' -E "s/$X11_FORWARDING_LINE/X11Forwarding yes/" "$SSHD_CONFIG"
+  fi
+
+  if [ "$(x11_forwarding_value)" != "yes" ]; then
+    echo "Error: could not enable X11Forwarding in $SSHD_CONFIG. Add 'X11Forwarding yes' manually."
+    exit 1
+  fi
+
+  if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    restart_ssh_linux
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    restart_ssh_macos
   fi
 }
 
