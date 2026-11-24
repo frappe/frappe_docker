@@ -9,7 +9,7 @@ services:
       - traefik.http.routers.frontend-http.rule=HostRegexp(`^.+$`)
 
   proxy:
-    image: traefik:v3.7
+    image: traefik:v3.8
     restart: unless-stopped
     command:
       - --providers.docker

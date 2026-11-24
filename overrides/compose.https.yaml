@@ -10,7 +10,7 @@ services:
       - traefik.http.routers.frontend-http.rule=${SITES_RULE:?SITES_RULE not set}
 
   proxy:
-    image: traefik:v3.7
+    image: traefik:v3.8
     restart: unless-stopped
     command:
       - --providers.docker=true
