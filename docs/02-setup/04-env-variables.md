@@ -172,14 +172,15 @@ For configuration and upgrade steps, see
 
 ## Frontend Nginx Configuration (inside the frontend container)
 
-| Variable                         | Purpose                                                                              | Default                                | Allowed Values                                 |
-| -------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------- | ---------------------------------------------- |
-| `NGINX_LISTEN_PORT`              | Sets the `listen` directive                                                          | `8080`                                 | `{port}`                                       |
-| `TRUST_UPSTREAM_FORWARDED_PROTO` | Preserve an upstream HTTPS indication instead of using Nginx's own connection scheme | `off`; proxy overrides default to `on` | `on` or `off`; does not validate the source IP |
-| `BACKEND`                        | Backend service address and port                                                     | `0.0.0.0:8000`                         | `{host}:{port}`                                |
-| `SOCKETIO`                       | Socket.IO service address and port                                                   | `0.0.0.0:9000`                         | `{host}:{port}`                                |
-| `PROXY_READ_TIMEOUT`             | Upstream request timeout                                                             | `120s`                                 | Any nginx timeout value (e.g., `300s`, `5m`)   |
-| `CLIENT_MAX_BODY_SIZE`           | Maximum upload file size                                                             | `50m`                                  | Any nginx size value (e.g., `100m`, `1g`)      |
+| Variable                         | Purpose                                                                              | Default                                | Allowed Values                                  |
+| -------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------- | ----------------------------------------------- |
+| `NGINX_LISTEN_PORT`              | Sets the `listen` directive                                                          | `8080`                                 | `{port}`                                        |
+| `TRUST_UPSTREAM_FORWARDED_PROTO` | Preserve an upstream HTTPS indication instead of using Nginx's own connection scheme | `off`; proxy overrides default to `on` | `on` or `off`; does not validate the source IP  |
+| `BACKEND`                        | Backend service address and port                                                     | `0.0.0.0:8000`                         | `{host}:{port}`                                 |
+| `SOCKETIO`                       | Socket.IO service address and port                                                   | `0.0.0.0:9000`                         | `{host}:{port}`                                 |
+| `PROXY_READ_TIMEOUT`             | Upstream request timeout                                                             | `120s`                                 | Any nginx timeout value (e.g., `300s`, `5m`)    |
+| `CLIENT_MAX_BODY_SIZE`           | Maximum upload file size                                                             | `50m`                                  | Any nginx size value (e.g., `100m`, `1g`)       |
+| `NGINX_WORKER_SHUTDOWN_TIMEOUT`  | Max wait for open connections on graceful shutdown (`SIGQUIT`)                       | `8s`                                   | Any nginx time value; below `stop_grace_period` |
 
 For the network trust model, see
 [Forwarded protocol and trust boundaries](../13-explanation/04-tls-ssl-approaches.md#forwarded-protocol-and-trust-boundaries).

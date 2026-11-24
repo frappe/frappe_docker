@@ -120,6 +120,8 @@ services:
         condition: on-failure
     command:
       - nginx-entrypoint.sh
+    stop_signal: SIGQUIT
+    stop_grace_period: 10s
     environment:
       BACKEND: backend:8000
       FRAPPE_SITE_NAME_HEADER: frontend
