@@ -153,6 +153,15 @@ def init_bench_if_not_exist(args):
             init_command,
         ]
         run_command(command, env=env, cwd=os.getcwd())
+        # If init fails and the user accepts Bench's rollback prompt, Bench
+        # removes the directory but still exits 0.
+        if not os.path.isdir(args.bench_name):
+            cprint(
+                f"bench init did not create '{args.bench_name}'",
+                "(it was rolled back or failed). Fix the error above and retry.",
+                level=1,
+            )
+            sys.exit(1)
         cprint("Configuring Bench ...", level=2)
         cprint("Set db_host", level=3)
         if args.db_type:
