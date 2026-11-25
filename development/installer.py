@@ -2,6 +2,7 @@
 import argparse
 import os
 import subprocess
+import sys
 
 
 def cprint(*args, level: int = 1):
@@ -26,11 +27,20 @@ def cprint(*args, level: int = 1):
         print(CYLW, message, reset)  # noqa: T001, T201
 
 
+def run_command(command, **kwargs):
+    """Run a command and raise CalledProcessError if it fails."""
+    subprocess.run(command, check=True, **kwargs)
+
+
 def main():
     parser = get_args_parser()
     args = parser.parse_args()
-    init_bench_if_not_exist(args)
-    create_site_in_bench(args)
+    try:
+        init_bench_if_not_exist(args)
+        create_site_in_bench(args)
+    except subprocess.CalledProcessError as e:
+        cprint(f"Command failed with exit code {e.returncode}: {e.cmd}", level=1)
+        sys.exit(e.returncode)
 
 
 def get_args_parser():
@@ -142,18 +152,27 @@ def init_bench_if_not_exist(args):
             "-c",
             init_command,
         ]
-        subprocess.call(command, env=env, cwd=os.getcwd())
+        run_command(command, env=env, cwd=os.getcwd())
+        # If init fails and the user accepts Bench's rollback prompt, Bench
+        # removes the directory but still exits 0.
+        if not os.path.isdir(args.bench_name):
+            cprint(
+                f"bench init did not create '{args.bench_name}'",
+                "(it was rolled back or failed). Fix the error above and retry.",
+                level=1,
+            )
+            sys.exit(1)
         cprint("Configuring Bench ...", level=2)
         cprint("Set db_host", level=3)
         if args.db_type:
             cprint(f"Setting db_type to {args.db_type}", level=3)
-            subprocess.call(
+            run_command(
                 ["bench", "set-config", "-g", "db_type", args.db_type],
                 cwd=os.path.join(os.getcwd(), args.bench_name),
             )
 
         cprint("Set redis_cache to redis://redis-cache:6379", level=3)
-        subprocess.call(
+        run_command(
             [
                 "bench",
                 "set-config",
@@ -164,7 +183,7 @@ def init_bench_if_not_exist(args):
             cwd=os.getcwd() + "/" + args.bench_name,
         )
         cprint("Set redis_queue to redis://redis-queue:6379", level=3)
-        subprocess.call(
+        run_command(
             [
                 "bench",
                 "set-config",
@@ -178,7 +197,7 @@ def init_bench_if_not_exist(args):
             "Set redis_socketio to redis://redis-queue:6379 for backward compatibility",  # noqa: E501
             level=3,
         )
-        subprocess.call(
+        run_command(
             [
                 "bench",
                 "set-config",
@@ -189,7 +208,7 @@ def init_bench_if_not_exist(args):
             cwd=os.getcwd() + "/" + args.bench_name,
         )
         cprint("Set chromium_path to the system Chromium", level=3)
-        subprocess.call(
+        run_command(
             [
                 "bench",
                 "set-config",
@@ -200,18 +219,23 @@ def init_bench_if_not_exist(args):
             cwd=os.getcwd() + "/" + args.bench_name,
         )
         cprint("Set developer_mode", level=3)
-        subprocess.call(
+        run_command(
             ["bench", "set-config", "-gp", "developer_mode", "1"],
             cwd=os.getcwd() + "/" + args.bench_name,
         )
-    except subprocess.CalledProcessError as e:
-        cprint(e.output, level=1)
+    except subprocess.CalledProcessError:
+        cprint(
+            f"Bench setup failed. Remove '{args.bench_name}' before retrying,",
+            "otherwise the next run skips setup and reuses the broken bench.",
+            level=1,
+        )
+        raise
 
 
 def create_site_in_bench(args):
     if "mariadb" == args.db_type:
         cprint("Set db_host", level=3)
-        subprocess.call(
+        run_command(
             ["bench", "set-config", "-g", "db_host", "mariadb"],
             cwd=os.getcwd() + "/" + args.bench_name,
         )
@@ -227,7 +251,7 @@ def create_site_in_bench(args):
         ]
     else:
         cprint("Set db_host", level=3)
-        subprocess.call(
+        run_command(
             ["bench", "set-config", "-g", "db_host", "postgresql"],
             cwd=os.getcwd() + "/" + args.bench_name,
         )
@@ -246,7 +270,7 @@ def create_site_in_bench(args):
         new_site_cmd.append(f"--install-app={app}")
     new_site_cmd.append(args.site_name)
     cprint(f"Creating Site {args.site_name} ...", level=2)
-    subprocess.call(
+    run_command(
         new_site_cmd,
         cwd=os.getcwd() + "/" + args.bench_name,
     )
