@@ -26,16 +26,38 @@ restart_ssh_macos() {
 }
 
 SSHD_CONFIG=/etc/ssh/sshd_config
-# Any X11Forwarding line, commented or not, allowing leading whitespace.
-X11_FORWARDING_LINE='^[[:space:]]*#?[[:space:]]*[Xx]11[Ff]orwarding([[:space:]=]|$).*'
 
-# Print the X11Forwarding value sshd uses: the first uncommented directive.
-# Keywords and values are case-insensitive; "Keyword value" or "Keyword=value".
+# Only the global section (everything before the first "Match" line) is read
+# or changed. Directives inside Match blocks are per-user/host overrides and
+# are preserved. Keywords and values are case-insensitive, and a directive may
+# be written "Keyword value" or "Keyword=value".
+
+# Print the global X11Forwarding value sshd uses: the first uncommented one.
 x11_forwarding_value() {
-  awk -F'[[:space:]=]+' '
-    { sub(/^[[:space:]]+/, "") }
-    tolower($1) == "x11forwarding" { print tolower($2); exit }
+  awk '
+    { line = $0; sub(/^[[:space:]]+/, "", line) }
+    tolower(line) ~ /^match([[:space:]]|$)/ { exit }
+    { split(line, f, /[[:space:]=]+/) }
+    tolower(f[1]) == "x11forwarding" { print tolower(f[2]); exit }
   ' "$SSHD_CONFIG"
+}
+
+# Rewrite global X11Forwarding lines (commented or not) to "X11Forwarding yes".
+enable_global_x11_forwarding() {
+  local tmp rc
+  tmp=$(mktemp)
+  awk '
+    { line = $0; sub(/^[[:space:]]+/, "", line) }
+    tolower(line) ~ /^match([[:space:]]|$)/ { in_match = 1 }
+    !in_match && tolower(line) ~ /^#?[[:space:]]*x11forwarding([[:space:]=]|$)/ {
+      print "X11Forwarding yes"
+      next
+    }
+    { print }
+  ' "$SSHD_CONFIG" >"$tmp" && sudo cp "$tmp" "$SSHD_CONFIG"
+  rc=$?
+  rm -f "$tmp"
+  return "$rc"
 }
 
 update_x11_forwarding() {
@@ -44,15 +66,10 @@ update_x11_forwarding() {
     return
   fi
 
-  if [[ "$OSTYPE" == "linux-gnu" ]]; then
-    sudo sed -i -E "s/$X11_FORWARDING_LINE/X11Forwarding yes/" "$SSHD_CONFIG"
-  elif [[ "$OSTYPE" == "darwin"* ]]; then
-    # BSD sed needs an explicit (empty) backup suffix after -i
-    sudo sed -i '' -E "s/$X11_FORWARDING_LINE/X11Forwarding yes/" "$SSHD_CONFIG"
-  fi
+  enable_global_x11_forwarding
 
   if [ "$(x11_forwarding_value)" != "yes" ]; then
-    echo "Error: could not enable X11Forwarding in $SSHD_CONFIG. Add 'X11Forwarding yes' manually."
+    echo "Error: could not enable X11Forwarding in $SSHD_CONFIG. Add 'X11Forwarding yes' before any Match block manually."
     exit 1
   fi
 
