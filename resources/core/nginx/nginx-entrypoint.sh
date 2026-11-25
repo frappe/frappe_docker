@@ -55,6 +55,13 @@ if [[ -z "$CLIENT_MAX_BODY_SIZE" ]]; then
   export CLIENT_MAX_BODY_SIZE=50m
 fi
 
+# Bounds graceful shutdown (SIGQUIT). Without it nginx waits indefinitely for
+# open websocket (socket.io) connections and gets SIGKILLed at the stop timeout.
+if [[ -z "$NGINX_WORKER_SHUTDOWN_TIMEOUT" ]]; then
+  echo "NGINX_WORKER_SHUTDOWN_TIMEOUT defaulting to 8s"
+  export NGINX_WORKER_SHUTDOWN_TIMEOUT=8s
+fi
+
 # shellcheck disable=SC2016
 envsubst '${BACKEND}
   ${SOCKETIO}
@@ -68,4 +75,4 @@ envsubst '${BACKEND}
 	${CLIENT_MAX_BODY_SIZE}' \
   </templates/nginx/frappe.conf.template >/etc/nginx/conf.d/frappe.conf
 
-nginx -g 'daemon off;'
+exec nginx -g "daemon off; worker_shutdown_timeout ${NGINX_WORKER_SHUTDOWN_TIMEOUT};"

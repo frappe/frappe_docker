@@ -57,6 +57,11 @@ services:
     platform: linux/amd64
     command:
       - nginx-entrypoint.sh
+    # SIGQUIT = nginx graceful shutdown (SIGTERM drops in-flight requests).
+    # Set here, not as STOPSIGNAL in the image: gunicorn treats SIGQUIT as a quick shutdown.
+    stop_signal: SIGQUIT
+    # Must exceed NGINX_WORKER_SHUTDOWN_TIMEOUT. Set explicitly: engine defaults vary.
+    stop_grace_period: 10s
     environment:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
@@ -68,6 +73,7 @@ services:
       UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
       PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
       CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
+      NGINX_WORKER_SHUTDOWN_TIMEOUT: ${NGINX_WORKER_SHUTDOWN_TIMEOUT:-8s}
     volumes:
       - sites:/home/frappe/frappe-bench/sites
     depends_on:
