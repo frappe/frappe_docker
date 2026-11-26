@@ -25,21 +25,58 @@ restart_ssh_macos() {
   launchctl start com.openssh.sshd
 }
 
+SSHD_CONFIG=/etc/ssh/sshd_config
+
+# Only the global section (everything before the first "Match" line) is read
+# or changed. Directives inside Match blocks are per-user/host overrides and
+# are preserved. Keywords and values are case-insensitive, and a directive may
+# be written "Keyword value" or "Keyword=value".
+
+# Print the global X11Forwarding value sshd uses: the first uncommented one.
+x11_forwarding_value() {
+  awk '
+    { line = $0; sub(/^[[:space:]]+/, "", line) }
+    tolower(line) ~ /^match([[:space:]=]|$)/ { exit }
+    { split(line, f, /[[:space:]=]+/) }
+    tolower(f[1]) == "x11forwarding" { print tolower(f[2]); exit }
+  ' "$SSHD_CONFIG"
+}
+
+# Rewrite global X11Forwarding lines (commented or not) to "X11Forwarding yes".
+enable_global_x11_forwarding() {
+  local tmp rc
+  tmp=$(mktemp)
+  awk '
+    { line = $0; sub(/^[[:space:]]+/, "", line) }
+    tolower(line) ~ /^match([[:space:]=]|$)/ { in_match = 1 }
+    !in_match && tolower(line) ~ /^#?[[:space:]]*x11forwarding([[:space:]=]|$)/ {
+      print "X11Forwarding yes"
+      next
+    }
+    { print }
+  ' "$SSHD_CONFIG" >"$tmp" && sudo cp "$tmp" "$SSHD_CONFIG"
+  rc=$?
+  rm -f "$tmp"
+  return "$rc"
+}
+
 update_x11_forwarding() {
-  if grep -q "X11Forwarding yes" /etc/ssh/sshd_config; then
-    echo "X11Forwarding is already set to 'yes' in ssh_config."
-  else
-    if [[ "$OSTYPE" == "linux-gnu" ]]; then
-      # Linux: Use sed for Linux
-      sudo sed -i 's/#\?X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-      # macOS: Use sed for macOS
-      sudo sed -i -E 's/#X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
-      restart_ssh_macos
-    fi
-    if [[ "$OSTYPE" == "linux-gnu" ]]; then
-      restart_ssh_linux
-    fi
+  if [ "$(x11_forwarding_value)" = "yes" ]; then
+    echo "X11Forwarding is already set to 'yes' in $SSHD_CONFIG."
+    return
+  fi
+
+  enable_global_x11_forwarding
+
+  if [ "$(x11_forwarding_value)" != "yes" ]; then
+    echo "Error: could not enable X11Forwarding in $SSHD_CONFIG. Add 'X11Forwarding yes' before any Match block manually."
+    exit 1
+  fi
+
+  if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    restart_ssh_linux
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    restart_ssh_macos
   fi
 }
 
@@ -49,28 +86,21 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   if command -v startx >/dev/null 2>&1; then
     echo "X11 is already installed."
   else
-    # Check which package manager is available
+    # Check which package manager is available and install
     if command -v apt-get >/dev/null 2>&1; then
-      install_command="sudo apt-get update && sudo apt-get install xorg openbox"
+      install_x11() { sudo apt-get update && sudo apt-get install -y xorg openbox; }
     elif command -v dnf >/dev/null 2>&1; then
-      install_command="sudo dnf install xorg-x11-server-Xorg openbox"
+      install_x11() { sudo dnf install -y xorg-x11-server-Xorg openbox; }
     else
       echo "Error: Unable to determine the package manager. Manual installation required."
       exit 1
     fi
-  fi
-  # Check if the installation command is defined
-  if [ -n "$install_command" ]; then
-    # Execute the installation command
-    if $install_command; then
+    if install_x11; then
       echo "X11 and Openbox have been successfully installed."
     else
       echo "Error: Failed to install X11 and Openbox."
       exit 1
     fi
-  else
-    echo "Error: Unsupported package manager."
-    exit 1
   fi
 
   # Call the function to update X11Forwarding
