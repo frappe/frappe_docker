@@ -36,7 +36,7 @@ SSHD_CONFIG=/etc/ssh/sshd_config
 x11_forwarding_value() {
   awk '
     { line = $0; sub(/^[[:space:]]+/, "", line) }
-    tolower(line) ~ /^match([[:space:]]|$)/ { exit }
+    tolower(line) ~ /^match([[:space:]=]|$)/ { exit }
     { split(line, f, /[[:space:]=]+/) }
     tolower(f[1]) == "x11forwarding" { print tolower(f[2]); exit }
   ' "$SSHD_CONFIG"
@@ -48,7 +48,7 @@ enable_global_x11_forwarding() {
   tmp=$(mktemp)
   awk '
     { line = $0; sub(/^[[:space:]]+/, "", line) }
-    tolower(line) ~ /^match([[:space:]]|$)/ { in_match = 1 }
+    tolower(line) ~ /^match([[:space:]=]|$)/ { in_match = 1 }
     !in_match && tolower(line) ~ /^#?[[:space:]]*x11forwarding([[:space:]=]|$)/ {
       print "X11Forwarding yes"
       next
