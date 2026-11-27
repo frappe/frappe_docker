@@ -1,0 +1,265 @@
+#!/usr/bin/env bash
+
+collect_stack_image_and_apps_env_lines() {
+  local result_env_var="${1}"
+  local result_apps_metadata_var="${2}"
+  local stack_dir="${3}"
+  local built_env_lines=""
+  local custom_image_value=""
+  local custom_tag_value=""
+  local built_apps_metadata_json_object=""
+  local prompt_status=0
+
+  if prompt_env_value_with_validation custom_image_value "${stack_dir}" "CUSTOM_IMAGE" "Required for custom modular image mode.\nExample: ghcr.io/acme/frappe-custom\nType /back to return." "ghcr.io/acme/frappe-custom" "required" "none"; then
+    :
+  else
+    prompt_status=$?
+    return "${prompt_status}"
+  fi
+  built_env_lines="$(append_env_line "${built_env_lines}" "CUSTOM_IMAGE" "${custom_image_value}")"
+
+  if prompt_env_value_with_validation custom_tag_value "${stack_dir}" "CUSTOM_TAG" "Required for custom modular image mode.\nExample: v1.0.0\nType /back to return." "v1.0.0" "required" "none"; then
+    :
+  else
+    prompt_status=$?
+    return "${prompt_status}"
+  fi
+  built_env_lines="$(append_env_line "${built_env_lines}" "CUSTOM_TAG" "${custom_tag_value}")"
+
+  if prompt_custom_modular_apps_data built_apps_metadata_json_object "${stack_dir}"; then
+    :
+  else
+    prompt_status=$?
+    return "${prompt_status}"
+  fi
+
+  if [ -z "${built_apps_metadata_json_object}" ]; then
+    return 1
+  fi
+
+  printf -v "${result_env_var}" "%s" "${built_env_lines}"
+  printf -v "${result_apps_metadata_var}" "%s" "${built_apps_metadata_json_object}"
+  return 0
+}
+
+collect_single_host_env_lines() {
+  local result_env_var="${1}"
+  local result_apps_metadata_var="${2}"
+  local stack_dir="${3}"
+  local proxy_mode_id="${4}"
+  local database_id="${5}"
+  local redis_id="${6}"
+  local collected_single_host_env_lines=""
+  local collected_single_host_apps_metadata_json_object=""
+  local value=""
+  local domains_value=""
+  local domain_lines=""
+  local site_domains_value=""
+  local sites_rule_value=""
+  local nginx_proxy_hosts_value=""
+  local prompt_status=0
+
+  if collect_stack_image_and_apps_env_lines collected_single_host_env_lines collected_single_host_apps_metadata_json_object "${stack_dir}"; then
+    :
+  else
+    prompt_status=$?
+    return "${prompt_status}"
+  fi
+
+  case "${proxy_mode_id}" in
+  traefik-https)
+    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for Traefik HTTPS routing.\nUse hostnames like example.com, app.example.com, localhost, or dev.localhost.\nEnter multiple domains separated by comma or space.\nLet's Encrypt still requires a public DNS name.\nType /back to return." "erp.example.com dev.localhost" "required" "domains"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+
+    if ! parse_domains_input_to_lines domain_lines "${domains_value}"; then
+      show_warning_message "Could not parse SITE_DOMAINS."
+      return 1
+    fi
+
+    site_domains_value="$(domain_lines_to_csv "${domain_lines}")"
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "SITE_DOMAINS" "${site_domains_value}")"
+
+    sites_rule_value="$(domain_lines_to_sites_rule "${domain_lines}")"
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "SITES_RULE" "${sites_rule_value}")"
+
+    if prompt_env_value_with_validation value "${stack_dir}" "LETSENCRYPT_EMAIL" "Required for Let's Encrypt certificate registration.\nType /back to return." "admin@example.com" "required" "email"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "LETSENCRYPT_EMAIL" "${value}")"
+
+    if prompt_env_value_with_validation value "${stack_dir}" "HTTP_PUBLISH_PORT" "Optional. Press Enter to keep default 80.\nType /back to return." "80" "optional" "port"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    if [ -n "${value}" ]; then
+      collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "HTTP_PUBLISH_PORT" "${value}")"
+    fi
+
+    if prompt_env_value_with_validation value "${stack_dir}" "HTTPS_PUBLISH_PORT" "Optional. Press Enter to keep default 443.\nType /back to return." "443" "optional" "port"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    if [ -n "${value}" ]; then
+      collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "HTTPS_PUBLISH_PORT" "${value}")"
+    fi
+    ;;
+  nginxproxy-https)
+    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for nginx-proxy routing.\nUse hostnames like example.com, app.example.com, localhost, or dev.localhost.\nEnter multiple domains separated by comma or space.\nLet's Encrypt still requires a public DNS name.\nType /back to return." "erp.example.com dev.localhost" "required" "domains"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+
+    if ! parse_domains_input_to_lines domain_lines "${domains_value}"; then
+      show_warning_message "Could not parse SITE_DOMAINS."
+      return 1
+    fi
+
+    site_domains_value="$(domain_lines_to_csv "${domain_lines}")"
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "SITE_DOMAINS" "${site_domains_value}")"
+
+    nginx_proxy_hosts_value="$(domain_lines_to_csv "${domain_lines}")"
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "NGINX_PROXY_HOSTS" "${nginx_proxy_hosts_value}")"
+
+    if prompt_env_value_with_validation value "${stack_dir}" "LETSENCRYPT_EMAIL" "Required for Let's Encrypt certificate registration.\nType /back to return." "admin@example.com" "required" "email"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "LETSENCRYPT_EMAIL" "${value}")"
+
+    if prompt_env_value_with_validation value "${stack_dir}" "HTTP_PUBLISH_PORT" "Optional. Press Enter to keep default 80.\nType /back to return." "80" "optional" "port"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    if [ -n "${value}" ]; then
+      collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "HTTP_PUBLISH_PORT" "${value}")"
+    fi
+
+    if prompt_env_value_with_validation value "${stack_dir}" "HTTPS_PUBLISH_PORT" "Optional. Press Enter to keep default 443.\nType /back to return." "443" "optional" "port"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    if [ -n "${value}" ]; then
+      collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "HTTPS_PUBLISH_PORT" "${value}")"
+    fi
+    ;;
+  nginxproxy-http)
+    if prompt_env_value_with_validation domains_value "${stack_dir}" "SITE_DOMAINS" "Required for nginx-proxy routing.\nUse hostnames like example.com, app.example.com, localhost, or dev.localhost.\nEnter multiple domains separated by comma or space.\nType /back to return." "erp.example.com dev.localhost" "required" "domains"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+
+    if ! parse_domains_input_to_lines domain_lines "${domains_value}"; then
+      show_warning_message "Could not parse SITE_DOMAINS."
+      return 1
+    fi
+
+    site_domains_value="$(domain_lines_to_csv "${domain_lines}")"
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "SITE_DOMAINS" "${site_domains_value}")"
+
+    nginx_proxy_hosts_value="$(domain_lines_to_csv "${domain_lines}")"
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "NGINX_PROXY_HOSTS" "${nginx_proxy_hosts_value}")"
+
+    if prompt_env_value_with_validation value "${stack_dir}" "HTTP_PUBLISH_PORT" "Optional. Press Enter to keep default 80.\nType /back to return." "80" "optional" "port"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    if [ -n "${value}" ]; then
+      collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "HTTP_PUBLISH_PORT" "${value}")"
+    fi
+    ;;
+  traefik-http)
+    if prompt_env_value_with_validation value "${stack_dir}" "HTTP_PUBLISH_PORT" "Optional. Press Enter to keep default 80.\nType /back to return." "80" "optional" "port"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    if [ -n "${value}" ]; then
+      collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "HTTP_PUBLISH_PORT" "${value}")"
+    fi
+    ;;
+  caddy-external | no-proxy)
+    if prompt_env_value_with_validation value "${stack_dir}" "HTTP_PUBLISH_PORT" "Optional. Press Enter to keep default 8080 for no-proxy frontend publishing.\nType /back to return." "8080" "optional" "port"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    if [ -n "${value}" ]; then
+      collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "HTTP_PUBLISH_PORT" "${value}")"
+    fi
+    ;;
+  *)
+    show_warning_and_wait "Unknown proxy mode id: ${proxy_mode_id}" 2
+    return 1
+    ;;
+  esac
+
+  case "${database_id}" in
+  postgres)
+    if prompt_env_value_with_validation value "${stack_dir}" "DB_PASSWORD" "Required for PostgreSQL database service.\nType /back to return." "changeit" "required" "none"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "DB_PASSWORD" "${value}")"
+    ;;
+  mariadb)
+    if prompt_env_value_with_validation value "${stack_dir}" "DB_PASSWORD" "Optional but recommended for MariaDB.\nPress Enter to use default from override.\nType /back to return." "changeit" "optional" "none"; then
+      :
+    else
+      prompt_status=$?
+      return "${prompt_status}"
+    fi
+    if [ -n "${value}" ]; then
+      collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "DB_PASSWORD" "${value}")"
+    fi
+    ;;
+  *)
+    show_warning_and_wait "Unknown database id: ${database_id}" 2
+    return 1
+    ;;
+  esac
+
+  case "${redis_id}" in
+  enabled)
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "REDIS_CACHE" "redis-cache:6379")"
+    collected_single_host_env_lines="$(append_env_line "${collected_single_host_env_lines}" "REDIS_QUEUE" "redis-queue:6379")"
+    ;;
+  disabled | "")
+    :
+    ;;
+  *)
+    show_warning_and_wait "Unknown Redis id: ${redis_id}" 2
+    return 1
+    ;;
+  esac
+
+  printf -v "${result_env_var}" "%s" "${collected_single_host_env_lines}"
+  printf -v "${result_apps_metadata_var}" "%s" "${collected_single_host_apps_metadata_json_object}"
+  return 0
+}
