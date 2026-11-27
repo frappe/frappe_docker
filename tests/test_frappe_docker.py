@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import time
 from pathlib import Path
 from typing import Any
 
@@ -395,3 +396,33 @@ def test_arbitrary_uid_execution(compose: Compose):
         "nginx",
         "-t",
     )
+
+
+def test_flow_server_health_and_restart(compose: Compose):
+    try:
+        compose.bench("flow-server", "--help")
+    except subprocess.CalledProcessError:
+        pytest.skip("Flow server is not supported in this Frappe version")
+
+    socket_path = "/home/frappe/frappe-bench/flow-server/flow.sock"
+
+    def _wait_for_health(timeout: int = 30):
+        start = time.time()
+        while time.time() - start < timeout:
+            try:
+                compose.exec(
+                    "backend",
+                    "curl",
+                    "-sSf",
+                    "--unix-socket",
+                    socket_path,
+                    "http://localhost/healthz",
+                )
+                return
+            except subprocess.CalledProcessError:
+                time.sleep(1)
+        raise RuntimeError("Flow server health check failed on /healthz")
+
+    _wait_for_health()
+    compose("restart", "flow-server")
+    _wait_for_health()

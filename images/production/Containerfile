@@ -29,6 +29,10 @@ RUN useradd -u 1000 -g 0 -d /home/frappe -ms /bin/bash frappe \
     libharfbuzz0b \
     libpangoft2-1.0-0 \
     libpangocairo-1.0-0 \
+    # OpenCV / Flow dependencies
+    libgl1 \
+    libglib2.0-0 \
+    procps \
     # For backups
     restic \
     gpg \
@@ -145,6 +149,7 @@ RUN bench init \
   bench get-app --branch=${ERPNEXT_BRANCH} --resolve-deps erpnext ${ERPNEXT_REPO} && \
   echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr && \
+  mkdir -p /home/frappe/frappe-bench/flow-server && \
   chmod -R g=u /home/frappe/frappe-bench
 
 FROM base AS erpnext
@@ -159,12 +164,16 @@ WORKDIR /home/frappe/frappe-bench
 
 # Keep the COPY destination group-writable and move assets to image-layer storage
 RUN chmod g=u /home/frappe/frappe-bench && \
+  mkdir -p /home/frappe/frappe-bench/flow-server && \
+  chgrp -R 0 /home/frappe/frappe-bench/flow-server && \
+  chmod -R g=u /home/frappe/frappe-bench/flow-server && \
   cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
   rm -rf /home/frappe/frappe-bench/sites/assets
 
 VOLUME [ \
   "/home/frappe/frappe-bench/sites", \
-  "/home/frappe/frappe-bench/logs" \
+  "/home/frappe/frappe-bench/logs", \
+  "/home/frappe/frappe-bench/flow-server" \
 ]
 
 USER root

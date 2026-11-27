@@ -42,6 +42,7 @@ The base compose file includes these essential services:
 - **websocket** - Node.js server running Socket.IO for real-time communications
 - **queue-short/long** - Python workers using RQ (Redis Queue) for asynchronous background job processing
 - **scheduler** - Python service that runs scheduled tasks using the schedule library
+- **flow-server** - Foreground service for Frappe Flow AI workflow and agent execution engine
 
 Additional services are added through compose overrides:
 

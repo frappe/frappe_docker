@@ -16,6 +16,7 @@ This setup is a very simple single compose file that does everything to start re
 - queue-short, default and short rq worker.
 - schedule, event scheduler.
 - websocket, socketio websocket for realtime communication.
+- flow-server, Frappe Flow AI workflow and agent execution engine.
 
 ### Run once configuration
 
@@ -32,6 +33,7 @@ This setup is a very simple single compose file that does everything to start re
 
 - sites: Volume for bench data. Common config, all sites, all site configs and site files will be stored here.
 - logs: Volume for bench logs. all process logs are dumped here. No need to mount it. Each container will create a temporary volume for logs if not specified.
+- flow-server-data: Shared volume for Flow daemon Unix domain socket IPC across backend, workers, and flow-server.
 
 ## Adaptation
 

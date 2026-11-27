@@ -29,6 +29,10 @@ RUN apt-get update \
     libharfbuzz0b \
     libpangoft2-1.0-0 \
     libpangocairo-1.0-0 \
+    # OpenCV / Flow dependencies
+    libgl1 \
+    libglib2.0-0 \
+    procps \
     # to work inside the container
     locales \
     build-essential \
