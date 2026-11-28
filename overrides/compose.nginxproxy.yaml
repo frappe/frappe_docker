@@ -6,7 +6,7 @@ services:
       VIRTUAL_PORT: ${NGINX_LISTEN_PORT:-8080}
 
   nginx-proxy:
-    image: nginxproxy/nginx-proxy:1.11.7-alpine
+    image: nginxproxy/nginx-proxy:1.11.8-alpine
     restart: unless-stopped
     environment:
       TRUST_DOWNSTREAM_PROXY: "false"
